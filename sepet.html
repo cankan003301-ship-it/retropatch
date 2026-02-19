@@ -8,7 +8,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <script src="https://js.stripe.com/v3/"></script>
   <style>
     :root{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:#2a2a2a;--accent:#c8a96e;--accent2:#e63946;--text:#e8e8e8;--muted:#888;--card:#141414;--green:#2ecc71;}
     *{margin:0;padding:0;box-sizing:border-box;}
@@ -67,8 +66,6 @@
     .pay-method-desc{font-size:11px;color:var(--muted);}
     .pay-method-icon{font-size:20px;}
 
-    /* STRIPE CARD */
-    #stripe-card-wrap{background:var(--bg3);border:1px solid var(--border);padding:14px;margin-top:8px;display:none;}
     #card-element{padding:4px 0;}
     #card-errors{color:var(--accent2);font-size:12px;margin-top:8px;min-height:18px;}
 
@@ -231,11 +228,11 @@
           <!-- ÖDEME YÖNTEMİ -->
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;color:var(--muted);margin:20px 0 10px;">ÖDEME YÖNTEMİ</div>
           <div class="pay-methods">
-            <label class="pay-method active" onclick="selectPay('stripe',this)">
-              <input type="radio" name="paymethod" value="stripe" checked>
+            <label class="pay-method active" onclick="selectPay('shopier',this)">
+              <input type="radio" name="paymethod" value="shopier" checked>
               <div class="pay-method-info">
                 <div class="pay-method-name">💳 Kredi / Banka Kartı</div>
-                <div class="pay-method-desc">Stripe güvencesiyle — Visa, MC, Amex</div>
+                <div class="pay-method-desc">Shopier güvencesiyle — Visa, Mastercard, Troy</div>
               </div>
             </label>
             <label class="pay-method" onclick="selectPay('havale',this)">
@@ -254,10 +251,10 @@
             </label>
           </div>
 
-          <!-- STRIPE CARD -->
-          <div id="stripe-card-wrap">
-            <div id="card-element"></div>
-            <div id="card-errors"></div>
+          <!-- SHOPIER BİLGİ -->
+          <div id="shopier-info" style="background:var(--bg3);border:1px solid var(--border);padding:14px;margin-top:8px;font-size:13px;color:var(--muted);line-height:1.7;">
+            🔒 "Siparişi Tamamla" butonuna bastığınızda Shopier güvenli ödeme sayfasına yönlendirileceksiniz.<br>
+            Ödeme onaylandıktan sonra otomatik olarak sitenize geri döneceksiniz.
           </div>
 
           <!-- HAVALE BİLGİLERİ -->
@@ -305,12 +302,8 @@ firebase.initializeApp({
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ── STRIPE ──
-// BURAYI DEĞİŞTİR: Stripe dashboard'dan aldığınız PUBLIC key'i girin
-const STRIPE_PUBLIC_KEY = 'pk_test_BURAYA_STRIPE_PUBLIC_KEY_GIRIN';
-const stripe = Stripe(STRIPE_PUBLIC_KEY);
-const elements = stripe.elements();
-let cardElement = null;
+// ── SHOPİER ──
+// Ödeme Shopier üzerinden gerçekleşir, API key sunucuda tutulur
 
 // Kargo fiyatları - Firestore'dan yüklenecek, varsayılan değerler
 let CARGO_PRICES = { mng:49, yurtici:44, ptt:35, surat:52 };
@@ -357,7 +350,7 @@ function updateCargoPriceDisplay() {
 
 let cart = [];
 let currentUser = null;
-let selectedPay = 'stripe';
+let selectedPay = 'shopier';
 let selectedCargo = 'mng';
 let discountAmount = 0;
 let appliedCoupon = '';
@@ -449,25 +442,13 @@ function selectPay(method, label) {
   selectedPay = method;
   document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('active'));
   label.classList.add('active');
-  document.getElementById('stripe-card-wrap').style.display = method==='stripe' ? 'block' : 'none';
+  document.getElementById('shopier-info').style.display = method==='shopier' ? 'block' : 'none';
   document.getElementById('havale-info').style.display = method==='havale' ? 'block' : 'none';
   document.getElementById('kapida-info').style.display = method==='kapida' ? 'block' : 'none';
-  if (method==='stripe' && !cardElement) initStripeCard();
   updateSummary();
 }
 
-function initStripeCard() {
-  cardElement = elements.create('card', {
-    style: {
-      base: { color:'#e8e8e8', fontFamily:'Barlow, sans-serif', fontSize:'14px', '::placeholder':{color:'#888'} },
-      invalid: { color:'#e63946' }
-    }
-  });
-  cardElement.mount('#card-element');
-  cardElement.on('change', e => {
-    document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
-  });
-}
+
 
 function applyCoupon() {
   const code = document.getElementById('couponInput').value.trim().toUpperCase();
@@ -518,38 +499,62 @@ async function doCheckout() {
     items: cart.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty,image:i.image||'',cat:i.cat||''})),
     address: { name:adName, phone:adPhone, address:adAddress, district:adDistrict, city:adCity, zip:document.getElementById('adZip').value.trim() },
     cargo: { company: selectedCargo, companyName: CARGO_NAMES[selectedCargo], price: cargoPrice, trackingCode:'', status:'Hazırlanıyor' },
-    payment: { method: selectedPay, status: selectedPay==='stripe' ? 'pending' : (selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery') },
+    payment: { method: selectedPay, status: selectedPay==='shopier' ? 'pending_payment' : (selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery') },
     subtotal, cargoPrice, discount: discountAmount, total,
     coupon: appliedCoupon||'',
     status: 'yeni',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
 
-  if (selectedPay === 'stripe') {
-    // Stripe ile ödeme
-    if (!cardElement) { toast('Kart bilgisi girin!', true); btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false; return; }
-    try {
-      const {paymentMethod, error} = await stripe.createPaymentMethod({ type:'card', card:cardElement, billing_details:{name:adName} });
-      if (error) { document.getElementById('card-errors').textContent=error.message; btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false; return; }
-      orderData.payment.stripePaymentMethodId = paymentMethod.id;
-      // NOT: Gerçek ödeme için backend'de Stripe PaymentIntent oluşturulmalı
-      // Şimdilik siparişi kaydediyoruz, ödeme admindan onaylanacak
-      orderData.payment.status = 'pending_stripe';
-    } catch(e) {
-      btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false;
-      toast('Kart işlemi başarısız.', true); return;
-    }
-  }
-
-  // Siparişi Firestore'a kaydet
-  db.collection('orders').add(orderData).then(ref => {
+  // Siparişi önce Firestore'a kaydet, sonra Shopier'e yönlendir
+  db.collection('orders').add(orderData).then(async ref => {
     const code = 'RP-' + ref.id.slice(-6).toUpperCase();
-    db.collection('orders').doc(ref.id).update({ orderCode: code });
-    localStorage.removeItem('retropatch_cart');
-    document.getElementById('cartWrap').style.display='none';
-    document.getElementById('successWrap').style.display='block';
-    document.getElementById('successCode').textContent = code;
-    window.scrollTo(0,0);
+    await db.collection('orders').doc(ref.id).update({ orderCode: code });
+
+    if (selectedPay === 'shopier') {
+      // Shopier API'ye istek at
+      try {
+        const resp = await fetch('/api/shopier', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderCode: code,
+            total: Math.max(0, total),
+            userName: currentUser.displayName || adName,
+            userEmail: currentUser.email || '',
+            userPhone: adPhone,
+            items: cart
+          })
+        });
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.error || 'Shopier hatası');
+
+        // Shopier formunu dinamik oluştur ve gönder
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = data.shopierUrl;
+        Object.entries(data.formData).forEach(([k, v]) => {
+          const inp = document.createElement('input');
+          inp.type = 'hidden';
+          inp.name = k;
+          inp.value = v;
+          form.appendChild(inp);
+        });
+        document.body.appendChild(form);
+        localStorage.removeItem('retropatch_cart');
+        form.submit();
+      } catch(e) {
+        btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false;
+        toast('Ödeme başlatılamadı: ' + e.message, true);
+      }
+    } else {
+      // Havale / Kapıda ödeme
+      localStorage.removeItem('retropatch_cart');
+      document.getElementById('cartWrap').style.display='none';
+      document.getElementById('successWrap').style.display='block';
+      document.getElementById('successCode').textContent = code;
+      window.scrollTo(0,0);
+    }
   }).catch(e => {
     btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false;
     toast('Sipariş kaydedilemedi: '+e.message, true);
@@ -574,8 +579,8 @@ function prefillAddress(user) {
   });
 }
 
-// Init stripe card on load
-window.addEventListener('load', ()=>{ selectPay('stripe', document.querySelector('.pay-method')); });
+// Init ödeme seçimi
+window.addEventListener('load', ()=>{ selectPay('shopier', document.querySelector('.pay-method')); });
 
 function toast(msg, err=false) {
   const t = document.getElementById('toast');

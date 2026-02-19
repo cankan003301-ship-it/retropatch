@@ -499,11 +499,9 @@
         </div>
         <div class="settings-card">
           <h4>🚚 KARGO FİYATLARI</h4>
-          <div class="fg"><label>MNG Kargo (₺)</label><input type="number" id="kargoMNG" placeholder="49"></div>
-          <div class="fg"><label>Yurtiçi Kargo (₺)</label><input type="number" id="kargoYurtici" placeholder="44"></div>
-          <div class="fg"><label>PTT Kargo (₺)</label><input type="number" id="kargoPTT" placeholder="35"></div>
-          <div class="fg"><label>Sürat Kargo (₺)</label><input type="number" id="kargoSurat" placeholder="52"></div>
-          <div class="fg"><label>Ücretsiz Kargo Alt Limiti (₺) <span style="color:var(--muted);font-size:10px;">(0 = kapalı)</span></label><input type="number" id="kargoLimit" placeholder="500"></div>
+          <div class="fg"><label>Standart Kargo (₺)</label><input type="number" id="kargoFiyat" placeholder="49"></div>
+          <div class="fg"><label>Ücretsiz Kargo Alt Limiti (₺)</label><input type="number" id="kargoLimit" placeholder="500"></div>
+          <div class="fg"><label>Kargo Firması</label><input type="text" id="kargoFirma" placeholder="MNG Kargo"></div>
           <div class="fg"><label>Tahmini Teslimat</label><input type="text" id="kargoSure" placeholder="2-4 iş günü"></div>
           <button class="btn btn-accent" onclick="saveKargo()">💾 KAYDET</button>
         </div>
@@ -985,11 +983,9 @@ function loadSiteSettings() {
   db.collection('settings').doc('kargo').get().then(doc => {
     if (doc.exists) {
       const d = doc.data();
-      if (d.mng !== undefined) document.getElementById('kargoMNG').value = d.mng;
-      if (d.yurtici !== undefined) document.getElementById('kargoYurtici').value = d.yurtici;
-      if (d.ptt !== undefined) document.getElementById('kargoPTT').value = d.ptt;
-      if (d.surat !== undefined) document.getElementById('kargoSurat').value = d.surat;
-      if (d.limit !== undefined) document.getElementById('kargoLimit').value = d.limit;
+      if (d.fiyat) document.getElementById('kargoFiyat').value = d.fiyat;
+      if (d.limit) document.getElementById('kargoLimit').value = d.limit;
+      if (d.firma) document.getElementById('kargoFirma').value = d.firma;
       if (d.sure) document.getElementById('kargoSure').value = d.sure;
     }
   });
@@ -1101,11 +1097,9 @@ function saveSettings() {
 
 function saveKargo() {
   db.collection('settings').doc('kargo').set({
-    mng: parseFloat(document.getElementById('kargoMNG').value) || 49,
-    yurtici: parseFloat(document.getElementById('kargoYurtici').value) || 44,
-    ptt: parseFloat(document.getElementById('kargoPTT').value) || 35,
-    surat: parseFloat(document.getElementById('kargoSurat').value) || 52,
+    fiyat: parseFloat(document.getElementById('kargoFiyat').value) || 0,
     limit: parseFloat(document.getElementById('kargoLimit').value) || 0,
+    firma: document.getElementById('kargoFirma').value,
     sure: document.getElementById('kargoSure').value,
   }).then(() => toast('Kargo ayarları kaydedildi', 'ok'));
 }

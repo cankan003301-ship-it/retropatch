@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RetroPatch — Teşekkürler</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    :root{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:#2a2a2a;--accent:#c8a96e;--accent2:#e63946;--text:#e8e8e8;--muted:#888;--card:#141414;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+    .logo{text-decoration:none;display:flex;align-items:center;}
+    .logo img{height:34px;width:auto;}
+
+    .success-box{text-align:center;max-width:520px;background:var(--card);border:1px solid var(--border);padding:60px 40px;}
+    .success-icon{font-size:64px;margin-bottom:24px;animation:pop .5s ease;}
+    @keyframes pop{0%{transform:scale(0.5);opacity:0;}100%{transform:scale(1);opacity:1;}}
+    .success-title{font-family:'Bebas Neue',cursive;font-size:42px;letter-spacing:3px;color:var(--accent);margin-bottom:12px;}
+    .success-sub{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:28px;}
+    .order-code-box{background:var(--bg3);border:1px solid var(--border);padding:16px 24px;margin-bottom:32px;display:inline-block;}
+    .order-code-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+    .order-code{font-family:'Bebas Neue',cursive;font-size:32px;letter-spacing:4px;color:var(--accent);}
+    .btn-home{display:inline-block;background:var(--accent);color:#000;padding:14px 36px;font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:3px;text-decoration:none;margin-right:12px;transition:all .2s;}
+    .btn-home:hover{background:#d4b77a;}
+    .btn-orders{display:inline-block;border:1px solid var(--border);color:var(--text);padding:14px 36px;font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:3px;text-decoration:none;transition:all .2s;}
+    .btn-orders:hover{border-color:var(--accent);color:var(--accent);}
+    .cancelled-box{text-align:center;max-width:520px;background:var(--card);border:1px solid rgba(230,57,70,.3);padding:60px 40px;}
+    .cancelled-title{font-family:'Bebas Neue',cursive;font-size:42px;letter-spacing:3px;color:var(--accent2);margin-bottom:12px;}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="logo"><img src="retro_logo3.png" alt="RetroPatch"></a>
+</nav>
+
+<div id="successBox" class="success-box" style="display:none;">
+  <div class="success-icon">✅</div>
+  <div class="success-title">SİPARİŞİNİZ ALINDI</div>
+  <div class="success-sub">Ödemeniz başarıyla tamamlandı. Siparişiniz en kısa sürede hazırlanacak ve kargoya verilecektir.</div>
+  <div class="order-code-box">
+    <div class="order-code-label">Sipariş Kodunuz</div>
+    <div class="order-code" id="orderCodeDisplay">—</div>
+  </div>
+  <br>
+  <a href="index.html" class="btn-home">ANA SAYFA</a>
+  <a href="hesap.html" class="btn-orders">SİPARİŞLERİM</a>
+</div>
+
+<div id="cancelledBox" class="cancelled-box" style="display:none;">
+  <div class="success-icon">❌</div>
+  <div class="cancelled-title">ÖDEME İPTAL EDİLDİ</div>
+  <div class="success-sub" style="margin-bottom:28px;">Ödeme işleminiz tamamlanmadı. Sepetiniz sizi bekliyor.</div>
+  <a href="sepet.html" class="btn-home">SEPEte DÖN</a>
+  <a href="index.html" class="btn-orders">ANA SAYFA</a>
+</div>
+
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyA597pu8o7M2ZWcZc6gbGW2TAwceTfyVhA",
+  authDomain:"retropatch-fd08e.firebaseapp.com",
+  projectId:"retropatch-fd08e",
+  storageBucket:"retropatch-fd08e.firebasestorage.app",
+  messagingSenderId:"449894507687",
+  appId:"1:449894507687:web:a932684047bd590579e782"
+});
+const db = firebase.firestore();
+
+const params = new URLSearchParams(location.search);
+const orderCode = params.get('order');
+const cancelled = params.get('cancelled');
+
+if (cancelled) {
+  document.getElementById('cancelledBox').style.display = 'block';
+} else if (orderCode) {
+  document.getElementById('successBox').style.display = 'block';
+  document.getElementById('orderCodeDisplay').textContent = orderCode;
+
+  // Ödemeyi Firestore'da onayla
+  db.collection('orders').where('orderCode', '==', orderCode).limit(1).get().then(snap => {
+    if (!snap.empty) {
+      snap.docs[0].ref.update({
+        'payment.status': 'paid',
+        'status': 'hazırlıkta',
+        paidAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+  });
+} else {
+  document.getElementById('successBox').style.display = 'block';
+}
+</script>
+</body>
+</html>
