@@ -228,15 +228,8 @@
           <!-- ÖDEME YÖNTEMİ -->
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;color:var(--muted);margin:20px 0 10px;">ÖDEME YÖNTEMİ</div>
           <div class="pay-methods">
-            <label class="pay-method active" onclick="selectPay('shopier',this)">
-              <input type="radio" name="paymethod" value="shopier" checked>
-              <div class="pay-method-info">
-                <div class="pay-method-name">💳 Kredi / Banka Kartı</div>
-                <div class="pay-method-desc">Shopier güvencesiyle — Visa, Mastercard, Troy</div>
-              </div>
-            </label>
-            <label class="pay-method" onclick="selectPay('havale',this)">
-              <input type="radio" name="paymethod" value="havale">
+            <label class="pay-method active" onclick="selectPay('havale',this)">
+              <input type="radio" name="paymethod" value="havale" checked>
               <div class="pay-method-info">
                 <div class="pay-method-name">🏦 Havale / EFT</div>
                 <div class="pay-method-desc">Banka hesabına transfer</div>
@@ -251,11 +244,7 @@
             </label>
           </div>
 
-          <!-- SHOPIER BİLGİ -->
-          <div id="shopier-info" style="background:var(--bg3);border:1px solid var(--border);padding:14px;margin-top:8px;font-size:13px;color:var(--muted);line-height:1.7;">
-            🔒 "Siparişi Tamamla" butonuna bastığınızda Shopier güvenli ödeme sayfasına yönlendirileceksiniz.<br>
-            Ödeme onaylandıktan sonra otomatik olarak sitenize geri döneceksiniz.
-          </div>
+
 
           <!-- HAVALE BİLGİLERİ -->
           <div id="havale-info">
@@ -302,8 +291,7 @@ firebase.initializeApp({
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ── SHOPİER ──
-// Ödeme Shopier üzerinden gerçekleşir, API key sunucuda tutulur
+
 
 // Kargo fiyatları - Firestore'dan yüklenecek, varsayılan değerler
 let CARGO_PRICES = { mng:49, yurtici:44, ptt:35, surat:52 };
@@ -350,7 +338,7 @@ function updateCargoPriceDisplay() {
 
 let cart = [];
 let currentUser = null;
-let selectedPay = 'shopier';
+let selectedPay = 'havale';
 let selectedCargo = 'mng';
 let discountAmount = 0;
 let appliedCoupon = '';
@@ -442,7 +430,6 @@ function selectPay(method, label) {
   selectedPay = method;
   document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('active'));
   label.classList.add('active');
-  document.getElementById('shopier-info').style.display = method==='shopier' ? 'block' : 'none';
   document.getElementById('havale-info').style.display = method==='havale' ? 'block' : 'none';
   document.getElementById('kapida-info').style.display = method==='kapida' ? 'block' : 'none';
   updateSummary();
@@ -499,62 +486,22 @@ async function doCheckout() {
     items: cart.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty,image:i.image||'',cat:i.cat||''})),
     address: { name:adName, phone:adPhone, address:adAddress, district:adDistrict, city:adCity, zip:document.getElementById('adZip').value.trim() },
     cargo: { company: selectedCargo, companyName: CARGO_NAMES[selectedCargo], price: cargoPrice, trackingCode:'', status:'Hazırlanıyor' },
-    payment: { method: selectedPay, status: selectedPay==='shopier' ? 'pending_payment' : (selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery') },
+    payment: { method: selectedPay, status: selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery' },
     subtotal, cargoPrice, discount: discountAmount, total,
     coupon: appliedCoupon||'',
     status: 'yeni',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
 
-  // Siparişi önce Firestore'a kaydet, sonra Shopier'e yönlendir
-  db.collection('orders').add(orderData).then(async ref => {
+  // Siparişi Firestore'a kaydet
+  db.collection('orders').add(orderData).then(ref => {
     const code = 'RP-' + ref.id.slice(-6).toUpperCase();
-    await db.collection('orders').doc(ref.id).update({ orderCode: code });
-
-    if (selectedPay === 'shopier') {
-      // Shopier API'ye istek at
-      try {
-        const resp = await fetch('/api/shopier', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderCode: code,
-            total: Math.max(0, total),
-            userName: currentUser.displayName || adName,
-            userEmail: currentUser.email || '',
-            userPhone: adPhone,
-            items: cart
-          })
-        });
-        const data = await resp.json();
-        if (!data.success) throw new Error(data.error || 'Shopier hatası');
-
-        // Shopier formunu dinamik oluştur ve gönder
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = data.shopierUrl;
-        Object.entries(data.formData).forEach(([k, v]) => {
-          const inp = document.createElement('input');
-          inp.type = 'hidden';
-          inp.name = k;
-          inp.value = v;
-          form.appendChild(inp);
-        });
-        document.body.appendChild(form);
-        localStorage.removeItem('retropatch_cart');
-        form.submit();
-      } catch(e) {
-        btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false;
-        toast('Ödeme başlatılamadı: ' + e.message, true);
-      }
-    } else {
-      // Havale / Kapıda ödeme
-      localStorage.removeItem('retropatch_cart');
-      document.getElementById('cartWrap').style.display='none';
-      document.getElementById('successWrap').style.display='block';
-      document.getElementById('successCode').textContent = code;
-      window.scrollTo(0,0);
-    }
+    db.collection('orders').doc(ref.id).update({ orderCode: code });
+    localStorage.removeItem('retropatch_cart');
+    document.getElementById('cartWrap').style.display='none';
+    document.getElementById('successWrap').style.display='block';
+    document.getElementById('successCode').textContent = code;
+    window.scrollTo(0,0);
   }).catch(e => {
     btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false;
     toast('Sipariş kaydedilemedi: '+e.message, true);
@@ -580,7 +527,7 @@ function prefillAddress(user) {
 }
 
 // Init ödeme seçimi
-window.addEventListener('load', ()=>{ selectPay('shopier', document.querySelector('.pay-method')); });
+window.addEventListener('load', ()=>{ selectPay('havale', document.querySelector('.pay-method')); });
 
 function toast(msg, err=false) {
   const t = document.getElementById('toast');
