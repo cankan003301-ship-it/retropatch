@@ -374,26 +374,50 @@ db.collection('products').onSnapshot(snap => {
   allProducts = snap.docs.map(d => ({id:d.id,...d.data()}));
   buildSlider();
   renderFeatured('sales');
-  document.querySelector('.feat-tab.active')?.click();
 });
 
 // ===== SLIDER =====
 function buildSlider() {
-  slideList = allProducts.filter(p => p.image);
+  // Firestore'dan özel slaytları yükle, yoksa ürün resimlerini kullan
+  db.collection('slides').orderBy('order').get().then(snap => {
+    if (!snap.empty) {
+      slideList = snap.docs.map(d => ({id:d.id,...d.data(), _type:'custom'}));
+    } else {
+      slideList = allProducts.filter(p => p.image).slice(0,8).map(p => ({
+        image: p.image, title: 'RETROPATCH', tag: 'Profesyonel Nakış · Türkiye',
+        desc: p.name + (p.cat?' — '+p.cat:''),
+        btn1Text: 'Ürünleri Gör', btn1Link: 'urunler.html',
+        btn2Text: 'Sipariş Ver', btn2Link: '#siparis',
+        _type: 'product'
+      }));
+    }
+    renderSlider();
+  }).catch(() => {
+    // Hata olursa ürün resimlerini kullan
+    slideList = allProducts.filter(p => p.image).slice(0,8).map(p => ({
+      image: p.image, title: 'RETROPATCH', tag: 'Profesyonel Nakış · Türkiye',
+      desc: p.name, btn1Text: 'Ürünleri Gör', btn1Link: 'urunler.html',
+      _type: 'product'
+    }));
+    renderSlider();
+  });
+}
+
+function renderSlider() {
   if (!slideList.length) return;
   const container = document.getElementById('slides');
   const dotsEl = document.getElementById('sliderDots');
-  container.innerHTML = slideList.map((p, i) => `
+  container.innerHTML = slideList.map((s, i) => `
     <div class="slide${i===0?' active':''}" id="sl${i}">
-      <div class="slide-bg" style="background-image:url('${p.image}');"></div>
+      <div class="slide-bg" style="${s.image?'background-image:url(''+s.image+'');':'background:#111;'}"></div>
       <div class="slide-overlay"></div>
       <div class="slide-content">
-        <div class="slide-tag">Profesyonel Nakış · RetroPatch</div>
-        <div class="slide-title">RETRO<em>PATCH</em></div>
-        <div class="slide-name">${p.name}${p.cat?' — '+p.cat:''}</div>
+        ${s.tag?`<div class="slide-tag">${s.tag}</div>`:''}
+        <div class="slide-title">${s.title||'RETROPATCH'}</div>
+        ${s.desc?`<div class="slide-name">${s.desc}</div>`:''}
         <div class="hero-btns">
-          <a href="urunler.html" class="btn-primary">Tüm Ürünler</a>
-          <a href="#siparis" class="btn-secondary">Sipariş Ver</a>
+          ${s.btn1Text?`<a href="${s.btn1Link||'urunler.html'}" class="btn-primary">${s.btn1Text}</a>`:''}
+          ${s.btn2Text?`<a href="${s.btn2Link||'#siparis'}" class="btn-secondary">${s.btn2Text}</a>`:''}
         </div>
       </div>
     </div>`).join('');
