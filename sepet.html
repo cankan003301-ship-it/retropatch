@@ -248,11 +248,12 @@
 
           <!-- HAVALE BİLGİLERİ -->
           <div id="havale-info">
-            <div class="havale-row"><span class="havale-key">Banka</span><span class="havale-val">Ziraat Bankası</span></div>
-            <div class="havale-row"><span class="havale-key">Ad Soyad</span><span class="havale-val">RetroPatch Tic.</span></div>
+            <div class="havale-row"><span class="havale-key">Banka</span><span class="havale-val" id="bankAdiVal">—</span></div>
+            <div class="havale-row"><span class="havale-key">Ad Soyad</span><span class="havale-val" id="bankHesapVal">—</span></div>
+            <div class="havale-row"><span class="havale-key">Şube</span><span class="havale-val" id="bankSubeVal">—</span></div>
             <div class="havale-row">
               <span class="havale-key">IBAN</span>
-              <span class="havale-val" style="font-size:11px;">TR00 0001 0002 0003 0004 0005 00 <span class="copy-btn" onclick="copyIBAN()">📋 Kopyala</span></span>
+              <span class="havale-val" style="font-size:11px;"><span id="bankIBANVal">—</span> <span class="copy-btn" onclick="copyIBAN()">📋 Kopyala</span></span>
             </div>
             <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;">Açıklama kısmına ad soyadınızı yazın. Ödeme sonrası siparişiniz onaylanacaktır.</div>
           </div>
@@ -299,6 +300,21 @@ const CARGO_NAMES = { mng:'MNG Kargo', yurtici:'Yurtiçi Kargo', ptt:'PTT Kargo'
 let kargoSettings = { mng:49, yurtici:44, ptt:35, surat:52, limit: 500, sure: '2-4 iş günü' };
 
 // Firestore'dan kargo ayarlarını yükle
+function loadBankSettings() {
+  db.collection('settings').doc('bank').get().then(doc => {
+    if (doc.exists) {
+      const d = doc.data();
+      if (d.adi) document.getElementById('bankAdiVal').textContent = d.adi;
+      if (d.hesapSahibi) document.getElementById('bankHesapVal').textContent = d.hesapSahibi;
+      if (d.sube) document.getElementById('bankSubeVal').textContent = d.sube;
+      if (d.iban) {
+        document.getElementById('bankIBANVal').textContent = d.iban;
+        window.currentIBAN = d.iban;
+      }
+    }
+  }).catch(e => console.log('Banka bilgileri yüklenemedi:', e));
+}
+
 function loadKargoSettings() {
   db.collection('settings').doc('kargo').get().then(doc => {
     if (doc.exists) {
@@ -350,6 +366,7 @@ auth.onAuthStateChanged(user => {
   if (user) prefillAddress(user);
   loadCart();
   loadKargoSettings();
+  loadBankSettings();
 });
 
 function loadCart() {
@@ -453,7 +470,8 @@ function applyCoupon() {
 }
 
 function copyIBAN() {
-  navigator.clipboard.writeText('TR00000100020003000400050000').then(()=>toast('IBAN kopyalandı!'));
+  const iban = (window.currentIBAN || document.getElementById('bankIBANVal').textContent).replace(/\s/g,'');
+  navigator.clipboard.writeText(iban).then(()=>toast('IBAN kopyalandı!'));
 }
 
 async function doCheckout() {
