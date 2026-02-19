@@ -372,59 +372,82 @@ let sliderTimer;
 // ===== FIREBASE LOAD =====
 db.collection('products').onSnapshot(snap => {
   allProducts = snap.docs.map(d => ({id:d.id,...d.data()}));
-  buildSlider();
   renderFeatured('sales');
+  document.querySelector('.feat-tab.active')?.click();
 });
 
-// ===== SLIDER =====
+// ===== SLIDER — Firestore slides koleksiyonundan yükle =====
 function buildSlider() {
-  // Firestore'dan özel slaytları yükle, yoksa ürün resimlerini kullan
-  db.collection('slides').orderBy('order').get().then(snap => {
-    if (!snap.empty) {
-      slideList = snap.docs.map(d => ({id:d.id,...d.data(), _type:'custom'}));
-    } else {
-      slideList = allProducts.filter(p => p.image).slice(0,8).map(p => ({
-        image: p.image, title: 'RETROPATCH', tag: 'Profesyonel Nakış · Türkiye',
-        desc: p.name + (p.cat?' — '+p.cat:''),
-        btn1Text: 'Ürünleri Gör', btn1Link: 'urunler.html',
-        btn2Text: 'Sipariş Ver', btn2Link: '#siparis',
-        _type: 'product'
-      }));
-    }
-    renderSlider();
-  }).catch(() => {
-    // Hata olursa ürün resimlerini kullan
-    slideList = allProducts.filter(p => p.image).slice(0,8).map(p => ({
-      image: p.image, title: 'RETROPATCH', tag: 'Profesyonel Nakış · Türkiye',
-      desc: p.name, btn1Text: 'Ürünleri Gör', btn1Link: 'urunler.html',
-      _type: 'product'
-    }));
-    renderSlider();
-  });
+  db.collection('slides').orderBy('order').get()
+    .then(snap => {
+      let slides = snap.docs.map(d => ({id:d.id,...d.data()})).filter(s => s.active !== false);
+      if (slides.length) {
+        renderSlides(slides);
+      } else {
+        // Fallback: ürün resimlerini kullan
+        const fallback = allProducts.filter(p => p.image).slice(0, 8).map(p => ({
+          image: p.image,
+          tag: 'Profesyonel Nakış · RetroPatch',
+          title: 'RETROPATCH',
+          titleEm: '',
+          desc: p.name + (p.cat ? ' — ' + p.cat : ''),
+          btn1Text: 'Tüm Ürünler', btn1Link: 'urunler.html',
+          btn2Text: 'Sipariş Ver', btn2Link: '#siparis',
+        }));
+        renderSlides(fallback.length ? fallback : [{
+          image: '', tag: 'Profesyonel Nakış · Türkiye',
+          title: 'RETRO', titleEm: 'PATCH',
+          desc: 'Makine nakışı ile profesyonel yama üretimi. Her tasarım, her boyut.',
+          btn1Text: 'Ürünleri Gör', btn1Link: 'urunler.html',
+          btn2Text: 'Sipariş Ver', btn2Link: '#siparis',
+        }]);
+      }
+    })
+    .catch(() => {
+      // Hata durumunda ürün fallback
+      const fallback = allProducts.filter(p => p.image).slice(0, 8);
+      if (fallback.length) {
+        renderSlides(fallback.map(p => ({
+          image: p.image, tag: 'Profesyonel Nakış · RetroPatch',
+          title: 'RETROPATCH', desc: p.name,
+          btn1Text: 'Tüm Ürünler', btn1Link: 'urunler.html',
+          btn2Text: 'Sipariş Ver', btn2Link: '#siparis',
+        })));
+      }
+    });
 }
 
-function renderSlider() {
-  if (!slideList.length) return;
+function renderSlides(slides) {
+  slideList = slides;
   const container = document.getElementById('slides');
   const dotsEl = document.getElementById('sliderDots');
-  container.innerHTML = slideList.map((s, i) => `
+  container.innerHTML = slides.map((s, i) => {
+    const titleHtml = s.titleEm
+      ? s.title + '<em>' + s.titleEm + '</em>'
+      : (s.title ? s.title.replace(/([A-Z]+)$/, '<em>$1</em>') : 'RETRO<em>PATCH</em>');
+    return `
     <div class="slide${i===0?' active':''}" id="sl${i}">
-      <div class="slide-bg" style="${s.image?'background-image:url(''+s.image+'');':'background:#111;'}"></div>
+      <div class="slide-bg" style="${s.image ? 'background-image:url(\''+s.image+'\');' : 'background:#111;'}"></div>
       <div class="slide-overlay"></div>
-      <div class="slide-content">
-        ${s.tag?`<div class="slide-tag">${s.tag}</div>`:''}
-        <div class="slide-title">${s.title||'RETROPATCH'}</div>
-        ${s.desc?`<div class="slide-name">${s.desc}</div>`:''}
-        <div class="hero-btns">
-          ${s.btn1Text?`<a href="${s.btn1Link||'urunler.html'}" class="btn-primary">${s.btn1Text}</a>`:''}
-          ${s.btn2Text?`<a href="${s.btn2Link||'#siparis'}" class="btn-secondary">${s.btn2Text}</a>`:''}
+      <div class="slide-content" style="pointer-events:none;">
+        ${s.tag ? `<div class="slide-tag">${s.tag}</div>` : ''}
+        <div class="slide-title">${titleHtml}</div>
+        ${s.desc ? `<div class="slide-name">${s.desc}</div>` : ''}
+        <div class="hero-btns" style="pointer-events:auto;">
+          ${s.btn1Text ? `<a href="${s.btn1Link||'#'}" class="btn-primary">${s.btn1Text}</a>` : ''}
+          ${s.btn2Text ? `<a href="${s.btn2Link||'#'}" class="btn-secondary">${s.btn2Text}</a>` : ''}
         </div>
       </div>
-    </div>`).join('');
-  dotsEl.innerHTML = slideList.map((_,i)=>`<div class="dot${i===0?' active':''}" onclick="goSlide(${i})"></div>`).join('');
+    </div>`;
+  }).join('');
+  dotsEl.innerHTML = slides.map((_,i)=>`<div class="dot${i===0?' active':''}" onclick="goSlide(${i})"></div>`).join('');
+  currentSlide = 0;
   updateCounter();
   startSlider();
 }
+
+// Slider'ı sayfa yüklenince hemen başlat (ürünler gelmeden de)
+buildSlider();
 
 function goSlide(n) {
   document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
@@ -435,8 +458,8 @@ function goSlide(n) {
   updateCounter();
   startSlider();
 }
-function nextSlide(){goSlide(currentSlide+1);}
-function prevSlide(){goSlide(currentSlide-1);}
+function nextSlide(){if(slideList.length)goSlide(currentSlide+1);}
+function prevSlide(){if(slideList.length)goSlide(currentSlide-1);}
 function startSlider(){clearInterval(sliderTimer);if(slideList.length>1)sliderTimer=setInterval(nextSlide,5000);}
 function updateCounter(){document.getElementById('slideCounter').textContent=`${currentSlide+1} / ${Math.max(slideList.length,1)}`;}
 
