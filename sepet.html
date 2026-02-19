@@ -315,7 +315,7 @@ let cardElement = null;
 // Kargo fiyatları - Firestore'dan yüklenecek, varsayılan değerler
 let CARGO_PRICES = { mng:49, yurtici:44, ptt:35, surat:52 };
 const CARGO_NAMES = { mng:'MNG Kargo', yurtici:'Yurtiçi Kargo', ptt:'PTT Kargo', surat:'Sürat Kargo' };
-let kargoSettings = { fiyat: 49, limit: 500, firma: 'MNG Kargo', sure: '2-4 iş günü' };
+let kargoSettings = { mng:49, yurtici:44, ptt:35, surat:52, limit: 500, sure: '2-4 iş günü' };
 
 // Firestore'dan kargo ayarlarını yükle
 function loadKargoSettings() {
@@ -323,27 +323,14 @@ function loadKargoSettings() {
     if (doc.exists) {
       const d = doc.data();
       kargoSettings = d;
-      // Admin'den tek fiyat geliyorsa tüm seçeneklere uygula
-      if (d.fiyat) {
-        CARGO_PRICES.mng = d.fiyat;
-        CARGO_PRICES.yurtici = Math.max(0, d.fiyat - 5);
-        CARGO_PRICES.ptt = Math.max(0, d.fiyat - 14);
-        CARGO_PRICES.surat = d.fiyat + 3;
-      }
+      // Her firma için ayrı fiyat
+      if (d.mng !== undefined) CARGO_PRICES.mng = d.mng;
+      if (d.yurtici !== undefined) CARGO_PRICES.yurtici = d.yurtici;
+      if (d.ptt !== undefined) CARGO_PRICES.ptt = d.ptt;
+      if (d.surat !== undefined) CARGO_PRICES.surat = d.surat;
       // Ücretsiz kargo limitini güncelle
-      if (d.limit) window.FREE_CARGO_LIMIT = d.limit;
-      // Teslimat süresini güncelle
-      if (d.sure) {
-        document.querySelectorAll('.cargo-opt-info [style*="muted"]').forEach(el => {
-          el.textContent = d.sure;
-        });
-      }
-      // Kargo firma adını güncelle
-      if (d.firma) {
-        const mngEl = document.querySelector('.cargo-opt .cargo-opt-name');
-        if (mngEl) mngEl.textContent = d.firma;
-      }
-      // Fiyatları HTML'de güncelle
+      if (d.limit !== undefined) window.FREE_CARGO_LIMIT = d.limit;
+      // Fiyatları ve teslimat süresini HTML'de güncelle
       updateCargoPriceDisplay();
       updateSummary();
     }
@@ -353,13 +340,17 @@ function loadKargoSettings() {
 function updateCargoPriceDisplay() {
   const opts = document.querySelectorAll('.cargo-opt');
   const keys = ['mng','yurtici','ptt','surat'];
+  const limit = window.FREE_CARGO_LIMIT !== undefined ? window.FREE_CARGO_LIMIT : (kargoSettings.limit || 500);
+  const subtotal = cart.reduce((s,item)=>s+(item.price||0)*(item.qty||1),0);
+  const isFree = limit > 0 && subtotal >= limit;
   opts.forEach((opt, i) => {
     const priceEl = opt.querySelector('.cargo-opt-price');
+    const sureEl = opt.querySelector('.cargo-opt-info [style*="muted"]');
     if (priceEl && keys[i]) {
-      const price = CARGO_PRICES[keys[i]];
-      const limit = window.FREE_CARGO_LIMIT || kargoSettings.limit || 500;
-      const subtotal = cart.reduce((s,item)=>s+(item.price||0)*(item.qty||1),0);
-      priceEl.textContent = (subtotal >= limit && limit > 0) ? 'ÜCRETSİZ' : '₺' + price;
+      priceEl.textContent = isFree ? 'ÜCRETSİZ' : '₺' + CARGO_PRICES[keys[i]];
+    }
+    if (sureEl && kargoSettings.sure) {
+      sureEl.textContent = kargoSettings.sure;
     }
   });
 }
