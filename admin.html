@@ -332,46 +332,11 @@
     <div class="page" id="page-sitemanage">
       <div class="section-hdr"><div class="section-ttl">SİTE YÖNETİMİ</div></div>
 
-      <!-- SLIDER YÖNETİMİ -->
+      <!-- SLIDER -->
       <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:24px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);">🖼 ANASAYFA SLAYT YÖNETİMİ</div>
-          <button class="btn btn-accent btn-sm" onclick="openSlideModal()">+ YENİ SLAYT</button>
-        </div>
-        <div id="slideList" style="display:flex;flex-direction:column;gap:10px;">
-          <div style="color:var(--muted2);font-size:12px;text-align:center;padding:20px;">Yükleniyor...</div>
-        </div>
-      </div>
-
-      <!-- SLAYT MODAL -->
-      <div class="modal-ov" id="slideModal" style="display:none;">
-        <div class="modal-box" style="max-width:500px;">
-          <div class="modal-hdr"><h3 id="slideModalTitle">YENİ SLAYT</h3><button class="modal-x" onclick="closeModal('slideModal')">✕</button></div>
-          <input type="hidden" id="slideId">
-          <div class="fg"><label>Resim URL</label><input type="text" id="slideImage" placeholder="https://...resim.jpg"></div>
-          <div style="margin-bottom:12px;">
-            <div id="slidePreviewImg" style="width:100%;height:140px;background:var(--bg3);border:1px solid var(--border);background-size:cover;background-position:center;"></div>
-          </div>
-          <div class="fg"><label>Etiket (küçük üst yazı)</label><input type="text" id="slideTag" placeholder="Yeni Koleksiyon · 2025"></div>
-          <div class="fg"><label>Başlık</label><input type="text" id="slideTitle" placeholder="RETROPATCH"></div>
-          <div class="fg"><label>Açıklama</label><input type="text" id="slideDesc" placeholder="Kısa bir açıklama..."></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="fg"><label>Buton 1 Yazısı</label><input type="text" id="slideBtn1Text" placeholder="Ürünleri Gör"></div>
-            <div class="fg"><label>Buton 1 Linki</label><input type="text" id="slideBtn1Link" placeholder="urunler.html"></div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="fg"><label>Buton 2 Yazısı</label><input type="text" id="slideBtn2Text" placeholder="Sipariş Ver"></div>
-            <div class="fg"><label>Buton 2 Linki</label><input type="text" id="slideBtn2Link" placeholder="#siparis"></div>
-          </div>
-          <div class="fg">
-            <label>Sıra</label>
-            <input type="number" id="slideOrder" placeholder="1" min="1" value="1">
-          </div>
-          <div style="display:flex;gap:8px;margin-top:8px;">
-            <button class="btn btn-accent" onclick="saveSlide()" style="flex:1;">💾 KAYDET</button>
-            <button class="btn btn-outline" id="slideDeleteBtn" onclick="deleteSlide()" style="color:var(--accent2);border-color:var(--accent2);display:none;">🗑 SİL</button>
-          </div>
-        </div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;">🖼 ANASAYFA SLAYT</div>
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:20px;">Slaytlarda hangi ürün resimlerinin gösterildiğini buradan görebilirsiniz. Ürün ekleyince otomatik güncellenir. İlk 8 ürün resmi slayta girer.</div>
+        <div id="sliderPreview" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
       </div>
 
       <!-- FEATURED TAB DEFAULT -->
@@ -1087,116 +1052,18 @@ function saveContact() {
   }, { merge: true }).then(() => toast('İletişim bilgileri kaydedildi', 'ok'));
 }
 
-function buildSliderPreview() {} // artık kullanılmıyor
-
-let allSlides = [];
-
-function loadSlides() {
-  db.collection('slides').orderBy('order').get().then(snap => {
-    allSlides = snap.docs.map(d => ({id:d.id,...d.data()}));
-    renderSlideList();
-  }).catch(() => {
-    db.collection('slides').get().then(snap => {
-      allSlides = snap.docs.map(d => ({id:d.id,...d.data()}));
-      renderSlideList();
-    });
-  });
-}
-
-function renderSlideList() {
-  const list = document.getElementById('slideList');
-  if (!list) return;
-  if (!allSlides.length) {
-    list.innerHTML = '<div style="color:var(--muted2);font-size:12px;text-align:center;padding:20px;">Henüz slayt yok. "+ YENİ SLAYT" ile ekleyin.</div>';
-    return;
-  }
-  list.innerHTML = allSlides.map((s,i) => `
-    <div style="display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--border);padding:12px;">
-      <div style="width:80px;height:50px;background:var(--bg2);background-image:url('${s.image||''}');background-size:cover;background-position:center;flex-shrink:0;border:1px solid var(--border);"></div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.title||'Başlıksız'}</div>
-        <div style="font-size:11px;color:var(--muted2);margin-top:2px;">${s.tag||''} ${s.desc?'· '+s.desc.substring(0,40)+'...':''}</div>
+function buildSliderPreview() {
+  const preview = document.getElementById('sliderPreview');
+  if (!preview) return;
+  const imgs = allProducts.filter(p => p.image).slice(0, 8);
+  if (!imgs.length) { preview.innerHTML = '<span style="color:var(--muted2);font-size:12px;">Henüz ürün görseli yok</span>'; return; }
+  preview.innerHTML = imgs.map((p, i) => `
+    <div style="text-align:center;">
+      <div style="width:80px;height:80px;overflow:hidden;border:1px solid var(--border);margin-bottom:4px;">
+        <img src="${p.image}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.background='var(--bg3)'">
       </div>
-      <div style="font-size:11px;color:var(--muted2);">Sıra: ${s.order||i+1}</div>
-      <button class="btn btn-sm btn-outline" onclick="openSlideModal('${s.id}')">✏️ Düzenle</button>
+      <div style="font-size:9px;color:var(--muted2);letter-spacing:1px;">Slayt ${i+1}</div>
     </div>`).join('');
-}
-
-function openSlideModal(id) {
-  document.getElementById('slideId').value = '';
-  document.getElementById('slideImage').value = '';
-  document.getElementById('slideTag').value = '';
-  document.getElementById('slideTitle').value = '';
-  document.getElementById('slideDesc').value = '';
-  document.getElementById('slideBtn1Text').value = '';
-  document.getElementById('slideBtn1Link').value = '';
-  document.getElementById('slideBtn2Text').value = '';
-  document.getElementById('slideBtn2Link').value = '';
-  document.getElementById('slideOrder').value = (allSlides.length + 1);
-  document.getElementById('slidePreviewImg').style.backgroundImage = '';
-  document.getElementById('slideDeleteBtn').style.display = 'none';
-  document.getElementById('slideModalTitle').textContent = 'YENİ SLAYT';
-
-  if (id) {
-    const s = allSlides.find(x => x.id === id);
-    if (s) {
-      document.getElementById('slideId').value = s.id;
-      document.getElementById('slideImage').value = s.image||'';
-      document.getElementById('slideTag').value = s.tag||'';
-      document.getElementById('slideTitle').value = s.title||'';
-      document.getElementById('slideDesc').value = s.desc||'';
-      document.getElementById('slideBtn1Text').value = s.btn1Text||'';
-      document.getElementById('slideBtn1Link').value = s.btn1Link||'';
-      document.getElementById('slideBtn2Text').value = s.btn2Text||'';
-      document.getElementById('slideBtn2Link').value = s.btn2Link||'';
-      document.getElementById('slideOrder').value = s.order||1;
-      if (s.image) document.getElementById('slidePreviewImg').style.backgroundImage = `url('${s.image}')`;
-      document.getElementById('slideDeleteBtn').style.display = 'inline-flex';
-      document.getElementById('slideModalTitle').textContent = 'SLAYT DÜZENLE';
-    }
-  }
-
-  // Live preview on image URL change
-  document.getElementById('slideImage').oninput = function() {
-    document.getElementById('slidePreviewImg').style.backgroundImage = this.value ? `url('${this.value}')` : '';
-  };
-
-  openModal('slideModal');
-}
-
-function saveSlide() {
-  const id = document.getElementById('slideId').value;
-  const data = {
-    image: document.getElementById('slideImage').value.trim(),
-    tag: document.getElementById('slideTag').value.trim(),
-    title: document.getElementById('slideTitle').value.trim(),
-    desc: document.getElementById('slideDesc').value.trim(),
-    btn1Text: document.getElementById('slideBtn1Text').value.trim(),
-    btn1Link: document.getElementById('slideBtn1Link').value.trim(),
-    btn2Text: document.getElementById('slideBtn2Text').value.trim(),
-    btn2Link: document.getElementById('slideBtn2Link').value.trim(),
-    order: parseInt(document.getElementById('slideOrder').value) || 1,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  if (!data.title && !data.image) { toast('En az resim veya başlık girin!', 'err'); return; }
-  const ref = id ? db.collection('slides').doc(id) : db.collection('slides').doc();
-  if (!id) data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-  ref.set(data, {merge:true}).then(() => {
-    toast('Slayt kaydedildi', 'ok');
-    closeModal('slideModal');
-    loadSlides();
-  }).catch(e => toast('Hata: '+e.message, 'err'));
-}
-
-function deleteSlide() {
-  const id = document.getElementById('slideId').value;
-  if (!id) return;
-  if (!confirm('Bu slaytı silmek istediğinizden emin misiniz?')) return;
-  db.collection('slides').doc(id).delete().then(() => {
-    toast('Slayt silindi', 'ok');
-    closeModal('slideModal');
-    loadSlides();
-  }).catch(e => toast('Hata: '+e.message, 'err'));
 }
 
 function renderStats() {
@@ -1290,7 +1157,7 @@ function showPage(name) {
   if (name === 'cargo') renderCargo('all');
   if (name === 'members') loadMembers();
   if (name === 'coupons') loadCoupons();
-  if (name === 'sitemanage') { loadSlides(); renderStats(); loadSiteSettings(); }
+  if (name === 'sitemanage') { buildSliderPreview(); renderStats(); loadSiteSettings(); }
 }
 
 // ============ KARGO YÖNETİMİ ============
