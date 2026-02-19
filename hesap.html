@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RetroPatch — Hesabım</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    :root{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:#2a2a2a;--accent:#c8a96e;--accent2:#e63946;--text:#e8e8e8;--muted:#888;--card:#141414;--green:#2ecc71;--blue:#3498db;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;}
+    ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+    .logo{text-decoration:none;display:flex;align-items:center;}
+    .logo img{height:34px;width:auto;}
+    nav ul{display:flex;gap:28px;list-style:none;}
+    nav ul a{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+    nav ul a:hover{color:var(--accent);}
+
+    .layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh;padding-top:64px;}
+
+    /* SIDEBAR */
+    .sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:32px 0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;}
+    .user-card{padding:20px 24px 24px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+    .user-avatar{width:52px;height:52px;background:rgba(200,169,110,.15);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:22px;color:var(--accent);margin-bottom:10px;}
+    .user-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .user-email{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 24px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;color:var(--muted);cursor:pointer;transition:all .2s;border-left:2px solid transparent;}
+    .nav-item:hover{color:var(--text);background:rgba(255,255,255,.02);}
+    .nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(200,169,110,.05);}
+    .nav-lbl{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--muted);padding:16px 24px 6px;}
+    .logout-btn{width:calc(100% - 48px);margin:20px 24px 0;background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+    .logout-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+
+    /* MAIN */
+    .main{padding:36px 40px;}
+    .page{display:none;animation:fadeIn .3s ease;}
+    .page.active{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+    .page-hdr h2{font-family:'Bebas Neue',cursive;font-size:32px;letter-spacing:2px;}
+
+    /* ORDERS */
+    .order-card{background:var(--card);border:1px solid var(--border);margin-bottom:2px;transition:border-color .2s;}
+    .order-card:hover{border-color:rgba(200,169,110,.25);}
+    .order-head{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:12px;}
+    .order-code{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:2px;color:var(--accent);}
+    .order-date{font-size:11px;color:var(--muted);}
+    .order-total{font-family:'Bebas Neue',cursive;font-size:22px;}
+    .badge{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;}
+    .b-yellow{background:rgba(200,169,110,.1);color:var(--accent);border:1px solid rgba(200,169,110,.25);}
+    .b-blue{background:rgba(52,152,219,.1);color:var(--blue);border:1px solid rgba(52,152,219,.25);}
+    .b-green{background:rgba(46,204,113,.1);color:var(--green);border:1px solid rgba(46,204,113,.25);}
+    .b-red{background:rgba(230,57,70,.1);color:var(--accent2);border:1px solid rgba(230,57,70,.25);}
+    .b-gray{background:rgba(136,136,136,.1);color:var(--muted);border:1px solid rgba(136,136,136,.2);}
+
+    .order-body{display:none;padding:0 20px 20px;border-top:1px solid var(--border);}
+    .order-body.open{display:block;}
+    .order-items{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;margin-top:14px;}
+    .order-item{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;}
+    .order-item-img{width:48px;height:48px;background:var(--bg3);overflow:hidden;}
+    .order-item-img img{width:100%;height:100%;object-fit:cover;}
+    .order-item-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;}
+    .order-item-cat{font-size:11px;color:var(--muted);}
+    .order-item-price{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);}
+
+    /* KARGO TAKİP */
+    .cargo-track{background:var(--bg3);border:1px solid var(--border);padding:16px;margin-top:10px;}
+    .cargo-track-title{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
+    .track-steps{display:flex;gap:0;position:relative;}
+    .track-steps::before{content:'';position:absolute;top:12px;left:0;right:0;height:2px;background:var(--border);}
+    .track-step{flex:1;text-align:center;position:relative;z-index:1;}
+    .track-dot{width:24px;height:24px;border-radius:50%;background:var(--bg3);border:2px solid var(--border);margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:10px;}
+    .track-dot.done{background:var(--accent);border-color:var(--accent);color:#000;}
+    .track-dot.current{background:var(--bg);border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,169,110,.2);}
+    .track-lbl{font-size:9px;color:var(--muted);letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;}
+    .track-code{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--muted);}
+    .track-code span{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
+
+    /* FAVORİLER */
+    .fav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:2px;}
+    .fav-card{background:var(--card);border:1px solid var(--border);overflow:hidden;transition:all .3s;cursor:pointer;}
+    .fav-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+    .fav-img{width:100%;aspect-ratio:1;background:var(--bg3);overflow:hidden;position:relative;}
+    .fav-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+    .fav-card:hover .fav-img img{transform:scale(1.07);}
+    .fav-remove{position:absolute;top:6px;right:6px;background:rgba(230,57,70,.8);color:#fff;border:none;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;opacity:0;transition:opacity .2s;}
+    .fav-card:hover .fav-remove{opacity:1;}
+    .fav-info{padding:10px 12px;border-top:1px solid var(--border);}
+    .fav-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .fav-price{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);}
+
+    /* PROFİL */
+    .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .profile-card{background:var(--card);border:1px solid var(--border);padding:24px;}
+    .profile-card h4{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:2px;color:var(--accent);margin-bottom:16px;}
+    .fg{margin-bottom:12px;}
+    .fg label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+    .fg input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+    .fg input:focus{border-color:var(--accent);}
+    .btn-save{background:var(--accent);color:#000;border:none;padding:10px 24px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;cursor:pointer;transition:background .2s;}
+    .btn-save:hover{background:#d4b77a;}
+
+    /* STATS */
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:28px;}
+    .stat-card{background:var(--card);border:1px solid var(--border);padding:20px;}
+    .stat-val{font-family:'Bebas Neue',cursive;font-size:40px;color:var(--accent);margin-bottom:4px;}
+    .stat-lbl{font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;}
+
+    /* EMPTY */
+    .empty-state{text-align:center;padding:60px;color:var(--muted);}
+    .empty-state-icon{font-size:48px;opacity:.3;margin-bottom:14px;}
+    .empty-state p{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;}
+
+    .toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#000;padding:12px 20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;z-index:9999;transform:translateY(60px);opacity:0;transition:all .35s cubic-bezier(.175,.885,.32,1.275);}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast.err{background:var(--accent2);color:#fff;}
+
+    @media(max-width:900px){.layout{grid-template-columns:1fr;}.sidebar{position:static;height:auto;display:flex;flex-wrap:wrap;align-items:center;padding:16px;gap:4px;}.user-card{padding:12px;border-bottom:none;margin-bottom:0;}.nav-lbl{display:none;}.nav-item{padding:8px 14px;font-size:12px;}.main{padding:20px 16px;}.profile-grid,.stats-row{grid-template-columns:1fr;}.track-steps{flex-direction:column;gap:8px;}.track-steps::before{display:none;}.fav-grid{grid-template-columns:repeat(2,1fr);}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo"><img src="retro_logo3.png" alt="RetroPatch"></a>
+  <ul>
+    <li><a href="urunler.html">Ürünler</a></li>
+    <li><a href="sepet.html">🛒 Sepet</a></li>
+  </ul>
+</nav>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div class="user-name" id="userName">Yükleniyor...</div>
+      <div class="user-email" id="userEmail"></div>
+    </div>
+    <div class="nav-lbl">Hesabım</div>
+    <div class="nav-item active" onclick="showPage('orders',this)"><span>🛒</span> Siparişlerim</div>
+    <div class="nav-item" onclick="showPage('cargo',this)"><span>🚚</span> Kargo Takibi</div>
+    <div class="nav-item" onclick="showPage('favorites',this)"><span>❤️</span> Favorilerim</div>
+    <div class="nav-lbl">Ayarlar</div>
+    <div class="nav-item" onclick="showPage('profile',this)"><span>👤</span> Profilim</div>
+    <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- SİPARİŞLER -->
+    <div class="page active" id="page-orders">
+      <div class="page-hdr"><h2>SİPARİŞLERİM</h2></div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Toplam Sipariş</div></div>
+        <div class="stat-card"><div class="stat-val" id="statActive">0</div><div class="stat-lbl">Aktif Sipariş</div></div>
+        <div class="stat-card"><div class="stat-val" id="statSpent">₺0</div><div class="stat-lbl">Toplam Harcama</div></div>
+      </div>
+      <div id="ordersList">
+        <div class="empty-state"><div class="empty-state-icon">🛒</div><p>Henüz siparişiniz yok</p></div>
+      </div>
+    </div>
+
+    <!-- KARGO TAKİBİ -->
+    <div class="page" id="page-cargo">
+      <div class="page-hdr"><h2>KARGO TAKİBİ</h2></div>
+      <div id="cargoList">
+        <div class="empty-state"><div class="empty-state-icon">🚚</div><p>Aktif kargo yok</p></div>
+      </div>
+    </div>
+
+    <!-- FAVORİLER -->
+    <div class="page" id="page-favorites">
+      <div class="page-hdr"><h2>FAVORİLERİM</h2></div>
+      <div class="fav-grid" id="favGrid">
+        <div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">❤️</div><p>Favori ürününüz yok</p></div>
+      </div>
+    </div>
+
+    <!-- PROFİL -->
+    <div class="page" id="page-profile">
+      <div class="page-hdr"><h2>PROFİLİM</h2></div>
+      <div class="profile-grid">
+        <div class="profile-card">
+          <h4>KİŞİSEL BİLGİLER</h4>
+          <div class="fg"><label>Ad Soyad</label><input type="text" id="pName" placeholder="Ad Soyad"></div>
+          <div class="fg"><label>E-posta</label><input type="email" id="pEmail" placeholder="E-posta" disabled style="opacity:.5;"></div>
+          <div class="fg"><label>Telefon</label><input type="tel" id="pPhone" placeholder="+90 5XX XXX XX XX"></div>
+          <button class="btn-save" onclick="saveProfile()">KAYDET</button>
+        </div>
+        <div class="profile-card">
+          <h4>KAYITLI ADRES</h4>
+          <div class="fg"><label>Adres</label><input type="text" id="pAddress" placeholder="Mahalle, sokak..."></div>
+          <div class="fg"><label>İlçe / İl</label><input type="text" id="pCity" placeholder="İlçe, İl"></div>
+          <div class="fg"><label>Posta Kodu</label><input type="text" id="pZip" placeholder="34XXX"></div>
+          <button class="btn-save" onclick="saveAddress()">KAYDET</button>
+        </div>
+        <div class="profile-card">
+          <h4>ŞİFRE DEĞİŞTİR</h4>
+          <div class="fg"><label>Yeni Şifre</label><input type="password" id="newPw" placeholder="En az 6 karakter"></div>
+          <div class="fg"><label>Tekrar</label><input type="password" id="newPw2" placeholder="••••••••"></div>
+          <button class="btn-save" onclick="changePass()">ŞİFRE GÜNCELLE</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyA597pu8o7M2ZWcZc6gbGW2TAwceTfyVhA",
+  authDomain:"retropatch-fd08e.firebaseapp.com",
+  projectId:"retropatch-fd08e",
+  storageBucket:"retropatch-fd08e.firebasestorage.app",
+  messagingSenderId:"449894507687",
+  appId:"1:449894507687:web:a932684047bd590579e782"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUser = null;
+let allOrders = [];
+let allFavorites = [];
+
+auth.onAuthStateChanged(user => {
+  if (!user) { location.href = 'uye.html?redirect=hesap.html'; return; }
+  currentUser = user;
+  document.getElementById('userAvatar').textContent = (user.displayName||user.email||'?')[0].toUpperCase();
+  document.getElementById('userName').textContent = user.displayName || 'Kullanıcı';
+  document.getElementById('userEmail').textContent = user.email || '';
+  loadOrders();
+  loadFavorites();
+  loadProfile();
+});
+
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  el?.classList.add('active');
+  if (name==='cargo') renderCargo();
+}
+
+// ═══ ORDERS ═══
+function loadOrders() {
+  db.collection('orders').where('userId','==',currentUser.uid).orderBy('createdAt','desc')
+    .onSnapshot(snap => {
+      allOrders = snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderOrders();
+    }, () => {
+      db.collection('orders').where('userId','==',currentUser.uid).get().then(snap=>{
+        allOrders = snap.docs.map(d=>({id:d.id,...d.data()})).reverse();
+        renderOrders();
+      });
+    });
+}
+
+function renderOrders() {
+  const el = document.getElementById('ordersList');
+  const active = allOrders.filter(o=>o.status!=='tamamlandı'&&o.status!=='iptal').length;
+  const spent = allOrders.reduce((s,o)=>s+(o.total||0),0);
+  document.getElementById('statTotal').textContent = allOrders.length;
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statSpent').textContent = '₺'+spent.toLocaleString('tr-TR');
+  if (!allOrders.length) { el.innerHTML='<div class="empty-state"><div class="empty-state-icon">🛒</div><p>Henüz siparişiniz yok</p></div>'; return; }
+  el.innerHTML = allOrders.map(o=>`
+    <div class="order-card">
+      <div class="order-head" onclick="toggleOrder('${o.id}')">
+        <div>
+          <div class="order-code">${o.orderCode||o.id.slice(-6).toUpperCase()}</div>
+          <div class="order-date">${formatDate(o.createdAt)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          ${statusBadge(o.status)}
+          <div class="order-total">₺${(o.total||0).toLocaleString('tr-TR')}</div>
+          <span style="color:var(--muted);font-size:14px;">▾</span>
+        </div>
+      </div>
+      <div class="order-body" id="ob-${o.id}">
+        <div class="order-items">
+          ${(o.items||[]).map(i=>`
+            <div class="order-item">
+              <div class="order-item-img">${i.image?`<img src="${i.image}" alt="${i.name}">`:'🏷'}</div>
+              <div><div class="order-item-name">${i.name}</div><div class="order-item-cat">${i.cat||''} × ${i.qty||1}</div></div>
+              <div class="order-item-price">₺${((i.price||0)*(i.qty||1)).toLocaleString('tr-TR')}</div>
+            </div>`).join('')}
+        </div>
+        <div style="font-size:12px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border);">
+          <span>💳 ${payMethodLabel(o.payment?.method)}</span>
+          <span>🚚 ${o.cargo?.companyName||'—'}</span>
+          <span>📍 ${o.address?.city||'—'}</span>
+        </div>
+        ${o.cargo?.trackingCode ? `
+        <div class="cargo-track" style="margin-top:12px;">
+          <div class="cargo-track-title">KARGO TAKİBİ</div>
+          ${trackSteps(o.cargo.status)}
+          <div class="track-code">🔍 Takip No: <span>${o.cargo.trackingCode}</span>
+            <a href="${cargoTrackUrl(o.cargo.company, o.cargo.trackingCode)}" target="_blank" style="color:var(--accent);font-size:11px;text-decoration:none;">Kargoda Takip Et →</a>
+          </div>
+        </div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function toggleOrder(id) {
+  const el = document.getElementById('ob-'+id);
+  el.classList.toggle('open');
+}
+
+// ═══ CARGO ═══
+function renderCargo() {
+  const shipping = allOrders.filter(o=>o.cargo?.trackingCode);
+  const el = document.getElementById('cargoList');
+  if (!shipping.length) { el.innerHTML='<div class="empty-state"><div class="empty-state-icon">🚚</div><p>Aktif kargonuz yok</p></div>'; return; }
+  el.innerHTML = shipping.map(o=>`
+    <div style="background:var(--card);border:1px solid var(--border);padding:20px;margin-bottom:2px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+        <div>
+          <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);">${o.orderCode||o.id.slice(-6).toUpperCase()}</div>
+          <div style="font-size:12px;color:var(--muted);">${formatDate(o.createdAt)} · ${o.cargo?.companyName}</div>
+        </div>
+        ${statusBadge(o.cargo?.status||o.status)}
+      </div>
+      ${trackSteps(o.cargo?.status)}
+      <div class="track-code" style="margin-top:12px;">🔍 Takip No: <span>${o.cargo.trackingCode}</span>
+        <a href="${cargoTrackUrl(o.cargo.company, o.cargo.trackingCode)}" target="_blank" style="color:var(--accent);font-size:11px;text-decoration:none;margin-left:8px;">Kargoda Takip Et →</a>
+      </div>
+    </div>`).join('');
+}
+
+function trackSteps(status) {
+  const steps = ['Hazırlanıyor','Kargoya Verildi','Dağıtımda','Teslim Edildi'];
+  const icons = ['📦','🏭','🚚','✅'];
+  const idx = steps.indexOf(status);
+  return `<div class="track-steps">${steps.map((s,i)=>`
+    <div class="track-step">
+      <div class="track-dot ${i<idx?'done':i===idx?'current':''}">${i<idx?'✓':icons[i]}</div>
+      <div class="track-lbl">${s}</div>
+    </div>`).join('')}</div>`;
+}
+
+function cargoTrackUrl(company, code) {
+  const urls = {
+    mng: `https://www.mngkargo.com.tr/wps/portal/mng/kargotakip?kargo=${code}`,
+    yurtici: `https://www.yurticikargo.com/tr/online-islemler/gonderi-sorgula?code=${code}`,
+    ptt: `https://www.ptt.gov.tr/anlik-takip?q=${code}`,
+    surat: `https://www.suratkargo.com.tr/kargo-sorgulama?code=${code}`
+  };
+  return urls[company] || '#';
+}
+
+// ═══ FAVORİLER ═══
+function loadFavorites() {
+  db.collection('users').doc(currentUser.uid).collection('favorites').onSnapshot(snap => {
+    allFavorites = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderFavorites();
+  });
+}
+
+function renderFavorites() {
+  const el = document.getElementById('favGrid');
+  if (!allFavorites.length) { el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">❤️</div><p>Favori ürününüz yok</p></div>'; return; }
+  el.innerHTML = allFavorites.map(p=>`
+    <div class="fav-card" onclick="window.location.href='urunler.html'">
+      <div class="fav-img">
+        ${p.image?`<img src="${p.image}" alt="${p.name}">`:''}
+        <button class="fav-remove" onclick="event.stopPropagation();removeFav('${p.id}')">✕</button>
+      </div>
+      <div class="fav-info">
+        <div class="fav-name">${p.name}</div>
+        <div class="fav-price">${p.price?'₺'+p.price:'—'}</div>
+      </div>
+    </div>`).join('');
+}
+
+function removeFav(id) {
+  db.collection('users').doc(currentUser.uid).collection('favorites').doc(id).delete()
+    .then(()=>toast('Favoriden çıkarıldı'));
+}
+
+// ═══ PROFİL ═══
+function loadProfile() {
+  db.collection('users').doc(currentUser.uid).get().then(doc=>{
+    if (!doc.exists) return;
+    const d = doc.data();
+    document.getElementById('pName').value = d.name||'';
+    document.getElementById('pEmail').value = d.email||currentUser.email||'';
+    document.getElementById('pPhone').value = d.phone||'';
+    if (d.lastAddress) {
+      document.getElementById('pAddress').value = d.lastAddress.address||'';
+      document.getElementById('pCity').value = (d.lastAddress.district?d.lastAddress.district+', ':'')+d.lastAddress.city||'';
+      document.getElementById('pZip').value = d.lastAddress.zip||'';
+    }
+  });
+}
+
+function saveProfile() {
+  const name = document.getElementById('pName').value.trim();
+  const phone = document.getElementById('pPhone').value.trim();
+  Promise.all([
+    currentUser.updateProfile({displayName:name}),
+    db.collection('users').doc(currentUser.uid).update({name,phone})
+  ]).then(()=>{
+    document.getElementById('userName').textContent = name;
+    document.getElementById('userAvatar').textContent = name[0]?.toUpperCase()||'?';
+    toast('Profil güncellendi!');
+  }).catch(()=>toast('Hata oluştu.',true));
+}
+
+function saveAddress() {
+  const address = document.getElementById('pAddress').value.trim();
+  const city = document.getElementById('pCity').value.trim();
+  const zip = document.getElementById('pZip').value.trim();
+  db.collection('users').doc(currentUser.uid).update({
+    'lastAddress.address': address,
+    'lastAddress.city': city,
+    'lastAddress.zip': zip
+  }).then(()=>toast('Adres kaydedildi!')).catch(()=>toast('Hata.',true));
+}
+
+function changePass() {
+  const p1 = document.getElementById('newPw').value;
+  const p2 = document.getElementById('newPw2').value;
+  if (p1.length<6) { toast('Şifre en az 6 karakter!',true); return; }
+  if (p1!==p2) { toast('Şifreler eşleşmiyor!',true); return; }
+  currentUser.updatePassword(p1)
+    .then(()=>{ toast('Şifre güncellendi!'); document.getElementById('newPw').value=''; document.getElementById('newPw2').value=''; })
+    .catch(e=>toast('Hata: '+e.message,true));
+}
+
+function doLogout() {
+  auth.signOut().then(()=>location.href='index.html');
+}
+
+// ═══ UTILS ═══
+function statusBadge(s) {
+  const map = {
+    'yeni':'b-yellow','Hazırlanıyor':'b-blue','Kargoya Verildi':'b-blue',
+    'Dağıtımda':'b-blue','Teslim Edildi':'b-green','tamamlandı':'b-green',
+    'iptal':'b-red','awaiting_transfer':'b-gray'
+  };
+  const labels = {
+    'yeni':'Yeni','Hazırlanıyor':'Hazırlanıyor','Kargoya Verildi':'Kargoya Verildi',
+    'Dağıtımda':'Dağıtımda','Teslim Edildi':'Teslim Edildi','tamamlandı':'Tamamlandı',
+    'iptal':'İptal','awaiting_transfer':'Havale Bekleniyor'
+  };
+  return `<span class="badge ${map[s]||'b-yellow'}">${labels[s]||s||'Yeni'}</span>`;
+}
+
+function payMethodLabel(m) {
+  return {stripe:'Kredi Kartı',havale:'Havale/EFT',kapida:'Kapıda Ödeme'}[m]||m||'—';
+}
+
+function formatDate(ts) {
+  if (!ts) return '—';
+  try { const d=ts.toDate?ts.toDate():new Date(ts); return d.toLocaleDateString('tr-TR'); } catch { return '—'; }
+}
+
+function toast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show'+(err?' err':'');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>

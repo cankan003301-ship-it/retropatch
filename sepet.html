@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RetroPatch — Sepet & Ödeme</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    :root{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:#2a2a2a;--accent:#c8a96e;--accent2:#e63946;--text:#e8e8e8;--muted:#888;--card:#141414;--green:#2ecc71;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;}
+    ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+    .logo{text-decoration:none;display:flex;align-items:center;}
+    .logo img{height:34px;width:auto;}
+    nav ul{display:flex;gap:28px;list-style:none;}
+    nav ul a{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+    nav ul a:hover{color:var(--accent);}
+    .nav-cta{background:var(--accent);color:#000!important;padding:8px 20px;font-weight:700!important;}
+
+    .page-wrap{max-width:1100px;margin:0 auto;padding:100px 40px 60px;}
+    .page-title{font-family:'Bebas Neue',cursive;font-size:48px;letter-spacing:3px;margin-bottom:8px;}
+    .page-sub{font-size:13px;color:var(--muted);margin-bottom:40px;}
+
+    .cart-layout{display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:start;}
+
+    /* CART ITEMS */
+    .cart-items{display:flex;flex-direction:column;gap:2px;}
+    .cart-empty{background:var(--card);border:1px solid var(--border);padding:60px;text-align:center;}
+    .cart-empty-icon{font-size:48px;margin-bottom:16px;opacity:.3;}
+    .cart-empty p{font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:20px;}
+    .cart-item{background:var(--card);border:1px solid var(--border);padding:16px;display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:center;transition:border-color .2s;}
+    .cart-item:hover{border-color:rgba(200,169,110,.2);}
+    .cart-item-img{width:72px;height:72px;background:var(--bg3);overflow:hidden;flex-shrink:0;}
+    .cart-item-img img{width:100%;height:100%;object-fit:cover;}
+    .cart-item-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;margin-bottom:3px;}
+    .cart-item-cat{font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:8px;}
+    .cart-item-meta{display:flex;align-items:center;gap:10px;}
+    .qty-ctrl{display:flex;align-items:center;gap:6px;}
+    .qty-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s;}
+    .qty-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .qty-val{font-family:'Bebas Neue',cursive;font-size:18px;width:24px;text-align:center;}
+    .item-size{font-size:11px;color:var(--muted);background:var(--bg3);border:1px solid var(--border);padding:3px 8px;}
+    .cart-item-price{font-family:'Bebas Neue',cursive;font-size:24px;color:var(--accent);text-align:right;white-space:nowrap;}
+    .cart-item-remove{font-size:11px;color:var(--muted);cursor:pointer;transition:color .2s;text-align:right;margin-top:4px;}
+    .cart-item-remove:hover{color:var(--accent2);}
+
+    /* ORDER SUMMARY */
+    .order-summary{background:var(--card);border:1px solid var(--border);padding:28px;position:sticky;top:84px;}
+    .summary-title{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:20px;}
+    .summary-row{display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+    .summary-row.total{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--accent);border-bottom:none;padding-top:14px;margin-top:4px;}
+    .summary-row span:first-child{color:var(--muted);}
+
+    /* PAYMENT METHODS */
+    .pay-methods{margin-top:20px;display:flex;flex-direction:column;gap:8px;}
+    .pay-method{border:1px solid var(--border);padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;}
+    .pay-method:hover,.pay-method.active{border-color:var(--accent);background:rgba(200,169,110,.05);}
+    .pay-method input[type=radio]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;}
+    .pay-method-info{flex:1;}
+    .pay-method-name{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;margin-bottom:2px;}
+    .pay-method-desc{font-size:11px;color:var(--muted);}
+    .pay-method-icon{font-size:20px;}
+
+    /* STRIPE CARD */
+    #stripe-card-wrap{background:var(--bg3);border:1px solid var(--border);padding:14px;margin-top:8px;display:none;}
+    #card-element{padding:4px 0;}
+    #card-errors{color:var(--accent2);font-size:12px;margin-top:8px;min-height:18px;}
+
+    /* HAVALE INFO */
+    #havale-info{background:var(--bg3);border:1px solid var(--border);padding:16px;margin-top:8px;display:none;}
+    .havale-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+    .havale-row:last-child{border-bottom:none;}
+    .havale-key{color:var(--muted);}
+    .havale-val{font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;}
+    .copy-btn{font-size:10px;color:var(--accent);cursor:pointer;margin-left:8px;}
+
+    /* KAPIDA */
+    #kapida-info{background:var(--bg3);border:1px solid var(--border);padding:16px;margin-top:8px;display:none;font-size:13px;color:var(--muted);line-height:1.6;}
+
+    /* ADDRESS */
+    .address-section{background:var(--card);border:1px solid var(--border);padding:24px;margin-bottom:2px;}
+    .address-title{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:2px;color:var(--accent);margin-bottom:16px;}
+    .fg{margin-bottom:12px;}
+    .fg label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+    .fg input,.fg select,.fg textarea{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);}
+    .fg select option{background:var(--bg3);}
+    .fg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+    /* CARGO */
+    .cargo-options{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+    .cargo-opt{border:1px solid var(--border);padding:12px 14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;}
+    .cargo-opt:hover,.cargo-opt.active{border-color:var(--accent);background:rgba(200,169,110,.05);}
+    .cargo-opt input{accent-color:var(--accent);}
+    .cargo-opt-info{flex:1;}
+    .cargo-opt-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;}
+    .cargo-opt-price{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);}
+
+    .checkout-btn{width:100%;background:var(--accent);color:#000;border:none;padding:16px;font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:3px;cursor:pointer;transition:all .2s;margin-top:16px;}
+    .checkout-btn:hover{background:#d4b77a;}
+    .checkout-btn:disabled{background:#444;color:#666;cursor:not-allowed;}
+
+    .secure-badge{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--muted);margin-top:10px;}
+
+    /* SUCCESS */
+    #successWrap{display:none;text-align:center;padding:60px 20px;}
+    .success-icon{font-size:64px;margin-bottom:20px;}
+    .success-title{font-family:'Bebas Neue',cursive;font-size:42px;letter-spacing:3px;color:var(--green);margin-bottom:10px;}
+    .success-sub{font-size:14px;color:var(--muted);line-height:1.7;max-width:460px;margin:0 auto 28px;}
+    .success-code{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--accent);letter-spacing:3px;background:var(--card);border:1px solid var(--border);padding:14px 28px;display:inline-block;margin-bottom:28px;}
+
+    .toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#000;padding:12px 20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;z-index:9999;transform:translateY(60px);opacity:0;transition:all .35s cubic-bezier(.175,.885,.32,1.275);}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast.err{background:var(--accent2);color:#fff;}
+
+    @media(max-width:900px){.cart-layout{grid-template-columns:1fr;}.order-summary{position:static;}}
+    @media(max-width:600px){.page-wrap{padding:90px 16px 40px;}.cart-item{grid-template-columns:56px 1fr auto;gap:10px;}.fg-row{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo"><img src="retro_logo3.png" alt="RetroPatch"></a>
+  <ul>
+    <li><a href="urunler.html">Ürünler</a></li>
+    <li><a href="hesap.html" id="navHesap">Hesabım</a></li>
+    <li><a href="index.html#siparis" class="nav-cta">Sipariş Ver</a></li>
+  </ul>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- SUCCESS -->
+  <div id="successWrap">
+    <div class="success-icon">✅</div>
+    <div class="success-title">SİPARİŞ ALINDI!</div>
+    <div class="success-sub">Siparişiniz başarıyla oluşturuldu. Sipariş durumunuzu hesabınızdan takip edebilirsiniz.</div>
+    <div class="success-code" id="successCode">RP-000000</div>
+    <br>
+    <a href="hesap.html" style="background:var(--accent);color:#000;padding:13px 32px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;text-decoration:none;display:inline-block;">HESABIMA GİT →</a>
+    &nbsp;
+    <a href="urunler.html" style="border:1px solid var(--border);color:var(--text);padding:13px 32px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;text-decoration:none;display:inline-block;margin-top:8px;">ALIŞVERİŞE DEVAM</a>
+  </div>
+
+  <!-- CART -->
+  <div id="cartWrap">
+    <div class="page-title">🛒 SEPETİM</div>
+    <div class="page-sub" id="cartSubtitle">Sepetiniz yükleniyor...</div>
+
+    <div class="cart-layout">
+      <div>
+        <!-- ADDRESS -->
+        <div class="address-section">
+          <div class="address-title">📦 TESLİMAT ADRESİ</div>
+          <div class="fg-row">
+            <div class="fg"><label>Ad Soyad *</label><input type="text" id="adName" placeholder="Alıcı adı"></div>
+            <div class="fg"><label>Telefon *</label><input type="tel" id="adPhone" placeholder="+90 5XX XXX XX XX"></div>
+          </div>
+          <div class="fg"><label>Adres *</label><textarea id="adAddress" placeholder="Mahalle, sokak, bina no, daire..." style="min-height:70px;resize:none;"></textarea></div>
+          <div class="fg-row">
+            <div class="fg"><label>İlçe *</label><input type="text" id="adDistrict" placeholder="İlçe"></div>
+            <div class="fg"><label>İl *</label><input type="text" id="adCity" placeholder="İl"></div>
+          </div>
+          <div class="fg"><label>Posta Kodu</label><input type="text" id="adZip" placeholder="34XXX" maxlength="5"></div>
+        </div>
+
+        <!-- CARGO -->
+        <div class="address-section" style="margin-top:2px;">
+          <div class="address-title">🚚 KARGO SEÇİMİ</div>
+          <div class="cargo-options" id="cargoOptions">
+            <label class="cargo-opt active">
+              <input type="radio" name="cargo" value="mng" checked onchange="updateCargo(this)">
+              <div class="cargo-opt-info">
+                <div class="cargo-opt-name">MNG Kargo</div>
+                <div style="font-size:11px;color:var(--muted);">1-3 iş günü</div>
+              </div>
+              <div class="cargo-opt-price">₺49</div>
+            </label>
+            <label class="cargo-opt">
+              <input type="radio" name="cargo" value="yurtici" onchange="updateCargo(this)">
+              <div class="cargo-opt-info">
+                <div class="cargo-opt-name">Yurtiçi Kargo</div>
+                <div style="font-size:11px;color:var(--muted);">1-3 iş günü</div>
+              </div>
+              <div class="cargo-opt-price">₺44</div>
+            </label>
+            <label class="cargo-opt">
+              <input type="radio" name="cargo" value="ptt" onchange="updateCargo(this)">
+              <div class="cargo-opt-info">
+                <div class="cargo-opt-name">PTT Kargo</div>
+                <div style="font-size:11px;color:var(--muted);">2-4 iş günü</div>
+              </div>
+              <div class="cargo-opt-price">₺35</div>
+            </label>
+            <label class="cargo-opt">
+              <input type="radio" name="cargo" value="surat" onchange="updateCargo(this)">
+              <div class="cargo-opt-info">
+                <div class="cargo-opt-name">Sürat Kargo</div>
+                <div style="font-size:11px;color:var(--muted);">1-2 iş günü</div>
+              </div>
+              <div class="cargo-opt-price">₺52</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- CART ITEMS -->
+        <div class="cart-items" id="cartItems" style="margin-top:2px;">
+          <div class="cart-empty">
+            <div class="cart-empty-icon">🛒</div>
+            <p>SEPETİNİZ BOŞ</p>
+            <a href="urunler.html" style="background:var(--accent);color:#000;padding:10px 24px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;text-decoration:none;display:inline-block;">ÜRÜNLERE GİT →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDER SUMMARY -->
+      <div>
+        <div class="order-summary">
+          <div class="summary-title">SİPARİŞ ÖZETİ</div>
+          <div class="summary-row"><span>Ara Toplam</span><span id="sumSubtotal">₺0</span></div>
+          <div class="summary-row"><span>Kargo</span><span id="sumCargo">₺49</span></div>
+          <div class="summary-row"><span>İndirim</span><span id="sumDiscount" style="color:var(--green);">-₺0</span></div>
+          <div class="summary-row total"><span>TOPLAM</span><span id="sumTotal">₺0</span></div>
+
+          <!-- ÖDEME YÖNTEMİ -->
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;color:var(--muted);margin:20px 0 10px;">ÖDEME YÖNTEMİ</div>
+          <div class="pay-methods">
+            <label class="pay-method active" onclick="selectPay('stripe',this)">
+              <input type="radio" name="paymethod" value="stripe" checked>
+              <div class="pay-method-info">
+                <div class="pay-method-name">💳 Kredi / Banka Kartı</div>
+                <div class="pay-method-desc">Stripe güvencesiyle — Visa, MC, Amex</div>
+              </div>
+            </label>
+            <label class="pay-method" onclick="selectPay('havale',this)">
+              <input type="radio" name="paymethod" value="havale">
+              <div class="pay-method-info">
+                <div class="pay-method-name">🏦 Havale / EFT</div>
+                <div class="pay-method-desc">Banka hesabına transfer</div>
+              </div>
+            </label>
+            <label class="pay-method" onclick="selectPay('kapida',this)">
+              <input type="radio" name="paymethod" value="kapida">
+              <div class="pay-method-info">
+                <div class="pay-method-name">💰 Kapıda Ödeme</div>
+                <div class="pay-method-desc">Nakit veya kart (+₺15 hizmet bedeli)</div>
+              </div>
+            </label>
+          </div>
+
+          <!-- STRIPE CARD -->
+          <div id="stripe-card-wrap">
+            <div id="card-element"></div>
+            <div id="card-errors"></div>
+          </div>
+
+          <!-- HAVALE BİLGİLERİ -->
+          <div id="havale-info">
+            <div class="havale-row"><span class="havale-key">Banka</span><span class="havale-val">Ziraat Bankası</span></div>
+            <div class="havale-row"><span class="havale-key">Ad Soyad</span><span class="havale-val">RetroPatch Tic.</span></div>
+            <div class="havale-row">
+              <span class="havale-key">IBAN</span>
+              <span class="havale-val" style="font-size:11px;">TR00 0001 0002 0003 0004 0005 00 <span class="copy-btn" onclick="copyIBAN()">📋 Kopyala</span></span>
+            </div>
+            <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;">Açıklama kısmına ad soyadınızı yazın. Ödeme sonrası siparişiniz onaylanacaktır.</div>
+          </div>
+
+          <!-- KAPIDA ÖDEMEf -->
+          <div id="kapida-info">
+            Kargonuz teslim edilirken ödeme yapabilirsiniz. Nakit veya pos cihazı ile ödeme kabul edilmektedir.<br><br>
+            <strong style="color:var(--accent);">+₺15 kapıda ödeme hizmet bedeli</strong> uygulanır.
+          </div>
+
+          <!-- KUPON -->
+          <div style="display:flex;gap:6px;margin-top:16px;">
+            <input type="text" id="couponInput" placeholder="Kupon kodu" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
+            <button onclick="applyCoupon()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">UYGULA</button>
+          </div>
+
+          <button class="checkout-btn" id="checkoutBtn" onclick="doCheckout()">SİPARİŞİ TAMAMLA</button>
+          <div class="secure-badge">🔒 256-bit SSL şifreleme ile güvenli ödeme</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyA597pu8o7M2ZWcZc6gbGW2TAwceTfyVhA",
+  authDomain:"retropatch-fd08e.firebaseapp.com",
+  projectId:"retropatch-fd08e",
+  storageBucket:"retropatch-fd08e.firebasestorage.app",
+  messagingSenderId:"449894507687",
+  appId:"1:449894507687:web:a932684047bd590579e782"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ── STRIPE ──
+// BURAYI DEĞİŞTİR: Stripe dashboard'dan aldığınız PUBLIC key'i girin
+const STRIPE_PUBLIC_KEY = 'pk_test_BURAYA_STRIPE_PUBLIC_KEY_GIRIN';
+const stripe = Stripe(STRIPE_PUBLIC_KEY);
+const elements = stripe.elements();
+let cardElement = null;
+
+// Kargo fiyatları
+const CARGO_PRICES = { mng:49, yurtici:44, ptt:35, surat:52 };
+const CARGO_NAMES = { mng:'MNG Kargo', yurtici:'Yurtiçi Kargo', ptt:'PTT Kargo', surat:'Sürat Kargo' };
+
+let cart = [];
+let currentUser = null;
+let selectedPay = 'stripe';
+let selectedCargo = 'mng';
+let discountAmount = 0;
+let appliedCoupon = '';
+
+auth.onAuthStateChanged(user => {
+  currentUser = user;
+  document.getElementById('navHesap').textContent = user ? '👤 Hesabım' : 'Giriş Yap';
+  document.getElementById('navHesap').href = user ? 'hesap.html' : 'uye.html';
+  if (user) prefillAddress(user);
+  loadCart();
+});
+
+function loadCart() {
+  cart = JSON.parse(localStorage.getItem('retropatch_cart') || '[]');
+  renderCart();
+}
+
+function renderCart() {
+  const container = document.getElementById('cartItems');
+  document.getElementById('cartSubtitle').textContent = cart.length + ' ürün';
+  if (!cart.length) {
+    container.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>SEPETİNİZ BOŞ</p><a href="urunler.html" style="background:var(--accent);color:#000;padding:10px 24px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;text-decoration:none;display:inline-block;">ÜRÜNLERE GİT →</a></div>`;
+    document.getElementById('checkoutBtn').disabled = true;
+    updateSummary();
+    return;
+  }
+  document.getElementById('checkoutBtn').disabled = false;
+  container.innerHTML = cart.map((item,i) => `
+    <div class="cart-item">
+      <div class="cart-item-img">
+        ${item.image ? `<img src="${item.image}" alt="${item.name}">` : ''}
+      </div>
+      <div>
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-cat">${item.cat||''}</div>
+        <div class="cart-item-meta">
+          <div class="qty-ctrl">
+            <div class="qty-btn" onclick="changeQty(${i},-1)">−</div>
+            <div class="qty-val">${item.qty||1}</div>
+            <div class="qty-btn" onclick="changeQty(${i},1)">+</div>
+          </div>
+          ${item.size?`<span class="item-size">${item.size}</span>`:''}
+        </div>
+      </div>
+      <div>
+        <div class="cart-item-price">₺${((item.price||0)*(item.qty||1)).toLocaleString('tr-TR')}</div>
+        <div class="cart-item-remove" onclick="removeItem(${i})">✕ Kaldır</div>
+      </div>
+    </div>`).join('');
+  updateSummary();
+}
+
+function changeQty(i, d) {
+  cart[i].qty = Math.max(1, (cart[i].qty||1) + d);
+  saveCart();
+}
+function removeItem(i) {
+  cart.splice(i,1);
+  saveCart();
+}
+function saveCart() {
+  localStorage.setItem('retropatch_cart', JSON.stringify(cart));
+  renderCart();
+}
+
+function updateSummary() {
+  const subtotal = cart.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0);
+  const kapidaExtra = selectedPay==='kapida' ? 15 : 0;
+  const cargo = (CARGO_PRICES[selectedCargo]||49) + kapidaExtra;
+  const total = subtotal + cargo - discountAmount;
+  document.getElementById('sumSubtotal').textContent = '₺'+subtotal.toLocaleString('tr-TR');
+  document.getElementById('sumCargo').textContent = '₺'+cargo;
+  document.getElementById('sumDiscount').textContent = '-₺'+discountAmount;
+  document.getElementById('sumTotal').textContent = '₺'+Math.max(0,total).toLocaleString('tr-TR');
+}
+
+function updateCargo(el) {
+  selectedCargo = el.value;
+  document.querySelectorAll('.cargo-opt').forEach(o=>o.classList.remove('active'));
+  el.closest('.cargo-opt').classList.add('active');
+  updateSummary();
+}
+
+function selectPay(method, label) {
+  selectedPay = method;
+  document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('active'));
+  label.classList.add('active');
+  document.getElementById('stripe-card-wrap').style.display = method==='stripe' ? 'block' : 'none';
+  document.getElementById('havale-info').style.display = method==='havale' ? 'block' : 'none';
+  document.getElementById('kapida-info').style.display = method==='kapida' ? 'block' : 'none';
+  if (method==='stripe' && !cardElement) initStripeCard();
+  updateSummary();
+}
+
+function initStripeCard() {
+  cardElement = elements.create('card', {
+    style: {
+      base: { color:'#e8e8e8', fontFamily:'Barlow, sans-serif', fontSize:'14px', '::placeholder':{color:'#888'} },
+      invalid: { color:'#e63946' }
+    }
+  });
+  cardElement.mount('#card-element');
+  cardElement.on('change', e => {
+    document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
+  });
+}
+
+function applyCoupon() {
+  const code = document.getElementById('couponInput').value.trim().toUpperCase();
+  if (!code) return;
+  db.collection('coupons').doc(code).get().then(doc => {
+    if (!doc.exists) { toast('Geçersiz kupon kodu!', true); return; }
+    const c = doc.data();
+    if (c.used >= c.limit) { toast('Bu kupon tükenmiş!', true); return; }
+    const subtotal = cart.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0);
+    discountAmount = c.type==='percent' ? Math.round(subtotal*c.value/100) : c.value;
+    appliedCoupon = code;
+    updateSummary();
+    toast('✓ Kupon uygulandı! -₺'+discountAmount+' indirim');
+  }).catch(()=>toast('Kupon kontrol edilemedi.', true));
+}
+
+function copyIBAN() {
+  navigator.clipboard.writeText('TR00000100020003000400050000').then(()=>toast('IBAN kopyalandı!'));
+}
+
+async function doCheckout() {
+  if (!cart.length) { toast('Sepetiniz boş!', true); return; }
+  const adName = document.getElementById('adName').value.trim();
+  const adPhone = document.getElementById('adPhone').value.trim();
+  const adAddress = document.getElementById('adAddress').value.trim();
+  const adDistrict = document.getElementById('adDistrict').value.trim();
+  const adCity = document.getElementById('adCity').value.trim();
+  if (!adName||!adPhone||!adAddress||!adDistrict||!adCity) {
+    toast('Teslimat adresini eksiksiz doldurun!', true); return;
+  }
+  if (!currentUser) {
+    location.href = 'uye.html?redirect=sepet.html';
+    return;
+  }
+
+  const btn = document.getElementById('checkoutBtn');
+  btn.textContent = 'İŞLENİYOR...'; btn.disabled = true;
+
+  const subtotal = cart.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0);
+  const kapidaExtra = selectedPay==='kapida' ? 15 : 0;
+  const cargoPrice = (CARGO_PRICES[selectedCargo]||49) + kapidaExtra;
+  const total = subtotal + cargoPrice - discountAmount;
+
+  const orderData = {
+    userId: currentUser.uid,
+    userName: currentUser.displayName||adName,
+    userEmail: currentUser.email||'',
+    items: cart.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty,image:i.image||'',cat:i.cat||''})),
+    address: { name:adName, phone:adPhone, address:adAddress, district:adDistrict, city:adCity, zip:document.getElementById('adZip').value.trim() },
+    cargo: { company: selectedCargo, companyName: CARGO_NAMES[selectedCargo], price: cargoPrice, trackingCode:'', status:'Hazırlanıyor' },
+    payment: { method: selectedPay, status: selectedPay==='stripe' ? 'pending' : (selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery') },
+    subtotal, cargoPrice, discount: discountAmount, total,
+    coupon: appliedCoupon||'',
+    status: 'yeni',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  if (selectedPay === 'stripe') {
+    // Stripe ile ödeme
+    if (!cardElement) { toast('Kart bilgisi girin!', true); btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false; return; }
+    try {
+      const {paymentMethod, error} = await stripe.createPaymentMethod({ type:'card', card:cardElement, billing_details:{name:adName} });
+      if (error) { document.getElementById('card-errors').textContent=error.message; btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false; return; }
+      orderData.payment.stripePaymentMethodId = paymentMethod.id;
+      // NOT: Gerçek ödeme için backend'de Stripe PaymentIntent oluşturulmalı
+      // Şimdilik siparişi kaydediyoruz, ödeme admindan onaylanacak
+      orderData.payment.status = 'pending_stripe';
+    } catch(e) {
+      btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false;
+      toast('Kart işlemi başarısız.', true); return;
+    }
+  }
+
+  // Siparişi Firestore'a kaydet
+  db.collection('orders').add(orderData).then(ref => {
+    const code = 'RP-' + ref.id.slice(-6).toUpperCase();
+    db.collection('orders').doc(ref.id).update({ orderCode: code });
+    localStorage.removeItem('retropatch_cart');
+    document.getElementById('cartWrap').style.display='none';
+    document.getElementById('successWrap').style.display='block';
+    document.getElementById('successCode').textContent = code;
+    window.scrollTo(0,0);
+  }).catch(e => {
+    btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false;
+    toast('Sipariş kaydedilemedi: '+e.message, true);
+  });
+}
+
+function prefillAddress(user) {
+  db.collection('users').doc(user.uid).get().then(doc => {
+    if (!doc.exists) return;
+    const d = doc.data();
+    if (d.lastAddress) {
+      document.getElementById('adName').value = d.lastAddress.name||d.name||'';
+      document.getElementById('adPhone').value = d.lastAddress.phone||d.phone||'';
+      document.getElementById('adAddress').value = d.lastAddress.address||'';
+      document.getElementById('adDistrict').value = d.lastAddress.district||'';
+      document.getElementById('adCity').value = d.lastAddress.city||'';
+      document.getElementById('adZip').value = d.lastAddress.zip||'';
+    } else {
+      document.getElementById('adName').value = d.name||'';
+      document.getElementById('adPhone').value = d.phone||'';
+    }
+  });
+}
+
+// Init stripe card on load
+window.addEventListener('load', ()=>{ selectPay('stripe', document.querySelector('.pay-method')); });
+
+function toast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (err?' err':'');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>
