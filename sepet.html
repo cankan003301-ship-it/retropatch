@@ -476,7 +476,9 @@ async function doCheckout() {
 
   const subtotal = cart.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0);
   const kapidaExtra = selectedPay==='kapida' ? 15 : 0;
-  const cargoPrice = (CARGO_PRICES[selectedCargo]||49) + kapidaExtra;
+  const freeLimit2 = window.FREE_CARGO_LIMIT !== undefined ? window.FREE_CARGO_LIMIT : (kargoSettings.limit || 500);
+  const baseCargoPrice = (freeLimit2 > 0 && subtotal >= freeLimit2) ? 0 : (CARGO_PRICES[selectedCargo]||49);
+  const cargoPrice = baseCargoPrice + kapidaExtra;
   const total = subtotal + cargoPrice - discountAmount;
 
   const orderData = {
