@@ -126,7 +126,7 @@
 <body>
 
 <nav>
-  <a href="index.html" class="logo"><img src="retro_logo3.png" alt="RetroPatch"></a>
+  <a href="index.html" class="logo"><img src="retro_logo.png" alt="RetroPatch"></a>
   <ul>
     <li><a href="urunler.html">Ürünler</a></li>
     <li><a href="hesap.html" id="navHesap">Hesabım</a></li>
@@ -312,9 +312,57 @@ const stripe = Stripe(STRIPE_PUBLIC_KEY);
 const elements = stripe.elements();
 let cardElement = null;
 
-// Kargo fiyatları
-const CARGO_PRICES = { mng:49, yurtici:44, ptt:35, surat:52 };
+// Kargo fiyatları - Firestore'dan yüklenecek, varsayılan değerler
+let CARGO_PRICES = { mng:49, yurtici:44, ptt:35, surat:52 };
 const CARGO_NAMES = { mng:'MNG Kargo', yurtici:'Yurtiçi Kargo', ptt:'PTT Kargo', surat:'Sürat Kargo' };
+let kargoSettings = { fiyat: 49, limit: 500, firma: 'MNG Kargo', sure: '2-4 iş günü' };
+
+// Firestore'dan kargo ayarlarını yükle
+function loadKargoSettings() {
+  db.collection('settings').doc('kargo').get().then(doc => {
+    if (doc.exists) {
+      const d = doc.data();
+      kargoSettings = d;
+      // Admin'den tek fiyat geliyorsa tüm seçeneklere uygula
+      if (d.fiyat) {
+        CARGO_PRICES.mng = d.fiyat;
+        CARGO_PRICES.yurtici = Math.max(0, d.fiyat - 5);
+        CARGO_PRICES.ptt = Math.max(0, d.fiyat - 14);
+        CARGO_PRICES.surat = d.fiyat + 3;
+      }
+      // Ücretsiz kargo limitini güncelle
+      if (d.limit) window.FREE_CARGO_LIMIT = d.limit;
+      // Teslimat süresini güncelle
+      if (d.sure) {
+        document.querySelectorAll('.cargo-opt-info [style*="muted"]').forEach(el => {
+          el.textContent = d.sure;
+        });
+      }
+      // Kargo firma adını güncelle
+      if (d.firma) {
+        const mngEl = document.querySelector('.cargo-opt .cargo-opt-name');
+        if (mngEl) mngEl.textContent = d.firma;
+      }
+      // Fiyatları HTML'de güncelle
+      updateCargoPriceDisplay();
+      updateSummary();
+    }
+  }).catch(e => console.log('Kargo ayarları yüklenemedi:', e));
+}
+
+function updateCargoPriceDisplay() {
+  const opts = document.querySelectorAll('.cargo-opt');
+  const keys = ['mng','yurtici','ptt','surat'];
+  opts.forEach((opt, i) => {
+    const priceEl = opt.querySelector('.cargo-opt-price');
+    if (priceEl && keys[i]) {
+      const price = CARGO_PRICES[keys[i]];
+      const limit = window.FREE_CARGO_LIMIT || kargoSettings.limit || 500;
+      const subtotal = cart.reduce((s,item)=>s+(item.price||0)*(item.qty||1),0);
+      priceEl.textContent = (subtotal >= limit && limit > 0) ? 'ÜCRETSİZ' : '₺' + price;
+    }
+  });
+}
 
 let cart = [];
 let currentUser = null;
@@ -329,6 +377,7 @@ auth.onAuthStateChanged(user => {
   document.getElementById('navHesap').href = user ? 'hesap.html' : 'uye.html';
   if (user) prefillAddress(user);
   loadCart();
+  loadKargoSettings();
 });
 
 function loadCart() {
@@ -387,12 +436,15 @@ function saveCart() {
 function updateSummary() {
   const subtotal = cart.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0);
   const kapidaExtra = selectedPay==='kapida' ? 15 : 0;
-  const cargo = (CARGO_PRICES[selectedCargo]||49) + kapidaExtra;
+  const freeLimit = window.FREE_CARGO_LIMIT || kargoSettings.limit || 500;
+  const cargoPrice = (freeLimit > 0 && subtotal >= freeLimit) ? 0 : (CARGO_PRICES[selectedCargo]||49);
+  const cargo = cargoPrice + kapidaExtra;
   const total = subtotal + cargo - discountAmount;
   document.getElementById('sumSubtotal').textContent = '₺'+subtotal.toLocaleString('tr-TR');
-  document.getElementById('sumCargo').textContent = '₺'+cargo;
+  document.getElementById('sumCargo').textContent = cargoPrice === 0 ? '₺0 (Ücretsiz)' : '₺'+cargo;
   document.getElementById('sumDiscount').textContent = '-₺'+discountAmount;
   document.getElementById('sumTotal').textContent = '₺'+Math.max(0,total).toLocaleString('tr-TR');
+  updateCargoPriceDisplay();
 }
 
 function updateCargo(el) {
