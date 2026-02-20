@@ -2,8 +2,8 @@
 // Vercel Serverless Function — repo'nun /api/ klasörüne koy
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY; // Vercel env variable
-const ADMIN_EMAIL    = process.env.ADMIN_EMAIL || 'admin@retropatch.com';
-const FROM_EMAIL     = process.env.FROM_EMAIL  || 'RetroPatch <noreply@retropatch.com>';
+const ADMIN_EMAIL    = process.env.ADMIN_EMAIL || 'retropatchyama@gmail.com';
+const FROM_EMAIL     = process.env.FROM_EMAIL  || 'onboarding@resend.dev';
 
 export default async function handler(req, res) {
   // CORS
@@ -277,7 +277,7 @@ export default async function handler(req, res) {
         body: JSON.stringify(email),
       });
       results.push(await r.json());
-      if (emails.length > 1) await new Promise(resolve => setTimeout(resolve, 700));
+      if (emails.length > 1) await new Promise(resolve => setTimeout(resolve, 1200));
     }
     console.log('Emails sent:', results);
     return res.status(200).json({ ok: true, sent: results.length, results });
