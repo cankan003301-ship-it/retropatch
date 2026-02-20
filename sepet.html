@@ -658,6 +658,8 @@ async function doCheckout() {
     document.getElementById('successWrap').style.display='block';
     document.getElementById('successCode').textContent = code;
     window.scrollTo(0,0);
+    // Email bildirimi (arka planda, hata olsa sipariş etkilenmez)
+    sendOrderEmail(code, {...orderData, userEmail: orderData.userEmail || (currentUser && currentUser.email) || ''});
   }).catch(e => {
     btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false;
     toast('Sipariş kaydedilemedi: '+e.message, true);
@@ -1079,6 +1081,39 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
   });
 })();
 
+
+// ===== EMAIL BİLDİRİMLERİ =====
+async function sendOrderEmail(orderCode, orderData) {
+  try {
+    const items = (orderData.items||[]).map(i => ({
+      name: i.name, qty: i.qty||1, price: (i.price||0)*(i.qty||1)
+    }));
+    const addr = orderData.address || {};
+    const addressStr = [addr.name, addr.phone, addr.address, addr.district, addr.city].filter(Boolean).join(', ');
+    await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        type: 'order_confirmed',
+        data: {
+          orderCode,
+          customerName: orderData.userName || addr.name || 'Müşteri',
+          customerEmail: orderData.userEmail || '',
+          customerPhone: addr.phone || '',
+          items,
+          total: orderData.total,
+          address: addressStr,
+          paymentMethod: orderData.payment?.method === 'havale' ? 'Havale/EFT' :
+                         orderData.payment?.method === 'kapida' ? 'Kapıda Ödeme' : 'Online Ödeme',
+          whatsapp: '905000000000'
+        }
+      })
+    });
+    console.log('Sipariş emaili gönderildi:', orderCode);
+  } catch(e) {
+    console.warn('Email gönderilemedi (sipariş yine de kaydedildi):', e);
+  }
+}
 </script>
 
 

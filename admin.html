@@ -1207,14 +1207,38 @@ function saveCargo() {
   const trackingCode = document.getElementById('cargoTrackCode').value.trim();
   const status = document.getElementById('cargoStatus').value;
   const companyNames = {mng:'MNG Kargo',yurtici:'Yurtiçi Kargo',ptt:'PTT Kargo',surat:'Sürat Kargo'};
+  const companyName = companyNames[company] || company;
+  const isCompleted = status === 'Teslim Edildi';
   db.collection('orders').doc(id).update({
     'cargo.company': company,
-    'cargo.companyName': companyNames[company],
+    'cargo.companyName': companyName,
     'cargo.trackingCode': trackingCode,
     'cargo.status': status,
-    status: status==='Teslim Edildi' ? 'tamamlandı' : 'hazırlanıyor'
-  }).then(()=>{ toast('Kargo güncellendi','ok'); closeModal('cargoModal'); renderCargo(); })
-    .catch(()=>toast('Hata!','err'));
+    status: isCompleted ? 'tamamlandı' : 'hazırlanıyor'
+  }).then(() => {
+    toast('Kargo güncellendi', 'ok');
+    closeModal('cargoModal');
+    renderCargo();
+    // Sipariş bilgisini çek ve email gönder
+    db.collection('orders').doc(id).get().then(doc => {
+      if (!doc.exists) return;
+      const order = { id: doc.id, ...doc.data() };
+      const emailData = getOrderEmailData(order);
+      if (isCompleted) {
+        // Teslim edildi maili
+        sendAdminEmail('order_completed', emailData);
+      } else if (status === 'Kargoya Verildi' || status === 'Dağıtımda') {
+        // Kargo bildirimi
+        const trackUrl = cargoTrackUrl(company, trackingCode);
+        sendAdminEmail('cargo_updated', {
+          ...emailData,
+          cargoCompany: companyName,
+          trackingCode: trackingCode,
+          trackingUrl: trackUrl
+        });
+      }
+    });
+  }).catch(() => toast('Hata!', 'err'));
 }
 
 function cargoCompanyName(c) {
@@ -1345,6 +1369,37 @@ function toast(msg, type='ok') {
   t.textContent = msg;
   t.className = `toast ${type} show`;
   setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ===== EMAIL BİLDİRİMLERİ (ADMIN) =====
+async function sendAdminEmail(type, data) {
+  try {
+    const res = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ type, data })
+    });
+    const json = await res.json();
+    console.log('Email sent:', type, json);
+  } catch(e) {
+    console.warn('Email hatası:', e);
+  }
+}
+
+function getOrderEmailData(order) {
+  const addr = order.address || {};
+  return {
+    orderCode: order.orderCode || order.id,
+    customerName: order.userName || addr.name || 'Müşteri',
+    customerEmail: order.userEmail || '',
+    customerPhone: addr.phone || order.userPhone || '',
+    items: (order.items||[]).map(i => ({name:i.name, qty:i.qty||1, price:(i.price||0)*(i.qty||1)})),
+    total: order.total || 0,
+    address: [addr.name, addr.phone, addr.address, addr.district, addr.city].filter(Boolean).join(', '),
+    paymentMethod: order.payment?.method === 'havale' ? 'Havale/EFT' :
+                   order.payment?.method === 'kapida' ? 'Kapıda Ödeme' : 'Online Ödeme',
+    whatsapp: '905000000000'
+  };
 }
 </script>
 </body>
