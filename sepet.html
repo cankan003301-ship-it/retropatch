@@ -675,21 +675,43 @@ async function doCheckout() {
 }
 
 function prefillAddress(user) {
-  db.collection('users').doc(user.uid).get().then(doc => {
-    if (!doc.exists) return;
-    const d = doc.data();
-    if (d.lastAddress) {
-      document.getElementById('adName').value = d.lastAddress.name||d.name||'';
-      document.getElementById('adPhone').value = d.lastAddress.phone||d.phone||'';
-      document.getElementById('adAddress').value = d.lastAddress.address||'';
-      document.getElementById('adDistrict').value = d.lastAddress.district||'';
-      document.getElementById('adCity').value = d.lastAddress.city||'';
-      document.getElementById('adZip').value = d.lastAddress.zip||'';
-    } else {
-      document.getElementById('adName').value = d.name||'';
-      document.getElementById('adPhone').value = d.phone||'';
-    }
-  });
+  // Önce adres defterinden varsayılan adresi dene
+  db.collection('users').doc(user.uid).collection('addresses')
+    .where('isDefault','==',true).limit(1).get()
+    .then(snap => {
+      if (!snap.empty) {
+        const a = snap.docs[0].data();
+        document.getElementById('adName').value = a.name||'';
+        document.getElementById('adPhone').value = a.phone||'';
+        document.getElementById('adAddress').value = a.line||'';
+        document.getElementById('adDistrict').value = a.district||'';
+        document.getElementById('adCity').value = a.city||'';
+        document.getElementById('adZip').value = a.zip||'';
+      } else {
+        // Varsayılan yoksa ilk adresi al
+        db.collection('users').doc(user.uid).collection('addresses')
+          .orderBy('createdAt','asc').limit(1).get()
+          .then(snap2 => {
+            if (!snap2.empty) {
+              const a = snap2.docs[0].data();
+              document.getElementById('adName').value = a.name||'';
+              document.getElementById('adPhone').value = a.phone||'';
+              document.getElementById('adAddress').value = a.line||'';
+              document.getElementById('adDistrict').value = a.district||'';
+              document.getElementById('adCity').value = a.city||'';
+              document.getElementById('adZip').value = a.zip||'';
+            } else {
+              // Adres defteri boşsa kullanıcı adını doldur
+              db.collection('users').doc(user.uid).get().then(doc => {
+                if (!doc.exists) return;
+                const d = doc.data();
+                document.getElementById('adName').value = d.name||'';
+                document.getElementById('adPhone').value = d.phone||'';
+              });
+            }
+          });
+      }
+    });
 }
 
 // Init ödeme seçimi

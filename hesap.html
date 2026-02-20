@@ -403,13 +403,6 @@
           <button class="btn-save" onclick="saveProfile()">KAYDET</button>
         </div>
         <div class="profile-card">
-          <h4>KAYITLI ADRES</h4>
-          <div class="fg"><label>Adres</label><input type="text" id="pAddress" placeholder="Mahalle, sokak..."></div>
-          <div class="fg"><label>İlçe / İl</label><input type="text" id="pCity" placeholder="İlçe, İl"></div>
-          <div class="fg"><label>Posta Kodu</label><input type="text" id="pZip" placeholder="34XXX"></div>
-          <button class="btn-save" onclick="saveAddress()">KAYDET</button>
-        </div>
-        <div class="profile-card">
           <h4>ŞİFRE DEĞİŞTİR</h4>
           <div class="fg"><label>Yeni Şifre</label><input type="password" id="newPw" placeholder="En az 6 karakter"></div>
           <div class="fg"><label>Tekrar</label><input type="password" id="newPw2" placeholder="••••••••"></div>
@@ -781,11 +774,6 @@ function loadProfile() {
     document.getElementById('pName').value = d.name||'';
     document.getElementById('pEmail').value = d.email||currentUser.email||'';
     document.getElementById('pPhone').value = d.phone||'';
-    if (d.lastAddress) {
-      document.getElementById('pAddress').value = d.lastAddress.address||'';
-      document.getElementById('pCity').value = (d.lastAddress.district?d.lastAddress.district+', ':'')+d.lastAddress.city||'';
-      document.getElementById('pZip').value = d.lastAddress.zip||'';
-    }
   });
 }
 
@@ -800,17 +788,6 @@ function saveProfile() {
     document.getElementById('userAvatar').textContent = name[0]?.toUpperCase()||'?';
     toast('Profil güncellendi!');
   }).catch(()=>toast('Hata oluştu.',true));
-}
-
-function saveAddress() {
-  const address = document.getElementById('pAddress').value.trim();
-  const city = document.getElementById('pCity').value.trim();
-  const zip = document.getElementById('pZip').value.trim();
-  db.collection('users').doc(currentUser.uid).update({
-    'lastAddress.address': address,
-    'lastAddress.city': city,
-    'lastAddress.zip': zip
-  }).then(()=>toast('Adres kaydedildi!')).catch(()=>toast('Hata.',true));
 }
 
 function changePass() {
