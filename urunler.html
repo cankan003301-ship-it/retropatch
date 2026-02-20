@@ -48,6 +48,10 @@
     .product-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;}
     .product-card:hover .product-overlay{opacity:1;}
     .quick-btn{background:var(--accent);color:#000;border:none;padding:10px 22px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
+    .fav-btn{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .2s;opacity:0;z-index:2;}
+    .product-card:hover .fav-btn{opacity:1;}
+    .fav-btn.active{opacity:1!important;color:#e63946;border-color:rgba(230,57,70,.5);background:rgba(230,57,70,.15);}
+    .fav-btn:hover{color:#e63946;border-color:rgba(230,57,70,.5);}
     .product-info{padding:14px 16px;border-top:1px solid var(--border);}
     .product-cat{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
     .product-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -381,11 +385,30 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 // Auth durumuna göre navbar güncelle
+let userFavorites = new Set();
+let favUnsub = null;
+
 auth.onAuthStateChanged(user => {
   document.getElementById('navCartLi').style.display = user ? 'list-item' : 'none';
   document.getElementById('navHesapLi').style.display = user ? 'list-item' : 'none';
   document.getElementById('navLoginLi').style.display = user ? 'none' : 'list-item';
   updateCartCount();
+  // Favori dinleyicisini başlat/durdur
+  if (favUnsub) { favUnsub(); favUnsub = null; }
+  if (user) {
+    favUnsub = db.collection('users').doc(user.uid).collection('favorites')
+      .onSnapshot(snap => {
+        userFavorites = new Set(snap.docs.map(d => d.id));
+        // Açık kartların fav butonlarını güncelle
+        document.querySelectorAll('.fav-btn').forEach(btn => {
+          const card = btn.closest('.product-card');
+          const pid = card?.getAttribute('data-pid');
+          if (pid) btn.classList.toggle('active', userFavorites.has(pid));
+        });
+      });
+  } else {
+    userFavorites = new Set();
+  }
 });
 
 let allProducts = [];
@@ -454,10 +477,11 @@ function renderGrid() {
     return;
   }
   grid.innerHTML = filtered.map(p=>`
-    <div class="product-card" onclick="openModal('${p.id}')">
+    <div class="product-card" data-pid="${p.id}" onclick="openModal('${p.id}')">
       <div class="product-img">
         <img src="${p.image||''}" alt="${p.name}" loading="lazy" onerror="this.parentElement.style.background='var(--bg3)';this.style.display='none'">
         <div class="product-overlay"><button class="quick-btn" onclick="event.stopPropagation();openModal('${p.id}')">İNCELE</button></div>
+        <button class="fav-btn${userFavorites.has(p.id)?' active':''}" onclick="event.stopPropagation();toggleFav('${p.id}',this)" title="Favorilere ekle">❤</button>
       </div>
       <div class="product-info">
         <div class="product-cat">${p.cat||''}</div>
@@ -508,7 +532,25 @@ function closeModal(){
 function closeMBg(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
 function goOrder(){closeModal();window.location.href='index.html#siparis';}
 
-// ============ YORUM SİSTEMİ ============
+// ============ FAVORİLER ============
+function toggleFav(productId, btn) {
+  const user = auth.currentUser;
+  if (!user) { showToast('Favori eklemek için giriş yapın'); window.location.href='uye.html'; return; }
+  const ref = db.collection('users').doc(user.uid).collection('favorites').doc(productId);
+  if (userFavorites.has(productId)) {
+    ref.delete().then(() => {
+      db.collection('products').doc(productId).update({favorites: firebase.firestore.FieldValue.increment(-1)}).catch(()=>{});
+      showToast('Favorilerden çıkarıldı');
+    });
+  } else {
+    const p = allProducts.find(x => x.id === productId);
+    ref.set({ name: p?.name||'', price: p?.price||0, image: p?.image||'', cat: p?.cat||'', addedAt: firebase.firestore.FieldValue.serverTimestamp() })
+      .then(() => {
+        db.collection('products').doc(productId).update({favorites: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
+        showToast('❤ Favorilere eklendi');
+      });
+  }
+}
 function loadReviews(productId) {
   if (window._reviewsUnsub) { window._reviewsUnsub(); window._reviewsUnsub = null; }
   const list = document.getElementById('reviewList');
