@@ -302,7 +302,7 @@
       </div>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>#</th><th>Müşteri</th><th>Telefon</th><th>İçerik</th><th>Tarih</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead>
+          <thead><tr><th>#</th><th>Müşteri</th><th>Telefon</th><th>İçerik</th><th>Tarih</th><th>Tutar</th><th>Durum</th><th>İşlem</th><th></th></tr></thead>
           <tbody id="ordTbody"></tbody>
         </table>
       </div>
@@ -678,8 +678,13 @@ function initData() {
 
 // ============ REALTIME LISTENERS ============
 function listenOrders() {
-  db.collection('orders').orderBy('createdAt', 'desc').onSnapshot(snap => {
-    allOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  db.collection('orders').onSnapshot(snap => {
+    allOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => {
+        const ta = a.createdAt?.seconds || 0;
+        const tb = b.createdAt?.seconds || 0;
+        return tb - ta;
+      });
     updateDashboard();
     renderOrders(document.getElementById('orderFilter')?.value || 'all');
     renderRecentOrders();
@@ -780,7 +785,7 @@ function renderOrders(filter = 'all') {
   let list = allOrders;
   if (filter !== 'all') list = list.filter(o => (o.status || 'yeni') === filter);
   if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">📦</div><div class="empty-text">Sipariş bulunamadı</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon">📦</div><div class="empty-text">Sipariş bulunamadı</div></div></td></tr>';
     return;
   }
   tbody.innerHTML = list.map((o, i) => `
@@ -799,6 +804,9 @@ function renderOrders(filter = 'all') {
       <td>
         <button class="btn btn-blue btn-sm" onclick="showOrderDetail('${o.id}')">Detay</button>
       </td>
+      <td>
+        <button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Sil</button>
+      </td>
     </tr>`).join('');
 }
 
@@ -806,6 +814,13 @@ function updateOrderStatus(id, status) {
   db.collection('orders').doc(id).update({ status })
     .then(() => toast('Durum güncellendi', 'ok'))
     .catch(() => toast('Hata!', 'err'));
+}
+
+function deleteOrder(id) {
+  if (!confirm('Bu sipariş kalıcı olarak silinsin mi?')) return;
+  db.collection('orders').doc(id).delete()
+    .then(() => toast('Sipariş silindi', 'ok'))
+    .catch(() => toast('Silinemedi!', 'err'));
 }
 
 function showOrderDetail(id) {
