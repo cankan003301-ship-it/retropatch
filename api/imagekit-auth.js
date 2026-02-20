@@ -15,7 +15,7 @@ export default function handler(req, res) {
   }
 
   const token = crypto.randomUUID();
-  const expire = Math.floor(Date.now() / 1000) + 3600; // 1 saat geçerli
+  const expire = Math.floor(Date.now() / 1000) + 1800; // 30 dakika geçerli
   const signature = crypto
     .createHmac('sha1', IMAGEKIT_PRIVATE_KEY)
     .update(token + expire)
