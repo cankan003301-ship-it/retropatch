@@ -413,10 +413,10 @@
       <h3>BİZE ULAŞIN</h3>
       <p>Sorularınız veya hızlı sipariş için aşağıdan ulaşabilirsiniz.</p>
       <div class="contact-links">
-        <a href="https://wa.me/905XXXXXXXXX" class="contact-link" target="_blank"><div class="contact-link-icon">📱</div>WhatsApp: +90 5XX XXX XX XX</a>
-        <a href="/cdn-cgi/l/email-protection#0a63646c654a786f7e78657a6b7e696224696567" class="contact-link"><div class="contact-link-icon">✉</div><span class="__cf_email__" data-cfemail="96fff8f0f9d6e4f3e2e4f9e6f7e2f5feb8f5f9fb">[email&#160;protected]</span></a>
-        <a href="https://dolap.com/profil/retropatch" class="contact-link" target="_blank"><div class="contact-link-icon">🛍</div>Dolap: @retropatch</a>
-        <a href="https://instagram.com/retropatch" class="contact-link" target="_blank"><div class="contact-link-icon">📷</div>Instagram: @retropatch</a>
+        <a href="https://wa.me/905XXXXXXXXX" class="contact-link" target="_blank" id="ctaWA"><div class="contact-link-icon">📱</div><span id="ctaWAText">WhatsApp: +90 5XX XXX XX XX</span></a>
+        <a href="mailto:info@retropatch.com" class="contact-link" id="ctaEmail"><div class="contact-link-icon">✉</div><span id="ctaEmailText">info@retropatch.com</span></a>
+        <a href="https://dolap.com/profil/retropatch" class="contact-link" target="_blank" id="ctaDolap"><div class="contact-link-icon">🛍</div><span id="ctaDolapText">Dolap: @retropatch</span></a>
+        <a href="https://instagram.com/retropatch" class="contact-link" target="_blank" id="ctaIG"><div class="contact-link-icon">📷</div><span id="ctaIGText">Instagram: @retropatch</span></a>
       </div>
     </div>
     <div class="contact-form">
@@ -482,6 +482,34 @@ firebase.initializeApp({
   appId:"1:449894507687:web:a932684047bd590579e782"
 });
 const db = firebase.firestore();
+
+// ===== CONTACT SETTINGS =====
+function loadContactSettings() {
+  db.collection('settings').doc('site').get().then(doc => {
+    if (!doc.exists) return;
+    const d = doc.data();
+    if (d.whatsapp) {
+      const num = d.whatsapp.replace(/\D/g, '');
+      document.getElementById('ctaWA').href = 'https://wa.me/' + num;
+      document.getElementById('ctaWAText').textContent = 'WhatsApp: ' + d.whatsapp;
+    }
+    if (d.email) {
+      document.getElementById('ctaEmail').href = 'mailto:' + d.email;
+      document.getElementById('ctaEmailText').textContent = d.email;
+    }
+    if (d.instagram) {
+      const ig = d.instagram.replace('@','');
+      document.getElementById('ctaIG').href = 'https://instagram.com/' + ig;
+      document.getElementById('ctaIGText').textContent = 'Instagram: ' + d.instagram;
+    }
+    if (d.dolap) {
+      const dolap = d.dolap.replace('@','');
+      document.getElementById('ctaDolap').href = 'https://dolap.com/profil/' + dolap;
+      document.getElementById('ctaDolapText').textContent = 'Dolap: ' + d.dolap;
+    }
+  }).catch(() => {});
+}
+loadContactSettings();
 
 let allProducts = [];
 let currentProduct = null;
