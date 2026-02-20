@@ -1114,7 +1114,13 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
   function setWaHref(num) {
     const btn = document.getElementById('rpWaBtn');
     if (!btn) return;
-    const clean = (num || '905375295290').replace(/\D/g, '');
+    function rpNormalizePhone(num) {
+    const clean = (num || '').replace(/\D/g, '');
+    if (clean.startsWith('90')) return clean;
+    if (clean.startsWith('0')) return '90' + clean.slice(1);
+    return '90' + clean;
+  }
+    const clean = rpNormalizePhone(num || '05375295290');
     btn.href = 'https://wa.me/' + clean + '?text=' + encodeURIComponent('Merhaba, RetroPatch hakkında bilgi almak istiyorum.');
   }
   // Firestore zaten yüklüyse settings'i oku
