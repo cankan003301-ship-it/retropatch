@@ -425,7 +425,7 @@
           <input type="hidden" id="cargoOrderId">
           <div class="fg"><label>Kargo Firması</label>
             <select id="cargoCompany">
-              <option value="mng">MNG Kargo</option>
+              <option value="mng">DHL eCommerce</option>
               <option value="yurtici">Yurtiçi Kargo</option>
               <option value="ptt">PTT Kargo</option>
               <option value="surat">Sürat Kargo</option>
@@ -581,7 +581,7 @@
         </div>
         <div class="settings-card">
           <h4>🚚 KARGO FİYATLARI</h4>
-          <div class="fg"><label>MNG Kargo (₺)</label><input type="number" id="kargoMNG" placeholder="49"></div>
+          <div class="fg"><label>DHL eCommerce (₺)</label><input type="number" id="kargoMNG" placeholder="49"></div>
           <div class="fg"><label>Yurtiçi Kargo (₺)</label><input type="number" id="kargoYurtici" placeholder="44"></div>
           <div class="fg"><label>PTT Kargo (₺)</label><input type="number" id="kargoPTT" placeholder="35"></div>
           <div class="fg"><label>Sürat Kargo (₺)</label><input type="number" id="kargoSurat" placeholder="52"></div>
@@ -1428,15 +1428,15 @@ function saveCargo() {
 }
 
 function cargoCompanyName(c) {
-  return {mng:'MNG Kargo',yurtici:'Yurtiçi Kargo',ptt:'PTT Kargo',surat:'Sürat Kargo'}[c]||c||'—';
+  return {mng:'DHL eCommerce',yurtici:'Yurtiçi Kargo',ptt:'PTT Kargo',surat:'Sürat Kargo'}[c]||c||'—';
 }
 
 function cargoTrackUrl(company, code) {
   const urls = {
-    mng:`https://www.mngkargo.com.tr/wps/portal/mng/kargotakip?kargo=${code}`,
-    yurtici:`https://www.yurticikargo.com/tr/online-islemler/gonderi-sorgula?code=${code}`,
-    ptt:`https://www.ptt.gov.tr/anlik-takip?q=${code}`,
-    surat:`https://www.suratkargo.com.tr/kargo-sorgulama?code=${code}`
+    mng:`https://www.dhlecommerce.com.tr/gonderitakip?barkod=${code}`,
+    yurtici:`https://www.yurticikargo.com/tr/online-islemler/gonderi-sorgula?q=${code}`,
+    ptt:`https://gonderitakip.ptt.gov.tr/Track/Verify?q=${code}`,
+    surat:`https://www.suratkargo.com.tr/KargoSorgulama?barkodNo=${code}`
   };
   return urls[company]||'#';
 }
@@ -1592,15 +1592,15 @@ function getOrderEmailData(order) {
 let galleryItems = [];
 
 function loadGallery() {
-  db.collection('gallery').get()
-    .then(snap => {
-      // JS tarafında sırala, Firestore index gerektirmez
-      const sorted = { docs: snap.docs.slice().sort((a,b) => (a.data().order ?? 999) - (b.data().order ?? 999)) };
-      renderGalleryAdmin(sorted);
-    })
+  db.collection('gallery').orderBy('order').get()
+    .then(renderGalleryAdmin)
     .catch(() => {
-      document.getElementById('galleryAdminGrid').innerHTML =
-        '<div style="text-align:center;padding:40px;color:var(--muted2);grid-column:1/-1;">Galeri yüklenemedi.</div>';
+      db.collection('gallery').orderBy('createdAt', 'desc').get()
+        .then(renderGalleryAdmin)
+        .catch(() => {
+          document.getElementById('galleryAdminGrid').innerHTML =
+            '<div style="text-align:center;padding:40px;color:var(--muted2);grid-column:1/-1;">Galeri yüklenemedi.</div>';
+        });
     });
 }
 
@@ -1666,9 +1666,9 @@ async function gUploadFile(input) {
     fd.append('file', file);
     fd.append('fileName', 'gallery_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g,'_'));
     fd.append('folder', '/gallery');
-    fd.append('publicKey', 'public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8=');
+    fd.append('publicKey', 'public_DLfCMQ30jMqXZkZ2BKXMU4e3SuI=');
     fd.append('signature', auth.signature);
-    fd.append('expire', String(Number(auth.expire)));
+    fd.append('expire', auth.expire);
     fd.append('token', auth.token);
     const r = await fetch('https://upload.imagekit.io/api/v1/files/upload', { method:'POST', body:fd });
     const data = await r.json();
