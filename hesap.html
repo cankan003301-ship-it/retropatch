@@ -105,6 +105,30 @@
     .btn-save{background:var(--accent);color:#000;border:none;padding:10px 24px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;cursor:pointer;transition:background .2s;}
     .btn-save:hover{background:#d4b77a;}
 
+    /* ADRES DEFTERİ */
+    .addr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:20px;}
+    .addr-card{background:var(--card);border:1px solid var(--border);padding:18px;position:relative;transition:border-color .2s;}
+    .addr-card.default{border-color:var(--accent);}
+    .addr-card-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;color:var(--accent);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+    .addr-default-badge{font-size:9px;background:rgba(200,169,110,.15);border:1px solid var(--accent);color:var(--accent);padding:2px 7px;letter-spacing:1px;}
+    .addr-text{font-size:12px;color:var(--muted);line-height:1.7;}
+    .addr-actions{display:flex;gap:6px;margin-top:12px;}
+    .addr-btn{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;padding:5px 12px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .2s;}
+    .addr-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .addr-btn.danger:hover{border-color:var(--accent2);color:var(--accent2);}
+    .addr-btn.primary{background:var(--accent);color:#000;border-color:var(--accent);}
+    .addr-add-btn{width:100%;background:transparent;border:1px dashed var(--border);color:var(--muted);padding:20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+    .addr-add-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .addr-modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:8000;display:none;align-items:center;justify-content:center;padding:20px;}
+    .addr-modal-ov.open{display:flex;}
+    .addr-modal{background:var(--card);border:1px solid var(--border);width:100%;max-width:460px;padding:28px;}
+    .addr-modal h3{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:20px;}
+    .addr-fg{margin-bottom:14px;}
+    .addr-fg label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+    .addr-fg input,.addr-fg select{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+    .addr-fg input:focus,.addr-fg select:focus{border-color:var(--accent);}
+    .addr-fg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
     /* STATS */
     .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:28px;}
     .stat-card{background:var(--card);border:1px solid var(--border);padding:20px;}
@@ -282,6 +306,7 @@
     <div class="nav-item" onclick="showPage('cargo',this)"><span>🚚</span> Kargo Takibi</div>
     <div class="nav-item" onclick="showPage('favorites',this)"><span>❤️</span> Favorilerim</div>
     <div class="nav-lbl">Ayarlar</div>
+    <div class="nav-item" onclick="showPage('addresses',this)"><span>📍</span> Adres Defteri</div>
     <div class="nav-item" onclick="showPage('profile',this)"><span>👤</span> Profilim</div>
     <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
   </aside>
@@ -330,7 +355,42 @@
     </div>
 
     <!-- PROFİL -->
-    <div class="page" id="page-profile">
+    <div class="page" id="page-addresses">
+      <div class="page-hdr"><h2>ADRES DEFTERİ</h2></div>
+      <div class="addr-grid" id="addrGrid">
+        <div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">📍</div><p>Kayıtlı adresiniz yok</p></div>
+      </div>
+      <button class="addr-add-btn" onclick="openAddrModal()">+ YENİ ADRES EKLE</button>
+    </div>
+
+    <!-- ADRES MODAL -->
+    <div class="addr-modal-ov" id="addrModal">
+      <div class="addr-modal">
+        <h3 id="addrModalTitle">YENİ ADRES</h3>
+        <input type="hidden" id="addrEditId">
+        <div class="addr-fg"><label>Adres Başlığı *</label><input type="text" id="addrTitle" placeholder="Ev, İş, Diğer..."></div>
+        <div class="addr-fg"><label>Ad Soyad *</label><input type="text" id="addrName" placeholder="Ad Soyad"></div>
+        <div class="addr-fg"><label>Telefon</label><input type="tel" id="addrPhone" placeholder="+90 5XX XXX XX XX"></div>
+        <div class="addr-fg"><label>Adres *</label><input type="text" id="addrLine" placeholder="Mahalle, cadde, sokak, no..."></div>
+        <div class="addr-fg-row">
+          <div class="addr-fg"><label>İlçe *</label><input type="text" id="addrDistrict" placeholder="İlçe"></div>
+          <div class="addr-fg"><label>İl *</label><input type="text" id="addrCity" placeholder="İl"></div>
+        </div>
+        <div class="addr-fg-row">
+          <div class="addr-fg"><label>Posta Kodu</label><input type="text" id="addrZip" placeholder="34XXX"></div>
+          <div class="addr-fg"><label>Varsayılan</label>
+            <select id="addrDefault">
+              <option value="0">Hayır</option>
+              <option value="1">Evet — Varsayılan yap</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn-save" style="flex:1;" onclick="saveAddr()">💾 KAYDET</button>
+          <button class="btn-save" style="background:transparent;border:1px solid var(--border);color:var(--muted);" onclick="closeAddrModal()">İPTAL</button>
+        </div>
+      </div>
+    </div>
       <div class="page-hdr"><h2>PROFİLİM</h2></div>
       <div class="profile-grid">
         <div class="profile-card">
@@ -394,6 +454,7 @@ function showPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   el?.classList.add('active');
   if (name==='cargo') renderCargo();
+  if (name==='addresses') loadAddresses();
 }
 
 // ═══ ORDERS ═══
@@ -581,7 +642,139 @@ function removeFav(id) {
     .then(()=>toast('Favoriden çıkarıldı'));
 }
 
-// ═══ PROFİL ═══
+// ═══ ADRES DEFTERİ ═══
+function loadAddresses() {
+  if (!currentUser) return;
+  db.collection('users').doc(currentUser.uid).collection('addresses').orderBy('createdAt','asc').get()
+    .then(snap => {
+      const addresses = snap.docs.map(d => ({id:d.id,...d.data()}));
+      renderAddresses(addresses);
+    }).catch(() => renderAddresses([]));
+}
+
+function renderAddresses(addresses) {
+  const grid = document.getElementById('addrGrid');
+  if (!addresses.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">📍</div><p>Kayıtlı adresiniz yok</p></div>';
+    return;
+  }
+  grid.innerHTML = addresses.map(a => `
+    <div class="addr-card ${a.isDefault?'default':''}">
+      <div class="addr-card-title">
+        ${a.title||'Adres'}
+        ${a.isDefault ? '<span class="addr-default-badge">VARSAYILAN</span>' : ''}
+      </div>
+      <div class="addr-text">
+        <strong>${a.name||''}</strong><br>
+        ${a.line||''}<br>
+        ${a.district?a.district+', ':''}${a.city||''} ${a.zip||''}<br>
+        ${a.phone||''}
+      </div>
+      <div class="addr-actions">
+        ${!a.isDefault ? `<button class="addr-btn primary" onclick="setDefaultAddr('${a.id}')">Varsayılan Yap</button>` : ''}
+        <button class="addr-btn" onclick="editAddr('${a.id}')">✏️ Düzenle</button>
+        <button class="addr-btn danger" onclick="deleteAddr('${a.id}')">🗑 Sil</button>
+      </div>
+    </div>`).join('');
+}
+
+function openAddrModal(editId) {
+  document.getElementById('addrEditId').value = '';
+  document.getElementById('addrTitle').value = '';
+  document.getElementById('addrName').value = currentUser?.displayName || '';
+  document.getElementById('addrPhone').value = '';
+  document.getElementById('addrLine').value = '';
+  document.getElementById('addrDistrict').value = '';
+  document.getElementById('addrCity').value = '';
+  document.getElementById('addrZip').value = '';
+  document.getElementById('addrDefault').value = '0';
+  document.getElementById('addrModalTitle').textContent = 'YENİ ADRES';
+  document.getElementById('addrModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAddrModal() {
+  document.getElementById('addrModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function editAddr(id) {
+  db.collection('users').doc(currentUser.uid).collection('addresses').doc(id).get()
+    .then(doc => {
+      if (!doc.exists) return;
+      const a = doc.data();
+      document.getElementById('addrEditId').value = id;
+      document.getElementById('addrTitle').value = a.title||'';
+      document.getElementById('addrName').value = a.name||'';
+      document.getElementById('addrPhone').value = a.phone||'';
+      document.getElementById('addrLine').value = a.line||'';
+      document.getElementById('addrDistrict').value = a.district||'';
+      document.getElementById('addrCity').value = a.city||'';
+      document.getElementById('addrZip').value = a.zip||'';
+      document.getElementById('addrDefault').value = a.isDefault ? '1' : '0';
+      document.getElementById('addrModalTitle').textContent = 'ADRESİ DÜZENLE';
+      document.getElementById('addrModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+}
+
+function saveAddr() {
+  const editId = document.getElementById('addrEditId').value;
+  const title = document.getElementById('addrTitle').value.trim();
+  const name = document.getElementById('addrName').value.trim();
+  const phone = document.getElementById('addrPhone').value.trim();
+  const line = document.getElementById('addrLine').value.trim();
+  const district = document.getElementById('addrDistrict').value.trim();
+  const city = document.getElementById('addrCity').value.trim();
+  const zip = document.getElementById('addrZip').value.trim();
+  const isDefault = document.getElementById('addrDefault').value === '1';
+
+  if (!title || !name || !line || !district || !city) { toast('Zorunlu alanları doldurun!', true); return; }
+
+  const data = { title, name, phone, line, district, city, zip, isDefault };
+  const col = db.collection('users').doc(currentUser.uid).collection('addresses');
+
+  const doSave = () => {
+    const promise = editId
+      ? col.doc(editId).update({...data, updatedAt: firebase.firestore.FieldValue.serverTimestamp()})
+      : col.add({...data, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+    promise.then(() => {
+      // Eğer varsayılan yapıldıysa diğerlerinden kaldır
+      if (isDefault) {
+        col.get().then(snap => {
+          const batch = db.batch();
+          snap.docs.forEach(d => {
+            if (d.id !== editId && d.data().isDefault) batch.update(d.ref, {isDefault: false});
+          });
+          batch.commit();
+        });
+      }
+      toast(editId ? 'Adres güncellendi ✓' : 'Adres eklendi ✓');
+      closeAddrModal();
+      loadAddresses();
+    }).catch(() => toast('Hata oluştu!', true));
+  };
+  doSave();
+}
+
+function setDefaultAddr(id) {
+  const col = db.collection('users').doc(currentUser.uid).collection('addresses');
+  col.get().then(snap => {
+    const batch = db.batch();
+    snap.docs.forEach(d => batch.update(d.ref, {isDefault: d.id === id}));
+    batch.commit().then(() => { toast('Varsayılan adres güncellendi ✓'); loadAddresses(); });
+  });
+}
+
+function deleteAddr(id) {
+  if (!confirm('Bu adresi silmek istediğinize emin misiniz?')) return;
+  db.collection('users').doc(currentUser.uid).collection('addresses').doc(id).delete()
+    .then(() => { toast('Adres silindi'); loadAddresses(); })
+    .catch(() => toast('Silinemedi!', true));
+}
+
+// Adres modalını ESC ile kapat
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeAddrModal(); });
 function loadProfile() {
   db.collection('users').doc(currentUser.uid).get().then(doc=>{
     if (!doc.exists) return;
