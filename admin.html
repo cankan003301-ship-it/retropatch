@@ -1592,15 +1592,15 @@ function getOrderEmailData(order) {
 let galleryItems = [];
 
 function loadGallery() {
-  db.collection('gallery').orderBy('order').get()
-    .then(renderGalleryAdmin)
+  db.collection('gallery').get()
+    .then(snap => {
+      // JS tarafında sırala, Firestore index gerektirmez
+      const sorted = { docs: snap.docs.slice().sort((a,b) => (a.data().order ?? 999) - (b.data().order ?? 999)) };
+      renderGalleryAdmin(sorted);
+    })
     .catch(() => {
-      db.collection('gallery').orderBy('createdAt', 'desc').get()
-        .then(renderGalleryAdmin)
-        .catch(() => {
-          document.getElementById('galleryAdminGrid').innerHTML =
-            '<div style="text-align:center;padding:40px;color:var(--muted2);grid-column:1/-1;">Galeri yüklenemedi.</div>';
-        });
+      document.getElementById('galleryAdminGrid').innerHTML =
+        '<div style="text-align:center;padding:40px;color:var(--muted2);grid-column:1/-1;">Galeri yüklenemedi.</div>';
     });
 }
 

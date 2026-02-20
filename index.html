@@ -762,19 +762,17 @@
       }
     }).catch(() => {});
 
-    // Galeri fotoğraflarını çek
-    db.collection('gallery').orderBy('order').onSnapshot(snap => {
-      _items = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(i => i.active !== false);
+    // Galeri fotoğraflarını çek (index gerektirmeyen sorgu)
+    db.collection('gallery').onSnapshot(snap => {
+      _items = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(i => i.active !== false)
+        .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
       renderGallery(_items);
-    }, () => {
-      // order index yoksa createdAt ile dene
-      db.collection('gallery').orderBy('createdAt', 'desc').onSnapshot(snap => {
-        _items = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(i => i.active !== false);
-        renderGallery(_items);
-      }, () => {
-        document.getElementById('rpGalleryGrid').innerHTML = '';
-        document.getElementById('rpGalleryEmpty').style.display = 'block';
-      });
+    }, (err) => {
+      console.warn('Galeri yüklenemedi:', err);
+      document.getElementById('rpGalleryGrid').innerHTML = '';
+      document.getElementById('rpGalleryEmpty').style.display = 'block';
     });
   }
 
