@@ -788,14 +788,20 @@ function renderOrders(filter = 'all') {
     tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon">📦</div><div class="empty-text">Sipariş bulunamadı</div></div></td></tr>';
     return;
   }
-  tbody.innerHTML = list.map((o, i) => `
+  tbody.innerHTML = list.map((o) => {
+    // Sepet siparişi: address.name / address.phone | Form siparişi: name / phone
+    const musteri = o.address?.name || o.name || o.userName || '—';
+    const telefon = o.address?.phone || o.phone || '—';
+    const icerik = o.items ? o.items.map(i => i.name).join(', ') : (o.product || o.notes || '—');
+    const tutar = o.total ? '₺'+o.total : (o.price ? '₺'+o.price : '—');
+    return `
     <tr>
       <td style="color:var(--muted);font-family:'Barlow Condensed',sans-serif;">#${String(allOrders.length - allOrders.indexOf(o)).padStart(3,'0')}</td>
-      <td><strong>${o.name || '—'}</strong></td>
-      <td style="color:var(--muted2);">${o.phone || '—'}</td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted2);">${o.product || o.notes || '—'}</td>
+      <td><strong>${musteri}</strong></td>
+      <td style="color:var(--muted2);">${telefon}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted2);">${icerik}</td>
       <td style="color:var(--muted);font-size:11px;">${formatDate(o.createdAt)}</td>
-      <td style="color:var(--accent);font-family:'Bebas Neue',cursive;font-size:18px;">${o.price ? '₺'+o.price : '—'}</td>
+      <td style="color:var(--accent);font-family:'Bebas Neue',cursive;font-size:18px;">${tutar}</td>
       <td>
         <select onchange="updateOrderStatus('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;outline:none;">
           ${['yeni','hazırlanıyor','tamamlandı','iptal'].map(s => `<option value="${s}" ${(o.status||'yeni')===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
@@ -807,7 +813,8 @@ function renderOrders(filter = 'all') {
       <td>
         <button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Sil</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function updateOrderStatus(id, status) {
@@ -826,23 +833,33 @@ function deleteOrder(id) {
 function showOrderDetail(id) {
   const o = allOrders.find(x => x.id === id);
   if (!o) return;
+  const musteri = o.address?.name || o.name || o.userName || '—';
+  const telefon = o.address?.phone || o.phone || '—';
+  const email = o.userEmail || o.email || '—';
+  const adres = o.address ? [o.address.address, o.address.district, o.address.city].filter(Boolean).join(', ') : '—';
+  const icerik = o.items ? o.items.map(i => `${i.name} x${i.qty}`).join('<br>') : (o.product || o.notes || '—');
+  const tutar = o.total ? '₺'+o.total : (o.price ? '₺'+o.price : '—');
   document.getElementById('ordDetail').innerHTML = `
     <div style="display:flex;flex-direction:column;gap:12px;">
-      ${row('Ad Soyad', o.name)}
-      ${row('Telefon', o.phone)}
-      ${row('E-posta', o.email)}
-      ${row('Ürün / Not', o.product || o.notes)}
-      ${row('Yama Türü', o.type)}
-      ${row('Boyut', o.size)}
-      ${row('Arka Yüzey', o.back)}
-      ${row('Adet', o.qty)}
-      ${row('Fiyat', o.price ? '₺'+o.price : '—')}
+      ${row('Sipariş Kodu', o.orderCode || '—')}
+      ${row('Ad Soyad', musteri)}
+      ${row('Telefon', telefon)}
+      ${row('E-posta', email)}
+      ${row('Adres', adres)}
+      ${row('Ürünler', icerik)}
+      ${o.type ? row('Yama Türü', o.type) : ''}
+      ${o.size ? row('Boyut', o.size) : ''}
+      ${o.back ? row('Arka Yüzey', o.back) : ''}
+      ${o.qty ? row('Adet', o.qty) : ''}
+      ${o.cargo?.companyName ? row('Kargo', o.cargo.companyName) : ''}
+      ${o.payment?.method ? row('Ödeme', o.payment.method) : ''}
+      ${row('Toplam', tutar)}
       ${row('Tarih', formatDate(o.createdAt))}
       ${row('Durum', statusBadge(o.status || 'yeni'))}
     </div>
     <div style="margin-top:20px;display:flex;gap:8px;">
-      <a href="https://wa.me/${(o.phone||'').replace(/\D/g,'')}" target="_blank" class="btn btn-accent" style="text-decoration:none;flex:1;justify-content:center;">📱 WhatsApp</a>
-      <a href="mailto:${o.email||''}" class="btn btn-outline" style="text-decoration:none;flex:1;justify-content:center;">✉ Mail</a>
+      <a href="https://wa.me/${telefon.replace(/\D/g,'')}" target="_blank" class="btn btn-accent" style="text-decoration:none;flex:1;justify-content:center;">📱 WhatsApp</a>
+      <a href="mailto:${email}" class="btn btn-outline" style="text-decoration:none;flex:1;justify-content:center;">✉ Mail</a>
     </div>`;
   openModal('ordModal');
 }
