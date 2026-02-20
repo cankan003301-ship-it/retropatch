@@ -266,16 +266,19 @@ export default async function handler(req, res) {
   // Resend ile gönder
   // ─────────────────────────────────────────────
   try {
-    const results = await Promise.all(emails.map(email =>
-      fetch('https://api.resend.com/emails', {
+    const results = [];
+    for (const email of emails) {
+      const r = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${RESEND_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(email),
-      }).then(r => r.json())
-    ));
+      });
+      results.push(await r.json());
+      if (emails.length > 1) await new Promise(resolve => setTimeout(resolve, 700));
+    }
     console.log('Emails sent:', results);
     return res.status(200).json({ ok: true, sent: results.length, results });
   } catch (err) {
