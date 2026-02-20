@@ -210,6 +210,7 @@
       </div>
       <div class="nav-sec">
         <div class="nav-lbl">Sistem</div>
+        <div class="nav-item" onclick="showPage('gallery')"><span class="ic">🖼</span> Galeri</div>
         <div class="nav-item" onclick="showPage('sitemanage')"><span class="ic">🖥</span> Site Yönetimi</div>
         <div class="nav-item" onclick="showPage('settings')"><span class="ic">⚙</span> Ayarlar</div>
         <div class="nav-item" onclick="window.open('index.html','_blank')"><span class="ic">🌐</span> Siteyi Gör</div>
@@ -492,6 +493,72 @@
         </div>
       </div>
     </div>
+
+    <!-- GALERİ YÖNETİMİ -->
+    <div class="page" id="page-gallery">
+      <div class="section-hdr">
+        <div class="section-ttl">GALERİ YÖNETİMİ</div>
+        <button class="btn btn-accent btn-sm" onclick="openGalleryModal()">+ Fotoğraf Ekle</button>
+      </div>
+
+      <div style="background:var(--bg3);border:1px solid var(--border);padding:16px 20px;margin-bottom:20px;font-size:13px;color:var(--muted2);display:flex;align-items:center;gap:10px;">
+        <span style="font-size:18px;">💡</span>
+        <span>Fotoğraflar <strong style="color:var(--accent);">index.html</strong>'de "Galeri" bölümünde görünür. Sürükle-bırak ile sırayı değiştirebilirsin.</span>
+      </div>
+
+      <div id="galleryAdminGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
+        <div style="text-align:center;padding:40px;color:var(--muted2);font-size:13px;letter-spacing:1px;grid-column:1/-1;">
+          Yükleniyor...
+        </div>
+      </div>
+    </div>
+
+    <!-- GALERİ MODAL -->
+    <div class="modal-overlay" id="galleryModal" onclick="closeGalleryModal(event)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;align-items:center;justify-content:center;">
+      <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <div style="font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--accent);" id="galleryModalTitle">FOTOĞRAF EKLE</div>
+          <button onclick="closeGalleryModal()" style="background:none;border:none;color:var(--muted2);font-size:20px;cursor:pointer;">✕</button>
+        </div>
+
+        <input type="hidden" id="gEditId">
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:6px;">FOTOĞRAF URL (ImageKit)</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="gUrl" placeholder="https://ik.imagekit.io/qqsmrt6nv/gallery/foto.jpg"
+              oninput="gPreview(this.value)"
+              style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-size:13px;font-family:'Barlow',sans-serif;outline:none;">
+            <label style="background:var(--bg3);border:1px solid var(--border);padding:10px 14px;cursor:pointer;font-size:12px;color:var(--accent);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;white-space:nowrap;display:flex;align-items:center;gap:6px;">
+              📤 Yükle
+              <input type="file" accept="image/*" onchange="gUploadFile(this)" style="display:none;">
+            </label>
+          </div>
+          <div id="gPreviewWrap" style="margin-top:10px;display:none;">
+            <img id="gPreviewImg" src="" style="width:100%;max-height:200px;object-fit:cover;border:1px solid var(--border);">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:6px;">BAŞLIK / AÇIKLAMA (opsiyonel)</label>
+          <input type="text" id="gCaption" placeholder="ör: Futbol kulübü yaması"
+            style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-size:13px;font-family:'Barlow',sans-serif;outline:none;">
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <label style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;color:var(--muted2);">
+            <input type="checkbox" id="gActive" checked style="accent-color:var(--accent);margin-right:6px;">
+            Aktif (sitede görünsün)
+          </label>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button onclick="saveGalleryItem()" style="flex:1;background:var(--accent);color:#000;border:none;padding:13px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;cursor:pointer;">KAYDET</button>
+          <button onclick="closeGalleryModal()" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted2);padding:13px 20px;font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:1px;cursor:pointer;">İPTAL</button>
+        </div>
+      </div>
+    </div>
+
 
     <!-- SETTINGS -->
     <div class="page" id="page-settings">
@@ -1273,7 +1340,7 @@ function showPage(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   event.currentTarget?.classList.add('active');
-  const titles = {dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',sitemanage:'SİTE YÖNETİMİ',settings:'AYARLAR'};
+  const titles = {dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',settings:'AYARLAR'};
   document.getElementById('pageTitle').textContent = titles[name] || name.toUpperCase();
   if (name === 'orders') renderOrders('all');
   if (name === 'products') renderProducts();
@@ -1282,6 +1349,7 @@ function showPage(name) {
   if (name === 'members') loadMembers();
   if (name === 'coupons') loadCoupons();
   if (name === 'sitemanage') { renderBannerList(); renderStats(); loadSiteSettings(); }
+  if (name === 'gallery') loadGallery();
 }
 
 // ============ KARGO YÖNETİMİ ============
@@ -1519,6 +1587,139 @@ function getOrderEmailData(order) {
     whatsapp: '905375295290'
   };
 }
+
+// ============ GALERİ YÖNETİMİ ============
+let galleryItems = [];
+
+function loadGallery() {
+  db.collection('gallery').orderBy('order').get()
+    .then(renderGalleryAdmin)
+    .catch(() => {
+      db.collection('gallery').orderBy('createdAt', 'desc').get()
+        .then(renderGalleryAdmin)
+        .catch(() => {
+          document.getElementById('galleryAdminGrid').innerHTML =
+            '<div style="text-align:center;padding:40px;color:var(--muted2);grid-column:1/-1;">Galeri yüklenemedi.</div>';
+        });
+    });
+}
+
+function renderGalleryAdmin(snap) {
+  galleryItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const grid = document.getElementById('galleryAdminGrid');
+  if (!galleryItems.length) {
+    grid.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted2);font-family:\'Barlow Condensed\',sans-serif;font-size:13px;letter-spacing:2px;grid-column:1/-1;">HENÜz FOTOĞRAF EKLENMEDİ<br><span style=\"font-size:11px;opacity:.5;margin-top:8px;display:block;\">"+ Fotoğraf Ekle" butonunu kullanın</span></div>';
+    return;
+  }
+  grid.innerHTML = galleryItems.map((item, i) => `
+    <div style="position:relative;background:var(--bg3);border:1px solid ${item.active===false?'var(--border)':'rgba(200,169,110,.2)'};overflow:hidden;">
+      <div style="aspect-ratio:1;overflow:hidden;position:relative;">
+        <img src="${item.url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"
+          onerror="this.style.opacity='.2'">
+        ${item.active===false ? '<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:2px;color:#888;font-family:\'Barlow Condensed\',sans-serif;">GİZLİ</div>' : ''}
+      </div>
+      <div style="padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px;">
+        <span style="font-size:11px;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${item.caption || '—'}</span>
+        <div style="display:flex;gap:4px;flex-shrink:0;">
+          <button onclick="editGalleryItem('${item.id}')" style="background:var(--bg4);border:1px solid var(--border);color:var(--muted2);width:28px;height:28px;cursor:pointer;font-size:12px;">✏</button>
+          <button onclick="deleteGalleryItem('${item.id}')" style="background:var(--bg4);border:1px solid var(--border);color:var(--accent2);width:28px;height:28px;cursor:pointer;font-size:12px;">🗑</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openGalleryModal(item) {
+  document.getElementById('gEditId').value = item ? item.id : '';
+  document.getElementById('gUrl').value = item ? item.url : '';
+  document.getElementById('gCaption').value = item ? (item.caption || '') : '';
+  document.getElementById('gActive').checked = item ? item.active !== false : true;
+  document.getElementById('galleryModalTitle').textContent = item ? 'FOTOĞRAF DÜZENLE' : 'FOTOĞRAF EKLE';
+  gPreview(item ? item.url : '');
+  const m = document.getElementById('galleryModal');
+  m.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGalleryModal(e) {
+  if (e && e.target !== document.getElementById('galleryModal')) return;
+  document.getElementById('galleryModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function gPreview(url) {
+  const wrap = document.getElementById('gPreviewWrap');
+  const img  = document.getElementById('gPreviewImg');
+  if (url) { img.src = url; wrap.style.display = 'block'; }
+  else     { wrap.style.display = 'none'; }
+}
+
+async function gUploadFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  toast('Yükleniyor...', 'info');
+  try {
+    // ImageKit auth token al
+    const authRes = await fetch('/api/imagekit-auth');
+    const auth = await authRes.json();
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('fileName', 'gallery_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g,'_'));
+    fd.append('folder', '/gallery');
+    fd.append('publicKey', 'public_DLfCMQ30jMqXZkZ2BKXMU4e3SuI=');
+    fd.append('signature', auth.signature);
+    fd.append('expire', auth.expire);
+    fd.append('token', auth.token);
+    const r = await fetch('https://upload.imagekit.io/api/v1/files/upload', { method:'POST', body:fd });
+    const data = await r.json();
+    if (data.url) {
+      document.getElementById('gUrl').value = data.url;
+      gPreview(data.url);
+      toast('✓ Fotoğraf yüklendi!', 'ok');
+    } else {
+      toast('Yükleme hatası: ' + (data.message || 'Bilinmiyor'), 'err');
+    }
+  } catch(e) {
+    toast('Yükleme hatası: ' + e.message, 'err');
+  }
+}
+
+function saveGalleryItem() {
+  const url = document.getElementById('gUrl').value.trim();
+  if (!url) { toast('Fotoğraf URL zorunlu!', 'err'); return; }
+  const data = {
+    url,
+    caption: document.getElementById('gCaption').value.trim(),
+    active: document.getElementById('gActive').checked,
+  };
+  const editId = document.getElementById('gEditId').value;
+  let prom;
+  if (editId) {
+    prom = db.collection('gallery').doc(editId).update(data);
+  } else {
+    data.order = galleryItems.length;
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    prom = db.collection('gallery').add(data);
+  }
+  prom.then(() => {
+    toast(editId ? '✓ Güncellendi!' : '✓ Fotoğraf eklendi!', 'ok');
+    closeGalleryModal();
+    loadGallery();
+  }).catch(e => toast('Hata: ' + e.message, 'err'));
+}
+
+function editGalleryItem(id) {
+  const item = galleryItems.find(i => i.id === id);
+  if (item) openGalleryModal(item);
+}
+
+function deleteGalleryItem(id) {
+  if (!confirm('Bu fotoğrafı silmek istediğine emin misin?')) return;
+  db.collection('gallery').doc(id).delete()
+    .then(() => { toast('Fotoğraf silindi.', 'ok'); loadGallery(); })
+    .catch(e => toast('Hata: ' + e.message, 'err'));
+}
+
 </script>
 </body>
 </html>

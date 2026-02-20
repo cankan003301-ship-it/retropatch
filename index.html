@@ -435,6 +435,389 @@
 
 
 <!-- ═══════════════════════════════════════════════
+     GALERİ — INSTAGRAM TARZI KARE GRID
+═══════════════════════════════════════════════ -->
+<div style="background:var(--bg);border-top:1px solid var(--border);">
+<div class="rp-gallery-wrap" id="rpGallerySection">
+  <div class="rp-gallery-header">
+    <div>
+      <div class="rp-gallery-label">Bizi Takip Edin</div>
+      <h2 class="rp-gallery-title">GALERİ</h2>
+    </div>
+    <a class="rp-gallery-ig-btn" id="rpGalleryIgLink" href="https://instagram.com/retropatchyama" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      <span>@retropatchyama</span>
+    </a>
+  </div>
+
+  <div class="rp-gallery-grid" id="rpGalleryGrid">
+    <!-- Skeleton: 9 kare -->
+    <div class="rp-gallery-skel rp-skeleton"></div>
+    <div class="rp-gallery-skel rp-skeleton"></div>
+    <div class="rp-gallery-skel rp-skeleton"></div>
+    <div class="rp-gallery-skel rp-skeleton"></div>
+    <div class="rp-gallery-skel rp-skeleton"></div>
+    <div class="rp-gallery-skel rp-skeleton"></div>
+    <div class="rp-gallery-skel rp-skeleton"></div>
+    <div class="rp-gallery-skel rp-skeleton"></div>
+    <div class="rp-gallery-skel rp-skeleton"></div>
+  </div>
+
+  <div class="rp-gallery-empty" id="rpGalleryEmpty" style="display:none;">
+    <div class="rp-gallery-empty-icon">📷</div>
+    <p>Henüz fotoğraf eklenmemiş.</p>
+    <span>Admin panelinden Galeri bölümünü kullanarak fotoğraf ekleyebilirsiniz.</span>
+  </div>
+</div>
+</div>
+
+<!-- GALERİ LİGHTBOX -->
+<div class="rp-glb" id="rpGalleryLightbox" onclick="rpGlbClose(event)">
+  <button class="rp-glb-close" onclick="rpGlbClose()">✕</button>
+  <button class="rp-glb-nav rp-glb-prev" onclick="rpGlbNav(-1,event)">‹</button>
+  <button class="rp-glb-nav rp-glb-next" onclick="rpGlbNav(1,event)">›</button>
+  <div class="rp-glb-inner">
+    <div class="rp-glb-img-wrap">
+      <img class="rp-glb-img" id="rpGlbImg" src="" alt="">
+    </div>
+    <div class="rp-glb-info">
+      <div class="rp-glb-caption" id="rpGlbCaption"></div>
+      <div class="rp-glb-counter" id="rpGlbCounter"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ── GALERİ BÖLÜMÜ ── */
+.rp-gallery-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 40px;
+}
+.rp-gallery-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.rp-gallery-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.rp-gallery-title {
+  font-family: 'Bebas Neue', cursive;
+  font-size: clamp(36px, 5vw, 58px);
+  letter-spacing: 2px;
+  line-height: 1;
+  color: var(--text);
+}
+.rp-gallery-ig-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 10px 18px;
+  transition: all .2s;
+  background: transparent;
+}
+.rp-gallery-ig-btn:hover {
+  border-color: #E1306C;
+  color: #E1306C;
+  background: rgba(225,48,108,.06);
+}
+
+/* ── GRID ── */
+.rp-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+@media (min-width: 700px) {
+  .rp-gallery-grid { grid-template-columns: repeat(6, 1fr); }
+}
+@media (min-width: 900px) {
+  .rp-gallery-grid { grid-template-columns: repeat(9, 1fr); }
+}
+
+/* Kare hücre */
+.rp-gallery-cell {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--bg3);
+}
+.rp-gallery-cell img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .4s ease;
+}
+.rp-gallery-cell:hover img { transform: scale(1.08); }
+.rp-gallery-cell-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity .25s;
+}
+.rp-gallery-cell:hover .rp-gallery-cell-overlay { opacity: 1; }
+.rp-gallery-cell-overlay-icon { font-size: 22px; }
+.rp-gallery-cell-overlay-caption {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.8);
+  text-align: center;
+  padding: 0 8px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Skeleton hücresi */
+.rp-gallery-skel { aspect-ratio: 1; }
+
+/* Empty */
+.rp-gallery-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.rp-gallery-empty-icon { font-size: 40px; opacity: .25; margin-bottom: 12px; }
+.rp-gallery-empty p { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; letter-spacing: 2px; margin-bottom: 6px; }
+.rp-gallery-empty span { font-size: 12px; color: #555; }
+
+/* ── LİGHTBOX ── */
+.rp-glb {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.92);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+.rp-glb.open { display: flex; }
+.rp-glb-inner {
+  max-width: 860px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: rpGlbIn .25s ease;
+}
+@keyframes rpGlbIn {
+  from { opacity:0; transform:scale(.96); }
+  to   { opacity:1; transform:scale(1); }
+}
+.rp-glb-img-wrap {
+  width: 100%;
+  max-height: 75vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rp-glb-img {
+  max-width: 100%;
+  max-height: 75vh;
+  object-fit: contain;
+  display: block;
+}
+.rp-glb-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+.rp-glb-caption {
+  font-size: 13px;
+  color: rgba(255,255,255,.7);
+  font-family: 'Barlow', sans-serif;
+  flex: 1;
+}
+.rp-glb-counter {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.rp-glb-close {
+  position: fixed;
+  top: 20px; right: 24px;
+  background: rgba(0,0,0,.6);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+  z-index: 10001;
+}
+.rp-glb-close:hover { background: var(--accent2); border-color: var(--accent2); }
+.rp-glb-nav {
+  position: fixed;
+  top: 50%; transform: translateY(-50%);
+  background: rgba(0,0,0,.5);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+  width: 48px; height: 64px;
+  font-size: 28px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+  z-index: 10001;
+}
+.rp-glb-prev { left: 12px; }
+.rp-glb-next { right: 12px; }
+.rp-glb-nav:hover { background: rgba(200,169,110,.3); border-color: var(--accent); color: var(--accent); }
+
+@media (max-width: 600px) {
+  .rp-gallery-wrap { padding: 60px 16px; }
+  .rp-glb-nav { display: none; }
+}
+</style>
+
+<script>
+// ── GALERİ ──────────────────────────────────────────────
+(function() {
+  let _items = [];
+  let _glbIdx = 0;
+
+  function renderGallery(items) {
+    const grid = document.getElementById('rpGalleryGrid');
+    const empty = document.getElementById('rpGalleryEmpty');
+    if (!grid) return;
+
+    if (!items.length) {
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    grid.innerHTML = items.map((item, i) => `
+      <div class="rp-gallery-cell" onclick="window._rpGlbOpen(${i})">
+        <img src="${item.url}" alt="${item.caption || ''}" loading="lazy"
+          onerror="this.closest('.rp-gallery-cell').style.display='none'">
+        <div class="rp-gallery-cell-overlay">
+          <div class="rp-gallery-cell-overlay-icon">🔍</div>
+          ${item.caption ? `<div class="rp-gallery-cell-overlay-caption">${item.caption}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+
+    // Staggered animation
+    grid.querySelectorAll('.rp-gallery-cell').forEach((el, i) => {
+      el.style.opacity = '0';
+      el.style.transform = 'scale(.95)';
+      el.style.transition = `opacity .3s ${i * 30}ms, transform .3s ${i * 30}ms`;
+      requestAnimationFrame(() => {
+        el.style.opacity = '1';
+        el.style.transform = 'scale(1)';
+      });
+    });
+  }
+
+  // Instagram handle'ı Firestore'dan al
+  if (typeof db !== 'undefined') {
+    // Önce Instagram handle güncelle
+    db.collection('settings').doc('site').get().then(doc => {
+      if (doc.exists) {
+        const ig = doc.data().instagram;
+        if (ig) {
+          const handle = ig.replace('@', '');
+          const btn = document.getElementById('rpGalleryIgLink');
+          if (btn) {
+            btn.href = 'https://instagram.com/' + handle;
+            btn.querySelector('span').textContent = '@' + handle;
+          }
+        }
+      }
+    }).catch(() => {});
+
+    // Galeri fotoğraflarını çek
+    db.collection('gallery').orderBy('order').onSnapshot(snap => {
+      _items = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(i => i.active !== false);
+      renderGallery(_items);
+    }, () => {
+      // order index yoksa createdAt ile dene
+      db.collection('gallery').orderBy('createdAt', 'desc').onSnapshot(snap => {
+        _items = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(i => i.active !== false);
+        renderGallery(_items);
+      }, () => {
+        document.getElementById('rpGalleryGrid').innerHTML = '';
+        document.getElementById('rpGalleryEmpty').style.display = 'block';
+      });
+    });
+  }
+
+  // Lightbox
+  window._rpGlbOpen = function(idx) {
+    _glbIdx = idx;
+    _rpGlbShow();
+    document.getElementById('rpGalleryLightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  function _rpGlbShow() {
+    const item = _items[_glbIdx];
+    if (!item) return;
+    document.getElementById('rpGlbImg').src = item.url;
+    document.getElementById('rpGlbCaption').textContent = item.caption || '';
+    document.getElementById('rpGlbCounter').textContent = (_glbIdx + 1) + ' / ' + _items.length;
+  }
+
+  window.rpGlbClose = function(e) {
+    if (e && e.target !== document.getElementById('rpGalleryLightbox') && !e.target.classList.contains('rp-glb-close')) return;
+    document.getElementById('rpGalleryLightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  window.rpGlbNav = function(dir, e) {
+    e && e.stopPropagation();
+    _glbIdx = (_glbIdx + dir + _items.length) % _items.length;
+    _rpGlbShow();
+  };
+
+  // Klavye navigasyonu
+  document.addEventListener('keydown', e => {
+    const lb = document.getElementById('rpGalleryLightbox');
+    if (!lb || !lb.classList.contains('open')) return;
+    if (e.key === 'Escape') { lb.classList.remove('open'); document.body.style.overflow = ''; }
+    if (e.key === 'ArrowRight') rpGlbNav(1, null);
+    if (e.key === 'ArrowLeft')  rpGlbNav(-1, null);
+  });
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════
      SSS — SIK SORULAN SORULAR
 ═══════════════════════════════════════════════ -->
 <div style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
