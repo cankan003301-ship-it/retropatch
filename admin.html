@@ -1434,8 +1434,8 @@ function cargoCompanyName(c) {
 function cargoTrackUrl(company, code) {
   const urls = {
     mng:`https://www.dhlecommerce.com.tr/gonderitakip?barkod=${code}`,
-    yurtici:`https://www.yurticikargo.com/tr/online-islemler/gonderi-sorgula?q=${code}`,
-    ptt:`https://gonderitakip.ptt.gov.tr/`,
+    yurtici:`https://www.yurticikargo.com/`,
+    ptt:`https://www.ptt.gov.tr/`,
     surat:`https://www.suratkargo.com.tr/KargoTakip/?kargotakipno=${code}`
   };
   return urls[company]||'#';
