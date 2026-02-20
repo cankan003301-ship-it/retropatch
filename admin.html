@@ -535,13 +535,29 @@
 
     <!-- KUPONLAR -->
     <div class="page" id="page-coupons">
+      <!-- İstatistik Kartları -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:20px;">
+        <div class="stat-card gold"><div class="stat-label">Toplam Kupon</div><div class="stat-value" id="cpStatTotal">0</div></div>
+        <div class="stat-card green"><div class="stat-label">Aktif Kupon</div><div class="stat-value" id="cpStatActive">0</div></div>
+        <div class="stat-card blue"><div class="stat-label">Toplam Kullanım</div><div class="stat-value" id="cpStatUsed">0</div></div>
+        <div class="stat-card red"><div class="stat-label">Tükenen Kupon</div><div class="stat-value" id="cpStatDepleted">0</div></div>
+      </div>
       <div class="section-hdr">
         <div class="section-ttl">KUPON KODLARI</div>
-        <button class="btn btn-accent" onclick="openModal('couponModal')">+ YENİ KUPON</button>
+        <div style="display:flex;gap:8px;">
+          <select id="cpFilterStatus" onchange="renderCoupons()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
+            <option value="all">Tümü</option>
+            <option value="active">Aktif</option>
+            <option value="passive">Pasif</option>
+            <option value="depleted">Tükenen</option>
+            <option value="expired">Süresi Dolan</option>
+          </select>
+          <button class="btn btn-accent" onclick="openCouponModal()">+ YENİ KUPON</button>
+        </div>
       </div>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>Kod</th><th>Tür</th><th>İndirim</th><th>Kullanım</th><th>Limit</th><th>İşlem</th></tr></thead>
+          <thead><tr><th>Kod</th><th>Tür</th><th>İndirim</th><th>Min. Tutar</th><th>Kullanım</th><th>Son Tarih</th><th>Durum</th><th>İşlem</th></tr></thead>
           <tbody id="couponsTbody"></tbody>
         </table>
       </div>
@@ -549,10 +565,17 @@
 
     <!-- KUPON MODAL -->
     <div class="modal-ov" id="couponModal">
-      <div class="modal-box" style="max-width:440px;">
-        <div class="modal-hdr"><h3>YENİ KUPON</h3><button class="modal-x" onclick="closeModal('couponModal')">✕</button></div>
+      <div class="modal-box" style="max-width:480px;">
+        <div class="modal-hdr"><h3 id="couponModalTitle">YENİ KUPON</h3><button class="modal-x" onclick="closeModal('couponModal')">✕</button></div>
         <div class="modal-body">
-          <div class="fg"><label>Kupon Kodu *</label><input type="text" id="cpCode" placeholder="RETRO20" style="text-transform:uppercase;"></div>
+          <input type="hidden" id="cpEditId">
+          <div class="fg">
+            <label>Kupon Kodu *</label>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="cpCode" placeholder="RETRO20" style="text-transform:uppercase;flex:1;">
+              <button class="btn btn-outline" onclick="generateCouponCode()" style="white-space:nowrap;padding:8px 12px;">🎲 Üret</button>
+            </div>
+          </div>
           <div class="fg-row">
             <div class="fg"><label>Tür</label>
               <select id="cpType">
@@ -560,10 +583,38 @@
                 <option value="fixed">Sabit (₺)</option>
               </select>
             </div>
-            <div class="fg"><label>İndirim Değeri</label><input type="number" id="cpValue" placeholder="20"></div>
+            <div class="fg"><label>İndirim Değeri *</label><input type="number" id="cpValue" placeholder="20"></div>
           </div>
-          <div class="fg"><label>Kullanım Limiti</label><input type="number" id="cpLimit" placeholder="100" value="100"></div>
+          <div class="fg-row">
+            <div class="fg"><label>Kullanım Limiti</label><input type="number" id="cpLimit" placeholder="Sınırsız"></div>
+            <div class="fg"><label>Min. Sepet Tutarı (₺)</label><input type="number" id="cpMinCart" placeholder="0"></div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>Son Kullanma Tarihi</label><input type="date" id="cpExpiry"></div>
+            <div class="fg"><label>Durum</label>
+              <select id="cpActive">
+                <option value="1">Aktif</option>
+                <option value="0">Pasif</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg"><label>Açıklama (opsiyonel)</label><input type="text" id="cpDesc" placeholder="Yeni üye indirimi vb."></div>
           <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveCoupon()">💾 KAYDET</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KUPON KULLANIM GEÇMİŞİ MODAL -->
+    <div class="modal-ov" id="couponHistoryModal">
+      <div class="modal-box" style="max-width:540px;">
+        <div class="modal-hdr"><h3 id="historyModalTitle">KULLANIM GEÇMİŞİ</h3><button class="modal-x" onclick="closeModal('couponHistoryModal')">✕</button></div>
+        <div class="modal-body">
+          <div class="tbl-wrap" style="margin-bottom:0;">
+            <table>
+              <thead><tr><th>Müşteri</th><th>Sipariş</th><th>İndirim</th><th>Tarih</th></tr></thead>
+              <tbody id="couponHistoryTbody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -1965,41 +2016,150 @@ function renderMembers() {
 
 // ============ KUPONLAR ============
 let allCoupons = [];
+
 function loadCoupons() {
-  db.collection('coupons').get().then(snap=>{
-    allCoupons = snap.docs.map(d=>({id:d.id,...d.data()}));
+  db.collection('coupons').orderBy('createdAt','desc').get().then(snap => {
+    allCoupons = snap.docs.map(d => ({id:d.id,...d.data()}));
+    updateCouponStats();
     renderCoupons();
   });
 }
 
+function updateCouponStats() {
+  const now = new Date();
+  const total = allCoupons.length;
+  const active = allCoupons.filter(c => {
+    if (c.active === false) return false;
+    if (c.expiry && new Date(c.expiry) < now) return false;
+    if (c.limit && c.used >= c.limit) return false;
+    return true;
+  }).length;
+  const used = allCoupons.reduce((s,c) => s+(c.used||0), 0);
+  const depleted = allCoupons.filter(c => c.limit && c.used >= c.limit).length;
+  document.getElementById('cpStatTotal').textContent = total;
+  document.getElementById('cpStatActive').textContent = active;
+  document.getElementById('cpStatUsed').textContent = used;
+  document.getElementById('cpStatDepleted').textContent = depleted;
+}
+
 function renderCoupons() {
   const tbody = document.getElementById('couponsTbody');
-  if (!allCoupons.length) { tbody.innerHTML='<tr><td colspan="6" class="empty"><div class="empty-text">Kupon yok</div></td></tr>'; return; }
-  tbody.innerHTML = allCoupons.map(c=>`
-    <tr>
-      <td style="font-family:'Bebas Neue',cursive;font-size:17px;color:var(--accent);letter-spacing:2px;">${c.id}</td>
-      <td>${c.type==='percent'?'Yüzde':'Sabit'}</td>
-      <td style="font-family:'Bebas Neue',cursive;font-size:17px;">${c.type==='percent'?'%'+c.value:'₺'+c.value}</td>
-      <td>${c.used||0}</td>
-      <td>${c.limit||'∞'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteCoupon('${c.id}')">🗑 Sil</button></td>
-    </tr>`).join('');
+  if (!tbody) return;
+  const filter = document.getElementById('cpFilterStatus')?.value || 'all';
+  const now = new Date();
+  let list = allCoupons;
+  if (filter === 'active') list = list.filter(c => c.active !== false && (!c.expiry || new Date(c.expiry) >= now) && (!c.limit || c.used < c.limit));
+  if (filter === 'passive') list = list.filter(c => c.active === false);
+  if (filter === 'depleted') list = list.filter(c => c.limit && c.used >= c.limit);
+  if (filter === 'expired') list = list.filter(c => c.expiry && new Date(c.expiry) < now);
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty"><div class="empty-icon">🎟</div><div class="empty-text">Kupon bulunamadı</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(c => {
+    const isExpired = c.expiry && new Date(c.expiry) < now;
+    const isDepleted = c.limit && c.used >= c.limit;
+    const isPassive = c.active === false;
+    let sb;
+    if (isPassive)       sb = '<span class="badge b-red">Pasif</span>';
+    else if (isDepleted) sb = '<span class="badge b-red">Tükendi</span>';
+    else if (isExpired)  sb = '<span class="badge" style="background:rgba(136,136,136,.1);color:var(--muted);border:1px solid var(--border);">Süresi Doldu</span>';
+    else                 sb = '<span class="badge b-green">Aktif</span>';
+    const usageBar = c.limit
+      ? `<div style="font-size:12px;">${c.used||0}/${c.limit}<div style="height:2px;background:var(--bg3);margin-top:3px;"><div style="height:100%;width:${Math.min(100,Math.round((c.used||0)/c.limit*100))}%;background:${isDepleted?'var(--accent2)':'var(--accent)'};"></div></div></div>`
+      : `<span style="font-size:12px;">${c.used||0} / ∞</span>`;
+    const expiryStr = c.expiry
+      ? `<span style="color:${isExpired?'var(--accent2)':'var(--muted)'};font-size:12px;">${new Date(c.expiry).toLocaleDateString('tr-TR')}</span>`
+      : '<span style="color:var(--muted);font-size:11px;">Süresiz</span>';
+    return `<tr>
+      <td><div style="font-family:'Bebas Neue',cursive;font-size:17px;color:var(--accent);letter-spacing:2px;">${c.id}</div>${c.desc?`<div style="font-size:10px;color:var(--muted);">${c.desc}</div>`:''}</td>
+      <td style="font-size:12px;">${c.type==='percent'?'Yüzde (%)':'Sabit (₺)'}</td>
+      <td style="font-family:'Bebas Neue',cursive;font-size:20px;">${c.type==='percent'?'%'+c.value:'₺'+c.value}</td>
+      <td style="font-size:12px;color:var(--muted);">${c.minCart?'₺'+c.minCart:'—'}</td>
+      <td>${usageBar}</td>
+      <td>${expiryStr}</td>
+      <td>${sb}</td>
+      <td><div style="display:flex;gap:4px;">
+        <button class="btn btn-blue btn-sm" onclick="editCoupon('${c.id}')">✏️</button>
+        <button class="btn btn-outline btn-sm" onclick="viewCouponHistory('${c.id}')">📋</button>
+        <button class="btn ${c.active===false?'btn-accent':'btn-outline'} btn-sm" onclick="toggleCoupon('${c.id}',${c.active!==false})">${c.active===false?'▶':'⏸'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCoupon('${c.id}')">🗑</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function openCouponModal() {
+  document.getElementById('cpEditId').value=''; document.getElementById('cpCode').value=''; document.getElementById('cpCode').disabled=false;
+  document.getElementById('cpType').value='percent'; document.getElementById('cpValue').value=''; document.getElementById('cpLimit').value='';
+  document.getElementById('cpMinCart').value=''; document.getElementById('cpExpiry').value=''; document.getElementById('cpActive').value='1';
+  document.getElementById('cpDesc').value=''; document.getElementById('couponModalTitle').textContent='YENİ KUPON';
+  openModal('couponModal');
+}
+
+function editCoupon(id) {
+  const c = allCoupons.find(x=>x.id===id); if(!c) return;
+  document.getElementById('cpEditId').value=id; document.getElementById('cpCode').value=id; document.getElementById('cpCode').disabled=true;
+  document.getElementById('cpType').value=c.type||'percent'; document.getElementById('cpValue').value=c.value||'';
+  document.getElementById('cpLimit').value=c.limit||''; document.getElementById('cpMinCart').value=c.minCart||'';
+  document.getElementById('cpExpiry').value=c.expiry||''; document.getElementById('cpActive').value=c.active===false?'0':'1';
+  document.getElementById('cpDesc').value=c.desc||''; document.getElementById('couponModalTitle').textContent='KUPONU DÜZENLE';
+  openModal('couponModal');
+}
+
+function generateCouponCode() {
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  document.getElementById('cpCode').value='RP'+Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
 }
 
 function saveCoupon() {
-  const code = document.getElementById('cpCode').value.trim().toUpperCase();
-  const type = document.getElementById('cpType').value;
-  const value = parseFloat(document.getElementById('cpValue').value)||0;
-  const limit = parseInt(document.getElementById('cpLimit').value)||100;
-  if (!code||!value) { toast('Kod ve değer zorunlu!','err'); return; }
-  db.collection('coupons').doc(code).set({ type, value, limit, used:0, createdAt:firebase.firestore.FieldValue.serverTimestamp() })
-    .then(()=>{ toast('Kupon oluşturuldu','ok'); closeModal('couponModal'); loadCoupons(); })
+  const editId=document.getElementById('cpEditId').value;
+  const code=document.getElementById('cpCode').value.trim().toUpperCase();
+  const type=document.getElementById('cpType').value;
+  const value=parseFloat(document.getElementById('cpValue').value)||0;
+  const limit=parseInt(document.getElementById('cpLimit').value)||null;
+  const minCart=parseFloat(document.getElementById('cpMinCart').value)||0;
+  const expiry=document.getElementById('cpExpiry').value||null;
+  const active=document.getElementById('cpActive').value==='1';
+  const desc=document.getElementById('cpDesc').value.trim();
+  if(!code){toast('Kupon kodu zorunlu!','err');return;}
+  if(!value){toast('İndirim değeri zorunlu!','err');return;}
+  if(type==='percent'&&value>100){toast('Yüzde 100\'den fazla olamaz!','err');return;}
+  const data={type,value,active,desc,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(limit)data.limit=limit; if(minCart)data.minCart=minCart; if(expiry)data.expiry=expiry;
+  if(!editId){data.used=0;data.createdAt=firebase.firestore.FieldValue.serverTimestamp();}
+  db.collection('coupons').doc(code).set(data,{merge:true})
+    .then(()=>{toast(!editId?'Kupon oluşturuldu ✓':'Kupon güncellendi ✓','ok');closeModal('couponModal');loadCoupons();})
+    .catch(()=>toast('Hata oluştu!','err'));
+}
+
+function toggleCoupon(id,currentlyActive) {
+  db.collection('coupons').doc(id).update({active:!currentlyActive})
+    .then(()=>{toast(currentlyActive?'Kupon pasif yapıldı':'Kupon aktif edildi','ok');loadCoupons();})
     .catch(()=>toast('Hata!','err'));
 }
 
 function deleteCoupon(id) {
-  if (!confirm('Bu kuponu silmek istediğinize emin misiniz?')) return;
-  db.collection('coupons').doc(id).delete().then(()=>{ toast('Kupon silindi','ok'); loadCoupons(); });
+  if(!confirm(`"${id}" kuponunu silmek istediğinize emin misiniz?`))return;
+  db.collection('coupons').doc(id).delete().then(()=>{toast('Kupon silindi','ok');loadCoupons();}).catch(()=>toast('Silinemedi!','err'));
+}
+
+function viewCouponHistory(couponId) {
+  document.getElementById('historyModalTitle').textContent=couponId+' — KULLANIM GEÇMİŞİ';
+  const tbody=document.getElementById('couponHistoryTbody');
+  tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px;">Yükleniyor...</td></tr>';
+  openModal('couponHistoryModal');
+  const history=allOrders.filter(o=>o.coupon===couponId);
+  if(!history.length){tbody.innerHTML='<tr><td colspan="4" class="empty"><div class="empty-text">Henüz kullanılmamış</div></td></tr>';return;}
+  tbody.innerHTML=history.map(o=>{
+    const date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('tr-TR'):'—';
+    return `<tr>
+      <td style="font-size:13px;">${o.name||'—'}</td>
+      <td style="font-family:'Barlow Condensed',sans-serif;color:var(--accent);font-size:13px;">#${o.id?.slice(-6)||'—'}</td>
+      <td style="font-family:'Bebas Neue',cursive;font-size:16px;color:var(--green);">₺${o.discount||'—'}</td>
+      <td style="font-size:11px;color:var(--muted);">${date}</td>
+    </tr>`;
+  }).join('');
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }

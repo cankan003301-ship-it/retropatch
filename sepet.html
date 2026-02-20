@@ -596,8 +596,16 @@ function applyCoupon() {
   db.collection('coupons').doc(code).get().then(doc => {
     if (!doc.exists) { toast('Geçersiz kupon kodu!', true); return; }
     const c = doc.data();
-    if (c.used >= c.limit) { toast('Bu kupon tükenmiş!', true); return; }
+    const now = new Date();
+    // Aktif/pasif kontrolü
+    if (c.active === false) { toast('Bu kupon aktif değil!', true); return; }
+    // Son kullanma tarihi kontrolü
+    if (c.expiry && new Date(c.expiry) < now) { toast('Bu kuponun süresi dolmuş!', true); return; }
+    // Kullanım limiti kontrolü
+    if (c.limit && c.used >= c.limit) { toast('Bu kupon tükenmiş!', true); return; }
+    // Minimum sepet tutarı kontrolü
     const subtotal = cart.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0);
+    if (c.minCart && subtotal < c.minCart) { toast(`Minimum sepet tutarı ₺${c.minCart}!`, true); return; }
     discountAmount = c.type==='percent' ? Math.round(subtotal*c.value/100) : c.value;
     appliedCoupon = code;
     updateSummary();
