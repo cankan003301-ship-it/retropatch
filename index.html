@@ -764,9 +764,10 @@
 
     // Galeri fotoğraflarını çek (index gerektirmeyen sorgu)
     db.collection('gallery').onSnapshot(snap => {
+      console.log('Galeri snapshot:', snap.size, 'kayıt');
+      snap.docs.forEach(d => console.log(' →', d.id, d.data()));
       _items = snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
-        .filter(i => i.active !== false)
         .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
       renderGallery(_items);
     }, (err) => {
