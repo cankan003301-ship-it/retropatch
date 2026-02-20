@@ -97,6 +97,32 @@
     .modal-zoom-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;cursor:pointer;transition:all .2s;}
     .modal-zoom-btn:hover{border-color:var(--accent);color:var(--accent);}
 
+    /* YORUM SİSTEMİ */
+    .reviews-section{margin-top:16px;border-top:1px solid var(--border);padding-top:16px;}
+    .reviews-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+    .stars-input{display:flex;gap:4px;margin-bottom:10px;flex-direction:row-reverse;justify-content:flex-end;}
+    .stars-input input{display:none;}
+    .stars-input label{font-size:20px;cursor:pointer;color:var(--border);transition:color .15s;}
+    .stars-input input:checked ~ label,.stars-input label:hover,.stars-input label:hover ~ label{color:#f4c542;}
+    .review-form{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+    .review-form textarea{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;resize:none;height:64px;transition:border-color .2s;}
+    .review-form textarea:focus{border-color:var(--accent);}
+    .review-submit{background:var(--accent);color:#000;border:none;padding:9px 20px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;align-self:flex-end;}
+    .review-submit:hover{background:#d4b77a;}
+    .review-submit:disabled{opacity:.5;cursor:not-allowed;}
+    .review-list{display:flex;flex-direction:column;gap:10px;max-height:200px;overflow-y:auto;}
+    .review-list::-webkit-scrollbar{width:3px;}
+    .review-list::-webkit-scrollbar-thumb{background:var(--border);}
+    .review-item{background:var(--bg3);border:1px solid var(--border);padding:10px 12px;}
+    .review-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+    .review-author{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--accent);}
+    .review-stars{color:#f4c542;font-size:13px;letter-spacing:1px;}
+    .review-text{font-size:12px;color:var(--muted);line-height:1.6;}
+    .review-date{font-size:10px;color:var(--muted);margin-top:4px;}
+    .review-avg{font-family:'Bebas Neue',cursive;font-size:28px;color:#f4c542;margin-right:8px;}
+    .review-login-note{font-size:11px;color:var(--muted);text-align:center;padding:10px;border:1px solid var(--border);background:var(--bg3);}
+    .review-login-note a{color:var(--accent);text-decoration:none;}
+
     .toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#000;padding:12px 20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;z-index:99999;transform:translateY(60px);opacity:0;transition:all .35s cubic-bezier(.175,.885,.32,1.275);}
     .toast.show{transform:translateY(0);opacity:1;}
 
@@ -324,6 +350,18 @@
       <div class="modal-price" id="modalPrice"></div>
       <button class="modal-order-btn" onclick="addToCartFromModal()">🛒 SEPETE EKLE</button>
       <button class="modal-zoom-btn" onclick="openLB()">🔍 Tam Ekran Gör</button>
+
+      <!-- YORUM BÖLÜMÜ -->
+      <div class="reviews-section">
+        <div class="reviews-title">
+          <span>⭐ YORUMLAR</span>
+          <span id="reviewAvgBadge" style="font-size:11px;color:#f4c542;"></span>
+        </div>
+        <div id="reviewFormArea"></div>
+        <div class="review-list" id="reviewList">
+          <div style="color:var(--muted);font-size:11px;text-align:center;padding:12px;">Yükleniyor...</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -460,10 +498,117 @@ function openModal(id) {
   document.getElementById('modalOverlay').classList.add('active');
   document.body.style.overflow='hidden';
   db.collection('products').doc(id).update({views:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
+  loadReviews(id);
 }
-function closeModal(){document.getElementById('modalOverlay').classList.remove('active');document.body.style.overflow='';}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow='';
+  if (window._reviewsUnsub) { window._reviewsUnsub(); window._reviewsUnsub = null; }
+}
 function closeMBg(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
 function goOrder(){closeModal();window.location.href='index.html#siparis';}
+
+// ============ YORUM SİSTEMİ ============
+function loadReviews(productId) {
+  if (window._reviewsUnsub) { window._reviewsUnsub(); window._reviewsUnsub = null; }
+  const list = document.getElementById('reviewList');
+  const formArea = document.getElementById('reviewFormArea');
+  const avgBadge = document.getElementById('reviewAvgBadge');
+  list.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:12px;">Yükleniyor...</div>';
+
+  const user = auth.currentUser;
+  if (user) {
+    formArea.innerHTML = `
+      <div class="review-form">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;color:var(--muted);margin-bottom:5px;">PUANINIZ</div>
+        <div class="stars-input" id="starsInput">
+          <input type="radio" name="rstar" id="s5" value="5"><label for="s5">★</label>
+          <input type="radio" name="rstar" id="s4" value="4"><label for="s4">★</label>
+          <input type="radio" name="rstar" id="s3" value="3"><label for="s3">★</label>
+          <input type="radio" name="rstar" id="s2" value="2"><label for="s2">★</label>
+          <input type="radio" name="rstar" id="s1" value="1"><label for="s1">★</label>
+        </div>
+        <textarea id="reviewText" placeholder="Ürün hakkında düşüncelerinizi yazın..."></textarea>
+        <button class="review-submit" id="reviewSubmitBtn" onclick="submitReview('${productId}')">Yorum Gönder</button>
+      </div>`;
+  } else {
+    formArea.innerHTML = `<div class="review-login-note">Yorum yapmak için <a href="uye.html">giriş yapın</a></div>`;
+  }
+
+  window._reviewsUnsub = db.collection('products').doc(productId)
+    .collection('reviews').orderBy('createdAt','desc').limit(30)
+    .onSnapshot(snap => {
+      const reviews = snap.docs.map(d => ({id:d.id,...d.data()}));
+      if (!reviews.length) {
+        list.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:14px;">Henüz yorum yok. İlk yorumu siz yapın!</div>';
+        avgBadge.textContent = '';
+        return;
+      }
+      const avg = reviews.reduce((s,r) => s+(r.rating||0), 0) / reviews.length;
+      avgBadge.textContent = '★ ' + avg.toFixed(1) + ' (' + reviews.length + ' yorum)';
+      list.innerHTML = reviews.map(r => `
+        <div class="review-item">
+          <div class="review-header">
+            <span class="review-author">${escHtml(r.userName||'Anonim')}</span>
+            <span class="review-stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</span>
+          </div>
+          <div class="review-text">${escHtml(r.text||'')}</div>
+          <div class="review-date">${r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('tr-TR') : ''}</div>
+        </div>`).join('');
+    }, () => {
+      list.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:14px;">Yorumlar yüklenemedi.</div>';
+    });
+}
+
+function submitReview(productId) {
+  const user = auth.currentUser;
+  if (!user) { showToast('Lütfen giriş yapın', 'err'); return; }
+  const ratingEl = document.querySelector('input[name="rstar"]:checked');
+  const textEl = document.getElementById('reviewText');
+  const rating = ratingEl ? parseInt(ratingEl.value) : 0;
+  const text = textEl?.value.trim() || '';
+  if (!rating) { showToast('Lütfen puan seçin ★', 'err'); return; }
+  if (text.length < 3) { showToast('Lütfen bir yorum yazın', 'err'); return; }
+
+  const btn = document.getElementById('reviewSubmitBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Gönderiliyor...'; }
+
+  // Daha önce yorum yapılmış mı kontrol et
+  db.collection('products').doc(productId).collection('reviews')
+    .where('userId','==',user.uid).get()
+    .then(snap => {
+      if (!snap.empty) {
+        showToast('Bu ürüne zaten yorum yaptınız', 'err');
+        if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
+        return;
+      }
+      return db.collection('products').doc(productId).collection('reviews').add({
+        userId: user.uid,
+        userName: user.displayName || user.email?.split('@')[0] || 'Üye',
+        rating: rating,
+        text: text,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        // Ürünün reviews sayacını güncelle
+        db.collection('products').doc(productId).update({
+          reviews: firebase.firestore.FieldValue.increment(1),
+          rating: rating // basit güncelleme; gerçek avg Firestore'dan okunuyor
+        }).catch(()=>{});
+        showToast('Yorumunuz eklendi! ⭐', 'ok');
+        if (textEl) textEl.value = '';
+        if (ratingEl) ratingEl.checked = false;
+        if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
+      });
+    })
+    .catch(() => {
+      showToast('Bir hata oluştu, tekrar deneyin', 'err');
+      if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
+    });
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 function updateCartCount() {
   const cart = JSON.parse(localStorage.getItem('retropatch_cart')||'[]');
