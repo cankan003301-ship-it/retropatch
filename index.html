@@ -113,6 +113,16 @@
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
     .form-submit{width:100%;background:var(--accent);color:#000;border:none;padding:14px;font-family:'Bebas Neue',cursive;font-size:19px;letter-spacing:3px;cursor:pointer;transition:all .2s;margin-top:4px;}
     .form-submit:hover{background:#d4b77a;}
+    .file-upload-area{border:1px dashed var(--border);background:var(--bg3);padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative;}
+    .file-upload-area:hover,.file-upload-area.drag-over{border-color:var(--accent);}
+    .file-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .file-upload-icon{font-size:26px;margin-bottom:6px;}
+    .file-upload-txt{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+    .file-upload-sub{font-size:11px;color:var(--border);margin-top:3px;}
+    .file-preview{display:none;margin-top:10px;position:relative;text-align:left;}
+    .file-preview img{max-height:100px;max-width:100%;object-fit:contain;border:1px solid var(--border);display:block;}
+    .file-preview-name{font-size:11px;color:var(--muted);margin-top:5px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;}
+    .file-remove{position:absolute;top:0;right:0;background:var(--accent2);color:#fff;border:none;width:22px;height:22px;font-size:13px;cursor:pointer;line-height:22px;text-align:center;}
 
     /* CONTACT */
     #iletisim{background:var(--bg2);border-top:1px solid var(--border);padding:80px 40px;}
@@ -376,6 +386,20 @@
           <div class="form-group"><label>Adet</label><input type="number" min="1" value="1"></div>
         </div>
         <div class="form-group"><label>Tasarım / Notlar</label><textarea placeholder="Tasarım hakkında bilgi verin..."></textarea></div>
+        <div class="form-group">
+          <label>Tasarım Dosyası <span style="color:var(--muted);font-size:9px;letter-spacing:1px;">(OPSİYONEL)</span></label>
+          <div class="file-upload-area" id="fileUploadArea">
+            <input type="file" id="designFile" accept=".png,.jpg,.jpeg,.pdf,.ai,.svg,.eps" onchange="handleFileSelect(this)">
+            <div class="file-upload-icon">📎</div>
+            <div class="file-upload-txt">Tasarım dosyasını buraya sürükle veya tıkla</div>
+            <div class="file-upload-sub">PNG, JPG, PDF, AI, SVG · Maks 10MB</div>
+          </div>
+          <div class="file-preview" id="filePreview">
+            <button class="file-remove" onclick="removeFile()" type="button">✕</button>
+            <img id="filePreviewImg" src="" alt="">
+            <div class="file-preview-name" id="filePreviewName"></div>
+          </div>
+        </div>
         <button type="submit" class="form-submit">SİPARİŞİ GÖNDER</button>
       </form>
     </div>
@@ -659,20 +683,95 @@ function closeLightbox(e) {
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();document.getElementById('lightbox').classList.remove('open');}});
 
+// ===== FILE UPLOAD =====
+function handleFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) { showToast('⚠ Dosya 10MB\'dan büyük olamaz.'); input.value=''; return; }
+  const preview = document.getElementById('filePreview');
+  const previewImg = document.getElementById('filePreviewImg');
+  const previewName = document.getElementById('filePreviewName');
+  preview.style.display = 'block';
+  previewName.textContent = file.name + ' · ' + (file.size/1024).toFixed(0) + ' KB';
+  if (file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = e => { previewImg.src = e.target.result; previewImg.style.display='block'; };
+    reader.readAsDataURL(file);
+  } else {
+    previewImg.style.display = 'none';
+  }
+}
+function removeFile() {
+  document.getElementById('designFile').value = '';
+  document.getElementById('filePreview').style.display = 'none';
+  document.getElementById('filePreviewImg').src = '';
+}
+const fileArea = document.getElementById('fileUploadArea');
+if (fileArea) {
+  fileArea.addEventListener('dragover', e => { e.preventDefault(); fileArea.classList.add('drag-over'); });
+  fileArea.addEventListener('dragleave', () => fileArea.classList.remove('drag-over'));
+  fileArea.addEventListener('drop', e => {
+    e.preventDefault(); fileArea.classList.remove('drag-over');
+    const dt = e.dataTransfer;
+    if (dt.files.length) { document.getElementById('designFile').files = dt.files; handleFileSelect(document.getElementById('designFile')); }
+  });
+}
+
 // ===== FORMS =====
+function generateOrderCode() {
+  return 'RP-' + Date.now().toString(36).toUpperCase();
+}
+function sendOrderEmail(orderData) {
+  fetch('/api/send-email', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      type: 'order_confirmed',
+      data: {
+        orderCode: orderData.orderCode,
+        customerName: orderData.name,
+        customerEmail: orderData.email,
+        customerPhone: orderData.phone,
+        total: '—',
+        items: [{
+          name: `${orderData.type} · ${orderData.size} · ${orderData.back}`,
+          qty: orderData.qty,
+          price: '—'
+        }],
+        address: '—',
+        paymentMethod: 'Belirtilmedi',
+        whatsapp: '905000000000'
+      }
+    })
+  }).catch(err => console.warn('Mail gönderilemedi:', err));
+}
 function submitForm(e) {
   e.preventDefault();
   const f = e.target;
   const selects = f.querySelectorAll('select');
-  db.collection('orders').add({
-    name:f.querySelector('input[type=text]').value,
-    phone:f.querySelector('input[type=tel]').value,
-    email:f.querySelector('input[type=email]').value,
-    type:selects[0]?.value,size:selects[1]?.value,back:selects[2]?.value,
-    qty:f.querySelector('input[type=number]').value,
-    notes:f.querySelector('textarea').value,
-    status:'yeni',createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  }).then(()=>{showToast('✓ Siparişiniz alındı!');f.reset();}).catch(()=>showToast('Hata oluştu.'));
+  const fileInput = document.getElementById('designFile');
+  const fileName = fileInput && fileInput.files[0] ? fileInput.files[0].name : null;
+  const orderCode = generateOrderCode();
+  const orderData = {
+    orderCode,
+    name: f.querySelector('input[type=text]').value,
+    phone: f.querySelector('input[type=tel]').value,
+    email: f.querySelector('input[type=email]').value,
+    type: selects[0]?.value,
+    size: selects[1]?.value,
+    back: selects[2]?.value,
+    qty: f.querySelector('input[type=number]').value,
+    notes: f.querySelector('textarea').value,
+    designFile: fileName || null,
+    status: 'yeni',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  db.collection('orders').add(orderData).then(() => {
+    showToast('✓ Siparişiniz alındı!');
+    sendOrderEmail(orderData);
+    f.reset();
+    removeFile();
+  }).catch(() => showToast('Hata oluştu.'));
 }
 function submitContact(e) {
   e.preventDefault();
