@@ -468,8 +468,6 @@ let sliderTimer;
 // ===== FIREBASE LOAD =====
 db.collection('products').onSnapshot(snap => {
   allProducts = snap.docs.map(d => ({id:d.id,...d.data()}));
-  window.allProducts = allProducts;
-  document.dispatchEvent(new Event('srProductsReady'));
   buildSlider();
   renderFeatured('sales');
   document.querySelector('.feat-tab.active')?.click();
@@ -477,25 +475,81 @@ db.collection('products').onSnapshot(snap => {
 
 // ===== SLIDER =====
 function buildSlider() {
-  slideList = allProducts.filter(p => p.image);
-  if (!slideList.length) return;
+  // Admin'den eklenen slides koleksiyonunu önce oku
+  db.collection('slides').orderBy('order').get()
+    .then(snap => {
+      const slides = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(s => s.active !== false);
+      if (slides.length) {
+        renderSlides(slides);
+      } else {
+        // Fallback: ürün resimlerinden oluştur
+        buildSliderFromProducts();
+      }
+    })
+    .catch(() => buildSliderFromProducts());
+}
+
+function buildSliderFromProducts() {
+  const fallback = allProducts.filter(p => p.image).slice(0, 8).map(p => ({
+    image: p.image,
+    tag: 'Profesyonel Nakış \u00b7 RetroPatch',
+    title: 'RETROPATCH',
+    desc: p.name + (p.cat ? ' \u2014 ' + p.cat : ''),
+    btn1Text: 'T\u00fcm \u00dcr\u00fcnler', btn1Link: 'urunler.html',
+    btn2Text: 'Sipari\u015f Ver', btn2Link: '#siparis',
+  }));
+  if (!fallback.length) {
+    fallback.push({
+      image: '', tag: 'Profesyonel Nak\u0131\u015f \u00b7 T\u00fcrkiye',
+      title: 'RETROPATCH', desc: 'Makine nak\u0131\u015f\u0131 ile profesyonel yama \u00fcretimi.',
+      btn1Text: '\u00dcr\u00fcnleri G\u00f6r', btn1Link: 'urunler.html',
+      btn2Text: 'Sipari\u015f Ver', btn2Link: '#siparis',
+    });
+  }
+  renderSlides(fallback);
+}
+
+function renderSlides(slides) {
+  slideList = slides;
   const container = document.getElementById('slides');
   const dotsEl = document.getElementById('sliderDots');
-  container.innerHTML = slideList.map((p, i) => `
-    <div class="slide${i===0?' active':''}" id="sl${i}">
-      <div class="slide-bg" style="background-image:url('${p.image}');"></div>
-      <div class="slide-overlay"></div>
-      <div class="slide-content">
-        <div class="slide-tag">Profesyonel Nakış · RetroPatch</div>
-        <div class="slide-title">RETRO<em>PATCH</em></div>
-        <div class="slide-name">${p.name}${p.cat?' — '+p.cat:''}</div>
-        <div class="hero-btns">
-          <a href="urunler.html" class="btn-primary">Tüm Ürünler</a>
-          <a href="#siparis" class="btn-secondary">Sipariş Ver</a>
-        </div>
-      </div>
-    </div>`).join('');
-  dotsEl.innerHTML = slideList.map((_,i)=>`<div class="dot${i===0?' active':''}" onclick="goSlide(${i})"></div>`).join('');
+
+  container.innerHTML = slides.map((s, i) => {
+    const title = s.title || 'RETROPATCH';
+    // Son kelimeyi em ile vurgula
+    const words = title.trim().split(/\s+/);
+    const last = words.pop();
+    const titleHtml = (words.length ? words.join(' ') + ' ' : '') + '<em>' + last + '</em>';
+
+    const bgStyle = s.image
+      ? 'background-image:url(\'' + s.image.replace(/'/g, "\\'") + '\');'
+      : 'background:#111;';
+
+    const btn1 = s.btn1Text
+      ? '<a href="' + (s.btn1Link || '#') + '" class="btn-primary">' + s.btn1Text + '</a>'
+      : '';
+    const btn2 = s.btn2Text
+      ? '<a href="' + (s.btn2Link || '#') + '" class="btn-secondary">' + s.btn2Text + '</a>'
+      : '';
+
+    return '<div class="slide' + (i === 0 ? ' active' : '') + '" id="sl' + i + '">'
+      + '<div class="slide-bg" style="' + bgStyle + '"></div>'
+      + '<div class="slide-overlay"></div>'
+      + '<div class="slide-content" style="pointer-events:none;">'
+      + (s.tag ? '<div class="slide-tag">' + s.tag + '</div>' : '')
+      + '<div class="slide-title">' + titleHtml + '</div>'
+      + (s.desc ? '<div class="slide-name">' + s.desc + '</div>' : '')
+      + '<div class="hero-btns" style="pointer-events:auto;">' + btn1 + btn2 + '</div>'
+      + '</div></div>';
+  }).join('');
+
+  dotsEl.innerHTML = slides.map((_, i) =>
+    '<div class="dot' + (i === 0 ? ' active' : '') + '" onclick="goSlide(' + i + ')"></div>'
+  ).join('');
+
+  currentSlide = 0;
   updateCounter();
   startSlider();
 }
