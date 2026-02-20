@@ -292,6 +292,17 @@
     <!-- SİPARİŞLER -->
     <div class="page active" id="page-orders">
       <div class="page-hdr"><h2>SİPARİŞLERİM</h2></div>
+
+      <!-- Sipariş kodu ile sorgula -->
+      <div style="background:var(--card);border:1px solid rgba(200,169,110,.2);padding:20px;margin-bottom:20px;">
+        <div style="font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;color:var(--accent);margin-bottom:10px;">🔍 SİPARİŞ KODU İLE TAKİP ET</div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="trackCodeInput" placeholder="ör: RP-ABC123" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;outline:none;">
+          <button onclick="trackByCode()" style="background:var(--accent);color:#000;border:none;padding:10px 20px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;cursor:pointer;">SORGULA</button>
+        </div>
+        <div id="trackResult" style="margin-top:12px;"></div>
+      </div>
+
       <div class="stats-row">
         <div class="stat-card"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Toplam Sipariş</div></div>
         <div class="stat-card"><div class="stat-val" id="statActive">0</div><div class="stat-lbl">Aktif Sipariş</div></div>
@@ -444,6 +455,40 @@ function renderOrders() {
         </div>` : ''}
       </div>
     </div>`).join('');
+}
+
+function trackByCode() {
+  const code = document.getElementById('trackCodeInput').value.trim().toUpperCase();
+  const result = document.getElementById('trackResult');
+  if (!code) { result.innerHTML = '<span style="color:var(--accent2);font-size:12px;">Sipariş kodu girin.</span>'; return; }
+  result.innerHTML = '<span style="color:var(--muted);font-size:12px;">⏳ Aranıyor...</span>';
+  db.collection('orders').where('orderCode', '==', code).limit(1).get().then(snap => {
+    if (snap.empty) {
+      result.innerHTML = '<span style="color:var(--accent2);font-size:12px;">⚠ Sipariş bulunamadı. Kodu kontrol edin.</span>';
+      return;
+    }
+    const o = { id: snap.docs[0].id, ...snap.docs[0].data() };
+    const statusColors = { yeni: 'var(--accent)', hazırlanıyor: 'var(--blue)', tamamlandı: 'var(--green)', iptal: 'var(--accent2)' };
+    const statusColor = statusColors[o.status] || 'var(--muted)';
+    result.innerHTML = `
+      <div style="background:var(--bg3);border:1px solid var(--border);padding:16px;margin-top:4px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div>
+            <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);">${o.orderCode||code}</div>
+            <div style="font-size:11px;color:var(--muted);">${formatDate(o.createdAt)}</div>
+          </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${statusColor};border:1px solid ${statusColor};padding:4px 10px;">${(o.status||'yeni').toUpperCase()}</div>
+        </div>
+        ${trackSteps(o.cargo?.status || o.status)}
+        ${o.cargo?.trackingCode ? `
+        <div style="margin-top:12px;font-size:12px;color:var(--muted);">
+          🚚 ${o.cargo.companyName||''} · Takip No: <strong style="color:var(--text);">${o.cargo.trackingCode}</strong>
+          <a href="${cargoTrackUrl(o.cargo.company, o.cargo.trackingCode)}" target="_blank" style="color:var(--accent);margin-left:8px;">Kargoda Takip Et →</a>
+        </div>` : '<div style="margin-top:8px;font-size:12px;color:var(--muted);">Kargo bilgisi henüz güncellenmedi.</div>'}
+      </div>`;
+  }).catch(() => {
+    result.innerHTML = '<span style="color:var(--accent2);font-size:12px;">Sorgu sırasında hata oluştu.</span>';
+  });
 }
 
 function toggleOrder(id) {

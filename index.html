@@ -814,6 +814,7 @@ function submitForm(e) {
   const fileInput = document.getElementById('designFile');
   const fileName = fileInput && fileInput.files[0] ? fileInput.files[0].name : null;
   const orderCode = generateOrderCode();
+  const currentUser = firebase.auth().currentUser;
   const orderData = {
     orderCode,
     name: f.querySelector('input[type=text]').value,
@@ -826,6 +827,13 @@ function submitForm(e) {
     notes: f.querySelector('textarea').value,
     designFile: fileName || null,
     designFileUrl: uploadedFileUrl || null,
+    userId: currentUser ? currentUser.uid : null,
+    userEmail: currentUser ? currentUser.email : f.querySelector('input[type=email]').value,
+    items: [{
+      name: `${selects[0]?.value || 'Nakış Yama'} · ${selects[1]?.value || ''}`,
+      qty: parseInt(f.querySelector('input[type=number]').value) || 1,
+      price: 0
+    }],
     status: 'yeni',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
