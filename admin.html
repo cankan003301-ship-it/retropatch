@@ -1367,7 +1367,7 @@ function renderCargo(filter) {
       <td>
         ${o.cargo?.trackingCode
           ? `<span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;">${o.cargo.trackingCode}</span>
-             <span onclick="navigator.clipboard.writeText('${o.cargo.trackingCode}').then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='📋',1200)})" title="Kopyala" style="cursor:pointer;margin-left:4px;font-size:12px;">📋</span> <a href="${cargoTrackUrl(o.cargo?.company,o.cargo?.trackingCode)}" target="_blank" style="font-size:10px;color:var(--accent);margin-left:6px;text-decoration:none;">Takip →</a>`
+             <span onclick="openTracking('${o.cargo?.company}','${o.cargo?.trackingCode}')" style="font-size:10px;color:var(--accent);margin-left:8px;cursor:pointer;">Takip &rarr;</span>`
           : '<span style="color:var(--muted2);font-size:11px;">Girilmedi</span>'}
       </td>
       <td>${cargoBadge(o.cargo?.status||'Hazırlanıyor')}</td>
@@ -1439,6 +1439,20 @@ function cargoTrackUrl(company, code) {
     surat:`https://www.suratkargo.com.tr/KargoTakip/?kargotakipno=${code}`
   };
   return urls[company]||'#';
+}
+
+function openTracking(company, code) {
+  const url = cargoTrackUrl(company, code);
+  const names = {mng:'DHL eCommerce',yurtici:'Yurtiçi Kargo',ptt:'PTT Kargo',surat:'Sürat Kargo'};
+  const label = names[company] || 'Kargo';
+  navigator.clipboard.writeText(code).then(() => {
+    const t = document.createElement('div');
+    t.innerHTML = `📋 <b>${code}</b> kopyalandı!<br><span style="font-size:11px;opacity:.8;">${label} sayfası açılıyor, numarayı yapıştırın.</span>`;
+    t.style.cssText = 'position:fixed;bottom:28px;right:28px;z-index:9999;background:#1a1a1a;border:1px solid #c8a96e;color:#e8e8e8;padding:14px 20px;font-family:Barlow Condensed,sans-serif;font-size:14px;letter-spacing:1px;line-height:1.6;box-shadow:0 8px 32px rgba(0,0,0,.6);';
+    document.body.appendChild(t);
+    setTimeout(() => { window.open(url, '_blank'); }, 400);
+    setTimeout(() => t.remove(), 4000);
+  }).catch(() => { window.open(url, '_blank'); });
 }
 
 function cargoBadge(s) {
