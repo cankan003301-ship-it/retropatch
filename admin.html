@@ -1367,7 +1367,7 @@ function renderCargo(filter) {
       <td>
         ${o.cargo?.trackingCode
           ? `<span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;">${o.cargo.trackingCode}</span>
-             <a href="${cargoTrackUrl(o.cargo?.company,o.cargo?.trackingCode)}" target="_blank" style="font-size:10px;color:var(--accent);margin-left:6px;text-decoration:none;">Takip →</a>`
+             <span onclick="navigator.clipboard.writeText('${o.cargo.trackingCode}').then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='📋',1200)})" title="Kopyala" style="cursor:pointer;margin-left:4px;font-size:12px;">📋</span> <a href="${cargoTrackUrl(o.cargo?.company,o.cargo?.trackingCode)}" target="_blank" style="font-size:10px;color:var(--accent);margin-left:6px;text-decoration:none;">Takip →</a>`
           : '<span style="color:var(--muted2);font-size:11px;">Girilmedi</span>'}
       </td>
       <td>${cargoBadge(o.cargo?.status||'Hazırlanıyor')}</td>
@@ -1435,8 +1435,8 @@ function cargoTrackUrl(company, code) {
   const urls = {
     mng:`https://www.dhlecommerce.com.tr/gonderitakip?barkod=${code}`,
     yurtici:`https://www.yurticikargo.com/tr/online-islemler/gonderi-sorgula?q=${code}`,
-    ptt:`https://gonderitakip.ptt.gov.tr/Track/Verify?q=${code}`,
-    surat:`https://www.suratkargo.com.tr/KargoSorgulama?barkodNo=${code}`
+    ptt:`https://gonderitakip.ptt.gov.tr/`,
+    surat:`https://www.suratkargo.com.tr/KargoTakip/?kargotakipno=${code}`
   };
   return urls[company]||'#';
 }
