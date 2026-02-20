@@ -109,7 +109,7 @@ export default async function handler(req, res) {
     </div>
   </div>
   <div class="footer">
-    <p>Sorularınız için: <a href="https://wa.me/${(data.whatsapp||'905000000000').replace(/\D/g,'')}">WhatsApp</a></p>
+    <p>Sorularınız için: <a href="https://wa.me/${(data.whatsapp||'905375295290').replace(/\D/g,'')}">WhatsApp</a></p>
     <p style="margin-top:8px;"><a href="https://retropatch.vercel.app">retropatch.vercel.app</a></p>
     <p style="margin-top:12px;color:#333;">© 2025 RetroPatch. Tüm hakları saklıdır.</p>
   </div>
@@ -198,7 +198,7 @@ export default async function handler(req, res) {
     </div>
   </div>
   <div class="footer">
-    <p>Sorularınız için: <a href="https://wa.me/${(data.whatsapp||'905000000000').replace(/\D/g,'')}">WhatsApp</a></p>
+    <p>Sorularınız için: <a href="https://wa.me/${(data.whatsapp||'905375295290').replace(/\D/g,'')}">WhatsApp</a></p>
     <p style="margin-top:8px;"><a href="https://retropatch.vercel.app">retropatch.vercel.app</a></p>
   </div>
 </div>
@@ -249,7 +249,7 @@ export default async function handler(req, res) {
     <a href="https://retropatch.vercel.app/hesap.html" class="btn-out">SİPARİŞLERİM</a>
   </div>
   <div class="footer">
-    <p>Sorularınız için: <a href="https://wa.me/${(data.whatsapp||'905000000000').replace(/\D/g,'')}">WhatsApp</a></p>
+    <p>Sorularınız için: <a href="https://wa.me/${(data.whatsapp||'905375295290').replace(/\D/g,'')}">WhatsApp</a></p>
     <p style="margin-top:8px;"><a href="https://retropatch.vercel.app">retropatch.vercel.app</a></p>
   </div>
 </div>
