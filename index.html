@@ -971,37 +971,32 @@ function renderSlides(slides) {
     });
   }
 
-  // Instagram handle'ı Firestore'dan al
-  if (typeof db !== 'undefined') {
-    // Önce Instagram handle güncelle
+  // Galeri başlat — db bu noktada hazır
+  function initGallery() {
     db.collection('settings').doc('site').get().then(doc => {
-      if (doc.exists) {
-        const ig = doc.data().instagram;
-        if (ig) {
-          const handle = ig.replace('@', '');
-          const btn = document.getElementById('rpGalleryIgLink');
-          if (btn) {
-            btn.href = 'https://instagram.com/' + handle;
-            btn.querySelector('span').textContent = '@' + handle;
-          }
+      if (doc.exists && doc.data().instagram) {
+        const handle = doc.data().instagram.replace('@', '');
+        const btn = document.getElementById('rpGalleryIgLink');
+        if (btn) {
+          btn.href = 'https://instagram.com/' + handle;
+          btn.querySelector('span').textContent = '@' + handle;
         }
       }
     }).catch(() => {});
 
-    // Galeri fotoğraflarını çek (index gerektirmeyen sorgu)
     db.collection('gallery').onSnapshot(snap => {
       console.log('Galeri snapshot:', snap.size, 'kayıt');
-      snap.docs.forEach(d => console.log(' →', d.id, d.data()));
       _items = snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
       renderGallery(_items);
-    }, (err) => {
-      console.warn('Galeri yüklenemedi:', err);
+    }, err => {
+      console.warn('Galeri hata:', err);
       document.getElementById('rpGalleryGrid').innerHTML = '';
       document.getElementById('rpGalleryEmpty').style.display = 'block';
     });
   }
+  setTimeout(initGallery, 100);
 
   // Lightbox
   window._rpGlbOpen = function(idx) {
