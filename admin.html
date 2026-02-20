@@ -1668,7 +1668,7 @@ async function gUploadFile(input) {
     fd.append('folder', '/gallery');
     fd.append('publicKey', 'public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8=');
     fd.append('signature', auth.signature);
-    fd.append('expire', auth.expire);
+    fd.append('expire', String(Number(auth.expire)));
     fd.append('token', auth.token);
     const r = await fetch('https://upload.imagekit.io/api/v1/files/upload', { method:'POST', body:fd });
     const data = await r.json();
