@@ -993,6 +993,10 @@ function loadProducts() {
     document.getElementById('sProducts').textContent = allProducts.length;
     renderProducts();
     buildCatChart();
+    // Eğer site yönetimi sayfası açıksa istatistikleri güncelle
+    if (document.getElementById('page-sitemanage')?.classList.contains('active')) {
+      renderStats();
+    }
   });
 }
 
@@ -1548,7 +1552,7 @@ function showPage(name) {
   if (name === 'cargo') renderCargo('all');
   if (name === 'members') loadMembers();
   if (name === 'coupons') loadCoupons();
-  if (name === 'sitemanage') { renderBannerList(); renderStats(); loadSiteSettings(); }
+  if (name === 'sitemanage') { renderBannerList(); loadSiteSettings(); if (allProducts.length) renderStats(); }
   if (name === 'gallery') loadGallery();
   if (name === 'stats') renderStatsPage();
   if (name === 'reviews') loadAllReviews();
