@@ -872,6 +872,7 @@ function showOrderDetail(id) {
       ${row('Toplam', tutar)}
       ${row('Tarih', formatDate(o.createdAt))}
       ${row('Durum', statusBadge(o.status || 'yeni'))}
+      ${o.designFileUrl ? `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted2);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:11px;">Tasarım Dosyası</span><a href="${o.designFileUrl}" target="_blank" style="color:var(--accent);">📎 Görüntüle →</a></div>` : ''}
     </div>
     <div style="margin-top:20px;display:flex;gap:8px;">
       <a href="https://wa.me/${telefon.replace(/\D/g,'')}" target="_blank" class="btn btn-accent" style="text-decoration:none;flex:1;justify-content:center;">📱 WhatsApp</a>

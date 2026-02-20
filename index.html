@@ -712,6 +712,10 @@ function closeLightbox(e) {
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();document.getElementById('lightbox').classList.remove('open');}});
 
 // ===== FILE UPLOAD =====
+const IMAGEKIT_ENDPOINT = 'https://ik.imagekit.io/qqsmrt6nv';
+const IMAGEKIT_PUBLIC_KEY = 'public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8=';
+let uploadedFileUrl = null;
+
 function handleFileSelect(input) {
   const file = input.files[0];
   if (!file) return;
@@ -720,7 +724,7 @@ function handleFileSelect(input) {
   const previewImg = document.getElementById('filePreviewImg');
   const previewName = document.getElementById('filePreviewName');
   preview.style.display = 'block';
-  previewName.textContent = file.name + ' · ' + (file.size/1024).toFixed(0) + ' KB';
+  previewName.textContent = file.name + ' · ' + (file.size/1024).toFixed(0) + ' KB · ⏳ Yükleniyor...';
   if (file.type.startsWith('image/')) {
     const reader = new FileReader();
     reader.onload = e => { previewImg.src = e.target.result; previewImg.style.display='block'; };
@@ -728,12 +732,42 @@ function handleFileSelect(input) {
   } else {
     previewImg.style.display = 'none';
   }
+  uploadToImageKit(file).then(url => {
+    uploadedFileUrl = url;
+    previewName.textContent = file.name + ' · ' + (file.size/1024).toFixed(0) + ' KB · ✅ Yüklendi';
+  }).catch(() => {
+    previewName.textContent = file.name + ' · ⚠ Yükleme başarısız';
+    uploadedFileUrl = null;
+  });
 }
+
+async function uploadToImageKit(file) {
+  const authRes = await fetch('/api/imagekit-auth');
+  const auth = await authRes.json();
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('fileName', 'tasarim_' + Date.now() + '_' + file.name);
+  formData.append('publicKey', IMAGEKIT_PUBLIC_KEY);
+  formData.append('signature', auth.signature);
+  formData.append('expire', auth.expire);
+  formData.append('token', auth.token);
+  formData.append('folder', '/retropatch/tasarimlar');
+  const res = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+    method: 'POST',
+    body: formData
+  });
+  const data = await res.json();
+  if (!data.url) throw new Error('Yükleme başarısız');
+  return data.url;
+}
+
 function removeFile() {
   document.getElementById('designFile').value = '';
   document.getElementById('filePreview').style.display = 'none';
   document.getElementById('filePreviewImg').src = '';
+  uploadedFileUrl = null;
 }
+
 const fileArea = document.getElementById('fileUploadArea');
 if (fileArea) {
   fileArea.addEventListener('dragover', e => { e.preventDefault(); fileArea.classList.add('drag-over'); });
@@ -791,6 +825,7 @@ function submitForm(e) {
     qty: f.querySelector('input[type=number]').value,
     notes: f.querySelector('textarea').value,
     designFile: fileName || null,
+    designFileUrl: uploadedFileUrl || null,
     status: 'yeni',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
