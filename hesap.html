@@ -450,7 +450,7 @@ function renderOrders() {
           <div class="cargo-track-title">KARGO TAKİBİ</div>
           ${trackSteps(o.cargo.status)}
           <div class="track-code">🔍 Takip No: <span>${o.cargo.trackingCode}</span>
-            <span onclick="openTracking(o.cargo.company, o.cargo.trackingCode)" style="color:var(--accent);font-size:11px;text-decoration:none;cursor:pointer;">Kargoda Takip Et →</span>
+            <span onclick="openTracking('${o.cargo.company}','${o.cargo.trackingCode}')" style="color:var(--accent);font-size:11px;text-decoration:none;cursor:pointer;margin-left:8px;">📋 Kargoda Takip Et →</span>
           </div>
         </div>` : ''}
       </div>
