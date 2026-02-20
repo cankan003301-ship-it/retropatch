@@ -450,7 +450,7 @@ function renderOrders() {
           <div class="cargo-track-title">KARGO TAKİBİ</div>
           ${trackSteps(o.cargo.status)}
           <div class="track-code">🔍 Takip No: <span>${o.cargo.trackingCode}</span>
-            <a href="${cargoTrackUrl(o.cargo.company, o.cargo.trackingCode)}" target="_blank" style="color:var(--accent);font-size:11px;text-decoration:none;">Kargoda Takip Et →</a>
+            <span onclick="openTracking(o.cargo.company, o.cargo.trackingCode)" style="color:var(--accent);font-size:11px;text-decoration:none;cursor:pointer;">Kargoda Takip Et →</span>
           </div>
         </div>` : ''}
       </div>
@@ -483,7 +483,7 @@ function trackByCode() {
         ${o.cargo?.trackingCode ? `
         <div style="margin-top:12px;font-size:12px;color:var(--muted);">
           🚚 ${o.cargo.companyName||''} · Takip No: <strong style="color:var(--text);">${o.cargo.trackingCode}</strong>
-          <a href="${cargoTrackUrl(o.cargo.company, o.cargo.trackingCode)}" target="_blank" style="color:var(--accent);margin-left:8px;">Kargoda Takip Et →</a>
+          <span onclick="openTracking('${o.cargo.company}', '${o.cargo.trackingCode}')" style="color:var(--accent);margin-left:8px;cursor:pointer;">Kargoda Takip Et →</span>
         </div>` : '<div style="margin-top:8px;font-size:12px;color:var(--muted);">Kargo bilgisi henüz güncellenmedi.</div>'}
       </div>`;
   }).catch(() => {
@@ -512,7 +512,7 @@ function renderCargo() {
       </div>
       ${trackSteps(o.cargo?.status)}
       <div class="track-code" style="margin-top:12px;">🔍 Takip No: <span>${o.cargo.trackingCode}</span>
-        <a href="${cargoTrackUrl(o.cargo.company, o.cargo.trackingCode)}" target="_blank" style="color:var(--accent);font-size:11px;text-decoration:none;margin-left:8px;">Kargoda Takip Et →</a>
+        <span onclick="openTracking('${o.cargo.company}', '${o.cargo.trackingCode}')" style="color:var(--accent);font-size:11px;text-decoration:none;margin-left:8px;cursor:pointer;">Kargoda Takip Et →</span>
       </div>
     </div>`).join('');
 }
@@ -530,12 +530,26 @@ function trackSteps(status) {
 
 function cargoTrackUrl(company, code) {
   const urls = {
-    mng: `https://www.mngkargo.com.tr/wps/portal/mng/kargotakip?kargo=${code}`,
-    yurtici: `https://www.yurticikargo.com/tr/online-islemler/gonderi-sorgula?code=${code}`,
-    ptt: `https://www.ptt.gov.tr/anlik-takip?q=${code}`,
-    surat: `https://www.suratkargo.com.tr/kargo-sorgulama?code=${code}`
+    mng:     `https://www.dhlecommerce.com.tr/gonderitakip?barkod=${code}`,
+    yurtici: `https://www.yurticikargo.com/`,
+    ptt:     `https://www.ptt.gov.tr/`,
+    surat:   `https://www.suratkargo.com.tr/KargoTakip/?kargotakipno=${code}`
   };
   return urls[company] || '#';
+}
+
+function openTracking(company, code) {
+  const url = cargoTrackUrl(company, code);
+  const names = {mng:'DHL eCommerce', yurtici:'Yurtiçi Kargo', ptt:'PTT Kargo', surat:'Sürat Kargo'};
+  const label = names[company] || 'Kargo';
+  navigator.clipboard.writeText(code).then(() => {
+    const t = document.createElement('div');
+    t.innerHTML = `📋 <b>${code}</b> kopyalandı!<br><span style="font-size:11px;opacity:.8;">${label} sayfası açılıyor, numarayı yapıştırın.</span>`;
+    t.style.cssText = 'position:fixed;bottom:28px;right:28px;z-index:9999;background:#1a1a1a;border:1px solid #c8a96e;color:#e8e8e8;padding:14px 20px;font-family:Barlow Condensed,sans-serif;font-size:14px;letter-spacing:1px;line-height:1.6;box-shadow:0 8px 32px rgba(0,0,0,.6);border-radius:2px;';
+    document.body.appendChild(t);
+    setTimeout(() => { window.open(url, '_blank'); }, 400);
+    setTimeout(() => t.remove(), 4000);
+  }).catch(() => { window.open(url, '_blank'); });
 }
 
 // ═══ FAVORİLER ═══
