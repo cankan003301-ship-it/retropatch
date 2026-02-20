@@ -109,7 +109,48 @@
       .products-wrap{padding:0 20px 60px;}
       .modal{grid-template-columns:1fr;}
     }
-  </style>
+  
+    /* ===== GLOBAL SEARCH OVERLAY ===== */
+    .search-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:6px 10px;font-size:19px;transition:color .2s;display:flex;align-items:center;justify-content:center;line-height:1;}
+    .search-btn:hover{color:var(--accent);}
+    .search-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+    .search-overlay{position:fixed;inset:0;z-index:9500;display:flex;flex-direction:column;align-items:center;opacity:0;pointer-events:none;transition:opacity .25s ease;}
+    .search-overlay.open{opacity:1;pointer-events:all;}
+    .search-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.94);backdrop-filter:blur(18px);}
+    .search-inner{position:relative;width:100%;max-width:700px;margin-top:90px;padding:0 24px;}
+    .search-bar{display:flex;align-items:center;border-bottom:2px solid var(--accent);margin-bottom:28px;}
+    .search-icon-big{font-size:18px;color:var(--accent);padding:12px 14px 12px 0;flex-shrink:0;opacity:.7;}
+    .search-input-main{flex:1;background:transparent;border:none;outline:none;font-family:'Barlow',sans-serif;font-size:24px;color:var(--text);padding:14px 0;letter-spacing:.3px;}
+    .search-input-main::placeholder{color:#444;}
+    .search-close{background:none;border:1px solid var(--border);color:var(--muted);width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;flex-shrink:0;transition:all .2s;margin-left:10px;}
+    .search-close:hover{border-color:var(--accent2);color:var(--accent2);}
+    .search-cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px;}
+    .search-cat-chip{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s;background:transparent;}
+    .search-cat-chip:hover,.search-cat-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.07);}
+    .search-results{max-height:55vh;overflow-y:auto;}
+    .search-results::-webkit-scrollbar{width:3px;} .search-results::-webkit-scrollbar-thumb{background:var(--border);}
+    .search-group-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted);padding:0 4px 10px;border-bottom:1px solid var(--border);margin-bottom:4px;}
+    .search-result-item{display:flex;align-items:center;gap:14px;padding:10px 4px;cursor:pointer;transition:background .15s;border-bottom:1px solid rgba(255,255,255,.03);}
+    .search-result-item:hover{background:rgba(200,169,110,.06);}
+    .search-result-item:hover .sri-name{color:var(--accent);}
+    .sri-img{width:54px;height:54px;object-fit:cover;background:var(--bg3);border:1px solid var(--border);flex-shrink:0;}
+    .sri-img-empty{width:54px;height:54px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+    .sri-info{flex:1;min-width:0;}
+    .sri-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .15s;}
+    .sri-meta{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:1px;text-transform:uppercase;}
+    .sri-price{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--accent);flex-shrink:0;letter-spacing:1px;}
+    .sri-badge{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 7px;background:rgba(200,169,110,.12);border:1px solid rgba(200,169,110,.25);color:var(--accent);flex-shrink:0;}
+    .search-empty{text-align:center;padding:56px 20px;}
+    .search-empty-icon{font-size:44px;margin-bottom:14px;opacity:.25;}
+    .search-empty-txt{font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+    .search-empty-sub{font-size:12px;color:#555;line-height:1.7;}
+    .search-footer{margin-top:20px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;}
+    .search-footer-hint{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;color:#444;display:flex;align-items:center;gap:6px;}
+    .search-footer-hint kbd{background:var(--bg3);border:1px solid var(--border);padding:2px 7px;font-size:10px;font-family:monospace;color:var(--muted);}
+    .search-highlight{color:var(--accent);}
+    @media(max-width:768px){.search-inner{margin-top:60px;}.search-input-main{font-size:18px;}}
+
+</style>
 </head>
 <body>
 
@@ -123,6 +164,8 @@
     <li id="navCartLi" style="display:none"><a href="sepet.html">🛒 <span id="cartCount">0</span></a></li>
     <li id="navHesapLi" style="display:none"><a href="hesap.html">Hesabım</a></li>
     <li id="navLoginLi"><a href="uye.html" class="nav-cta">Giriş Yap</a></li>
+  
+    <li><button class="search-btn" onclick="openSearch()" title="Ara (Ctrl+K / /)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></li>
   </ul>
 </nav>
 
@@ -219,8 +262,17 @@ let currentProduct = null;
 
 db.collection('products').onSnapshot(snap => {
   allProducts = snap.docs.map(d => ({id:d.id,...d.data()}));
+  window.allProducts = allProducts;
+  document.dispatchEvent(new Event('srProductsReady'));
   buildFilters();
   applyAll();
+  // URL hash ile ürün aç (arama overlay'den gelindiğinde)
+  const hash = location.hash;
+  if (hash.startsWith('#prod-')) {
+    const pid = hash.replace('#prod-', '');
+    setTimeout(() => { if (typeof openModal === 'function') openModal(pid); }, 300);
+    history.replaceState(null, '', location.pathname);
+  }
 });
 
 function buildFilters() {
@@ -348,6 +400,219 @@ function closeLB(e){if(!e||e.target===document.getElementById('lightbox'))docume
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();document.getElementById('lightbox').classList.remove('open');}});
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+
+
+// ===== GLOBAL SEARCH =====
+(function(){
+  let _srProducts = [];
+  let _srTimer = null;
+  let _srIdx = -1;
+  let _srActive = null;
+
+  // Firestore'dan ürünleri çek (sayfa zaten yüklüyse mevcut veriyi kullan)
+  function getSrProducts() {
+    if (typeof allProducts !== 'undefined' && allProducts.length) {
+      _srProducts = allProducts;
+      buildCatChips();
+      return;
+    }
+    // Firestore'dan direkt çek
+    if (typeof db !== 'undefined') {
+      db.collection('products').get().then(snap => {
+        _srProducts = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        buildCatChips();
+      });
+    }
+  }
+
+  function buildCatChips() {
+    const cats = [...new Set(_srProducts.map(p => p.cat).filter(Boolean))];
+    const el = document.getElementById('searchCats');
+    if (!el) return;
+    el.innerHTML = cats.map(c =>
+      `<button class="search-cat-chip" onclick="window._searchFilterCat('${c}')">${c}</button>`
+    ).join('');
+  }
+
+  window._searchFilterCat = function(cat) {
+    document.getElementById('searchInputMain').value = cat;
+    doGlobalSearch(cat);
+    document.querySelectorAll('.search-cat-chip').forEach(b => {
+      b.classList.toggle('active', b.textContent === cat);
+    });
+  };
+
+  window.openSearch = function() {
+    getSrProducts();
+    const ov = document.getElementById('searchOverlay');
+    ov.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('searchInputMain')?.focus(), 80);
+    _srIdx = -1;
+  };
+
+  window.closeSearch = function() {
+    document.getElementById('searchOverlay')?.classList.remove('open');
+    document.body.style.overflow = '';
+    document.getElementById('searchInputMain').value = '';
+    document.getElementById('searchResultsBox').innerHTML =
+      '<div class="search-empty"><div class="search-empty-icon">🔍</div><div class="search-empty-txt">Aramaya başlayın</div><div class="search-empty-sub">Ürün adı veya kategori yazın</div></div>';
+    document.querySelectorAll('.search-cat-chip').forEach(b => b.classList.remove('active'));
+    _srIdx = -1;
+  };
+
+  window.doGlobalSearch = function(q) {
+    clearTimeout(_srTimer);
+    _srTimer = setTimeout(() => _runSearch(q), 120);
+  };
+
+  function highlight(text, q) {
+    if (!q || !text) return text || '';
+    const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+    return text.replace(re, '<span class="search-highlight">$1</span>');
+  }
+
+  function _runSearch(q) {
+    const box = document.getElementById('searchResultsBox');
+    _srIdx = -1;
+    q = (q || '').trim().toLowerCase();
+
+    if (!q) {
+      box.innerHTML = '<div class="search-empty"><div class="search-empty-icon">🔍</div><div class="search-empty-txt">Aramaya başlayın</div><div class="search-empty-sub">Ürün adı veya kategori yazın</div></div>';
+      return;
+    }
+
+    // Firestore'dan direkt search (daha güncel veri için)
+    if (typeof db !== 'undefined' && !_srProducts.length) {
+      db.collection('products').get().then(snap => {
+        _srProducts = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        _runSearch(q);
+      });
+      return;
+    }
+
+    const matches = _srProducts.filter(p => {
+      const name = (p.name || '').toLowerCase();
+      const cat = (p.cat || '').toLowerCase();
+      const desc = (p.desc || '').toLowerCase();
+      return name.includes(q) || cat.includes(q) || desc.includes(q);
+    }).slice(0, 12);
+
+    if (!matches.length) {
+      box.innerHTML = `<div class="search-empty">
+        <div class="search-empty-icon">😶</div>
+        <div class="search-empty-txt">"${q}" için sonuç bulunamadı</div>
+        <div class="search-empty-sub">Farklı bir kelime deneyin veya<br>özel sipariş için bize yazın.</div>
+      </div>`;
+      return;
+    }
+
+    // Kategoriye göre grupla
+    const groups = {};
+    matches.forEach(p => {
+      const cat = p.cat || 'Diğer';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(p);
+    });
+
+    let html = '';
+    Object.entries(groups).forEach(([cat, items]) => {
+      html += `<div class="search-group-label">${cat} <span style="color:#444;">(${items.length})</span></div>`;
+      items.forEach((p, i) => {
+        const nameHl = highlight(p.name || '', q);
+        const imgHtml = p.image
+          ? `<img class="sri-img" src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">`
+          : `<div class="sri-img-empty">🏷</div>`;
+        const stockBadge = p.status && p.status !== 'Stokta'
+          ? `<span class="sri-badge">${p.status}</span>` : '';
+        html += `<div class="search-result-item" data-pid="${p.id}" onclick="searchGoProduct('${p.id}')">
+          ${imgHtml}
+          <div class="sri-info">
+            <div class="sri-name">${nameHl}</div>
+            <div class="sri-meta">${p.size || ''}</div>
+          </div>
+          ${stockBadge}
+          <div class="sri-price">${p.price ? '₺'+p.price : ''}</div>
+        </div>`;
+      });
+    });
+
+    box.innerHTML = html;
+  }
+
+  window.searchGoProduct = function(id) {
+    closeSearch();
+    // urunler sayfasına yönlendir, modal açmak için hash kullan
+    if (window.location.pathname.includes('urunler')) {
+      if (typeof openModal === 'function') { openModal(id); }
+    } else {
+      window.location.href = 'urunler.html#prod-' + id;
+    }
+  };
+
+  window.searchKeyNav = function(e) {
+    const items = document.querySelectorAll('.search-result-item');
+    if (e.key === 'Escape') { closeSearch(); return; }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      _srIdx = Math.min(_srIdx + 1, items.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      _srIdx = Math.max(_srIdx - 1, 0);
+    } else if (e.key === 'Enter') {
+      if (_srIdx >= 0 && items[_srIdx]) items[_srIdx].click();
+      return;
+    } else { return; }
+    items.forEach((el, i) => el.style.background = i === _srIdx ? 'rgba(200,169,110,.1)' : '');
+    items[_srIdx]?.scrollIntoView({ block: 'nearest' });
+  };
+
+  // Kısayol: Ctrl+K veya /
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+      e.preventDefault(); openSearch();
+    }
+  });
+
+  // allProducts güncellenince chip'leri de güncelle
+  const _origOnSnap = window._srOnSnapDone;
+  document.addEventListener('srProductsReady', () => {
+    _srProducts = window.allProducts || [];
+    buildCatChips();
+  });
+})();
+
 </script>
+
+
+<!-- GLOBAL SEARCH OVERLAY -->
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-backdrop" onclick="closeSearch()"></div>
+  <div class="search-inner">
+    <div class="search-bar">
+      <span class="search-icon-big">🔍</span>
+      <input class="search-input-main" id="searchInputMain" type="text"
+        placeholder="Yama ara... (ör: müzik, taktik, futbol)"
+        oninput="doGlobalSearch(this.value)"
+        onkeydown="searchKeyNav(event)">
+      <button class="search-close" onclick="closeSearch()">✕</button>
+    </div>
+    <div class="search-cats" id="searchCats"></div>
+    <div class="search-results" id="searchResultsBox">
+      <div class="search-empty">
+        <div class="search-empty-icon">🔍</div>
+        <div class="search-empty-txt">Aramaya başlayın</div>
+        <div class="search-empty-sub">Ürün adı veya kategori yazın</div>
+      </div>
+    </div>
+    <div class="search-footer">
+      <span class="search-footer-hint"><kbd>↑↓</kbd> Gezin</span>
+      <span class="search-footer-hint"><kbd>Enter</kbd> Seç</span>
+      <span class="search-footer-hint"><kbd>Esc</kbd> Kapat</span>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
