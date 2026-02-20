@@ -433,6 +433,73 @@
   </div>
 </div>
 
+
+<!-- ═══════════════════════════════════════════════
+     SSS — SIK SORULAN SORULAR
+═══════════════════════════════════════════════ -->
+<div style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+<section class="rp-faq" id="sss">
+  <div class="rp-faq-label">Merak Edilenler</div>
+  <h2 class="rp-faq-title">SIK SORULAN<br>SORULAR</h2>
+  <p class="rp-faq-sub">Siparişleriniz, üretim süreçlerimiz ve kargo hakkında merak ettiğiniz her şey.</p>
+  <div class="rp-faq-list">
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Minimum sipariş adedi nedir?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Tek adet sipariş verebilirsiniz. Toplu siparişlerde (10 adet ve üzeri) özel fiyatlandırma için WhatsApp üzerinden iletişime geçin.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Kargo süresi ne kadar?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Sipariş onayından itibaren 2–5 iş günü içinde kargoya verilmektedir. Kargo firmasına bağlı olarak ek 1–3 gün teslim süresi eklenebilir. Kargo takip kodunuz e-posta ile iletilir.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Özel tasarım (custom) yama yaptırabilir miyim?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Evet! Logo, amblem veya özel desenlerinizi WhatsApp veya e-posta üzerinden gönderin; fiyat teklifi ve üretim süresi için size dönelim. Vektör (.ai / .eps / .svg) formatlarda dosya göndermeniz süreci hızlandırır.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Yamalar hangi malzemeden üretiliyor?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Tüm ürünlerimiz profesyonel makine nakışı ile üretilmektedir. Zemin kumaşı olarak Twill ve Kanvas kullanılır; arka yüzey hot-cut veya yapışkanlı seçenek olarak sunulabilir.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">İade ve değişim koşulları nelerdir?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Standart ürünlerde teslimattan itibaren 14 gün içinde iade/değişim yapılabilir. Özel tasarımlarda üretim başlandıktan sonra iade mümkün değildir. Ürünün kullanılmamış ve orijinal ambalajında olması gerekmektedir.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Ödeme yöntemleri neler?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Banka havalesi/EFT, kapıda nakit veya pos cihazı ile ödeme kabul edilmektedir. Tüm işlemler 256-bit SSL şifreleme ile güvence altındadır.</p></div>
+    </div>
+
+  </div>
+  <div class="rp-faq-cta">
+    <span class="rp-faq-cta-text">Başka sorunuz mu var?</span>
+    <a class="rp-faq-cta-link" id="rpFaqWa" href="https://wa.me/905000000000" target="_blank" rel="noopener">WhatsApp'tan Sor →</a>
+  </div>
+</section>
+</div>
+
 <footer>
   <a href="index.html" class="logo"><img src="retro_logo.png" alt="RetroPatch" style="height:28px;"></a>
   <p>© 2025 RetroPatch. Tüm hakları saklıdır.</p>
@@ -1139,6 +1206,358 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
     </div>
   </div>
 </div>
+
+<!-- ============================================================
+     RETROPATCH — GLOBAL WIDGETS
+     WhatsApp Balonu + Scroll-to-Top + Skeleton Loading + SSS
+     Bu snippet her HTML dosyasına </body> öncesine eklenecek
+     ============================================================ -->
+
+<!-- ─── FLOATING BUTTONS HTML ─── -->
+<div class="rp-fab-group" id="rpFabGroup">
+  <!-- WhatsApp Balonu -->
+  <a class="rp-fab rp-fab-wa" id="rpWaBtn" href="#" target="_blank" rel="noopener" aria-label="WhatsApp ile iletişim">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.553 4.122 1.523 5.859L.057 23.885a.5.5 0 0 0 .598.598l6.044-1.461A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.879a9.862 9.862 0 0 1-5.022-1.371l-.36-.214-3.735.902.919-3.716-.234-.374A9.862 9.862 0 0 1 2.121 12C2.121 6.527 6.527 2.121 12 2.121S21.879 6.527 21.879 12 17.473 21.879 12 21.879z"/></svg>
+    <span class="rp-fab-tooltip">WhatsApp</span>
+    <span class="rp-fab-ping"></span>
+  </a>
+
+  <!-- Scroll to Top -->
+  <button class="rp-fab rp-fab-top" id="rpTopBtn" onclick="rpScrollTop()" aria-label="Sayfanın başına dön" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M5 15l7-7 7 7"/></svg>
+    <span class="rp-fab-tooltip">Başa dön</span>
+  </button>
+</div>
+
+<!-- ─── SSS SECTION (index.html ve urunler.html'e insert edilir) ─── -->
+<!-- SSS bölümü ayrı olarak index.html'de footer öncesine eklenir -->
+
+<style>
+/* =========================================================
+   RETROPATCH GLOBAL WIDGETS — CSS
+   ========================================================= */
+
+/* ── FAB GROUP ── */
+.rp-fab-group {
+  position: fixed;
+  bottom: 28px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  z-index: 9999;
+}
+
+.rp-fab {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease, opacity .25s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,.5);
+}
+.rp-fab:hover { transform: scale(1.12) translateY(-2px); }
+
+/* WhatsApp */
+.rp-fab-wa {
+  background: #25D366;
+  color: #fff;
+}
+.rp-fab-wa:hover { background: #1ebe59; box-shadow: 0 6px 28px rgba(37,211,102,.4); }
+
+/* Scroll top */
+.rp-fab-top {
+  background: var(--card, #141414);
+  color: var(--accent, #c8a96e);
+  border: 1px solid var(--border, #2a2a2a);
+  animation: rpFadeInUp .3s ease;
+}
+.rp-fab-top:hover { border-color: var(--accent, #c8a96e); box-shadow: 0 6px 28px rgba(200,169,110,.2); }
+
+/* Tooltip */
+.rp-fab-tooltip {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--card, #141414);
+  border: 1px solid var(--border, #2a2a2a);
+  color: var(--text, #e8e8e8);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s, transform .2s;
+  transform: translateY(-50%) translateX(4px);
+}
+.rp-fab:hover .rp-fab-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Ping animasyonu (WhatsApp) */
+.rp-fab-ping {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  animation: rpPing 2s cubic-bezier(0, 0, .2, 1) infinite;
+}
+@keyframes rpPing {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes rpFadeInUp {
+  from { opacity: 0; transform: translateY(10px) scale(.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── SKELETON LOADING ── */
+@keyframes rpShimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.rp-skeleton {
+  background: linear-gradient(90deg, var(--bg3,#1a1a1a) 25%, #222 50%, var(--bg3,#1a1a1a) 75%);
+  background-size: 600px 100%;
+  animation: rpShimmer 1.4s ease-in-out infinite;
+  border-radius: 2px;
+}
+
+/* Skeleton product card */
+.rp-skel-card {
+  background: var(--card, #141414);
+  border: 1px solid var(--border, #2a2a2a);
+  overflow: hidden;
+}
+.rp-skel-img {
+  width: 100%;
+  aspect-ratio: 1;
+}
+.rp-skel-body { padding: 14px; }
+.rp-skel-line { height: 10px; margin-bottom: 8px; }
+.rp-skel-line.short { width: 55%; }
+.rp-skel-line.tall  { height: 18px; margin-bottom: 10px; }
+.rp-skel-btn  { height: 34px; margin-top: 12px; }
+
+/* ── SSS / FAQ ── */
+.rp-faq {
+  padding: 80px 40px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.rp-faq-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent, #c8a96e);
+  margin-bottom: 10px;
+}
+.rp-faq-title {
+  font-family: 'Bebas Neue', cursive;
+  font-size: clamp(36px, 5vw, 58px);
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 12px;
+  color: var(--text, #e8e8e8);
+}
+.rp-faq-sub {
+  font-size: 14px;
+  color: var(--muted, #888);
+  margin-bottom: 40px;
+  max-width: 560px;
+  line-height: 1.6;
+}
+.rp-faq-list { display: flex; flex-direction: column; gap: 2px; }
+
+.rp-faq-item {
+  background: var(--card, #141414);
+  border: 1px solid var(--border, #2a2a2a);
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.rp-faq-item.open { border-color: rgba(200,169,110,.35); }
+
+.rp-faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.rp-faq-q-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  color: var(--text, #e8e8e8);
+  line-height: 1.3;
+}
+.rp-faq-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent, #c8a96e);
+  font-size: 14px;
+  transition: transform .3s ease, background .2s, border-color .2s;
+}
+.rp-faq-item.open .rp-faq-icon {
+  transform: rotate(45deg);
+  background: rgba(200,169,110,.1);
+  border-color: var(--accent, #c8a96e);
+}
+
+.rp-faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .38s cubic-bezier(.4,0,.2,1), padding .3s ease;
+  padding: 0 20px;
+}
+.rp-faq-item.open .rp-faq-a {
+  max-height: 300px;
+  padding: 0 20px 18px;
+}
+.rp-faq-a p {
+  font-size: 13px;
+  color: var(--muted, #888);
+  line-height: 1.75;
+  border-left: 2px solid rgba(200,169,110,.3);
+  padding-left: 14px;
+}
+
+.rp-faq-cta {
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.rp-faq-cta-text {
+  font-size: 13px;
+  color: var(--muted, #888);
+}
+.rp-faq-cta-link {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent, #c8a96e);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(200,169,110,.3);
+  padding-bottom: 2px;
+  transition: border-color .2s;
+}
+.rp-faq-cta-link:hover { border-color: var(--accent, #c8a96e); }
+
+@media (max-width: 600px) {
+  .rp-faq { padding: 60px 20px; }
+  .rp-fab-group { bottom: 20px; right: 16px; }
+  .rp-fab { width: 48px; height: 48px; }
+}
+</style>
+
+<script>
+/* =========================================================
+   RETROPATCH GLOBAL WIDGETS — JS
+   ========================================================= */
+
+// ── WhatsApp: numarayı Firestore'dan al ──
+(function() {
+  function setWaHref(num) {
+    const btn = document.getElementById('rpWaBtn');
+    if (!btn) return;
+    const clean = (num || '905000000000').replace(/\D/g, '');
+    btn.href = 'https://wa.me/' + clean + '?text=' + encodeURIComponent('Merhaba, RetroPatch hakkında bilgi almak istiyorum.');
+  }
+  // Firestore zaten yüklüyse settings'i oku
+  if (typeof db !== 'undefined') {
+    db.collection('settings').doc('site').get()
+      .then(doc => { if (doc.exists && doc.data().whatsapp) setWaHref(doc.data().whatsapp); })
+      .catch(() => {});
+  }
+  // Fallback: sayfa üzerinde zaten ctaWA varsa oradan al
+  window.addEventListener('load', () => {
+    const existing = document.getElementById('ctaWA');
+    if (existing && existing.href && existing.href.includes('wa.me')) {
+      const btn = document.getElementById('rpWaBtn');
+      if (btn) btn.href = existing.href + '?text=' + encodeURIComponent('Merhaba, RetroPatch hakkında bilgi almak istiyorum.');
+    }
+  });
+})();
+
+// ── Scroll to Top ──
+(function() {
+  const topBtn = document.getElementById('rpTopBtn');
+  if (!topBtn) return;
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        topBtn.style.display = window.scrollY > 400 ? 'flex' : 'none';
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+})();
+
+function rpScrollTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Skeleton Loading ──
+// Genel kullanım: rpShowSkeleton(container, count) — urunler.html gibi sayfalarda
+function rpShowSkeleton(container, count) {
+  if (!container) return;
+  count = count || 8;
+  container.innerHTML = Array.from({ length: count }, () => `
+    <div class="rp-skel-card">
+      <div class="rp-skeleton rp-skel-img"></div>
+      <div class="rp-skel-body">
+        <div class="rp-skeleton rp-skel-line short"></div>
+        <div class="rp-skeleton rp-skel-line tall"></div>
+        <div class="rp-skeleton rp-skel-line short"></div>
+        <div class="rp-skeleton rp-skel-btn"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── SSS / FAQ Toggle ──
+function rpFaqToggle(el) {
+  const item = el.closest('.rp-faq-item');
+  const isOpen = item.classList.contains('open');
+  // Diğerlerini kapat
+  document.querySelectorAll('.rp-faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+</script>
 
 </body>
 </html>
