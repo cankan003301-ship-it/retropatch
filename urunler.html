@@ -376,11 +376,6 @@ let currentSort = 'default';
 let currentProduct = null;
 
 db.collection('products').onSnapshot(snap => {
-  // Skeleton: ilk yüklemede göster
-  if (!window._rpProductsLoaded) {
-    rpShowSkeleton(document.getElementById('productsGrid'), 8);
-    window._rpProductsLoaded = true;
-  }
   allProducts = snap.docs.map(d => ({id:d.id,...d.data()}));
   window.allProducts = allProducts;
   document.dispatchEvent(new Event('srProductsReady'));
