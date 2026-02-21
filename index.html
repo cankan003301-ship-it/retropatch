@@ -82,15 +82,43 @@
     .fav-btn{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);color:#fff;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .2s;opacity:0;}
     .product-card:hover .fav-btn{opacity:1;}
     .fav-btn:hover,.fav-btn.active{background:rgba(230,57,70,.7);border-color:var(--accent2);color:#fff;}
-    .add-cart-btn{background:var(--accent);color:#000;border:none;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;cursor:pointer;transition:all .2s;flex-shrink:0;}
-    .add-cart-btn:hover{background:#d4b77a;}
     .product-info{padding:14px 16px;border-top:1px solid var(--border);}
     .product-cat{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
-    .product-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .product-bottom{display:flex;align-items:center;justify-content:space-between;}
+    .product-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .product-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;}
     .product-price{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--accent);}
     .product-stats{display:flex;gap:8px;margin-top:7px;}
     .pstat{font-size:10px;color:var(--muted);}
+
+    /* ── YENİ SEPET BUTONU ── */
+    .add-cart-btn{
+      position:relative;
+      display:flex;align-items:center;gap:6px;
+      background:transparent;
+      border:1px solid rgba(200,169,110,0.35);
+      color:var(--accent);
+      padding:6px 12px;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+      cursor:pointer;
+      transition:all .25s ease;
+      flex-shrink:0;
+      overflow:hidden;
+      white-space:nowrap;
+    }
+    .add-cart-btn::before{
+      content:'';
+      position:absolute;inset:0;
+      background:var(--accent);
+      transform:translateX(-101%);
+      transition:transform .25s ease;
+      z-index:0;
+    }
+    .add-cart-btn:hover::before{transform:translateX(0);}
+    .add-cart-btn:hover{color:#000;border-color:var(--accent);}
+    .add-cart-btn svg,.add-cart-btn span{position:relative;z-index:1;}
+    .add-cart-btn.added{background:var(--accent);color:#000;border-color:var(--accent);}
+    .add-cart-btn.added::before{transform:translateX(0);}
     .view-all-wrap{text-align:center;margin-top:40px;}
 
     /* ORDER */
@@ -1105,7 +1133,10 @@ function renderFeatured(field) {
         <div class="product-name">${p.name||''}</div>
         <div class="product-bottom">
           <div class="product-price">${p.price?'₺'+p.price:'—'}</div>
-          <button class="add-cart-btn" onclick="event.stopPropagation();addToCartById(this.closest('.product-card').dataset.id)" title="Sepete ekle">+</button>
+          <button class="add-cart-btn" onclick="event.stopPropagation();rpAddToCart(this,this.closest('.product-card').dataset.id)" title="Sepete ekle">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            <span>Sepete Ekle</span>
+          </button>
         </div>
         <div class="product-stats">
           <span class="pstat">🔥 ${p.sales||0} ${labels.sales}</span>
@@ -1332,6 +1363,23 @@ function addToCart(p) {
 function addToCartById(id) {
   const p = allProducts.find(x=>x.id===id);
   if (p) addToCart(p);
+}
+
+function rpAddToCart(btn, id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  addToCart(p);
+  // Animasyon
+  const span = btn.querySelector('span');
+  const origText = span.textContent;
+  btn.classList.add('added');
+  span.textContent = '✓ Eklendi';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.classList.remove('added');
+    span.textContent = origText;
+    btn.disabled = false;
+  }, 1800);
 }
 
 function toggleFavById(id, btn) {
