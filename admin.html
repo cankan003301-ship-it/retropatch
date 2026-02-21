@@ -392,11 +392,200 @@
 
     <!-- PRODUCTS -->
     <div class="page" id="page-products">
-      <div class="section-hdr">
-        <div class="section-ttl">ÜRÜNLER</div>
-        <button class="btn btn-accent" onclick="openProdModal()">+ YENİ ÜRÜN</button>
+
+      <!-- TOOLBAR -->
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+        <div class="section-ttl">ÜRÜNLER <span id="prodPageCount" style="font-size:16px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;"></span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" onclick="toggleProdView('grid')" id="viewGrid" title="Grid görünüm">⊞ Grid</button>
+          <button class="btn btn-outline btn-sm" onclick="toggleProdView('table')" id="viewTable" title="Tablo görünüm">☰ Tablo</button>
+          <button class="btn btn-outline btn-sm" onclick="openBulkPriceModal()">💰 Toplu Fiyat</button>
+          <button class="btn btn-outline btn-sm" onclick="openBulkStatusModal()">🔄 Toplu Durum</button>
+          <button class="btn btn-outline btn-sm" onclick="openBulkAddModal()">📋 Toplu Ekle</button>
+          <button class="btn btn-accent" onclick="openProdModal()">+ YENİ ÜRÜN</button>
+        </div>
       </div>
+
+      <!-- FİLTRE + ARAMA -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
+        <input type="text" id="prodSearch" placeholder="🔍 Ürün ara..." oninput="applyProdFilters()"
+          style="flex:1;min-width:160px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
+        <select id="prodCatFilter" onchange="applyProdFilters()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
+          <option value="all">Tüm Kategoriler</option>
+        </select>
+        <select id="prodStatusFilter" onchange="applyProdFilters()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
+          <option value="all">Tüm Durumlar</option>
+          <option value="Stokta">Stokta</option>
+          <option value="Son 3">Son 3</option>
+          <option value="Tükendi">Tükendi</option>
+        </select>
+        <select id="prodSort" onchange="applyProdFilters()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
+          <option value="newest">En Yeni</option>
+          <option value="oldest">En Eski</option>
+          <option value="price_asc">Fiyat ↑</option>
+          <option value="price_desc">Fiyat ↓</option>
+          <option value="name">A-Z</option>
+          <option value="sales">En Çok Satan</option>
+        </select>
+      </div>
+
+      <!-- SEÇİM + TOPLU İŞLEM SATIRI -->
+      <div id="selectionBar" style="display:none;background:rgba(200,169,110,.08);border:1px solid rgba(200,169,110,.25);padding:10px 16px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;cursor:pointer;">
+          <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" style="accent-color:var(--accent);width:14px;height:14px;"> TÜMÜNÜ SEÇ
+        </label>
+        <span id="selectedInfo" style="font-size:12px;color:var(--muted2);flex:1;"></span>
+        <button class="btn btn-danger btn-sm" onclick="bulkDeleteSelected()">🗑 Seçilenleri Sil</button>
+        <button class="btn btn-outline btn-sm" onclick="clearSelection()">✕ Temizle</button>
+      </div>
+
+      <!-- GRID GÖRÜNÜM -->
       <div class="prod-grid" id="prodGrid"></div>
+
+      <!-- TABLO GÖRÜNÜM -->
+      <div id="prodTableWrap" style="display:none;">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th style="width:32px;"><input type="checkbox" id="selectAllTable" onchange="toggleSelectAll(this)" style="accent-color:var(--accent);"></th>
+              <th>Görsel</th><th>Ürün Adı</th><th>Kategori</th><th>Fiyat</th><th>Durum</th><th>Boyut</th><th>🔥 Satış</th><th>İşlem</th>
+            </tr></thead>
+            <tbody id="prodTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPLU FİYAT MODAL -->
+    <div class="modal-ov" id="bulkPriceModal">
+      <div class="modal-box" style="max-width:500px;">
+        <div class="modal-hdr"><h3>💰 TOPLU FİYAT GÜNCELLEME</h3><button class="modal-x" onclick="closeModal('bulkPriceModal')">✕</button></div>
+        <div class="modal-body">
+          <div style="background:var(--bg3);border:1px solid var(--border);padding:12px 16px;margin-bottom:18px;font-size:12px;color:var(--muted2);">
+            Seçilen kategorideki tüm ürünlere uygulanır. <strong style="color:var(--accent);">Geri alınamaz.</strong>
+          </div>
+          <div class="fg"><label>Kategori (boş = tümü)</label>
+            <select id="bpCat" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;">
+              <option value="all">Tüm Kategoriler</option>
+            </select>
+          </div>
+          <div class="fg"><label>İşlem Türü</label>
+            <select id="bpType" onchange="updateBulkPricePreview()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;">
+              <option value="fixed">Sabit Fiyat Belirle (₺)</option>
+              <option value="increase_pct">Yüzde Artır (%)</option>
+              <option value="decrease_pct">Yüzde İndir (%)</option>
+              <option value="increase_fixed">Sabit Artır (₺)</option>
+              <option value="decrease_fixed">Sabit İndir (₺)</option>
+            </select>
+          </div>
+          <div class="fg"><label id="bpValueLabel">Değer</label>
+            <input type="number" id="bpValue" placeholder="0" min="0" oninput="updateBulkPricePreview()"
+              style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;">
+          </div>
+          <div id="bpPreview" style="background:var(--bg3);border:1px solid rgba(200,169,110,.2);padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--accent);display:none;"></div>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="applyBulkPrice()">💾 UYGULA</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPLU DURUM MODAL -->
+    <div class="modal-ov" id="bulkStatusModal">
+      <div class="modal-box" style="max-width:400px;">
+        <div class="modal-hdr"><h3>🔄 TOPLU DURUM GÜNCELLEME</h3><button class="modal-x" onclick="closeModal('bulkStatusModal')">✕</button></div>
+        <div class="modal-body">
+          <div class="fg"><label>Kategori (boş = tümü)</label>
+            <select id="bsCat" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;">
+              <option value="all">Tüm Kategoriler</option>
+            </select>
+          </div>
+          <div class="fg"><label>Yeni Durum</label>
+            <select id="bsStatus" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;">
+              <option>Stokta</option><option>Son 3</option><option>Tükendi</option>
+            </select>
+          </div>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="applyBulkStatus()">✓ UYGULA</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPLU EKLEME MODAL -->
+    <div class="modal-ov" id="bulkAddModal">
+      <div class="modal-box" style="max-width:700px;">
+        <div class="modal-hdr"><h3>📋 TOPLU ÜRÜN EKLE</h3><button class="modal-x" onclick="closeModal('bulkAddModal')">✕</button></div>
+        <div class="modal-body">
+          <div style="background:var(--bg3);border:1px solid var(--border);padding:12px 18px;margin-bottom:18px;font-size:12px;color:var(--muted2);line-height:1.8;">
+            Her satır 1 ürün. Sütunlar <code style="color:var(--accent);">|</code> ile ayrılır.<br>
+            Format: <strong style="color:var(--accent);">Ad | Fiyat | Kategori | Açıklama | Boyut | Durum | Arka Yüzey</strong><br>
+            <span style="opacity:.7;">Sadece Ad ve Fiyat zorunlu, geri kalanlar varsayılan değerleri alır.</span>
+          </div>
+          <div class="fg"><label>Ürün Listesi</label>
+            <textarea id="bulkAddText" placeholder="Iron Maiden Patch | 149 | Müzik / Metal Grup Patch&#10;AC/DC Patch | 129&#10;Metallica Patch | 159 | Müzik / Metal Grup Patch | Nakış yama | 8x8 cm | Stokta | Ütüyle Yapışan"
+              style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:12px 14px;font-family:monospace;font-size:12px;outline:none;resize:vertical;min-height:160px;"></textarea>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+            <div class="fg" style="margin:0;"><label>Varsayılan Kategori</label>
+              <select id="bulkDefaultCat" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
+                <option>Müzik / Metal Grup Patch</option><option>Dizi / Film Patch</option>
+                <option>Çizgi film / Anime</option><option>Spor Patch</option><option>Oyun Patch</option>
+                <option>Askeri / Tarihi Patch</option><option>Bayrak Patch</option><option>Sembol Patch</option>
+                <option>Sweatshirt</option><option>Tişört</option>
+              </select>
+            </div>
+            <div class="fg" style="margin:0;"><label>Varsayılan Durum</label>
+              <select id="bulkDefaultStatus" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
+                <option>Stokta</option><option>Son 3</option><option>Tükendi</option>
+              </select>
+            </div>
+          </div>
+          <div id="bulkAddPreview" style="display:none;background:var(--bg3);border:1px solid rgba(200,169,110,.2);padding:12px 16px;margin-bottom:16px;max-height:160px;overflow-y:auto;font-size:12px;"></div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline" style="flex:1;justify-content:center;padding:12px;" onclick="previewBulkAdd()">👁 Önizle</button>
+            <button class="btn btn-accent" style="flex:2;padding:14px;font-size:17px;justify-content:center;" onclick="applyBulkAdd()" id="bulkAddBtn">💾 TOPLU EKLE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HIZLI DÜZENLE MODAL -->
+    <div class="modal-ov" id="quickEditModal">
+      <div class="modal-box" style="max-width:660px;">
+        <div class="modal-hdr"><h3 id="quickEditTitle">⚡ HIZLI DÜZENLE</h3><button class="modal-x" onclick="closeModal('quickEditModal')">✕</button></div>
+        <div class="modal-body">
+          <input type="hidden" id="qeId">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div>
+              <div class="fg"><label>Ürün Adı</label><input type="text" id="qeName"></div>
+              <div class="fg"><label>Fiyat (₺)</label><input type="number" id="qePrice" min="0"></div>
+              <div class="fg"><label>Kategori</label>
+                <select id="qeCat">
+                  <option>Müzik / Metal Grup Patch</option><option>Dizi / Film Patch</option>
+                  <option>Çizgi film / Anime</option><option>Spor Patch</option><option>Oyun Patch</option>
+                  <option>Askeri / Tarihi Patch</option><option>Bayrak Patch</option><option>Sembol Patch</option>
+                  <option>Sweatshirt</option><option>Tişört</option>
+                </select>
+              </div>
+              <div class="fg"><label>Durum</label>
+                <select id="qeStatus"><option>Stokta</option><option>Son 3</option><option>Tükendi</option></select>
+              </div>
+              <div class="fg"><label>Boyut</label><input type="text" id="qeSize" placeholder="8x8 cm"></div>
+              <div class="fg"><label>Arka Yüzey</label>
+                <select id="qeBack"><option>Ütüyle Yapışan</option><option>Velcro</option><option>Düz</option></select>
+              </div>
+            </div>
+            <div>
+              <div class="fg"><label>Açıklama</label><textarea id="qeDesc" style="min-height:90px;resize:vertical;"></textarea></div>
+              <div class="fg"><label>Görsel URL</label><input type="text" id="qeImage" oninput="qePreviewImg(this.value)"></div>
+              <div id="qeImgPreview" style="margin-top:6px;display:none;"><img id="qeImgPreviewImg" style="width:100%;max-height:120px;object-fit:cover;border:1px solid var(--border);"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;">
+                <div class="fg" style="margin:0;"><label style="font-size:9px;">🔥 Satış</label><input type="number" id="qeSales" min="0" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:13px;outline:none;"></div>
+                <div class="fg" style="margin:0;"><label style="font-size:9px;">❤️ Favori</label><input type="number" id="qeFavs" min="0" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:13px;outline:none;"></div>
+                <div class="fg" style="margin:0;"><label style="font-size:9px;">⭐ Yorum</label><input type="number" id="qeReviews" min="0" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:13px;outline:none;"></div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;margin-top:12px;" onclick="saveQuickEdit()">💾 KAYDET</button>
+        </div>
+      </div>
     </div>
 
     <!-- SITE MANAGEMENT -->
@@ -1357,28 +1546,395 @@ function deleteMsg(id) {
     .then(() => toast('Mesaj silindi', 'ok'));
 }
 
-// ============ PRODUCTS ============
+// ============ PRODUCTS — GELİŞMİŞ ============
+let prodView = 'grid';
+let selectedProdIds = new Set();
+let filteredProds = [];
+
 function renderProducts() {
+  // Kategori filtre dropdown'larını doldur
+  const cats = ['all', ...new Set(allProducts.map(p => p.cat).filter(Boolean))];
+  ['prodCatFilter','bpCat','bsCat'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el || el.options.length > 1) return;
+    cats.slice(1).forEach(c => {
+      const o = document.createElement('option'); o.value = c; o.textContent = c; el.appendChild(o);
+    });
+  });
+  applyProdFilters();
+}
+
+function applyProdFilters() {
+  const q = (document.getElementById('prodSearch')?.value || '').toLowerCase();
+  const catF = document.getElementById('prodCatFilter')?.value || 'all';
+  const statusF = document.getElementById('prodStatusFilter')?.value || 'all';
+  const sort = document.getElementById('prodSort')?.value || 'newest';
+
+  filteredProds = allProducts.filter(p => {
+    const matchCat = catF === 'all' || p.cat === catF;
+    const matchStatus = statusF === 'all' || p.status === statusF;
+    const matchQ = !q || (p.name||'').toLowerCase().includes(q) || (p.cat||'').toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q);
+    return matchCat && matchStatus && matchQ;
+  });
+
+  if (sort === 'newest') filteredProds.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  else if (sort === 'oldest') filteredProds.sort((a,b) => (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+  else if (sort === 'price_asc') filteredProds.sort((a,b) => (a.price||0)-(b.price||0));
+  else if (sort === 'price_desc') filteredProds.sort((a,b) => (b.price||0)-(a.price||0));
+  else if (sort === 'name') filteredProds.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+  else if (sort === 'sales') filteredProds.sort((a,b) => (b.sales||0)-(a.sales||0));
+
+  const countEl = document.getElementById('prodPageCount');
+  if (countEl) countEl.textContent = `(${filteredProds.length}/${allProducts.length})`;
+
+  if (prodView === 'grid') renderProdGrid();
+  else renderProdTable();
+  updateSelectionUI();
+}
+
+function renderProdGrid() {
   const grid = document.getElementById('prodGrid');
-  if (!allProducts.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;" class="empty"><div class="empty-icon">🏷</div><div class="empty-text">Ürün yok — yeni ürün ekle</div></div>';
+  if (!filteredProds.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;" class="empty"><div class="empty-icon">🏷</div><div class="empty-text">Ürün bulunamadı</div></div>';
     return;
   }
-  grid.innerHTML = allProducts.map(p => `
-    <div class="prod-card">
-      <div class="prod-img">
-        <img src="${p.image||''}" alt="${p.name}" onerror="this.parentElement.style.background='var(--bg4)';this.style.display='none'">
+  const statusColor = {Stokta:'var(--green)',Son3:'var(--accent)','Son 3':'var(--accent)',Tükendi:'var(--accent2)'};
+  grid.innerHTML = filteredProds.map(p => {
+    const isSelected = selectedProdIds.has(p.id);
+    const sc = statusColor[p.status] || 'var(--green)';
+    return `<div class="prod-card" style="${isSelected?'border-color:var(--accent);background:rgba(200,169,110,.06);':''}">
+      <div style="position:absolute;top:8px;left:8px;z-index:5;">
+        <input type="checkbox" ${isSelected?'checked':''} onchange="toggleProdSelect('${p.id}',this)" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;">
+      </div>
+      <div class="prod-img" style="position:relative;">
+        <img src="${p.image||''}" alt="${p.name}" loading="lazy" onerror="this.parentElement.style.background='var(--bg4)';this.style.display='none'">
+        <div style="position:absolute;top:6px;right:6px;font-size:9px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;padding:2px 7px;background:rgba(0,0,0,.7);color:${sc};border:1px solid ${sc};opacity:.9;">${p.status||'Stokta'}</div>
       </div>
       <div class="prod-info">
-        <div class="prod-name">${p.name}</div>
         <div class="prod-cat">${p.cat||'—'}</div>
-        <div class="prod-price">₺${p.price||'—'}</div>
+        <div class="prod-name" title="${p.name}">${p.name}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div class="prod-price">₺${p.price||'—'}</div>
+          <div style="font-size:10px;color:var(--muted2);">🔥${p.sales||0} ❤️${p.favorites||0}</div>
+        </div>
         <div class="prod-actions">
-          <button class="btn btn-blue btn-sm" onclick="editProd('${p.id}')">Düzenle</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteProd('${p.id}')">Sil</button>
+          <button class="btn btn-blue btn-sm" onclick="openQuickEdit('${p.id}')">⚡ Hızlı</button>
+          <button class="btn btn-outline btn-sm" onclick="editProd('${p.id}')">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProd('${p.id}')">🗑</button>
         </div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+}
+
+function renderProdTable() {
+  const tbody = document.getElementById('prodTbody');
+  if (!filteredProds.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty"><div class="empty-text">Ürün bulunamadı</div></td></tr>';
+    return;
+  }
+  const statusColor = {Stokta:'b-green','Son 3':'b-yellow',Tükendi:'b-red'};
+  tbody.innerHTML = filteredProds.map(p => {
+    const isSelected = selectedProdIds.has(p.id);
+    return `<tr style="${isSelected?'background:rgba(200,169,110,.05);':''}">
+      <td><input type="checkbox" ${isSelected?'checked':''} onchange="toggleProdSelect('${p.id}',this)" style="accent-color:var(--accent);"></td>
+      <td><div style="width:44px;height:44px;overflow:hidden;background:var(--bg3);border:1px solid var(--border);flex-shrink:0;">
+        <img src="${p.image||''}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">
+      </div></td>
+      <td>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.5px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:2px;">#${p.id.slice(-6)}</div>
+      </td>
+      <td style="font-size:12px;color:var(--muted2);">${p.cat||'—'}</td>
+      <td>
+        <input type="number" value="${p.price||0}" min="0"
+          style="width:80px;background:var(--bg3);border:1px solid var(--border);color:var(--accent);padding:5px 8px;font-family:'Bebas Neue',cursive;font-size:16px;outline:none;text-align:center;"
+          onblur="inlineUpdatePrice('${p.id}',this.value)" onkeydown="if(event.key==='Enter')this.blur()">
+      </td>
+      <td>
+        <select onchange="inlineUpdateStatus('${p.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;outline:none;">
+          ${['Stokta','Son 3','Tükendi'].map(s=>`<option value="${s}" ${p.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td style="font-size:12px;color:var(--muted2);">${p.size||'—'}</td>
+      <td style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);">${p.sales||0}</td>
+      <td style="white-space:nowrap;display:flex;gap:4px;padding:10px 8px;">
+        <button class="btn btn-blue btn-sm" onclick="openQuickEdit('${p.id}')">⚡</button>
+        <button class="btn btn-outline btn-sm" onclick="editProd('${p.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProd('${p.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleProdView(view) {
+  prodView = view;
+  document.getElementById('prodGrid').style.display = view === 'grid' ? 'grid' : 'none';
+  document.getElementById('prodTableWrap').style.display = view === 'table' ? 'block' : 'none';
+  document.getElementById('viewGrid').className = 'btn btn-sm ' + (view==='grid' ? 'btn-accent' : 'btn-outline');
+  document.getElementById('viewTable').className = 'btn btn-sm ' + (view==='table' ? 'btn-accent' : 'btn-outline');
+  applyProdFilters();
+}
+
+// ── INLINE GÜNCELLEME ──────────────────────────────────
+function inlineUpdatePrice(id, val) {
+  const price = parseFloat(val);
+  if (isNaN(price) || price < 0) return;
+  db.collection('products').doc(id).update({ price })
+    .then(() => toast('₺' + price + ' → kaydedildi', 'ok'))
+    .catch(() => toast('Fiyat güncellenemedi!', 'err'));
+}
+
+function inlineUpdateStatus(id, status) {
+  db.collection('products').doc(id).update({ status })
+    .then(() => toast('Durum: ' + status, 'ok'))
+    .catch(() => toast('Hata!', 'err'));
+}
+
+// ── SEÇİM & TOPLU İŞLEMLER ────────────────────────────
+function toggleProdSelect(id, cb) {
+  if (cb.checked) selectedProdIds.add(id);
+  else selectedProdIds.delete(id);
+  updateSelectionUI();
+}
+
+function toggleSelectAll(masterCb) {
+  filteredProds.forEach(p => {
+    if (masterCb.checked) selectedProdIds.add(p.id);
+    else selectedProdIds.delete(p.id);
+  });
+  updateSelectionUI();
+  if (prodView === 'grid') renderProdGrid();
+  else renderProdTable();
+}
+
+function clearSelection() {
+  selectedProdIds.clear();
+  updateSelectionUI();
+  if (prodView === 'grid') renderProdGrid();
+  else renderProdTable();
+}
+
+function updateSelectionUI() {
+  const cnt = selectedProdIds.size;
+  const bar = document.getElementById('selectionBar');
+  const info = document.getElementById('selectedInfo');
+  if (bar) bar.style.display = cnt > 0 ? 'flex' : 'none';
+  if (info) info.textContent = cnt + ' ürün seçildi';
+  // Checkbox sync
+  const sa = document.getElementById('selectAll');
+  const sat = document.getElementById('selectAllTable');
+  const allSel = filteredProds.length > 0 && filteredProds.every(p => selectedProdIds.has(p.id));
+  if (sa) sa.checked = allSel;
+  if (sat) sat.checked = allSel;
+}
+
+function bulkDeleteSelected() {
+  if (!selectedProdIds.size) { toast('Hiç ürün seçilmedi!', 'err'); return; }
+  if (!confirm(`${selectedProdIds.size} ürün kalıcı olarak silinsin mi?`)) return;
+  const ids = [...selectedProdIds];
+  const batch = db.batch();
+  ids.forEach(id => batch.delete(db.collection('products').doc(id)));
+  batch.commit().then(() => {
+    toast(`✓ ${ids.length} ürün silindi`, 'ok');
+    selectedProdIds.clear();
+  }).catch(() => toast('Toplu silme hatası!', 'err'));
+}
+
+// ── TOPLU FİYAT ───────────────────────────────────────
+function openBulkPriceModal() {
+  updateBulkPricePreview();
+  openModal('bulkPriceModal');
+}
+
+function updateBulkPricePreview() {
+  const type = document.getElementById('bpType')?.value || 'fixed';
+  const val = parseFloat(document.getElementById('bpValue')?.value) || 0;
+  const cat = document.getElementById('bpCat')?.value || 'all';
+  const labelEl = document.getElementById('bpValueLabel');
+  const preview = document.getElementById('bpPreview');
+  const labels = {fixed:'Yeni Fiyat (₺)', increase_pct:'Artış (%)', decrease_pct:'İndirim (%)', increase_fixed:'Artış (₺)', decrease_fixed:'İndirim (₺)'};
+  if (labelEl) labelEl.textContent = labels[type] || 'Değer';
+
+  if (!val || !preview) return;
+  const targets = allProducts.filter(p => cat === 'all' || p.cat === cat);
+  const samples = targets.slice(0, 4);
+  const newPrices = samples.map(p => {
+    const old = parseFloat(p.price) || 0;
+    let np;
+    if (type === 'fixed') np = val;
+    else if (type === 'increase_pct') np = Math.round(old * (1 + val/100));
+    else if (type === 'decrease_pct') np = Math.max(0, Math.round(old * (1 - val/100)));
+    else if (type === 'increase_fixed') np = old + val;
+    else if (type === 'decrease_fixed') np = Math.max(0, old - val);
+    return { name: p.name, old, new: np };
+  });
+  preview.style.display = 'block';
+  preview.innerHTML = `<strong style="color:var(--accent);">${targets.length} ürün etkilenecek</strong><br>` +
+    newPrices.map(x => `<span style="color:var(--muted2);">${x.name}:</span> ₺${x.old} → <strong style="color:var(--accent);">₺${x.new}</strong>`).join('<br>') +
+    (targets.length > 4 ? `<br><span style="opacity:.6;">...ve ${targets.length-4} ürün daha</span>` : '');
+}
+
+function applyBulkPrice() {
+  const type = document.getElementById('bpType').value;
+  const val = parseFloat(document.getElementById('bpValue').value);
+  const cat = document.getElementById('bpCat').value;
+  if (isNaN(val) || val <= 0) { toast('Geçerli bir değer girin!', 'err'); return; }
+  const targets = allProducts.filter(p => cat === 'all' || p.cat === cat);
+  if (!targets.length) { toast('Hedef ürün bulunamadı!', 'err'); return; }
+  if (!confirm(`${targets.length} ürünün fiyatı güncellensin mi?`)) return;
+  const chunks = [];
+  for (let i = 0; i < targets.length; i += 490) chunks.push(targets.slice(i, i+490));
+  Promise.all(chunks.map(chunk => {
+    const batch = db.batch();
+    chunk.forEach(p => {
+      const old = parseFloat(p.price) || 0;
+      let np;
+      if (type === 'fixed') np = val;
+      else if (type === 'increase_pct') np = Math.round(old * (1 + val/100));
+      else if (type === 'decrease_pct') np = Math.max(0, Math.round(old * (1 - val/100)));
+      else if (type === 'increase_fixed') np = old + val;
+      else if (type === 'decrease_fixed') np = Math.max(0, old - val);
+      batch.update(db.collection('products').doc(p.id), { price: Math.round(np) });
+    });
+    return batch.commit();
+  })).then(() => {
+    toast(`✓ ${targets.length} ürünün fiyatı güncellendi`, 'ok');
+    closeModal('bulkPriceModal');
+    document.getElementById('bpValue').value = '';
+    document.getElementById('bpPreview').style.display = 'none';
+  }).catch(e => toast('Hata: ' + e.message, 'err'));
+}
+
+// ── TOPLU DURUM ───────────────────────────────────────
+function openBulkStatusModal() { openModal('bulkStatusModal'); }
+
+function applyBulkStatus() {
+  const cat = document.getElementById('bsCat').value;
+  const status = document.getElementById('bsStatus').value;
+  const targets = allProducts.filter(p => cat === 'all' || p.cat === cat);
+  if (!targets.length) { toast('Hedef ürün bulunamadı!', 'err'); return; }
+  if (!confirm(`${targets.length} ürünün durumu "${status}" yapılsın mı?`)) return;
+  const chunks = [];
+  for (let i = 0; i < targets.length; i += 490) chunks.push(targets.slice(i, i+490));
+  Promise.all(chunks.map(chunk => {
+    const batch = db.batch();
+    chunk.forEach(p => batch.update(db.collection('products').doc(p.id), { status }));
+    return batch.commit();
+  })).then(() => {
+    toast(`✓ ${targets.length} ürün → ${status}`, 'ok');
+    closeModal('bulkStatusModal');
+  }).catch(e => toast('Hata: ' + e.message, 'err'));
+}
+
+// ── TOPLU EKLEME ──────────────────────────────────────
+function openBulkAddModal() { openModal('bulkAddModal'); }
+
+function parseBulkAddLines() {
+  const text = document.getElementById('bulkAddText').value;
+  const defCat = document.getElementById('bulkDefaultCat').value;
+  const defStatus = document.getElementById('bulkDefaultStatus').value;
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  return lines.map(line => {
+    const parts = line.split('|').map(p => p.trim());
+    const name = parts[0] || '';
+    const price = parseFloat(parts[1]) || 0;
+    const cat = parts[2] || defCat;
+    const desc = parts[3] || '';
+    const size = parts[4] || '8x8 cm';
+    const status = parts[5] || defStatus;
+    const back = parts[6] || 'Ütüyle Yapışan';
+    return { name, price, cat, desc, size, status, back, image: '' };
+  }).filter(p => p.name);
+}
+
+function previewBulkAdd() {
+  const items = parseBulkAddLines();
+  const preview = document.getElementById('bulkAddPreview');
+  if (!items.length) { preview.style.display = 'none'; toast('Ürün bulunamadı!', 'err'); return; }
+  preview.style.display = 'block';
+  preview.innerHTML = `<strong style="color:var(--accent);">${items.length} ürün eklenecek:</strong><br><br>` +
+    items.map((p,i) => `<span style="color:var(--muted2);">${i+1}.</span> <strong>${p.name}</strong> — ₺${p.price} — ${p.cat} — ${p.status}`).join('<br>');
+}
+
+function applyBulkAdd() {
+  const items = parseBulkAddLines();
+  if (!items.length) { toast('Eklenecek ürün yok!', 'err'); return; }
+  const btn = document.getElementById('bulkAddBtn');
+  btn.disabled = true; btn.textContent = '⏳ Ekleniyor...';
+  const ts = firebase.firestore.FieldValue.serverTimestamp();
+  const chunks = [];
+  for (let i = 0; i < items.length; i += 490) chunks.push(items.slice(i, i+490));
+  Promise.all(chunks.map(chunk => {
+    const batch = db.batch();
+    chunk.forEach(p => {
+      const ref = db.collection('products').doc();
+      batch.set(ref, { ...p, sales: 0, favorites: 0, reviews: 0, views: 0, createdAt: ts });
+    });
+    return batch.commit();
+  })).then(() => {
+    toast(`✓ ${items.length} ürün başarıyla eklendi!`, 'ok');
+    closeModal('bulkAddModal');
+    document.getElementById('bulkAddText').value = '';
+    document.getElementById('bulkAddPreview').style.display = 'none';
+    addActivity('📋', `${items.length} ürün toplu eklendi`);
+  }).catch(e => toast('Hata: ' + e.message, 'err'))
+  .finally(() => { btn.disabled = false; btn.textContent = '💾 TOPLU EKLE'; });
+}
+
+// ── HIZLI DÜZENLE ─────────────────────────────────────
+function openQuickEdit(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('qeId').value = id;
+  document.getElementById('quickEditTitle').textContent = '⚡ ' + (p.name || 'HIZLI DÜZENLE');
+  document.getElementById('qeName').value = p.name || '';
+  document.getElementById('qePrice').value = p.price || '';
+  document.getElementById('qeCat').value = p.cat || 'Müzik / Metal Grup Patch';
+  document.getElementById('qeStatus').value = p.status || 'Stokta';
+  document.getElementById('qeSize').value = p.size || '';
+  document.getElementById('qeBack').value = p.back || 'Ütüyle Yapışan';
+  document.getElementById('qeDesc').value = p.desc || '';
+  document.getElementById('qeImage').value = p.image || '';
+  document.getElementById('qeSales').value = p.sales || 0;
+  document.getElementById('qeFavs').value = p.favorites || 0;
+  document.getElementById('qeReviews').value = p.reviews || 0;
+  qePreviewImg(p.image || '');
+  openModal('quickEditModal');
+}
+
+function qePreviewImg(url) {
+  const wrap = document.getElementById('qeImgPreview');
+  const img = document.getElementById('qeImgPreviewImg');
+  if (url && wrap && img) { img.src = url; wrap.style.display = 'block'; }
+  else if (wrap) wrap.style.display = 'none';
+}
+
+function saveQuickEdit() {
+  const id = document.getElementById('qeId').value;
+  if (!id) return;
+  const name = document.getElementById('qeName').value.trim();
+  if (!name) { toast('Ürün adı boş olamaz!', 'err'); return; }
+  const data = {
+    name,
+    price: parseFloat(document.getElementById('qePrice').value) || 0,
+    cat: document.getElementById('qeCat').value,
+    status: document.getElementById('qeStatus').value,
+    size: document.getElementById('qeSize').value,
+    back: document.getElementById('qeBack').value,
+    desc: document.getElementById('qeDesc').value,
+    image: document.getElementById('qeImage').value,
+    sales: parseInt(document.getElementById('qeSales').value) || 0,
+    favorites: parseInt(document.getElementById('qeFavs').value) || 0,
+    reviews: parseInt(document.getElementById('qeReviews').value) || 0,
+  };
+  db.collection('products').doc(id).update(data)
+    .then(() => {
+      toast('✓ Ürün güncellendi: ' + name, 'ok');
+      closeModal('quickEditModal');
+      addActivity('⚡', name + ' hızlı düzenlendi');
+    })
+    .catch(e => toast('Hata: ' + e.message, 'err'));
 }
 
 function openProdModal(id) {
