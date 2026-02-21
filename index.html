@@ -1027,7 +1027,7 @@ function buildSlider() {
 }
 
 function buildSliderFromProducts() {
-  const fallback = allProducts.filter(p => p.image).slice(0, 8).map(p => ({
+  const fallback = allProducts.filter(p => p.image).slice(0, 10).map(p => ({
     image: p.image,
     tag: 'Profesyonel Nakış \u00b7 RetroPatch',
     title: 'RETROPATCH',
@@ -1111,7 +1111,7 @@ function switchTab(field, btn) {
 }
 
 function renderFeatured(field) {
-  const sorted = [...allProducts].sort((a,b)=>(b[field]||0)-(a[field]||0)).slice(0,8);
+  const sorted = [...allProducts].sort((a,b)=>(b[field]||0)-(a[field]||0)).slice(0,10);
   const grid = document.getElementById('featGrid');
   const icons = {sales:'🔥',favorites:'❤️',reviews:'⭐'};
   const labels = {sales:'satış',favorites:'favori',reviews:'yorum'};
