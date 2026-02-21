@@ -1984,12 +1984,8 @@ async function loadAllReviews() {
   const selectedProduct = filterEl?.value || 'all';
 
   try {
-    // Ürün listesi henüz dolmadıysa doğrudan Firestore'dan çek
-    let products = allProducts;
-    if (!products.length) {
-      const pSnap = await db.collection('products').get();
-      products = pSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    }
+    // Ürün listesini çek
+    let products = allProducts.length ? allProducts : await db.collection('products').get().then(s => s.docs.map(d => ({ id: d.id, ...d.data() })));
 
     // Ürün filtre dropdown'ını doldur (bir kez)
     if (filterEl && filterEl.options.length <= 1 && products.length) {
@@ -2000,20 +1996,26 @@ async function loadAllReviews() {
       });
     }
 
-    const targetProducts = selectedProduct === 'all'
-      ? products
-      : products.filter(p => p.id === selectedProduct);
+    const targetProducts = selectedProduct === 'all' ? products : products.filter(p => p.id === selectedProduct);
 
-    // Her ürün için ayrı sorgu — collectionGroup index gerektirmez
+    // Her ürün için reviews alt koleksiyonunu çek
     const results = await Promise.all(
-      targetProducts.map(p =>
-        db.collection('products').doc(p.id)
-          .collection('reviews').orderBy('createdAt', 'desc').get()
-          .then(snap => snap.docs.map(d => ({
-            ...d.data(), reviewId: d.id, productId: p.id, productName: p.name || p.id
-          })))
-          .catch(() => []) // tek ürün hata verse diğerlerini engelleme
-      )
+      targetProducts.map(async p => {
+        try {
+          const snap = await db.collection('products').doc(p.id).collection('reviews').orderBy('createdAt', 'desc').get();
+          return snap.docs.map(d => ({ ...d.data(), reviewId: d.id, productId: p.id, productName: p.name || p.id }));
+        } catch(err) {
+          console.warn('Ürün yorumları alınamadı:', p.id, err.message);
+          // createdAt index yoksa sırasız çek
+          try {
+            const snap2 = await db.collection('products').doc(p.id).collection('reviews').get();
+            return snap2.docs.map(d => ({ ...d.data(), reviewId: d.id, productId: p.id, productName: p.name || p.id }));
+          } catch(err2) {
+            console.error('Ürün yorumları hiç alınamadı:', p.id, err2.message);
+            return [];
+          }
+        }
+      })
     );
 
     allReviews = results.flat().sort((a, b) => {
@@ -2026,10 +2028,16 @@ async function loadAllReviews() {
     const badge = document.getElementById('badgeReviews');
     if (badge) { badge.textContent = pendingCount; badge.style.display = pendingCount > 0 ? 'inline-block' : 'none'; }
 
+    if (!allReviews.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">💬</div><div class="empty-text">Henüz yorum yok</div></td></tr>';
+      return;
+    }
+
     renderReviewTable();
   } catch(e) {
     console.error('Yorumlar yüklenemedi:', e);
-    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-text">Yüklenemedi: ' + e.message + '</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-text">❌ Yüklenemedi: ' + e.message + '</div></td></tr>';
+    toast('Yorumlar yüklenemedi: ' + e.message, 'err');
   }
 }
 
