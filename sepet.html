@@ -33,7 +33,7 @@
     .cart-empty{background:var(--card);border:1px solid var(--border);padding:60px;text-align:center;}
     .cart-empty-icon{font-size:48px;margin-bottom:16px;opacity:.3;}
     .cart-empty p{font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:20px;}
-    .cart-item{background:var(--card);border:1px solid var(--border);padding:16px;display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:center;transition:border-color .2s;}
+    .cart-item{background:var(--card);border:1px solid var(--border);padding:16px;display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:start;transition:border-color .2s;}
     .cart-item:hover{border-color:rgba(200,169,110,.2);}
     .cart-item-img{width:72px;height:72px;background:var(--bg3);overflow:hidden;flex-shrink:0;}
     .cart-item-img img{width:100%;height:100%;object-fit:cover;}
@@ -46,8 +46,104 @@
     .qty-val{font-family:'Bebas Neue',cursive;font-size:18px;width:24px;text-align:center;}
     .item-size{font-size:11px;color:var(--muted);background:var(--bg3);border:1px solid var(--border);padding:3px 8px;}
     .cart-item-price{font-family:'Bebas Neue',cursive;font-size:24px;color:var(--accent);text-align:right;white-space:nowrap;}
-    .cart-item-remove{font-size:11px;color:var(--muted);cursor:pointer;transition:color .2s;text-align:right;margin-top:4px;}
-    .cart-item-remove:hover{color:var(--accent2);}
+    .cart-item-remove{
+      display:inline-flex;align-items:center;gap:5px;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+      color:var(--muted);
+      background:transparent;
+      cursor:pointer;
+      border:none;
+      padding:0;
+      margin-top:10px;
+      position:relative;
+      transition:color .2s;
+      outline:none;
+      white-space:nowrap;
+    }
+    .cart-item-remove:hover{ color:#e63946; }
+    .cart-item-remove:active{ opacity:.7; }
+    .cart-item-remove .rm-x{
+      width:20px;height:20px;
+      border:1px solid currentColor;
+      border-radius:2px;
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;
+      transition:all .2s ease;
+      color:var(--muted);
+    }
+    .cart-item-remove:hover .rm-x{
+      background:#e63946;
+      border-color:#e63946;
+      color:#fff;
+      transform:rotate(90deg);
+    }
+
+    /* ── MİNİ SEPET ÖZETİ ── */
+    .mini-cart-preview{
+      margin-bottom:2px;
+      border:1px solid var(--border);
+      background:var(--card);
+      overflow:hidden;
+    }
+    .mini-cart-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 16px;
+      border-bottom:1px solid var(--border);
+      cursor:pointer;
+      transition:background .2s;
+      user-select:none;
+    }
+    .mini-cart-header:hover{background:rgba(255,255,255,.02);}
+    .mini-cart-header-left{
+      display:flex;align-items:center;gap:10px;
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+      color:var(--muted);
+    }
+    .mini-cart-count{
+      background:var(--accent);color:#000;
+      font-family:'Bebas Neue',cursive;
+      font-size:13px;letter-spacing:1px;
+      padding:1px 7px;
+      min-width:22px;text-align:center;
+    }
+    .mini-cart-toggle{
+      color:var(--muted);font-size:11px;
+      transition:transform .25s ease;
+      display:flex;align-items:center;
+    }
+    .mini-cart-toggle.open{transform:rotate(180deg);}
+    .mini-cart-items{
+      max-height:0;overflow:hidden;
+      transition:max-height .3s cubic-bezier(.4,0,.2,1);
+    }
+    .mini-cart-items.open{max-height:400px;}
+    .mini-cart-item{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 16px;
+      border-bottom:1px solid rgba(255,255,255,.04);
+    }
+    .mini-cart-item:last-child{border-bottom:none;}
+    .mini-cart-thumb{
+      width:38px;height:38px;
+      background:var(--bg3);
+      border:1px solid var(--border);
+      overflow:hidden;flex-shrink:0;
+    }
+    .mini-cart-thumb img{width:100%;height:100%;object-fit:cover;}
+    .mini-cart-info{flex:1;min-width:0;}
+    .mini-cart-name{
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:13px;font-weight:700;letter-spacing:.5px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .mini-cart-qty{font-size:11px;color:var(--muted);margin-top:2px;}
+    .mini-cart-price{
+      font-family:'Bebas Neue',cursive;
+      font-size:18px;color:var(--accent);
+      white-space:nowrap;flex-shrink:0;
+    }
 
     /* ORDER SUMMARY */
     .order-summary{background:var(--card);border:1px solid var(--border);padding:28px;position:sticky;top:84px;}
@@ -342,18 +438,19 @@
           </div>
         </div>
 
-        <!-- CART ITEMS -->
-        <div class="cart-items" id="cartItems" style="margin-top:2px;">
+      </div>
+
+      <!-- ORDER SUMMARY -->
+      <div>
+        <!-- CART ITEMS — sipariş özetinin üstünde -->
+        <div class="cart-items" id="cartItems" style="margin-bottom:2px;">
           <div class="cart-empty">
             <div class="cart-empty-icon">🛒</div>
             <p>SEPETİNİZ BOŞ</p>
             <a href="urunler.html" style="background:var(--accent);color:#000;padding:10px 24px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;text-decoration:none;display:inline-block;">ÜRÜNLERE GİT →</a>
           </div>
         </div>
-      </div>
 
-      <!-- ORDER SUMMARY -->
-      <div>
         <div class="order-summary">
           <div class="summary-title">SİPARİŞ ÖZETİ</div>
           <div class="summary-row"><span>Ara Toplam</span><span id="sumSubtotal">₺0</span></div>
@@ -537,12 +634,52 @@ function renderCart() {
           ${item.size?`<span class="item-size">${item.size}</span>`:''}
         </div>
       </div>
-      <div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
         <div class="cart-item-price">₺${((item.price||0)*(item.qty||1)).toLocaleString('tr-TR')}</div>
-        <div class="cart-item-remove" onclick="removeItem(${i})">✕ Kaldır</div>
+        <div class="cart-item-remove" onclick="removeItem(${i})">
+          <span class="rm-x">
+            <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
+            </svg>
+          </span>
+          Kaldır
+        </div>
       </div>
     </div>`).join('');
   updateSummary();
+  renderMiniCart();
+}
+
+function renderMiniCart() {
+  const el = document.getElementById('miniCartItems');
+  const countEl = document.getElementById('miniCartCount');
+  const preview = document.getElementById('miniCartPreview');
+  if (!el) return;
+  if (countEl) countEl.textContent = cart.reduce((s,i)=>s+(i.qty||1),0);
+  if (!cart.length) {
+    if (preview) preview.style.display = 'none';
+    return;
+  }
+  if (preview) preview.style.display = 'block';
+  el.innerHTML = cart.map(item => `
+    <div class="mini-cart-item">
+      <div class="mini-cart-thumb">
+        ${item.image ? `<img src="${item.image}" alt="${item.name}">` : ''}
+      </div>
+      <div class="mini-cart-info">
+        <div class="mini-cart-name">${item.name}</div>
+        <div class="mini-cart-qty">${item.qty||1} adet ${item.cat ? '· ' + item.cat : ''}</div>
+      </div>
+      <div class="mini-cart-price">₺${((item.price||0)*(item.qty||1)).toLocaleString('tr-TR')}</div>
+    </div>`).join('');
+}
+
+function toggleMiniCart() {
+  const items = document.getElementById('miniCartItems');
+  const toggle = document.getElementById('miniCartToggle');
+  if (!items) return;
+  items.classList.toggle('open');
+  toggle.classList.toggle('open');
 }
 
 function changeQty(i, d) {
