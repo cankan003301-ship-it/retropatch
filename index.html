@@ -361,8 +361,8 @@
 <!-- MARQUEE -->
 <div class="marquee-wrap">
   <div class="marquee-inner">
-    <span>PROFESYONEl NAKIŞ</span><span>•</span><span>ÖZEL SİPARİŞ</span><span>•</span><span>HIZLI TESLİMAT</span><span>•</span><span>YÜKSEk KALİTE</span><span>•</span><span>MAKİNE NAKIŞI</span><span>•</span><span>343+ MÜŞTERİ</span><span>•</span>
-    <span>PROFESYONEl NAKIŞ</span><span>•</span><span>ÖZEL SİPARİŞ</span><span>•</span><span>HIZLI TESLİMAT</span><span>•</span><span>YÜKSEk KALİTE</span><span>•</span><span>MAKİNE NAKIŞI</span><span>•</span><span>343+ MÜŞTERİ</span><span>•</span>
+    <span>PROFESYONEL NAKIŞ</span><span>•</span><span>ÖZEL SİPARİŞ</span><span>•</span><span>HIZLI TESLİMAT</span><span>•</span><span>YÜKSEK KALİTE</span><span>•</span><span>MAKİNE NAKIŞI</span><span>•</span><span>343+ MÜŞTERİ</span><span>•</span>
+    <span>PROFESYONEL NAKIŞ</span><span>•</span><span>ÖZEL SİPARİŞ</span><span>•</span><span>HIZLI TESLİMAT</span><span>•</span><span>YÜKSEK KALİTE</span><span>•</span><span>MAKİNE NAKIŞI</span><span>•</span><span>343+ MÜŞTERİ</span><span>•</span>
   </div>
 </div>
 
@@ -1339,7 +1339,7 @@ function submitContact(e) {
     name:inputs[0].value,phone:inputs[1]?.value||'',
     message:f.querySelector('textarea').value,
     read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  }).then(()=>{showToast('✓ Mesajınız gönderilikçe gönderildi!');f.reset();}).catch(()=>showToast('Hata oluştu.'));
+  }).then(()=>{showToast('✓ Mesajınız başarıyla gönderildi!');f.reset();}).catch(()=>showToast('Hata oluştu.'));
 }
 
 // ===== CART =====
