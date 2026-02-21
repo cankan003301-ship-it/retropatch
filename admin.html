@@ -2409,7 +2409,7 @@ async function slideUploadFile(input) {
     fd.append('file', file);
     fd.append('fileName', 'slide_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g,'_'));
     fd.append('folder', '/slides');
-    fd.append('publicKey', 'public_DLfCMQ30jMqXZkZ2BKXMU4e3SuI=');
+    fd.append('publicKey', 'public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8=');
     fd.append('signature', auth.signature);
     fd.append('expire', auth.expire);
     fd.append('token', auth.token);
@@ -2444,7 +2444,7 @@ async function gUploadFile(input) {
     fd.append('file', file);
     fd.append('fileName', 'gallery_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g,'_'));
     fd.append('folder', '/gallery');
-    fd.append('publicKey', 'public_DLfCMQ30jMqXZkZ2BKXMU4e3SuI=');
+    fd.append('publicKey', 'public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8=');
     fd.append('signature', auth.signature);
     fd.append('expire', auth.expire);
     fd.append('token', auth.token);
