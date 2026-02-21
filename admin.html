@@ -539,7 +539,7 @@
     <div class="page" id="page-reviews">
       <div class="section-hdr">
         <div class="section-ttl">YORUM YÖNETİMİ</div>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <select id="reviewApprovalFilter" onchange="renderReviewTable()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
             <option value="all">Tüm Durumlar</option>
             <option value="pending">Beklemede</option>
@@ -556,6 +556,9 @@
             <option value="2">★★☆☆☆</option>
             <option value="1">★☆☆☆☆</option>
           </select>
+          <button class="btn btn-danger btn-sm" onclick="confirmResetAllReviews()" title="Tüm yorumları sil" style="display:flex;align-items:center;gap:6px;">
+            🗑 Tüm Yorumları Sıfırla
+          </button>
         </div>
       </div>
       <div class="tbl-wrap">
@@ -2109,6 +2112,67 @@ function deleteReview(productId, reviewId) {
       toast('Yorum silindi', 'ok');
     })
     .catch(() => toast('Silinemedi, tekrar deneyin', 'err'));
+}
+
+// ============ TÜM YORUMLARI SIFIRLA ============
+function confirmResetAllReviews() {
+  // İki adımlı onay — geri dönüşü yok
+  if (!confirm('⚠️ DİKKAT: Tüm ürünlerdeki TÜM yorumlar silinecek!\n\nBu işlem geri alınamaz. Devam etmek istiyor musunuz?')) return;
+  if (!confirm('Son onay: Gerçekten tüm yorumları silmek istiyor musunuz?')) return;
+  resetAllReviews();
+}
+
+async function resetAllReviews() {
+  const btn = document.querySelector('[onclick="confirmResetAllReviews()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Siliniyor...'; }
+
+  try {
+    // Tüm ürünleri çek
+    const pSnap = await db.collection('products').get();
+    let totalDeleted = 0;
+    let errorCount = 0;
+
+    for (const pDoc of pSnap.docs) {
+      try {
+        const rSnap = await db.collection('products').doc(pDoc.id).collection('reviews').get();
+        // Firestore batch max 500 — gruplara böl
+        const chunks = [];
+        for (let i = 0; i < rSnap.docs.length; i += 490) {
+          chunks.push(rSnap.docs.slice(i, i + 490));
+        }
+        for (const chunk of chunks) {
+          const batch = db.batch();
+          chunk.forEach(d => batch.delete(d.ref));
+          await batch.commit();
+          totalDeleted += chunk.length;
+        }
+        // Ürünün reviews sayacını sıfırla
+        if (rSnap.docs.length > 0) {
+          await db.collection('products').doc(pDoc.id).update({ reviews: 0 }).catch(() => {});
+        }
+      } catch(e) {
+        errorCount++;
+        console.warn('Ürün yorumları silinemedi:', pDoc.id, e);
+      }
+    }
+
+    // Lokal veriyi temizle
+    allReviews = [];
+    renderReviewTable();
+    const badge = document.getElementById('badgeReviews');
+    if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
+
+    if (errorCount > 0) {
+      toast(`${totalDeleted} yorum silindi, ${errorCount} üründe hata oluştu`, 'err');
+    } else {
+      toast(`✓ Tüm yorumlar silindi (${totalDeleted} adet)`, 'ok');
+    }
+  } catch(e) {
+    toast('Hata: ' + e.message, 'err');
+    console.error(e);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🗑 Tüm Yorumları Sıfırla'; }
+  }
 }
 
 // ============ KARGO YÖNETİMİ ============
