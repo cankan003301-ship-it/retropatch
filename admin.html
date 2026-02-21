@@ -1209,8 +1209,11 @@ function listenOrders() {
         return tb - ta;
       });
     updateDashboard();
-    renderOrders(document.getElementById('orderFilter')?.value || 'all');
+    renderOrders(document.querySelector('.ord-tab.active')?.dataset?.src || 'cart', document.getElementById('orderFilter')?.value || 'all');
     renderRecentOrders();
+    // Kargo ve üyeler sayfası açıksa yeniden çiz
+    if (document.getElementById('page-cargo')?.classList.contains('active')) renderCargo();
+    if (document.getElementById('page-members')?.classList.contains('active')) renderMembers();
   }, err => {
     console.error('Siparişler dinlenemedi:', err.message);
     toast('Siparişler yüklenemedi: ' + err.message, 'err');
@@ -1218,8 +1221,13 @@ function listenOrders() {
 }
 
 function listenMessages() {
-  db.collection('messages').orderBy('createdAt', 'desc').onSnapshot(snap => {
+  const handleSnap = (snap) => {
     allMessages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allMessages.sort((a, b) => {
+      const ta = a.createdAt?.seconds || 0;
+      const tb = b.createdAt?.seconds || 0;
+      return tb - ta;
+    });
     const unread = allMessages.filter(m => !m.read).length;
     const badge = document.getElementById('badgeMsg');
     badge.textContent = unread;
@@ -1227,8 +1235,14 @@ function listenMessages() {
     document.getElementById('sMessages').textContent = unread;
     renderMessages();
     addActivity('✉', `${unread} okunmamış mesaj`);
-  }, err => {
-    console.error('Mesajlar dinlenemedi:', err.message);
+  };
+
+  db.collection('messages').orderBy('createdAt', 'desc').onSnapshot(handleSnap, err => {
+    console.warn('Mesajlar orderBy başarısız, sırasız yükleniyor:', err.message);
+    // Index yoksa sırasız dinle
+    db.collection('messages').onSnapshot(handleSnap, err2 => {
+      console.error('Mesajlar dinlenemedi:', err2.message);
+    });
   });
 }
 
@@ -2287,7 +2301,7 @@ function showPage(name) {
   event.currentTarget?.classList.add('active');
   const titles = {dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ'};
   document.getElementById('pageTitle').textContent = titles[name] || name.toUpperCase();
-  if (name === 'orders') renderOrders('all');
+  if (name === 'orders') renderOrders('cart', document.getElementById('orderFilter')?.value || 'all');
   if (name === 'products') renderProducts();
   if (name === 'messages') renderMessages();
   if (name === 'cargo') renderCargo('all');
@@ -2749,6 +2763,10 @@ function renderCargo(filter) {
   filter = filter || document.getElementById('cargoFilter')?.value || 'all';
   const tbody = document.getElementById('cargoTbody');
   if (!tbody) return;
+  if (!allOrders.length) {
+    tbody.innerHTML='<tr><td colspan="6" class="empty"><div class="empty-icon">🚚</div><div class="empty-text">Sipariş bulunamadı</div></td></tr>';
+    return;
+  }
   const orders = filter==='all' ? allOrders : allOrders.filter(o=>(o.cargo?.status||'Hazırlanıyor')===filter);
   if (!orders.length) { tbody.innerHTML='<tr><td colspan="6" class="empty"><div class="empty-text">Sipariş yok</div></td></tr>'; return; }
   tbody.innerHTML = orders.map(o => `
@@ -2858,17 +2876,30 @@ function cargoBadge(s) {
 // ============ ÜYELER ============
 let allMembers = [];
 function loadMembers() {
-  db.collection('users').orderBy('createdAt','desc').get().then(snap => {
+  const processSnap = (snap) => {
     allMembers = snap.docs.map(d=>({id:d.id,...d.data()}));
+    // createdAt yoksa uid veya email'e göre sırala
+    allMembers.sort((a, b) => {
+      const ta = a.createdAt?.seconds || 0;
+      const tb = b.createdAt?.seconds || 0;
+      return tb - ta;
+    });
     document.getElementById('memberCount').textContent = allMembers.length + ' üye';
     renderMembers();
-  }).catch(()=>{
-    db.collection('users').get().then(snap=>{
-      allMembers = snap.docs.map(d=>({id:d.id,...d.data()}));
-      document.getElementById('memberCount').textContent = allMembers.length + ' üye';
-      renderMembers();
+  };
+
+  db.collection('users').orderBy('createdAt','desc').get()
+    .then(processSnap)
+    .catch(() => {
+      // Index yoksa sırasız çek
+      db.collection('users').get()
+        .then(processSnap)
+        .catch(err => {
+          console.error('Üyeler yüklenemedi:', err.message);
+          document.getElementById('membersTbody').innerHTML =
+            '<tr><td colspan="6" class="empty"><div class="empty-text">❌ Üyeler yüklenemedi: ' + err.message + '</div></td></tr>';
+        });
     });
-  });
 }
 
 function renderMembers() {
