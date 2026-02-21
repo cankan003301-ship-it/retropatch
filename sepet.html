@@ -654,6 +654,7 @@ async function doCheckout() {
     subtotal, cargoPrice, discount: discountAmount, total,
     coupon: appliedCoupon||'',
     status: 'yeni',
+    orderSource: 'cart',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
 
@@ -667,7 +668,9 @@ async function doCheckout() {
     document.getElementById('successCode').textContent = code;
     window.scrollTo(0,0);
     // Email bildirimi (arka planda, hata olsa sipariş etkilenmez)
-    sendOrderEmail(code, {...orderData, userEmail: orderData.userEmail || (currentUser && currentUser.email) || ''});
+    const _fullOrder = {...orderData, userEmail: orderData.userEmail || (currentUser && currentUser.email) || ''};
+    sendOrderEmail(code, _fullOrder);
+    sendOrderWhatsApp(code, _fullOrder);
   }).catch(e => {
     btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false;
     toast('Sipariş kaydedilemedi: '+e.message, true);
@@ -1142,6 +1145,38 @@ async function sendOrderEmail(orderCode, orderData) {
     console.log('Sipariş emaili gönderildi:', orderCode);
   } catch(e) {
     console.warn('Email gönderilemedi (sipariş yine de kaydedildi):', e);
+  }
+}
+
+// ===== WHATSAPP BİLDİRİMLERİ =====
+async function sendOrderWhatsApp(orderCode, orderData) {
+  try {
+    const items = (orderData.items||[]).map(i => ({
+      name: i.name, qty: i.qty||1, price: (i.price||0)*(i.qty||1)
+    }));
+    const addr = orderData.address || {};
+    const phone = addr.phone || orderData.customerPhone || '';
+    if (!phone) return; // Telefon yoksa sessizce geç
+
+    await fetch('/api/send-whatsapp', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        type: 'order_confirmed',
+        data: {
+          orderCode,
+          customerName: orderData.userName || addr.name || 'Müşteri',
+          customerPhone: phone,
+          items,
+          total: orderData.total,
+          paymentMethod: orderData.payment?.method === 'havale' ? 'Havale/EFT' :
+                         orderData.payment?.method === 'kapida' ? 'Kapıda Ödeme' : 'Online Ödeme',
+        }
+      })
+    });
+    console.log('Sipariş WhatsApp bildirimi gönderildi:', orderCode);
+  } catch(e) {
+    console.warn('WhatsApp gönderilemedi (sipariş yine de kaydedildi):', e);
   }
 }
 </script>

@@ -1285,6 +1285,7 @@ function submitForm(e) {
       price: 0
     }],
     status: 'yeni',
+    orderSource: 'form',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
   db.collection('orders').add(orderData).then(() => {

@@ -340,19 +340,42 @@
     <div class="page" id="page-orders">
       <div class="section-hdr">
         <div class="section-ttl">SİPARİŞLER</div>
-        <select onchange="renderOrders(this.value)" id="orderFilter" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
-          <option value="all">Tümü</option>
+        <select onchange="renderOrders(document.querySelector('.ord-tab.active')?.dataset.src||'cart', this.value)" id="orderFilter" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
+          <option value="all">Tüm Durumlar</option>
           <option value="yeni">Yeni</option>
           <option value="hazırlanıyor">Hazırlanıyor</option>
           <option value="tamamlandı">Tamamlandı</option>
           <option value="iptal">İptal</option>
         </select>
       </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>#</th><th>Müşteri</th><th>Telefon</th><th>İçerik</th><th>Tarih</th><th>Tutar</th><th>Durum</th><th>İşlem</th><th></th></tr></thead>
-          <tbody id="ordTbody"></tbody>
-        </table>
+      <!-- TABS -->
+      <div style="display:flex;gap:4px;margin-bottom:16px;">
+        <button class="ord-tab active" data-src="cart" onclick="switchOrderTab('cart',this)"
+          style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:9px 20px;border:1px solid var(--accent);background:rgba(200,169,110,.1);color:var(--accent);cursor:pointer;">
+          🛒 SEPET SİPARİŞLERİ <span id="cartOrderCount" style="margin-left:6px;background:var(--accent);color:#000;padding:1px 7px;font-size:10px;border-radius:2px;">0</span>
+        </button>
+        <button class="ord-tab" data-src="form" onclick="switchOrderTab('form',this)"
+          style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:9px 20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;">
+          📋 ÖZEL SİPARİŞLER <span id="formOrderCount" style="margin-left:6px;background:var(--border);color:var(--text);padding:1px 7px;font-size:10px;border-radius:2px;">0</span>
+        </button>
+      </div>
+      <!-- SEPET SİPARİŞ TABLOSU -->
+      <div id="ordTableCart">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Müşteri</th><th>Telefon</th><th>Ürünler</th><th>Tarih</th><th>Tutar</th><th>Durum</th><th>İşlem</th><th></th></tr></thead>
+            <tbody id="ordTbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <!-- ÖZEL SİPARİŞ TABLOSU -->
+      <div id="ordTableForm" style="display:none;">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Müşteri</th><th>Telefon</th><th>Tür / Boyut</th><th>Adet</th><th>Tarih</th><th>Not / Tasarım</th><th>Durum</th><th>İşlem</th></tr></thead>
+            <tbody id="ordTbodyForm"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -1091,41 +1114,91 @@ function buildCatChart() {
 }
 
 // ============ ORDERS PAGE ============
-function renderOrders(filter = 'all') {
-  const tbody = document.getElementById('ordTbody');
-  let list = allOrders;
-  if (filter !== 'all') list = list.filter(o => (o.status || 'yeni') === filter);
-  if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon">📦</div><div class="empty-text">Sipariş bulunamadı</div></div></td></tr>';
-    return;
+function switchOrderTab(src, btn) {
+  document.querySelectorAll('.ord-tab').forEach(t => {
+    t.style.borderColor = 'var(--border)';
+    t.style.background = 'transparent';
+    t.style.color = 'var(--muted)';
+    t.classList.remove('active');
+  });
+  btn.style.borderColor = 'var(--accent)';
+  btn.style.background = 'rgba(200,169,110,.1)';
+  btn.style.color = 'var(--accent)';
+  btn.classList.add('active');
+  document.getElementById('ordTableCart').style.display = src === 'cart' ? 'block' : 'none';
+  document.getElementById('ordTableForm').style.display = src === 'form' ? 'block' : 'none';
+  renderOrders(src, document.getElementById('orderFilter')?.value || 'all');
+}
+
+function renderOrders(src = 'cart', filter = 'all') {
+  // Sepet siparişi: address alanı var VEYA items[].id var (ürün id'si)
+  const cartOrders = allOrders.filter(o => o.address || (o.items && o.items[0]?.id));
+  // Özel sipariş: type/size/back alanları var veya orderSource === 'form'
+  const formOrders = allOrders.filter(o => o.orderSource === 'form' || o.type || o.size || o.back || o.designFile);
+
+  // Badge güncelle
+  const cartBadge = document.getElementById('cartOrderCount');
+  const formBadge = document.getElementById('formOrderCount');
+  if (cartBadge) cartBadge.textContent = cartOrders.length;
+  if (formBadge) formBadge.textContent = formOrders.length;
+
+  if (src === 'cart') {
+    const tbody = document.getElementById('ordTbody');
+    let list = filter === 'all' ? cartOrders : cartOrders.filter(o => (o.status||'yeni') === filter);
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon">🛒</div><div class="empty-text">Sepet siparişi bulunamadı</div></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(o => {
+      const musteri = o.address?.name || o.userName || '—';
+      const telefon = o.address?.phone || '—';
+      const icerik = (o.items||[]).map(i => i.name).join(', ') || '—';
+      const tutar = o.total ? '₺'+o.total : '—';
+      return `<tr>
+        <td style="font-family:'Bebas Neue',cursive;font-size:15px;color:var(--accent);">${o.orderCode||('#'+o.id.slice(-5).toUpperCase())}</td>
+        <td><strong>${musteri}</strong></td>
+        <td style="color:var(--muted2);font-size:12px;">${telefon}</td>
+        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted2);font-size:12px;">${icerik}</td>
+        <td style="color:var(--muted);font-size:11px;">${formatDate(o.createdAt)}</td>
+        <td style="color:var(--accent);font-family:'Bebas Neue',cursive;font-size:18px;">${tutar}</td>
+        <td><select onchange="updateOrderStatus('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;outline:none;">
+          ${['yeni','hazırlanıyor','tamamlandı','iptal'].map(s=>`<option value="${s}" ${(o.status||'yeni')===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+        </select></td>
+        <td><button class="btn btn-blue btn-sm" onclick="showOrderDetail('${o.id}')">Detay</button></td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Sil</button></td>
+      </tr>`;
+    }).join('');
+
+  } else {
+    const tbody = document.getElementById('ordTbodyForm');
+    let list = filter === 'all' ? formOrders : formOrders.filter(o => (o.status||'yeni') === filter);
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Özel sipariş bulunamadı</div></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(o => {
+      const musteri = o.name || o.userName || '—';
+      const telefon = o.phone || o.address?.phone || '—';
+      const turBoyut = [o.type, o.size].filter(Boolean).join(' · ') || '—';
+      const adet = o.qty || o.items?.[0]?.qty || 1;
+      const notTasarim = o.designFile
+        ? `📎 <a href="${o.designFileUrl||'#'}" target="_blank" style="color:var(--accent);">${o.designFile}</a>`
+        : (o.notes ? o.notes.slice(0,60)+(o.notes.length>60?'…':'') : '—');
+      return `<tr>
+        <td style="font-family:'Bebas Neue',cursive;font-size:15px;color:var(--accent);">${o.orderCode||('#'+o.id.slice(-5).toUpperCase())}</td>
+        <td><strong>${musteri}</strong><br><span style="font-size:10px;color:var(--muted2);">${o.email||''}</span></td>
+        <td style="color:var(--muted2);font-size:12px;">${telefon}</td>
+        <td style="font-size:12px;">${turBoyut}</td>
+        <td style="text-align:center;font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);">${adet}</td>
+        <td style="color:var(--muted);font-size:11px;">${formatDate(o.createdAt)}</td>
+        <td style="max-width:180px;font-size:11px;color:var(--muted2);">${notTasarim}</td>
+        <td><select onchange="updateOrderStatus('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;outline:none;">
+          ${['yeni','hazırlanıyor','tamamlandı','iptal'].map(s=>`<option value="${s}" ${(o.status||'yeni')===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+        </select></td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Sil</button></td>
+      </tr>`;
+    }).join('');
   }
-  tbody.innerHTML = list.map((o) => {
-    // Sepet siparişi: address.name / address.phone | Form siparişi: name / phone
-    const musteri = o.address?.name || o.name || o.userName || '—';
-    const telefon = o.address?.phone || o.phone || '—';
-    const icerik = o.items ? o.items.map(i => i.name).join(', ') : (o.product || o.notes || '—');
-    const tutar = o.total ? '₺'+o.total : (o.price ? '₺'+o.price : '—');
-    return `
-    <tr>
-      <td style="color:var(--muted);font-family:'Barlow Condensed',sans-serif;">#${String(allOrders.length - allOrders.indexOf(o)).padStart(3,'0')}</td>
-      <td><strong>${musteri}</strong></td>
-      <td style="color:var(--muted2);">${telefon}</td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted2);">${icerik}</td>
-      <td style="color:var(--muted);font-size:11px;">${formatDate(o.createdAt)}</td>
-      <td style="color:var(--accent);font-family:'Bebas Neue',cursive;font-size:18px;">${tutar}</td>
-      <td>
-        <select onchange="updateOrderStatus('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;outline:none;">
-          ${['yeni','hazırlanıyor','tamamlandı','iptal'].map(s => `<option value="${s}" ${(o.status||'yeni')===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
-        </select>
-      </td>
-      <td>
-        <button class="btn btn-blue btn-sm" onclick="showOrderDetail('${o.id}')">Detay</button>
-      </td>
-      <td>
-        <button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Sil</button>
-      </td>
-    </tr>`;
-  }).join('');
 }
 
 function updateOrderStatus(id, status) {
