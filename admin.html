@@ -1301,15 +1301,17 @@ function deleteProd(id) {
 // ============ SITE MANAGEMENT ============
 let siteSettings = {};
 
+function setEl(id, val) { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; }
+
 function loadSiteSettings() {
   db.collection('settings').doc('site').get().then(doc => {
     if (doc.exists) {
       siteSettings = doc.data();
-      if (siteSettings.marquee) document.getElementById('marqueeText').value = siteSettings.marquee;
-      if (siteSettings.whatsapp) { document.getElementById('smWA').value = siteSettings.whatsapp; document.getElementById('cfgWA').value = siteSettings.whatsapp; }
-      if (siteSettings.email) { document.getElementById('smEmail').value = siteSettings.email; document.getElementById('cfgEmail').value = siteSettings.email; }
-      if (siteSettings.instagram) { document.getElementById('smIG').value = siteSettings.instagram; document.getElementById('cfgIG').value = siteSettings.instagram; }
-      if (siteSettings.dolap) document.getElementById('smDolap').value = siteSettings.dolap;
+      setEl('marqueeText', siteSettings.marquee);
+      setEl('smWA', siteSettings.whatsapp);       setEl('cfgWA', siteSettings.whatsapp);
+      setEl('smEmail', siteSettings.email);        setEl('cfgEmail', siteSettings.email);
+      setEl('smIG', siteSettings.instagram);       setEl('cfgIG', siteSettings.instagram);
+      setEl('smDolap', siteSettings.dolap);        setEl('cfgName', siteSettings.siteName);
       updateTabButtons(siteSettings.defaultTab || 'sales');
     }
   });
@@ -1500,14 +1502,20 @@ function saveSettings() {
 }
 
 function saveKargo() {
-  db.collection('settings').doc('kargo').set({
-    mng: parseFloat(document.getElementById('kargoMNG').value) || 49,
-    yurtici: parseFloat(document.getElementById('kargoYurtici').value) || 44,
-    ptt: parseFloat(document.getElementById('kargoPTT').value) || 35,
-    surat: parseFloat(document.getElementById('kargoSurat').value) || 52,
-    limit: parseFloat(document.getElementById('kargoLimit').value) || 0,
-    sure: document.getElementById('kargoSure').value,
-  }).then(() => toast('Kargo ayarları kaydedildi', 'ok'));
+  const mng     = parseFloat(document.getElementById('kargoMNG').value);
+  const yurtici = parseFloat(document.getElementById('kargoYurtici').value);
+  const ptt     = parseFloat(document.getElementById('kargoPTT').value);
+  const surat   = parseFloat(document.getElementById('kargoSurat').value);
+  const limit   = parseFloat(document.getElementById('kargoLimit').value);
+  const sure    = document.getElementById('kargoSure').value.trim();
+
+  if ([mng, yurtici, ptt, surat].some(isNaN)) {
+    toast('Lütfen tüm kargo fiyatlarını girin', 'err'); return;
+  }
+
+  db.collection('settings').doc('kargo').set({ mng, yurtici, ptt, surat, limit: isNaN(limit) ? 0 : limit, sure })
+    .then(() => toast('Kargo ayarları kaydedildi ✓', 'ok'))
+    .catch(e => toast('Kaydedilemedi: ' + e.message, 'err'));
 }
 
 function saveBank() {
@@ -1561,6 +1569,7 @@ function showPage(name) {
   if (name === 'gallery') loadGallery();
   if (name === 'stats') renderStatsPage();
   if (name === 'reviews') loadAllReviews();
+  if (name === 'settings') loadSiteSettings();
 }
 
 // ============ İSTATİSTİKLER ============
@@ -1801,34 +1810,40 @@ let allReviews = [];
 async function loadAllReviews() {
   const tbody = document.getElementById('reviewsTbody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="6" class="empty"><div class="empty-icon">💬</div><div class="empty-text">Yükleniyor...</div></td></tr>';
+  tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">💬</div><div class="empty-text">Yükleniyor...</div></td></tr>';
   allReviews = [];
 
-  // Ürün filtresini doldur
   const filterEl = document.getElementById('reviewProductFilter');
   const selectedProduct = filterEl?.value || 'all';
-  if (filterEl && filterEl.options.length <= 1) {
-    allProducts.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.id;
-      opt.textContent = p.name || p.id;
-      filterEl.appendChild(opt);
-    });
-  }
 
   try {
-    // Hangi ürünleri sorgulayacağız
-    const products = selectedProduct === 'all' ? allProducts : allProducts.filter(p => p.id === selectedProduct);
-    const promises = products.map(p =>
-      db.collection('products').doc(p.id).collection('reviews').orderBy('createdAt','desc').get()
-        .then(snap => snap.docs.map(d => ({ ...d.data(), reviewId: d.id, productId: p.id, productName: p.name || p.id })))
-    );
-    const results = await Promise.all(promises);
-    allReviews = results.flat().sort((a,b) => {
-      const ta = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
-      const tb = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
-      return tb - ta;
-    });
+    let snap;
+    if (selectedProduct === 'all') {
+      // collectionGroup ile tüm yorumları tek sorguda çek — allProducts'a bağımlılık yok
+      snap = await db.collectionGroup('reviews').orderBy('createdAt', 'desc').get();
+      allReviews = snap.docs.map(d => {
+        const productId = d.ref.parent.parent.id;
+        const product = allProducts.find(p => p.id === productId);
+        return { ...d.data(), reviewId: d.id, productId, productName: product?.name || productId };
+      });
+    } else {
+      snap = await db.collection('products').doc(selectedProduct).collection('reviews')
+        .orderBy('createdAt', 'desc').get();
+      const product = allProducts.find(p => p.id === selectedProduct);
+      allReviews = snap.docs.map(d => ({
+        ...d.data(), reviewId: d.id, productId: selectedProduct,
+        productName: product?.name || selectedProduct
+      }));
+    }
+
+    // Ürün filtre dropdown'ını doldur (bir kez)
+    if (filterEl && filterEl.options.length <= 1 && allProducts.length) {
+      allProducts.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id; opt.textContent = p.name || p.id;
+        filterEl.appendChild(opt);
+      });
+    }
 
     // Badge: sadece bekleyen (onaysız) yorumları say
     const pendingCount = allReviews.filter(r => r.approved === false).length;
@@ -1837,7 +1852,8 @@ async function loadAllReviews() {
 
     renderReviewTable();
   } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-text">Yorumlar yüklenemedi</div></td></tr>';
+    console.error('Yorumlar yüklenemedi:', e);
+    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-text">Yorumlar yüklenemedi: ' + e.message + '</div></td></tr>';
   }
 }
 
