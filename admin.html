@@ -406,11 +406,17 @@
             <div id="slideUploadStatus" style="font-size:11px;color:var(--muted2);margin-top:4px;"></div>
           </div>
           <div class="fg"><label>Başlık *</label><input type="text" id="slideTitle" placeholder="ör: YENİ KOLEKSİYON"></div>
-          <div class="fg"><label>Alt Başlık</label><input type="text" id="slideSubtitle" placeholder="ör: 2025 Bahar Serisi"></div>
+          <div class="fg"><label>Alt Yazı</label><input type="text" id="slideSubtitle" placeholder="ör: 2025 Bahar Serisi — bu slayt altında çıkar"></div>
           <div class="fg"><label>Etiket (küçük yazı)</label><input type="text" id="slideTag" placeholder="ör: YENİ ÜRÜN"></div>
-          <div style="display:flex;gap:8px;margin-top:4px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="fg" style="margin:0;"><label>1. Buton Yazısı</label><input type="text" id="slideBtn1Text" placeholder="ör: Ürünleri Gör"></div>
+            <div class="fg" style="margin:0;"><label>1. Buton Linki</label><input type="text" id="slideBtn1Link" placeholder="ör: urunler.html"></div>
+            <div class="fg" style="margin:0;"><label>2. Buton Yazısı</label><input type="text" id="slideBtn2Text" placeholder="ör: Sipariş Ver"></div>
+            <div class="fg" style="margin:0;"><label>2. Buton Linki</label><input type="text" id="slideBtn2Link" placeholder="ör: #siparis"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
             <button class="btn btn-accent" onclick="addSlide()">💾 Slayt Ekle</button>
-            <button class="btn btn-outline" onclick="document.getElementById('slideImg').value='';document.getElementById('slideTitle').value='';document.getElementById('slideSubtitle').value='';document.getElementById('slideTag').value='';">Temizle</button>
+            <button class="btn btn-outline" onclick="clearSlideForm()">Temizle</button>
           </div>
         </div>
       </div>
@@ -1439,23 +1445,35 @@ function renderSlides() {
 }
 
 function addSlide() {
-  const img = document.getElementById('slideImg').value.trim();
-  const title = document.getElementById('slideTitle').value.trim();
+  const img      = document.getElementById('slideImg').value.trim();
+  const title    = document.getElementById('slideTitle').value.trim();
   const subtitle = document.getElementById('slideSubtitle').value.trim();
-  const tag = document.getElementById('slideTag').value.trim();
+  const tag      = document.getElementById('slideTag').value.trim();
+  const btn1Text = document.getElementById('slideBtn1Text').value.trim();
+  const btn1Link = document.getElementById('slideBtn1Link').value.trim();
+  const btn2Text = document.getElementById('slideBtn2Text').value.trim();
+  const btn2Link = document.getElementById('slideBtn2Link').value.trim();
   if (!img || !title) { toast('Resim URL ve başlık zorunlu!', 'err'); return; }
   const maxOrder = allSlides.length ? Math.max(...allSlides.map(s => s.order || 0)) : 0;
   db.collection('slides').add({
-    image: img, bg: img, title, subtitle, name: subtitle, tag,
+    image: img, bg: img, title,
+    desc: subtitle, subtitle, name: subtitle, tag,  // desc = index.html'in okuduğu alan
+    btn1Text: btn1Text || 'Tüm Ürünler', btn1Link: btn1Link || 'urunler.html',
+    btn2Text: btn2Text || '', btn2Link: btn2Link || '',
     order: maxOrder + 1,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
-    toast('Slayt eklendi', 'ok');
-    document.getElementById('slideImg').value = '';
-    document.getElementById('slideTitle').value = '';
-    document.getElementById('slideSubtitle').value = '';
-    document.getElementById('slideTag').value = '';
-  }).catch(() => toast('Eklenemedi!', 'err'));
+    toast('Slayt eklendi ✓', 'ok');
+    clearSlideForm();
+  }).catch(e => toast('Eklenemedi: ' + e.message, 'err'));
+}
+
+function clearSlideForm() {
+  ['slideImg','slideTitle','slideSubtitle','slideTag','slideBtn1Text','slideBtn1Link','slideBtn2Text','slideBtn2Link'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('slideImgPreviewWrap').style.display = 'none';
+  document.getElementById('slideUploadStatus').textContent = '';
 }
 
 function deleteSlide(id) {
