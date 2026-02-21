@@ -453,7 +453,7 @@ function renderGrid() {
           <span class="pstat">❤️ ${p.favorites||0}</span>
           <span class="pstat">⭐ ${p.reviews||0}</span>
         </div>
-        <button onclick="event.stopPropagation();addToCart(${JSON.stringify(p).replace(/"/g,'&quot;')});showToast('✓ Sepete eklendi!')" style="margin-top:10px;width:100%;background:var(--accent);color:#000;border:none;padding:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;">🛒 SEPETE EKLE</button>
+        <button onclick="event.stopPropagation();addToCartById('${p.id}')" style="margin-top:10px;width:100%;background:var(--accent);color:#000;border:none;padding:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;">🛒 SEPETE EKLE</button>
       </div>
     </div>`).join('');
 }
@@ -638,6 +638,13 @@ function addToCart(p) {
   else cart.push({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',qty:1});
   localStorage.setItem('retropatch_cart', JSON.stringify(cart));
   updateCartCount();
+}
+
+function addToCartById(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  addToCart(p);
+  showToast('✓ Sepete eklendi!');
 }
 
 function addToCartFromModal() {
