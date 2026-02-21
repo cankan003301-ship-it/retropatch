@@ -1921,35 +1921,44 @@ async function loadAllReviews() {
   const selectedProduct = filterEl?.value || 'all';
 
   try {
-    let snap;
-    if (selectedProduct === 'all') {
-      // collectionGroup ile tüm yorumları tek sorguda çek — allProducts'a bağımlılık yok
-      snap = await db.collectionGroup('reviews').orderBy('createdAt', 'desc').get();
-      allReviews = snap.docs.map(d => {
-        const productId = d.ref.parent.parent.id;
-        const product = allProducts.find(p => p.id === productId);
-        return { ...d.data(), reviewId: d.id, productId, productName: product?.name || productId };
-      });
-    } else {
-      snap = await db.collection('products').doc(selectedProduct).collection('reviews')
-        .orderBy('createdAt', 'desc').get();
-      const product = allProducts.find(p => p.id === selectedProduct);
-      allReviews = snap.docs.map(d => ({
-        ...d.data(), reviewId: d.id, productId: selectedProduct,
-        productName: product?.name || selectedProduct
-      }));
+    // Ürün listesi henüz dolmadıysa doğrudan Firestore'dan çek
+    let products = allProducts;
+    if (!products.length) {
+      const pSnap = await db.collection('products').get();
+      products = pSnap.docs.map(d => ({ id: d.id, ...d.data() }));
     }
 
     // Ürün filtre dropdown'ını doldur (bir kez)
-    if (filterEl && filterEl.options.length <= 1 && allProducts.length) {
-      allProducts.forEach(p => {
+    if (filterEl && filterEl.options.length <= 1 && products.length) {
+      products.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p.id; opt.textContent = p.name || p.id;
         filterEl.appendChild(opt);
       });
     }
 
-    // Badge: sadece bekleyen (onaysız) yorumları say
+    const targetProducts = selectedProduct === 'all'
+      ? products
+      : products.filter(p => p.id === selectedProduct);
+
+    // Her ürün için ayrı sorgu — collectionGroup index gerektirmez
+    const results = await Promise.all(
+      targetProducts.map(p =>
+        db.collection('products').doc(p.id)
+          .collection('reviews').orderBy('createdAt', 'desc').get()
+          .then(snap => snap.docs.map(d => ({
+            ...d.data(), reviewId: d.id, productId: p.id, productName: p.name || p.id
+          })))
+          .catch(() => []) // tek ürün hata verse diğerlerini engelleme
+      )
+    );
+
+    allReviews = results.flat().sort((a, b) => {
+      const ta = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+      const tb = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+      return tb - ta;
+    });
+
     const pendingCount = allReviews.filter(r => r.approved === false).length;
     const badge = document.getElementById('badgeReviews');
     if (badge) { badge.textContent = pendingCount; badge.style.display = pendingCount > 0 ? 'inline-block' : 'none'; }
@@ -1957,7 +1966,7 @@ async function loadAllReviews() {
     renderReviewTable();
   } catch(e) {
     console.error('Yorumlar yüklenemedi:', e);
-    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-text">Yorumlar yüklenemedi: ' + e.message + '</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-text">Yüklenemedi: ' + e.message + '</div></td></tr>';
   }
 }
 
