@@ -615,52 +615,46 @@ function submitReview(productId) {
   const btn = document.getElementById('reviewSubmitBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Kontrol ediliyor...'; }
 
-  // 1. Satın alma kontrolü — orders koleksiyonunda bu ürün var mı?
+  // Satın alma kontrolü
   db.collection('orders')
     .where('userId', '==', user.uid)
     .get()
     .then(orderSnap => {
-      const CANCELLED = ['iptal'];
       const hasPurchased = orderSnap.docs.some(doc => {
         const data = doc.data();
-        if (CANCELLED.includes(data.status)) return false; // iptal siparişleri say
+        if (data.status === 'iptal') return false;
         const items = data.items || [];
-        return items.some(i => i.id === productId);
+        const inItems = items.some(i => i.id === productId);
+        const isFormOrder = data.orderSource === 'form' && data.userEmail === user.email;
+        return inItems || isFormOrder;
       });
+
       if (!hasPurchased) {
         showToast('Yorum yapmak için bu ürünü satın almış olmanız gerekiyor', 'err');
         if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
         return;
       }
 
-      // 2. Daha önce yorum yapılmış mı?
-      return db.collection('products').doc(productId).collection('reviews')
-        .where('userId','==',user.uid).get()
-        .then(snap => {
-          if (!snap.empty) {
-            showToast('Bu ürüne zaten yorum yaptınız', 'err');
-            if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
-            return;
-          }
-
-          // 3. Yorumu kaydet — approved:false (admin onayı bekliyor)
-          if (btn) btn.textContent = 'Gönderiliyor...';
-          return db.collection('products').doc(productId).collection('reviews').add({
-            userId:    user.uid,
-            userName:  user.displayName || user.email?.split('@')[0] || 'Üye',
-            userEmail: user.email || '',
-            productId: productId,
-            rating:    rating,
-            text:      text,
-            approved:  false,   // ← admin onayı gerekiyor
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }).then(() => {
-            showToast('Yorumunuz alındı! Admin onayından sonra yayınlanacak 🕐', 'ok');
-            if (textEl) textEl.value = '';
-            if (ratingEl) ratingEl.checked = false;
-            if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
-          });
-        });
+      // Yorumu direkt yayınla (approved: true)
+      if (btn) btn.textContent = 'Gönderiliyor...';
+      return db.collection('products').doc(productId).collection('reviews').add({
+        userId:    user.uid,
+        userName:  user.displayName || user.email?.split('@')[0] || 'Üye',
+        userEmail: user.email || '',
+        productId: productId,
+        rating:    rating,
+        text:      text,
+        approved:  true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        db.collection('products').doc(productId).update({
+          reviews: firebase.firestore.FieldValue.increment(1)
+        }).catch(() => {});
+        showToast('✓ Yorumunuz yayınlandı!', 'ok');
+        if (textEl) textEl.value = '';
+        document.querySelectorAll('input[name="rstar"]').forEach(r => r.checked = false);
+        if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
+      });
     })
     .catch(() => {
       showToast('Bir hata oluştu, tekrar deneyin', 'err');
