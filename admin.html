@@ -498,6 +498,11 @@
       <div class="section-hdr">
         <div class="section-ttl">YORUM YÖNETİMİ</div>
         <div style="display:flex;gap:8px;align-items:center;">
+          <select id="reviewApprovalFilter" onchange="renderReviewTable()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
+            <option value="all">Tüm Durumlar</option>
+            <option value="pending">Beklemede</option>
+            <option value="approved">Onaylı</option>
+          </select>
           <select id="reviewProductFilter" onchange="loadAllReviews()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
             <option value="all">Tüm Ürünler</option>
           </select>
@@ -513,7 +518,7 @@
       </div>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>Ürün</th><th>Üye</th><th>Puan</th><th>Yorum</th><th>Tarih</th><th>İşlem</th></tr></thead>
+          <thead><tr><th>Ürün</th><th>Üye</th><th>Puan</th><th>Yorum</th><th>Tarih</th><th>Durum</th><th>İşlem</th></tr></thead>
           <tbody id="reviewsTbody"></tbody>
         </table>
       </div>
@@ -1825,13 +1830,14 @@ async function loadAllReviews() {
       return tb - ta;
     });
 
-    // Badge güncelle
+    // Badge: sadece bekleyen (onaysız) yorumları say
+    const pendingCount = allReviews.filter(r => r.approved === false).length;
     const badge = document.getElementById('badgeReviews');
-    if (badge) { badge.textContent = allReviews.length; badge.style.display = allReviews.length > 0 ? 'inline-block' : 'none'; }
+    if (badge) { badge.textContent = pendingCount; badge.style.display = pendingCount > 0 ? 'inline-block' : 'none'; }
 
     renderReviewTable();
   } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty"><div class="empty-text">Yorumlar yüklenemedi</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-text">Yorumlar yüklenemedi</div></td></tr>';
   }
 }
 
@@ -1839,10 +1845,14 @@ function renderReviewTable() {
   const tbody = document.getElementById('reviewsTbody');
   if (!tbody) return;
   const starFilter = document.getElementById('reviewStarFilter')?.value || 'all';
-  const list = starFilter === 'all' ? allReviews : allReviews.filter(r => String(r.rating) === starFilter);
+  const approvalFilter = document.getElementById('reviewApprovalFilter')?.value || 'all';
+
+  let list = starFilter === 'all' ? allReviews : allReviews.filter(r => String(r.rating) === starFilter);
+  if (approvalFilter === 'pending')  list = list.filter(r => r.approved === false);
+  if (approvalFilter === 'approved') list = list.filter(r => r.approved === true);
 
   if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty"><div class="empty-icon">💬</div><div class="empty-text">Yorum bulunamadı</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">💬</div><div class="empty-text">Yorum bulunamadı</div></td></tr>';
     return;
   }
 
@@ -1850,28 +1860,63 @@ function renderReviewTable() {
     const stars = '★'.repeat(r.rating||0) + '☆'.repeat(5-(r.rating||0));
     const starColor = r.rating >= 4 ? 'var(--green)' : r.rating >= 3 ? 'var(--accent)' : 'var(--accent2)';
     const date = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('tr-TR') : '—';
-    return `<tr>
-      <td style="font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.productName}</td>
-      <td style="font-size:12px;">${r.userName||'Anonim'}<br><span style="font-size:10px;color:var(--muted);">${r.userId?.slice(0,8)||''}</span></td>
+    const isPending = r.approved === false;
+    const statusBadge = isPending
+      ? `<span style="font-size:10px;padding:3px 8px;background:rgba(251,146,60,.15);color:#fb923c;border:1px solid rgba(251,146,60,.3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">BEKLEMEDE</span>`
+      : `<span style="font-size:10px;padding:3px 8px;background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">ONAYLANDI</span>`;
+    return `<tr style="${isPending ? 'border-left:2px solid #fb923c;' : ''}">
+      <td style="font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.productName}</td>
+      <td style="font-size:12px;">${r.userName||'Anonim'}<br><span style="font-size:10px;color:var(--muted);">${r.userEmail||''}</span></td>
       <td style="color:${starColor};font-size:13px;letter-spacing:1px;white-space:nowrap;">${stars}</td>
-      <td style="font-size:12px;color:var(--muted);max-width:240px;">${r.text||'—'}</td>
+      <td style="font-size:12px;color:var(--muted);max-width:220px;">${r.text||'—'}</td>
       <td style="font-size:11px;color:var(--muted);white-space:nowrap;">${date}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteReview('${r.productId}','${r.reviewId}')">🗑 Sil</button></td>
+      <td>${statusBadge}</td>
+      <td style="white-space:nowrap;display:flex;gap:4px;">
+        ${isPending
+          ? `<button class="btn btn-green btn-sm" onclick="approveReview('${r.productId}','${r.reviewId}')">✓ Onayla</button>`
+          : `<button class="btn btn-outline btn-sm" style="opacity:.5;cursor:default;" disabled>✓ Onaylı</button>`}
+        <button class="btn btn-danger btn-sm" onclick="deleteReview('${r.productId}','${r.reviewId}')">🗑</button>
+      </td>
     </tr>`;
   }).join('');
 }
 
+function approveReview(productId, reviewId) {
+  db.collection('products').doc(productId).collection('reviews').doc(reviewId)
+    .update({ approved: true })
+    .then(() => {
+      // Ürünün onaylı yorum sayacını artır
+      db.collection('products').doc(productId).update({
+        reviews: firebase.firestore.FieldValue.increment(1)
+      }).catch(()=>{});
+      // Lokal veriyi güncelle
+      const r = allReviews.find(x => x.productId === productId && x.reviewId === reviewId);
+      if (r) r.approved = true;
+      const pendingCount = allReviews.filter(x => x.approved === false).length;
+      const badge = document.getElementById('badgeReviews');
+      if (badge) { badge.textContent = pendingCount; badge.style.display = pendingCount > 0 ? 'inline-block' : 'none'; }
+      renderReviewTable();
+      toast('Yorum onaylandı ve yayınlandı ✓', 'ok');
+    })
+    .catch(() => toast('Onaylanamadı, tekrar deneyin', 'err'));
+}
+
 function deleteReview(productId, reviewId) {
   if (!confirm('Bu yorumu silmek istediğinizden emin misiniz?')) return;
+  const r = allReviews.find(x => x.productId === productId && x.reviewId === reviewId);
   db.collection('products').doc(productId).collection('reviews').doc(reviewId).delete()
     .then(() => {
-      db.collection('products').doc(productId).update({
-        reviews: firebase.firestore.FieldValue.increment(-1)
-      }).catch(()=>{});
-      allReviews = allReviews.filter(r => !(r.productId === productId && r.reviewId === reviewId));
-      renderReviewTable();
+      // Sadece onaylıysa sayacı düş
+      if (r?.approved === true) {
+        db.collection('products').doc(productId).update({
+          reviews: firebase.firestore.FieldValue.increment(-1)
+        }).catch(()=>{});
+      }
+      allReviews = allReviews.filter(x => !(x.productId === productId && x.reviewId === reviewId));
+      const pendingCount = allReviews.filter(x => x.approved === false).length;
       const badge = document.getElementById('badgeReviews');
-      if (badge) { badge.textContent = allReviews.length; badge.style.display = allReviews.length > 0 ? 'inline-block':'none'; }
+      if (badge) { badge.textContent = pendingCount; badge.style.display = pendingCount > 0 ? 'inline-block' : 'none'; }
+      renderReviewTable();
       toast('Yorum silindi', 'ok');
     })
     .catch(() => toast('Silinemedi, tekrar deneyin', 'err'));
@@ -1936,17 +1981,20 @@ function saveCargo() {
       const order = { id: doc.id, ...doc.data() };
       const emailData = getOrderEmailData(order);
       if (isCompleted) {
-        // Teslim edildi maili
+        // Teslim edildi maili + WhatsApp
         sendAdminEmail('order_completed', emailData);
+        sendAdminWhatsApp('order_completed', emailData);
       } else if (status === 'Kargoya Verildi' || status === 'Dağıtımda') {
-        // Kargo bildirimi
+        // Kargo bildirimi maili + WhatsApp
         const trackUrl = cargoTrackUrl(company, trackingCode);
-        sendAdminEmail('cargo_updated', {
+        const cargoNotifData = {
           ...emailData,
           cargoCompany: companyName,
           trackingCode: trackingCode,
           trackingUrl: trackUrl
-        });
+        };
+        sendAdminEmail('cargo_updated', cargoNotifData);
+        sendAdminWhatsApp('cargo_updated', cargoNotifData);
       }
     });
   }).catch(() => toast('Hata!', 'err'));
@@ -2217,6 +2265,21 @@ async function sendAdminEmail(type, data) {
     console.log('Email sent:', type, json);
   } catch(e) {
     console.warn('Email hatası:', e);
+  }
+}
+
+async function sendAdminWhatsApp(type, data) {
+  try {
+    if (!data.customerPhone) return; // Telefon yoksa geç
+    const res = await fetch('/api/send-whatsapp', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ type, data })
+    });
+    const json = await res.json();
+    console.log('WhatsApp sent:', type, json);
+  } catch(e) {
+    console.warn('WhatsApp hatası (email yine gönderildi):', e);
   }
 }
 

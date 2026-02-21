@@ -1,0 +1,75 @@
+// ═══════════════════════════════════════════════════════════
+// firestore.rules — RetroPatch Yorum Sistemi Güvenlik Kuralları
+// Firebase Console → Firestore → Rules sekmesine yapıştır
+// ═══════════════════════════════════════════════════════════
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── ÜRÜNLER ──────────────────────────────────────────────
+    match /products/{productId} {
+      allow read: if true; // Herkes okuyabilir
+
+      // Admin yazabilir (products koleksiyonu)
+      allow write: if request.auth != null
+        && request.auth.token.email == 'retropatchyama@gmail.com';
+
+      // ── YORUMLAR ─────────────────────────────────────────
+      match /reviews/{reviewId} {
+
+        // Sadece onaylı yorumları herkes okuyabilir
+        allow read: if resource.data.approved == true
+                    || request.auth.uid == resource.data.userId; // kendi yorumunu görebilir
+
+        // Yorum oluşturma: giriş yapmış olmalı + doğru alanlar + approved:false
+        allow create: if request.auth != null
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.approved == false          // client true gönderemez
+          && request.resource.data.rating is int
+          && request.resource.data.rating >= 1
+          && request.resource.data.rating <= 5
+          && request.resource.data.text is string
+          && request.resource.data.text.size() >= 3
+          && request.resource.data.text.size() <= 1000;
+
+        // Güncelleme / silme: sadece admin
+        allow update, delete: if request.auth != null
+          && request.auth.token.email == 'retropatchyama@gmail.com';
+      }
+    }
+
+    // ── SİPARİŞLER ───────────────────────────────────────────
+    match /orders/{orderId} {
+      // Kullanıcı kendi siparişini okuyabilir (satın alma kontrolü için gerekli)
+      allow read: if request.auth != null
+        && (resource.data.userId == request.auth.uid
+            || request.auth.token.email == 'retropatchyama@gmail.com');
+      allow write: if request.auth != null;
+    }
+
+    // ── KULLANICILAR ─────────────────────────────────────────
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth.token.email == 'retropatchyama@gmail.com';
+    }
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// KURULUM NOTU
+// ═══════════════════════════════════════════════════════════
+//
+// Mevcut yorumları (varsa) migrate etmek için Firebase Console'da
+// veya bir script ile şunu çalıştır:
+//
+//   db.collectionGroup('reviews').get().then(snap => {
+//     snap.docs.forEach(doc => {
+//       if (doc.data().approved === undefined) {
+//         doc.ref.update({ approved: true }); // Eskileri onaylı say
+//       }
+//     });
+//   });
+//
+// ═══════════════════════════════════════════════════════════
