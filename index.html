@@ -746,7 +746,8 @@
   }
 
   // Instagram handle'ı Firestore'dan al
-  if (typeof db !== 'undefined') {
+  function loadGalleryData() {
+    if (typeof db === 'undefined') { setTimeout(loadGalleryData, 200); return; }
     // Önce Instagram handle güncelle
     db.collection('settings').doc('site').get().then(doc => {
       if (doc.exists) {
@@ -767,7 +768,6 @@
       _items = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(i => i.active !== false);
       renderGallery(_items);
     }, () => {
-      // order index yoksa createdAt ile dene
       db.collection('gallery').orderBy('createdAt', 'desc').onSnapshot(snap => {
         _items = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(i => i.active !== false);
         renderGallery(_items);
@@ -777,6 +777,8 @@
       });
     });
   }
+  // db henüz yüklenmediyse DOMContentLoaded sonrası tekrar dene
+  window._rpGalleryInit = loadGalleryData;
 
   // Lightbox
   window._rpGlbOpen = function(idx) {
@@ -805,6 +807,9 @@
     _glbIdx = (_glbIdx + dir + _items.length) % _items.length;
     _rpGlbShow();
   };
+
+  // Galeriyi başlat — db hazır değilse bekle
+  loadGalleryData();
 
   // Klavye navigasyonu
   document.addEventListener('keydown', e => {
