@@ -1004,6 +1004,7 @@ function initData() {
   buildWeekChart();
   loadSiteSettings();
   listenSlides();
+  listenPendingReviews();
 }
 
 // ============ REALTIME LISTENERS ============
@@ -1032,6 +1033,65 @@ function listenMessages() {
     renderMessages();
     addActivity('✉', `${unread} okunmamış mesaj`);
   });
+}
+
+// ============ BEKLEYEN YORUM DİNLEYİCİSİ ============
+// collectionGroup ile tüm ürünlerin reviews alt koleksiyonunu dinler
+// Firestore Console'da collectionGroup index gerekirse:
+//   Collection: reviews | Alan: approved (Ascending) + createdAt (Descending)
+function listenPendingReviews() {
+  db.collectionGroup('reviews')
+    .where('approved', '==', false)
+    .onSnapshot(snap => {
+      const pending = snap.docs.length;
+      const badge = document.getElementById('badgeReviews');
+      if (badge) {
+        badge.textContent = pending;
+        badge.style.display = pending > 0 ? 'inline-block' : 'none';
+      }
+      // Dashboard'daki bekleyen yorum sayısını güncelle
+      const el = document.getElementById('sPendingReviews');
+      if (el) el.textContent = pending;
+
+      // Yeni yorum geldiğinde (ilk yüklemeden sonra) bildirim göster
+      if (window._reviewsInitialized && snap.docChanges) {
+        snap.docChanges().forEach(change => {
+          if (change.type === 'added') {
+            const r = change.doc.data();
+            addActivity('💬', `Yeni yorum onay bekliyor: "${(r.text || '').slice(0, 40)}..."`);
+            toast(`💬 Yeni yorum onay bekliyor!`, 'info');
+          }
+        });
+      }
+      window._reviewsInitialized = true;
+    }, (err) => {
+      // collectionGroup index yoksa fallback: ürün bazlı kontrol
+      console.warn('collectionGroup sorgusu başarısız, fallback kullanılıyor:', err.message);
+      listenPendingReviewsFallback();
+    });
+}
+
+// Fallback: collectionGroup index yoksa ürünleri tek tek kontrol et
+async function listenPendingReviewsFallback() {
+  try {
+    const pSnap = await db.collection('products').get();
+    let totalPending = 0;
+    const results = await Promise.all(
+      pSnap.docs.map(p =>
+        db.collection('products').doc(p.id)
+          .collection('reviews').where('approved', '==', false).get()
+          .then(s => s.size).catch(() => 0)
+      )
+    );
+    totalPending = results.reduce((a, b) => a + b, 0);
+    const badge = document.getElementById('badgeReviews');
+    if (badge) {
+      badge.textContent = totalPending;
+      badge.style.display = totalPending > 0 ? 'inline-block' : 'none';
+    }
+  } catch(e) {
+    console.warn('Fallback yorum kontrolü de başarısız:', e);
+  }
 }
 
 function loadProducts() {
