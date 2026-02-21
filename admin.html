@@ -391,7 +391,20 @@
         <!-- Yeni slayt ekle formu -->
         <div style="border:1px solid var(--border);padding:20px;background:var(--bg3);">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">+ YENİ SLAYT EKLE</div>
-          <div class="fg"><label>Resim URL *</label><input type="text" id="slideImg" placeholder="https://... veya Firebase Storage URL"></div>
+          <div class="fg">
+            <label>Resim *</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" id="slideImg" placeholder="URL otomatik dolacak..." style="flex:1;">
+              <label style="background:var(--accent);color:#000;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                📁 PC'den Seç
+                <input type="file" accept="image/*" onchange="slideUploadFile(this)" style="display:none;">
+              </label>
+            </div>
+            <div id="slideImgPreviewWrap" style="display:none;margin-top:8px;">
+              <img id="slideImgPreview" style="max-height:120px;max-width:100%;border:1px solid var(--border);object-fit:cover;">
+            </div>
+            <div id="slideUploadStatus" style="font-size:11px;color:var(--muted2);margin-top:4px;"></div>
+          </div>
           <div class="fg"><label>Başlık *</label><input type="text" id="slideTitle" placeholder="ör: YENİ KOLEKSİYON"></div>
           <div class="fg"><label>Alt Başlık</label><input type="text" id="slideSubtitle" placeholder="ör: 2025 Bahar Serisi"></div>
           <div class="fg"><label>Etiket (küçük yazı)</label><input type="text" id="slideTag" placeholder="ör: YENİ ÜRÜN"></div>
@@ -2379,6 +2392,44 @@ function gPreview(url) {
   const img  = document.getElementById('gPreviewImg');
   if (url) { img.src = url; wrap.style.display = 'block'; }
   else     { wrap.style.display = 'none'; }
+}
+
+async function slideUploadFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('slideUploadStatus');
+  const previewWrap = document.getElementById('slideImgPreviewWrap');
+  const preview = document.getElementById('slideImgPreview');
+  status.textContent = '⏳ Yükleniyor...';
+  status.style.color = 'var(--accent)';
+  try {
+    const authRes = await fetch('/api/imagekit-auth');
+    const auth = await authRes.json();
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('fileName', 'slide_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g,'_'));
+    fd.append('folder', '/slides');
+    fd.append('publicKey', 'public_DLfCMQ30jMqXZkZ2BKXMU4e3SuI=');
+    fd.append('signature', auth.signature);
+    fd.append('expire', auth.expire);
+    fd.append('token', auth.token);
+    const r = await fetch('https://upload.imagekit.io/api/v1/files/upload', { method:'POST', body:fd });
+    const data = await r.json();
+    if (data.url) {
+      document.getElementById('slideImg').value = data.url;
+      preview.src = data.url;
+      previewWrap.style.display = 'block';
+      status.textContent = '✓ Görsel yüklendi!';
+      status.style.color = 'var(--green)';
+      toast('✓ Slayt görseli yüklendi!', 'ok');
+    } else {
+      status.textContent = 'Hata: ' + (data.message || 'Bilinmiyor');
+      status.style.color = 'var(--accent2)';
+    }
+  } catch(e) {
+    status.textContent = 'Hata: ' + e.message;
+    status.style.color = 'var(--accent2)';
+  }
 }
 
 async function gUploadFile(input) {
