@@ -578,11 +578,11 @@ function loadReviews(productId) {
   }
 
   window._reviewsUnsub = db.collection('products').doc(productId)
-    .collection('reviews').where('approved','==',true).orderBy('createdAt','desc').limit(30)
+    .collection('reviews').orderBy('createdAt','desc').limit(30)
     .onSnapshot(snap => {
-      const reviews = snap.docs.map(d => ({id:d.id,...d.data()}));
+      const reviews = snap.docs.map(d => ({id:d.id,...d.data()})).filter(r => r.approved !== false);
       if (!reviews.length) {
-        list.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:14px;">Henüz onaylanmış yorum yok. İlk yorumu siz yapın!</div>';
+        list.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:14px;">Henüz yorum yok. İlk yorumu siz yapın!</div>';
         avgBadge.textContent = '';
         return;
       }
