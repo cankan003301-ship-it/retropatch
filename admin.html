@@ -1377,22 +1377,13 @@ function renderRecentOrders() {
     tbody.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="empty-icon">🛒</div><div class="empty-text">Sipariş yok</div></div></td></tr>';
     return;
   }
-  tbody.innerHTML = recent.map(o => {
-    // Müşteri adı: sepet siparişleri address.name, form siparişleri name alanında
-    const musteri = o.address?.name || o.name || o.userName || '—';
-    // İçerik: sepet = items listesi, form = tür/boyut veya notlar
-    const icerik = o.items?.length
-      ? o.items.map(i => i.name).join(', ')
-      : ([o.type, o.size].filter(Boolean).join(' · ') || o.notes?.slice(0,40) || '—');
-    // Tutar
-    const tutar = o.total ? '₺' + o.total : (o.price ? '₺' + o.price : '—');
-    return `<tr>
-      <td>${musteri}</td>
-      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${icerik}</td>
-      <td style="color:var(--accent);font-family:'Bebas Neue',cursive;font-size:16px;">${tutar}</td>
+  tbody.innerHTML = recent.map(o => `
+    <tr>
+      <td>${o.name || '—'}</td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${o.product || o.notes || '—'}</td>
+      <td style="color:var(--accent);font-family:'Bebas Neue',cursive;font-size:16px;">${o.price ? '₺'+o.price : '—'}</td>
       <td>${statusBadge(o.status || 'yeni')}</td>
-    </tr>`;
-  }).join('');
+    </tr>`).join('');
 }
 
 function buildWeekChart() {
@@ -1451,16 +1442,10 @@ function switchOrderTab(src, btn) {
 }
 
 function renderOrders(src = 'cart', filter = 'all') {
-  // Sepet siparişi: orderSource='cart' VEYA address alanı var VEYA items[0].id var
-  const cartOrders = allOrders.filter(o =>
-    o.orderSource === 'cart' || o.address || (o.items && o.items[0]?.id)
-  );
-  // Özel/form siparişi: orderSource='form' VEYA type/size/back/designFile alanlarından biri var
-  // NOT: cartOrders'a girmeyen tüm siparişler de buraya düşer (hiçbir kategoriye uymayan kayıpları önler)
-  const formOrders = allOrders.filter(o =>
-    o.orderSource === 'form' || o.type || o.size || o.back || o.designFile ||
-    (!o.address && !(o.items && o.items[0]?.id) && o.orderSource !== 'cart')
-  );
+  // Sepet siparişi: address alanı var VEYA items[].id var (ürün id'si)
+  const cartOrders = allOrders.filter(o => o.address || (o.items && o.items[0]?.id));
+  // Özel sipariş: type/size/back alanları var veya orderSource === 'form'
+  const formOrders = allOrders.filter(o => o.orderSource === 'form' || o.type || o.size || o.back || o.designFile);
 
   // Badge güncelle
   const cartBadge = document.getElementById('cartOrderCount');
