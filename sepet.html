@@ -764,31 +764,23 @@ function copyIBAN() {
 
 function sendToWhatsApp() {
   if (!cart.length) { toast('Sepetiniz boş!', true); return; }
-  const subtotal = cart.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0);
-  const cargoPrice = CARGO_PRICES[selectedCargo]||49;
-  const kapidaExtra = selectedPay==='kapida' ? 15 : 0;
-  const total = subtotal + cargoPrice + kapidaExtra - discountAmount;
-  let msg = '🏷 *RetroPatch Sipariş*
-
-';
-  cart.forEach(item => {
-    msg += `• ${item.name}`;
-    if (item.backType) msg += ` (${item.backType})`;
-    msg += ` x${item.qty||1} — ₺${((item.price||0)*(item.qty||1)).toLocaleString('tr-TR')}
-`;
+  var subtotal = cart.reduce(function(s,i){return s+(i.price||0)*(i.qty||1);},0);
+  var cargoPrice = CARGO_PRICES[selectedCargo]||49;
+  var kapidaExtra = selectedPay==='kapida' ? 15 : 0;
+  var total = subtotal + cargoPrice + kapidaExtra - discountAmount;
+  var msg = '🏷 *RetroPatch Sipariş*\n\n';
+  cart.forEach(function(item) {
+    msg += '• ' + item.name;
+    if (item.backType) msg += ' (' + item.backType + ')';
+    msg += ' x' + (item.qty||1) + ' — ₺' + ((item.price||0)*(item.qty||1)).toLocaleString('tr-TR') + '\n';
   });
-  msg += `
-💰 *Toplam: ₺${total.toLocaleString('tr-TR')}*`;
-  msg += `
-🚚 Kargo: ${CARGO_NAMES[selectedCargo]} (₺${cargoPrice})`;
-  if (discountAmount > 0) msg += `
-🎟 İndirim: -₺${discountAmount}`;
-  const adName = document.getElementById('adName').value.trim();
-  const adCity = document.getElementById('adCity').value.trim();
-  if (adName) msg += `
-
-📦 Alıcı: ${adName}`;
-  if (adCity) msg += `, ${adCity}`;
+  msg += '\n💰 *Toplam: ₺' + total.toLocaleString('tr-TR') + '*';
+  msg += '\n🚚 Kargo: ' + CARGO_NAMES[selectedCargo] + ' (₺' + cargoPrice + ')';
+  if (discountAmount > 0) msg += '\n🎟 İndirim: -₺' + discountAmount;
+  var adName = document.getElementById('adName').value.trim();
+  var adCity = document.getElementById('adCity').value.trim();
+  if (adName) msg += '\n\n📦 Alıcı: ' + adName;
+  if (adCity) msg += ', ' + adCity;
   window.open('https://wa.me/905375295290?text=' + encodeURIComponent(msg), '_blank');
 }
 
