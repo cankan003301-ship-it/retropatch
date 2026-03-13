@@ -1411,7 +1411,7 @@ function buildCatChart() {
   const sorted = Object.entries(cats).sort((a,b) => b[1]-a[1]).slice(0,5);
   document.getElementById('catChart').innerHTML = sorted.map(([cat, cnt]) => `
     <div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:4px;">
+      <div style="display:flex;justify-content:space-between;font-size:11px;font-family:sans-serif;letter-spacing:1px;margin-bottom:4px;">
         <span style="color:var(--muted2);">${cat}</span>
         <span style="color:var(--accent);">${cnt}</span>
       </div>
@@ -1469,7 +1469,7 @@ function renderOrders(src = 'cart', filter = 'all') {
         <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted2);font-size:12px;">${icerik}</td>
         <td style="color:var(--muted);font-size:11px;">${formatDate(o.createdAt)}</td>
         <td style="color:var(--accent);font-family:'Bebas Neue',cursive;font-size:18px;">${tutar}</td>
-        <td><select onchange="updateOrderStatus('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;outline:none;">
+        <td><select onchange="updateOrderStatus('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
           ${['yeni','hazırlanıyor','tamamlandı','iptal'].map(s=>`<option value="${s}" ${(o.status||'yeni')===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
         </select></td>
         <td><button class="btn btn-blue btn-sm" onclick="showOrderDetail('${o.id}')">Detay</button></td>
@@ -1500,7 +1500,7 @@ function renderOrders(src = 'cart', filter = 'all') {
         <td style="text-align:center;font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);">${adet}</td>
         <td style="color:var(--muted);font-size:11px;">${formatDate(o.createdAt)}</td>
         <td style="max-width:180px;font-size:11px;color:var(--muted2);">${notTasarim}</td>
-        <td><select onchange="updateOrderStatus('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;outline:none;">
+        <td><select onchange="updateOrderStatus('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
           ${['yeni','hazırlanıyor','tamamlandı','iptal'].map(s=>`<option value="${s}" ${(o.status||'yeni')===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
         </select></td>
         <td><button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Sil</button></td>
@@ -1548,7 +1548,7 @@ function showOrderDetail(id) {
       ${row('Toplam', tutar)}
       ${row('Tarih', formatDate(o.createdAt))}
       ${row('Durum', statusBadge(o.status || 'yeni'))}
-      ${o.designFileUrl ? `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted2);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:11px;">Tasarım Dosyası</span><a href="${o.designFileUrl}" target="_blank" style="color:var(--accent);">📎 Görüntüle →</a></div>` : ''}
+      ${o.designFileUrl ? `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted2);font-family:sans-serif;letter-spacing:1px;font-size:11px;">Tasarım Dosyası</span><a href="${o.designFileUrl}" target="_blank" style="color:var(--accent);">📎 Görüntüle →</a></div>` : ''}
     </div>
     <div style="margin-top:20px;display:flex;gap:8px;">
       <a href="https://wa.me/${telefon.replace(/\D/g,'')}" target="_blank" class="btn btn-accent" style="text-decoration:none;flex:1;justify-content:center;">📱 WhatsApp</a>
@@ -1560,7 +1560,7 @@ function showOrderDetail(id) {
 function row(k, v) {
   if (!v) return '';
   return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
-    <span style="color:var(--muted2);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:11px;">${k}</span>
+    <span style="color:var(--muted2);font-family:sans-serif;letter-spacing:1px;font-size:11px;">${k}</span>
     <span>${v}</span>
   </div>`;
 }
@@ -1659,7 +1659,7 @@ function renderProdGrid() {
       </div>
       <div class="prod-img" style="position:relative;">
         <img src="${p.image||''}" alt="${p.name}" loading="lazy" onerror="this.parentElement.style.background='var(--bg4)';this.style.display='none'">
-        <div style="position:absolute;top:6px;right:6px;font-size:9px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;padding:2px 7px;background:rgba(0,0,0,.7);color:${sc};border:1px solid ${sc};opacity:.9;">${p.status||'Stokta'}</div>
+        <div style="position:absolute;top:6px;right:6px;font-size:9px;font-family:sans-serif;letter-spacing:1px;padding:2px 7px;background:rgba(0,0,0,.7);color:${sc};border:1px solid ${sc};opacity:.9;">${p.status||'Stokta'}</div>
       </div>
       <div class="prod-info">
         <div class="prod-cat">${p.cat||'—'}</div>
@@ -1693,7 +1693,7 @@ function renderProdTable() {
         <img src="${p.image||''}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">
       </div></td>
       <td>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.5px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</div>
+        <div style="font-family:sans-serif;font-weight:700;letter-spacing:.5px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</div>
         <div style="font-size:10px;color:var(--muted2);margin-top:2px;">#${p.id.slice(-6)}</div>
       </td>
       <td style="font-size:12px;color:var(--muted2);">${p.cat||'—'}</td>
@@ -1703,7 +1703,7 @@ function renderProdTable() {
           onblur="inlineUpdatePrice('${p.id}',this.value)" onkeydown="if(event.key==='Enter')this.blur()">
       </td>
       <td>
-        <select onchange="inlineUpdateStatus('${p.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;outline:none;">
+        <select onchange="inlineUpdateStatus('${p.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
           ${['Stokta','Son 3','Tükendi'].map(s=>`<option value="${s}" ${p.status===s?'selected':''}>${s}</option>`).join('')}
         </select>
       </td>
@@ -2738,10 +2738,10 @@ function renderReviewTable() {
     const date = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('tr-TR') : '—';
     const isPending = r.approved === false;
     const statusBadge = isPending
-      ? `<span style="font-size:10px;padding:3px 8px;background:rgba(251,146,60,.15);color:#fb923c;border:1px solid rgba(251,146,60,.3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">BEKLEMEDE</span>`
-      : `<span style="font-size:10px;padding:3px 8px;background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">ONAYLANDI</span>`;
+      ? `<span style="font-size:10px;padding:3px 8px;background:rgba(251,146,60,.15);color:#fb923c;border:1px solid rgba(251,146,60,.3);font-family:sans-serif;letter-spacing:1px;">BEKLEMEDE</span>`
+      : `<span style="font-size:10px;padding:3px 8px;background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3);font-family:sans-serif;letter-spacing:1px;">ONAYLANDI</span>`;
     return `<tr style="${isPending ? 'border-left:2px solid #fb923c;' : ''}">
-      <td style="font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.productName}</td>
+      <td style="font-family:sans-serif;font-weight:700;letter-spacing:1px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.productName}</td>
       <td style="font-size:12px;">${r.userName||'Anonim'}<br><span style="font-size:10px;color:var(--muted);">${r.userEmail||''}</span></td>
       <td style="color:${starColor};font-size:13px;letter-spacing:1px;white-space:nowrap;">${stars}</td>
       <td style="font-size:12px;color:var(--muted);max-width:220px;">${r.text||'—'}</td>
@@ -2877,7 +2877,7 @@ function renderCargo(filter) {
       <td>${cargoCompanyName(o.cargo?.company)}</td>
       <td>
         ${o.cargo?.trackingCode
-          ? `<span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;">${o.cargo.trackingCode}</span>
+          ? `<span style="font-family:sans-serif;font-weight:700;">${o.cargo.trackingCode}</span>
              <span onclick="openTracking('${o.cargo?.company}','${o.cargo?.trackingCode}')" style="font-size:10px;color:var(--accent);margin-left:8px;cursor:pointer;">Takip &rarr;</span>`
           : '<span style="color:var(--muted2);font-size:11px;">Girilmedi</span>'}
       </td>
@@ -3017,8 +3017,8 @@ function renderMembers() {
       <td><span style="font-family:'Bebas Neue',cursive;font-size:18px;">${userOrders.length}</span></td>
       <td style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);">₺${spent.toLocaleString('tr-TR')}</td>
       <td style="display:flex;gap:6px;align-items:center;">
-        <button onclick="showMemberAddresses('${u.id}','${(u.name||'').replace(/'/g,\'')}')" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'">📍 Adresler</button>
-        <button onclick="deleteMember('${u.id}','${(u.name||u.email||'bu üyeyi').replace(/'/g,\'')}')" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid rgba(230,57,70,.3);background:transparent;color:#e63946;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(230,57,70,.1)';this.style.borderColor='#e63946'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(230,57,70,.3)'">🗑 Sil</button>
+        <button onclick="showMemberAddresses('${u.id}','${(u.name||'').replace(/'/g,'')}')" style="font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'">📍 Adresler</button>
+        <button onclick="deleteMember('${u.id}','${(u.name||u.email||'bu üyeyi').replace(/'/g,'')}')" style="font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid rgba(230,57,70,.3);background:transparent;color:#e63946;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(230,57,70,.1)';this.style.borderColor='#e63946'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(230,57,70,.3)'">🗑 Sil</button>
       </td>
     </tr>`;
   }).join('');
@@ -3031,12 +3031,12 @@ function showMemberAddresses(uid, name) {
   document.getElementById('memberAddrName').textContent = name || 'Üye';
   overlay.style.display = 'flex';
   document.body.style.overflow = 'hidden';
-  list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted2);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:12px;">YÜKLENİYOR...</div>';
+  list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted2);font-family:sans-serif;letter-spacing:2px;font-size:12px;">YÜKLENİYOR...</div>';
 
   db.collection('users').doc(uid).collection('addresses').get()
     .then(snap => {
       if (snap.empty) {
-        list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted2);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:12px;">📍 KAYITLI ADRES YOK</div>';
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted2);font-family:sans-serif;letter-spacing:2px;font-size:12px;">📍 KAYITLI ADRES YOK</div>';
         return;
       }
       const addresses = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -3044,7 +3044,7 @@ function showMemberAddresses(uid, name) {
         <div style="border:1px solid var(--border);padding:16px;margin-bottom:8px;position:relative;${a.isDefault ? 'border-color:rgba(200,169,110,.5);background:rgba(200,169,110,.04);' : ''}">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
             <span style="font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:1px;">${a.title || 'Adres'}</span>
-            ${a.isDefault ? '<span style="font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1.5px;padding:2px 7px;background:rgba(200,169,110,.15);border:1px solid rgba(200,169,110,.4);color:var(--accent);">VARSAYILAN</span>' : ''}
+            ${a.isDefault ? '<span style="font-size:9px;font-family:sans-serif;font-weight:700;letter-spacing:1.5px;padding:2px 7px;background:rgba(200,169,110,.15);border:1px solid rgba(200,169,110,.4);color:var(--accent);">VARSAYILAN</span>' : ''}
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;font-size:12px;">
             <div><span style="color:var(--muted2);font-size:10px;letter-spacing:1px;display:block;margin-bottom:2px;">AD SOYAD</span>${a.name || '—'}</div>
@@ -3066,9 +3066,7 @@ function closeMemberAddresses() {
 }
 
 function deleteMember(uid, name) {
-  if (!confirm('⚠️ "' + name + '" adlı üyeyi silmek istediğinize emin misiniz?
-
-Bu işlem kullanıcı verisini Firestore'dan siler. Firebase Auth kaydı Manuel silinmelidir.')) return;
+  if (!confirm('⚠️ "' + name + '" adlı üyeyi silmek istediğinize emin misiniz? Bu işlem kullanıcı verisini Firestore\'dan siler. Firebase Auth kaydı Manuel silinmelidir.')) return;
   // Önce alt koleksiyonları sil
   const userRef = db.collection('users').doc(uid);
   const deleteSubcollection = (colName) => {
@@ -3234,7 +3232,7 @@ function viewCouponHistory(couponId) {
     const date=o.createdAt?.toDate?o.createdAt.toDate().toLocaleDateString('tr-TR'):'—';
     return `<tr>
       <td style="font-size:13px;">${o.name||'—'}</td>
-      <td style="font-family:'Barlow Condensed',sans-serif;color:var(--accent);font-size:13px;">#${o.id?.slice(-6)||'—'}</td>
+      <td style="font-family:sans-serif;color:var(--accent);font-size:13px;">#${o.id?.slice(-6)||'—'}</td>
       <td style="font-family:'Bebas Neue',cursive;font-size:16px;color:var(--green);">₺${o.discount||'—'}</td>
       <td style="font-size:11px;color:var(--muted);">${date}</td>
     </tr>`;
