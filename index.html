@@ -89,6 +89,15 @@
     .product-price{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--accent);}
     .product-stats{display:flex;gap:8px;margin-top:7px;}
     .pstat{font-size:10px;color:var(--muted);}
+    .card-back-selector{display:flex;gap:4px;margin-top:8px;}
+    .card-back-btn{flex:1;font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:4px 2px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;line-height:1.2;}
+    .card-back-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .card-back-btn.selected{border-color:var(--accent);background:rgba(200,169,110,.15);color:var(--accent);}
+    .card-back-price{font-size:8px;display:block;font-weight:400;opacity:.7;}
+    .modal-back-btn{flex:1;font-size:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:6px 4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;line-height:1.3;}
+    .modal-back-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .modal-back-selected{border-color:var(--accent)!important;background:rgba(200,169,110,.15)!important;color:var(--accent)!important;}
+    .modal-back-price{font-size:8px;display:block;font-weight:400;opacity:.75;}
 
     /* ── YENİ SEPET BUTONU ── */
     .add-cart-btn{
@@ -946,6 +955,14 @@
       <div class="modal-name" id="modalName"></div>
       <div class="modal-desc" id="modalDesc"></div>
       <div class="modal-specs" id="modalSpecs"></div>
+      <div class="modal-back-section" style="margin:12px 0 8px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;margin-bottom:6px;">ARKA YÜZEY</div>
+        <div class="modal-back-btns" style="display:flex;gap:6px;">
+          <button class="modal-back-btn modal-back-selected" data-back="Düz" onclick="selectModalBack(this)">Düz<span class="modal-back-price" id="mbp-duz">+0₺</span></button>
+          <button class="modal-back-btn" data-back="Ütüyle Yapışan" onclick="selectModalBack(this)">Ütüyle<span class="modal-back-price" id="mbp-utu">+20₺</span></button>
+          <button class="modal-back-btn" data-back="Cırt Cırt" onclick="selectModalBack(this)">Cırt Cırt<span class="modal-back-price" id="mbp-cirt">+30₺</span></button>
+        </div>
+      </div>
       <div class="modal-price" id="modalPrice"></div>
       <button class="modal-order-btn" onclick="addToCartFromModal()">🛒 SEPETE EKLE</button>
       <button class="modal-zoom-btn" onclick="openLightbox()">🔍 Resmi Tam Ekran Gör</button>
@@ -1152,6 +1169,11 @@ function renderFeatured(field) {
           <span class="pstat">❤️ ${p.favorites||0}</span>
           <span class="pstat">⭐ ${p.reviews||0}</span>
         </div>
+        <div class="card-back-selector" onclick="event.stopPropagation()">
+          <button class="card-back-btn selected" onclick="selectCardBack(this,'Düz',${BACK_PRICES_IDX['Düz']||0})">Düz<span class="card-back-price">+${BACK_PRICES_IDX['Düz']||0}₺</span></button>
+          <button class="card-back-btn" onclick="selectCardBack(this,'Ütüyle Yapışan',${BACK_PRICES_IDX['Ütüyle Yapışan']||20})">Ütüyle<span class="card-back-price">+${BACK_PRICES_IDX['Ütüyle Yapışan']||20}₺</span></button>
+          <button class="card-back-btn" onclick="selectCardBack(this,'Cırt Cırt',${BACK_PRICES_IDX['Cırt Cırt']||30})">Cırt Cırt<span class="card-back-price">+${BACK_PRICES_IDX['Cırt Cırt']||30}₺</span></button>
+        </div>
       </div>
     </div>`).join('');
 }
@@ -1165,6 +1187,16 @@ function openModal(id) {
   document.getElementById('modalName').textContent = p.name||'';
   document.getElementById('modalDesc').textContent = p.desc||'';
   document.getElementById('modalPrice').textContent = p.price?'₺'+p.price:'—';
+  // Arka yüzey seçimini sıfırla ve fiyatları güncelle
+  document.querySelectorAll('.modal-back-btn').forEach(b => b.classList.remove('modal-back-selected'));
+  const firstBack = document.querySelector('.modal-back-btn');
+  if (firstBack) firstBack.classList.add('modal-back-selected');
+  const mbpDuz = document.getElementById('mbp-duz');
+  const mbpUtu = document.getElementById('mbp-utu');
+  const mbpCirt = document.getElementById('mbp-cirt');
+  if (mbpDuz) mbpDuz.textContent = '+' + (BACK_PRICES_IDX['Düz']||0) + '₺';
+  if (mbpUtu) mbpUtu.textContent = '+' + (BACK_PRICES_IDX['Ütüyle Yapışan']||20) + '₺';
+  if (mbpCirt) mbpCirt.textContent = '+' + (BACK_PRICES_IDX['Cırt Cırt']||30) + '₺';
   document.getElementById('modalSpecs').innerHTML = `
     <div class="modal-spec"><span class="modal-spec-key">Boyut</span><span class="modal-spec-val">${p.size||'—'}</span></div>
     <div class="modal-spec"><span class="modal-spec-key">Arka</span><span class="modal-spec-val">${p.back||'—'}</span></div>
@@ -1180,13 +1212,30 @@ function openModal(id) {
   db.collection('products').doc(id).update({views:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
 }
 function closeModal(){document.getElementById('modalOverlay').classList.remove('active');document.body.style.overflow='';}
+
+function selectModalBack(btn) {
+  document.querySelectorAll('.modal-back-btn').forEach(b => b.classList.remove('modal-back-selected'));
+  btn.classList.add('modal-back-selected');
+  updateModalTotalPrice();
+}
+
+function updateModalTotalPrice() {
+  if (!currentProduct) return;
+  const sel = document.querySelector('.modal-back-btn.modal-back-selected');
+  const backType = sel ? sel.dataset.back : 'Düz';
+  const backExtra = BACK_PRICES_IDX[backType] || 0;
+  const base = parseFloat(currentProduct.price) || 0;
+  document.getElementById('modalPrice').textContent = base ? '₺' + (base + backExtra) : '—';
+}
 function closeModalBg(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
 function goOrder(){closeModal();document.getElementById('siparis').scrollIntoView({behavior:'smooth'});}
 
 function addToCartFromModal() {
   if (!currentProduct) return;
-  addToCart(currentProduct);
-  showToast('✓ Sepete eklendi!');
+  const sel = document.querySelector('.modal-back-btn.modal-back-selected');
+  const backType = sel ? sel.dataset.back : 'Düz';
+  const backExtra = BACK_PRICES_IDX[backType] || 0;
+  addToCart(currentProduct, backType, backExtra);
   closeModal();
   window.location.href = 'sepet.html';
 }
@@ -1360,11 +1409,14 @@ function updateCartCount() {
   if (el) el.textContent = count;
 }
 
-function addToCart(p) {
+function addToCart(p, backType, backExtra) {
+  backType = backType || 'Düz';
+  backExtra = backExtra || 0;
+  const totalPrice = (parseFloat(p.price)||0) + backExtra;
   let cart = JSON.parse(localStorage.getItem('retropatch_cart')||'[]');
-  const existing = cart.find(i=>i.id===p.id);
+  const existing = cart.find(i=>i.id===p.id && i.backType===backType);
   if (existing) { existing.qty = (existing.qty||1)+1; }
-  else { cart.push({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',qty:1}); }
+  else { cart.push({id:p.id,name:p.name,price:totalPrice,basePrice:p.price,backType:backType,backExtra:backExtra,image:p.image||'',cat:p.cat||'',qty:1}); }
   localStorage.setItem('retropatch_cart', JSON.stringify(cart));
   updateCartCount();
   showToast('✓ Sepete eklendi!');
@@ -1375,10 +1427,22 @@ function addToCartById(id) {
   if (p) addToCart(p);
 }
 
+function selectCardBack(btn, type, extra) {
+  const card = btn.closest('.card-back-selector');
+  card.querySelectorAll('.card-back-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  card.dataset.backType = type;
+  card.dataset.backExtra = extra;
+}
+
 function rpAddToCart(btn, id) {
   const p = allProducts.find(x => x.id === id);
   if (!p) return;
-  addToCart(p);
+  const card = btn.closest('.product-card');
+  const sel = card ? card.querySelector('.card-back-selector') : null;
+  const backType = sel ? (sel.dataset.backType || 'Düz') : 'Düz';
+  const backExtra = sel ? parseInt(sel.dataset.backExtra || '0') : 0;
+  addToCart(p, backType, backExtra);
   // Animasyon
   const span = btn.querySelector('span');
   const origText = span.textContent;
