@@ -232,6 +232,8 @@
     .modal-order-btn:hover{background:#d4b77a;}
     .modal-zoom-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;cursor:pointer;transition:all .2s;}
     .modal-zoom-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .modal-fav-btn{flex-shrink:0;width:50px;background:transparent;border:1px solid #555;color:#e63946;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+    .modal-fav-btn:hover,.modal-fav-btn.active{border-color:#e63946;background:rgba(230,57,70,.12);}
 
     /* TOAST */
     .toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#000;padding:12px 20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;z-index:99999;transform:translateY(60px);opacity:0;transition:all .35s cubic-bezier(.175,.885,.32,1.275);}
@@ -988,7 +990,10 @@
         </div>
       </div>
       <div class="modal-price" id="modalPrice"></div>
-      <button class="modal-order-btn" onclick="addToCartFromModal()">🛒 SEPETE EKLE</button>
+      <div style="display:flex;gap:8px;margin-bottom:6px;">
+        <button class="modal-order-btn" onclick="addToCartFromModal()" style="flex:1;margin-bottom:0;">🛒 SEPETE EKLE</button>
+        <button class="modal-fav-btn" id="modalFavBtn" onclick="toggleFavFromModal()" title="Favorilere ekle">♡</button>
+      </div>
       <button class="modal-zoom-btn" onclick="openLightbox()">🔍 Resmi Tam Ekran Gör</button>
     </div>
   </div>
@@ -1228,6 +1233,13 @@ function openModal(id) {
     : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#444;font-size:13px;">Görsel Yok</div>`;
   document.getElementById('modalOverlay').classList.add('active');
   document.body.style.overflow='hidden';
+  // Favori butonunu güncelle
+  const _mfb = document.getElementById('modalFavBtn');
+  if (_mfb) {
+    const _isFav = (typeof userFavIds !== 'undefined') && userFavIds.has(id);
+    _mfb.textContent = _isFav ? '❤' : '♡';
+    _mfb.classList.toggle('active', _isFav);
+  }
   db.collection('products').doc(id).update({views:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
 }
 function closeModal(){document.getElementById('modalOverlay').classList.remove('active');document.body.style.overflow='';}
@@ -1466,28 +1478,60 @@ function rpAddToCart(btn, id) {
 
 function toggleFavById(id, btn) {
   const p = allProducts.find(x=>x.id===id);
-  if (p) {
-    toggleFav(p);
-    // Anlık UI güncelle
-    const isFav = btn.textContent === '♥';
-    btn.textContent = isFav ? '♡' : '♥';
-    btn.classList.toggle('active', !isFav);
-  }
+  if (p) toggleFav(p.id);
 }
 
+function toggleFavFromModal() {
+  if (!currentProduct) return;
+  toggleFav(currentProduct.id);
+}
+
+// Set of user's favorited product ids — populated on auth
+let userFavIds = new Set();
+
 // ===== FAVORITES =====
-function toggleFav(p) {
+function toggleFav(productId) {
   const user = firebase.auth().currentUser;
   if (!user) { showToast('Favori eklemek için giriş yapın!'); setTimeout(()=>location.href='uye.html',1500); return; }
-  const ref = db.collection('users').doc(user.uid).collection('favorites').doc(p.id);
-  ref.get().then(doc => {
-    if (doc.exists) {
-      ref.delete().then(()=>showToast('Favoriden çıkarıldı'));
-    } else {
-      ref.set({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',size:p.size||'',status:p.status||'Stokta',addedAt:firebase.firestore.FieldValue.serverTimestamp()})
-        .then(()=>showToast('❤️ Favorilere eklendi!'));
+  const ref = db.collection('users').doc(user.uid).collection('favorites').doc(productId);
+  const isFav = userFavIds.has(productId);
+  const p = allProducts.find(x=>x.id===productId);
+
+  function updateAllBtns(fav) {
+    userFavIds[fav ? 'add' : 'delete'](productId);
+    // Kart butonları
+    document.querySelectorAll('.product-card').forEach(card => {
+      if (card.dataset.id === productId) {
+        const btn = card.querySelector('.fav-btn');
+        if (btn) { btn.textContent = fav ? '♥' : '♡'; btn.classList.toggle('active', fav); }
+      }
+    });
+    // Modal butonu
+    const mfb = document.getElementById('modalFavBtn');
+    if (mfb && currentProduct?.id === productId) {
+      mfb.textContent = fav ? '❤' : '♡';
+      mfb.classList.toggle('active', fav);
+      mfb.title = fav ? 'Favorilerden çıkar' : 'Favorilere ekle';
     }
-  });
+  }
+
+  if (isFav) {
+    updateAllBtns(false);
+    ref.delete()
+      .then(() => {
+        db.collection('products').doc(productId).update({favorites: firebase.firestore.FieldValue.increment(-1)}).catch(()=>{});
+        showToast('Favoriden çıkarıldı');
+      })
+      .catch(() => { updateAllBtns(true); showToast('Hata oluştu'); });
+  } else {
+    updateAllBtns(true);
+    ref.set({id:productId, name:p?.name||'', price:p?.price||0, image:p?.image||'', cat:p?.cat||'', size:p?.size||'', status:p?.status||'Stokta', addedAt:firebase.firestore.FieldValue.serverTimestamp()})
+      .then(() => {
+        db.collection('products').doc(productId).update({favorites: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
+        showToast('❤️ Favorilere eklendi!');
+      })
+      .catch(() => { updateAllBtns(false); showToast('Hata oluştu'); });
+  }
 }
 
 // ===== AUTH NAV =====
@@ -1503,13 +1547,22 @@ firebase.auth().onAuthStateChanged(user => {
   // Kullanıcı girişindeyse favori butonlarını güncelle
   if (user) {
     db.collection('users').doc(user.uid).collection('favorites').get().then(snap => {
-      const favIds = new Set(snap.docs.map(d=>d.id));
+      userFavIds = new Set(snap.docs.map(d=>d.id));
       document.querySelectorAll('.product-card').forEach(card => {
         const pid = card.dataset.id;
         const btn = card.querySelector('.fav-btn');
-        if (btn && favIds.has(pid)) { btn.textContent='♥'; btn.classList.add('active'); }
+        if (btn) { btn.textContent = userFavIds.has(pid) ? '♥' : '♡'; btn.classList.toggle('active', userFavIds.has(pid)); }
       });
+      // Modal açıksa onu da güncelle
+      const mfb = document.getElementById('modalFavBtn');
+      if (mfb && currentProduct) {
+        const isFav = userFavIds.has(currentProduct.id);
+        mfb.textContent = isFav ? '❤' : '♡';
+        mfb.classList.toggle('active', isFav);
+      }
     });
+  } else {
+    userFavIds = new Set();
   }
 });
 
