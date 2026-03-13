@@ -135,14 +135,70 @@
     .toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#000;padding:12px 20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;z-index:99999;transform:translateY(60px);opacity:0;transition:all .35s cubic-bezier(.175,.885,.32,1.275);}
     .toast.show{transform:translateY(0);opacity:1;}
 
+    /* ── YENİ FİLTRE SİSTEMİ CSS ── */
+    .toolbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+    .filter-stock-select{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;outline:none;cursor:pointer;}
+    .filter-stock-select option{background:var(--bg3);}
+
+    /* Aktif filtre rozetleri */
+    .active-filters{display:flex;gap:6px;flex-wrap:wrap;width:100%;min-height:0;}
+    .active-filters:empty{display:none;}
+    .af-badge{display:flex;align-items:center;gap:5px;background:rgba(200,169,110,0.12);border:1px solid rgba(200,169,110,0.3);color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;padding:4px 10px;}
+    .af-badge button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;line-height:1;padding:0 0 0 2px;opacity:.7;transition:opacity .2s;}
+    .af-badge button:hover{opacity:1;}
+
+    /* Mobil filtre butonu */
+    .filter-mobile-btn{display:none;align-items:center;gap:6px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;flex-shrink:0;}
+    .filter-mobile-btn:hover,.filter-mobile-btn.active{border-color:var(--accent);color:var(--accent);}
+    .filter-mobile-count{background:var(--accent);color:#000;font-family:'Bebas Neue',cursive;font-size:12px;padding:1px 6px;display:none;}
+    .filter-mobile-count.visible{display:inline;}
+
+    /* Filter Drawer */
+    .filter-drawer{position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--bg2);border-top:1px solid var(--border);transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:80vh;overflow-y:auto;}
+    .filter-drawer.open{transform:translateY(0);}
+    .filter-overlay{position:fixed;inset:0;z-index:499;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .3s;}
+    .filter-overlay.open{opacity:1;pointer-events:all;}
+    .filter-drawer-inner{padding:20px;}
+    .filter-drawer-header{display:flex;align-items:center;margin-bottom:20px;}
+    .filter-drawer-header span{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;flex:1;}
+    .filter-clear-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 12px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;cursor:pointer;margin-right:8px;transition:all .2s;}
+    .filter-clear-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+    .filter-drawer-close{background:none;border:1px solid var(--border);color:var(--muted);width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s;}
+    .filter-drawer-close:hover{border-color:var(--accent);color:var(--accent);}
+    .filter-group{margin-bottom:20px;}
+    .filter-group-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+
+    /* Fiyat aralığı */
+    .price-range-inputs{display:flex;align-items:center;gap:8px;}
+    .price-input-group{display:flex;align-items:center;border:1px solid var(--border);background:var(--bg3);flex:1;}
+    .price-prefix{padding:8px 10px;font-family:'Bebas Neue',cursive;font-size:16px;color:var(--accent);border-right:1px solid var(--border);}
+    .price-input-group input{background:transparent;border:none;color:var(--text);padding:8px 10px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;width:100%;}
+    .price-sep{color:var(--muted);font-size:16px;flex-shrink:0;}
+    .price-range-hint{font-size:11px;color:var(--muted);margin-top:6px;}
+
+    /* Drawer stok butonları */
+    .drawer-stock-btns,.drawer-sort-btns{display:flex;gap:4px;flex-wrap:wrap;}
+    .drawer-stock-btn,.drawer-sort-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .2s;}
+    .drawer-stock-btn:hover,.drawer-sort-btn:hover,.drawer-stock-btn.active,.drawer-sort-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.07);}
+
+    /* Uygula butonu */
+    .filter-apply-btn{width:100%;background:var(--accent);color:#000;border:none;padding:14px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:3px;cursor:pointer;margin-top:8px;transition:background .2s;}
+    .filter-apply-btn:hover{background:#d4b77a;}
+
     @media(max-width:768px){
       nav{padding:0 16px;}nav ul{display:none;}
       .page-header{padding:100px 20px 40px;flex-direction:column;align-items:flex-start;}
       .prod-count{font-size:48px;}
-      .toolbar{padding:0 20px 24px;flex-direction:column;align-items:flex-start;}
+      .toolbar{padding:0 20px 24px;flex-direction:column;align-items:flex-start;gap:12px;}
+      .toolbar-right{width:100%;}
+      .search-wrap{flex:1;}
       .search-wrap input{width:100%;}
+      .filter-stock-select{display:none;}
+      .sort-select{flex:1;}
+      .filter-mobile-btn{display:flex;}
       .products-wrap{padding:0 20px 60px;}
       .modal{grid-template-columns:1fr;}
+      .filter-bar{display:none;}
     }
   
     /* ===== HAMBURGER MENU ===== */
@@ -271,24 +327,92 @@
 </div>
 
 <div class="toolbar">
-  <div class="filter-bar" id="filterBar">
-    <button class="filter-btn active" onclick="filterCat('Tümü',this)">Tümü</button>
-  </div>
-  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-    <div class="search-wrap">
-      <input type="text" id="searchInput" placeholder="Ara..." oninput="doSearch()">
+  <!-- Kategori filtreleri + mobil filtre butonu -->
+  <div style="display:flex;align-items:center;gap:8px;width:100%;flex-wrap:wrap;">
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" onclick="filterCat('Tümü',this)">Tümü</button>
     </div>
-    <select class="sort-select" onchange="doSort(this.value)">
+    <button class="filter-mobile-btn" id="filterMobileBtn" onclick="toggleFilterDrawer()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+      Filtrele <span class="filter-mobile-count" id="filterMobileCount"></span>
+    </button>
+  </div>
+
+  <!-- Arama + sıralama + stok filtresi -->
+  <div class="toolbar-right">
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Ürün ara..." oninput="doSearch()">
+    </div>
+    <select class="filter-stock-select" onchange="doStockFilter(this.value)" id="stockSelect">
+      <option value="all">Tüm Stoklar</option>
+      <option value="instock">Stokta</option>
+      <option value="low">Son 3</option>
+      <option value="out">Tükendi</option>
+    </select>
+    <select class="sort-select" onchange="doSort(this.value)" id="sortSelect">
       <option value="default">Sıralama</option>
       <option value="price_asc">Fiyat ↑</option>
       <option value="price_desc">Fiyat ↓</option>
-      <option value="sales">En Çok Satan</option>
-      <option value="favorites">En Çok Favorilenen</option>
-      <option value="reviews">En Çok Yorum Alan</option>
+      <option value="sales">🔥 En Çok Satan</option>
+      <option value="favorites">❤ En Çok Favorilenen</option>
+      <option value="reviews">⭐ En Çok Yorum Alan</option>
       <option value="name">A-Z</option>
     </select>
   </div>
+
+  <!-- Aktif filtre rozetleri -->
+  <div class="active-filters" id="activeFilters"></div>
 </div>
+
+<!-- Fiyat aralığı + mobil filtre drawer -->
+<div class="filter-drawer" id="filterDrawer">
+  <div class="filter-drawer-inner">
+    <div class="filter-drawer-header">
+      <span>Filtreler</span>
+      <button onclick="clearAllFilters()" class="filter-clear-btn">Tümünü Temizle</button>
+      <button onclick="toggleFilterDrawer()" class="filter-drawer-close">✕</button>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-label">Fiyat Aralığı</div>
+      <div class="price-range-wrap">
+        <div class="price-range-inputs">
+          <div class="price-input-group">
+            <span class="price-prefix">₺</span>
+            <input type="number" id="priceMin" placeholder="Min" oninput="doPriceFilter()" min="0">
+          </div>
+          <span class="price-sep">—</span>
+          <div class="price-input-group">
+            <span class="price-prefix">₺</span>
+            <input type="number" id="priceMax" placeholder="Max" oninput="doPriceFilter()" min="0">
+          </div>
+        </div>
+        <div class="price-range-hint" id="priceRangeHint"></div>
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-label">Stok Durumu</div>
+      <div class="drawer-stock-btns">
+        <button class="drawer-stock-btn active" onclick="setDrawerStock('all',this)">Tümü</button>
+        <button class="drawer-stock-btn" onclick="setDrawerStock('instock',this)">Stokta</button>
+        <button class="drawer-stock-btn" onclick="setDrawerStock('low',this)">Son 3</button>
+        <button class="drawer-stock-btn" onclick="setDrawerStock('out',this)">Tükendi</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-label">Sıralama</div>
+      <div class="drawer-sort-btns" id="drawerSortBtns">
+        <button class="drawer-sort-btn active" onclick="setDrawerSort('default',this)">Varsayılan</button>
+        <button class="drawer-sort-btn" onclick="setDrawerSort('price_asc',this)">Fiyat ↑</button>
+        <button class="drawer-sort-btn" onclick="setDrawerSort('price_desc',this)">Fiyat ↓</button>
+        <button class="drawer-sort-btn" onclick="setDrawerSort('sales',this)">🔥 Çok Satan</button>
+        <button class="drawer-sort-btn" onclick="setDrawerSort('favorites',this)">❤ Favori</button>
+        <button class="drawer-sort-btn" onclick="setDrawerSort('name',this)">A-Z</button>
+      </div>
+    </div>
+    <button class="filter-apply-btn" onclick="toggleFilterDrawer()">Sonuçları Gör (<span id="drawerCount">0</span>)</button>
+  </div>
+</div>
+<div class="filter-overlay" id="filterOverlay" onclick="toggleFilterDrawer()"></div>
 
 <div class="products-wrap">
   <div class="products-grid" id="productsGrid">
@@ -397,8 +521,12 @@ let allProducts = [];
 let filtered = [];
 let currentCat = 'Tümü';
 let currentSort = 'default';
+let currentStock = 'all';
+let currentPriceMin = null;
+let currentPriceMax = null;
 let currentProduct = null;
 
+loadURLParams();
 db.collection('products').onSnapshot(snap => {
   allProducts = snap.docs.map(d => ({id:d.id,...d.data()}));
   window.allProducts = allProducts;
@@ -417,6 +545,17 @@ function buildFilters() {
   const cats = ['Tümü',...new Set(allProducts.map(p=>p.cat).filter(Boolean))];
   const bar = document.getElementById('filterBar');
   bar.innerHTML = cats.map((c,i)=>`<button class="filter-btn${c===currentCat?' active':''}" onclick="filterCat('${c}',this)">${c}</button>`).join('');
+  // Fiyat aralığı hint göster
+  const prices = allProducts.map(p=>parseFloat(p.price)||0).filter(v=>v>0);
+  if (prices.length) {
+    const minP = Math.min(...prices);
+    const maxP = Math.max(...prices);
+    const hint = document.getElementById('priceRangeHint');
+    if (hint && !hint.textContent) hint.textContent = 'Ürün fiyat aralığı: ₺' + minP + ' — ₺' + maxP;
+  }
+  // Stock ve sort drawer sync
+  const sortSel = document.getElementById('sortSelect'); if (sortSel) sortSel.value = currentSort;
+  const stockSel = document.getElementById('stockSelect'); if (stockSel) stockSel.value = currentStock;
 }
 
 function filterCat(cat, btn) {
@@ -435,7 +574,14 @@ function applyAll() {
   filtered = allProducts.filter(p => {
     const matchCat = currentCat === 'Tümü' || p.cat === currentCat;
     const matchQ = !q || (p.name||'').toLowerCase().includes(q) || (p.cat||'').toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q);
-    return matchCat && matchQ;
+    const matchStock = currentStock === 'all' ||
+      (currentStock === 'instock' && (p.status||'Stokta') === 'Stokta') ||
+      (currentStock === 'low' && p.status === 'Son 3') ||
+      (currentStock === 'out' && p.status === 'Tükendi');
+    const price = parseFloat(p.price) || 0;
+    const matchMin = currentPriceMin === null || price >= currentPriceMin;
+    const matchMax = currentPriceMax === null || price <= currentPriceMax;
+    return matchCat && matchQ && matchStock && matchMin && matchMax;
   });
   if (currentSort==='price_asc') filtered.sort((a,b)=>(a.price||0)-(b.price||0));
   else if (currentSort==='price_desc') filtered.sort((a,b)=>(b.price||0)-(a.price||0));
@@ -444,7 +590,182 @@ function applyAll() {
   else if (currentSort==='reviews') filtered.sort((a,b)=>(b.reviews||0)-(a.reviews||0));
   else if (currentSort==='name') filtered.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   document.getElementById('prodCount').textContent = filtered.length;
+  // Drawer sonuç sayısını güncelle
+  const dc = document.getElementById('drawerCount');
+  if (dc) dc.textContent = filtered.length;
   renderGrid();
+  renderActiveBadges();
+  updateMobileFilterBadge();
+  syncURLParams();
+}
+
+function doStockFilter(val) {
+  currentStock = val;
+  // Drawer ile sync
+  document.querySelectorAll('.drawer-stock-btn').forEach(b => b.classList.remove('active'));
+  const drawerBtn = [...document.querySelectorAll('.drawer-stock-btn')].find(b => b.getAttribute('onclick').includes("'" + val + "'"));
+  if (drawerBtn) drawerBtn.classList.add('active');
+  applyAll();
+}
+
+function doPriceFilter() {
+  const minEl = document.getElementById('priceMin');
+  const maxEl = document.getElementById('priceMax');
+  const minVal = parseFloat(minEl.value);
+  const maxVal = parseFloat(maxEl.value);
+  currentPriceMin = isNaN(minVal) || minVal <= 0 ? null : minVal;
+  currentPriceMax = isNaN(maxVal) || maxVal <= 0 ? null : maxVal;
+  // Hint güncelle
+  const hint = document.getElementById('priceRangeHint');
+  if (hint) {
+    if (currentPriceMin !== null && currentPriceMax !== null) {
+      hint.textContent = '₺' + currentPriceMin + ' — ₺' + currentPriceMax + ' arası';
+    } else if (currentPriceMin !== null) {
+      hint.textContent = '₺' + currentPriceMin + ' ve üzeri';
+    } else if (currentPriceMax !== null) {
+      hint.textContent = '₺' + currentPriceMax + ' ve altı';
+    } else {
+      hint.textContent = '';
+    }
+  }
+  applyAll();
+}
+
+function setDrawerStock(val, btn) {
+  currentStock = val;
+  document.querySelectorAll('.drawer-stock-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Üst select ile sync
+  const sel = document.getElementById('stockSelect');
+  if (sel) sel.value = val;
+  applyAll();
+}
+
+function setDrawerSort(val, btn) {
+  currentSort = val;
+  document.querySelectorAll('.drawer-sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Üst select ile sync
+  const sel = document.getElementById('sortSelect');
+  if (sel) sel.value = val;
+  applyAll();
+}
+
+function toggleFilterDrawer() {
+  const drawer = document.getElementById('filterDrawer');
+  const overlay = document.getElementById('filterOverlay');
+  const btn = document.getElementById('filterMobileBtn');
+  const isOpen = drawer.classList.contains('open');
+  drawer.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+  btn.classList.toggle('active', !isOpen);
+  document.body.style.overflow = isOpen ? '' : 'hidden';
+  // Fiyat alanlarını drawer açılınca doldur
+  if (!isOpen) {
+    const minEl = document.getElementById('priceMin');
+    const maxEl = document.getElementById('priceMax');
+    if (minEl && currentPriceMin !== null) minEl.value = currentPriceMin;
+    if (maxEl && currentPriceMax !== null) maxEl.value = currentPriceMax;
+  }
+}
+
+function clearAllFilters() {
+  currentCat = 'Tümü';
+  currentSort = 'default';
+  currentStock = 'all';
+  currentPriceMin = null;
+  currentPriceMax = null;
+  // UI sıfırla
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.textContent === 'Tümü'));
+  const sortSel = document.getElementById('sortSelect'); if (sortSel) sortSel.value = 'default';
+  const stockSel = document.getElementById('stockSelect'); if (stockSel) stockSel.value = 'all';
+  const minEl = document.getElementById('priceMin'); if (minEl) minEl.value = '';
+  const maxEl = document.getElementById('priceMax'); if (maxEl) maxEl.value = '';
+  const hint = document.getElementById('priceRangeHint'); if (hint) hint.textContent = '';
+  document.querySelectorAll('.drawer-stock-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.querySelectorAll('.drawer-sort-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  const searchEl = document.getElementById('searchInput'); if (searchEl) searchEl.value = '';
+  applyAll();
+}
+
+function renderActiveBadges() {
+  const container = document.getElementById('activeFilters');
+  if (!container) return;
+  const badges = [];
+  if (currentCat !== 'Tümü') {
+    badges.push({ label: currentCat, clear: () => { currentCat = 'Tümü'; document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.textContent === 'Tümü')); } });
+  }
+  if (currentStock !== 'all') {
+    const labels = { instock: 'Stokta', low: 'Son 3', out: 'Tükendi' };
+    badges.push({ label: labels[currentStock], clear: () => { currentStock = 'all'; const s = document.getElementById('stockSelect'); if(s) s.value='all'; document.querySelectorAll('.drawer-stock-btn').forEach((b,i)=>b.classList.toggle('active',i===0)); } });
+  }
+  if (currentPriceMin !== null || currentPriceMax !== null) {
+    let label = '';
+    if (currentPriceMin !== null && currentPriceMax !== null) label = '₺' + currentPriceMin + '-' + currentPriceMax;
+    else if (currentPriceMin !== null) label = '₺' + currentPriceMin + '+';
+    else label = '₺0-' + currentPriceMax;
+    badges.push({ label, clear: () => { currentPriceMin = null; currentPriceMax = null; const mn=document.getElementById('priceMin'); if(mn) mn.value=''; const mx=document.getElementById('priceMax'); if(mx) mx.value=''; const h=document.getElementById('priceRangeHint'); if(h) h.textContent=''; } });
+  }
+  if (currentSort !== 'default') {
+    const labels = { price_asc: 'Fiyat ↑', price_desc: 'Fiyat ↓', sales: '🔥 Çok Satan', favorites: '❤ Favori', reviews: '⭐ Yorum', name: 'A-Z' };
+    badges.push({ label: labels[currentSort] || currentSort, clear: () => { currentSort = 'default'; const s=document.getElementById('sortSelect'); if(s) s.value='default'; document.querySelectorAll('.drawer-sort-btn').forEach((b,i)=>b.classList.toggle('active',i===0)); } });
+  }
+  const q = document.getElementById('searchInput')?.value?.trim();
+  if (q) {
+    badges.push({ label: '"' + q + '"', clear: () => { document.getElementById('searchInput').value = ''; } });
+  }
+  container.innerHTML = badges.map((b, i) =>
+    '<div class="af-badge">' + b.label + '<button onclick="clearBadge(' + i + ')">✕</button></div>'
+  ).join('');
+  // Callback'leri window'a kaydet
+  window._badgeClearFns = badges.map(b => b.clear);
+}
+
+function clearBadge(i) {
+  if (window._badgeClearFns && window._badgeClearFns[i]) {
+    window._badgeClearFns[i]();
+    applyAll();
+  }
+}
+
+function updateMobileFilterBadge() {
+  let count = 0;
+  if (currentCat !== 'Tümü') count++;
+  if (currentStock !== 'all') count++;
+  if (currentPriceMin !== null || currentPriceMax !== null) count++;
+  if (currentSort !== 'default') count++;
+  if (document.getElementById('searchInput')?.value?.trim()) count++;
+  const badge = document.getElementById('filterMobileCount');
+  if (badge) {
+    badge.textContent = count || '';
+    badge.classList.toggle('visible', count > 0);
+  }
+}
+
+function syncURLParams() {
+  const params = new URLSearchParams();
+  if (currentCat !== 'Tümü') params.set('cat', currentCat);
+  if (currentSort !== 'default') params.set('sort', currentSort);
+  if (currentStock !== 'all') params.set('stock', currentStock);
+  if (currentPriceMin !== null) params.set('minPrice', currentPriceMin);
+  if (currentPriceMax !== null) params.set('maxPrice', currentPriceMax);
+  const q = document.getElementById('searchInput')?.value?.trim();
+  if (q) params.set('q', q);
+  const newUrl = params.toString() ? location.pathname + '?' + params.toString() : location.pathname;
+  history.replaceState(null, '', newUrl);
+}
+
+function loadURLParams() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('cat')) currentCat = params.get('cat');
+  if (params.get('sort')) currentSort = params.get('sort');
+  if (params.get('stock')) currentStock = params.get('stock');
+  if (params.get('minPrice')) currentPriceMin = parseFloat(params.get('minPrice'));
+  if (params.get('maxPrice')) currentPriceMax = parseFloat(params.get('maxPrice'));
+  if (params.get('q')) {
+    const el = document.getElementById('searchInput');
+    if (el) el.value = params.get('q');
+  }
 }
 
 function renderGrid() {
