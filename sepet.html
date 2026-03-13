@@ -829,9 +829,13 @@ async function doCheckout() {
   };
 
   // Siparişi Firestore'a kaydet
-  db.collection('orders').add(orderData).then(ref => {
-    const code = 'RP-' + ref.id.slice(-6).toUpperCase();
-    db.collection('orders').doc(ref.id).update({ orderCode: code });
+  // orderCode'u önceden üret: doc ref al, kodu hesapla, tek seferde yaz
+  const orderRef = db.collection('orders').doc();
+  const orderCode = 'RP-' + orderRef.id.slice(-6).toUpperCase();
+  orderData.orderCode = orderCode;
+
+  orderRef.set(orderData).then(() => {
+    const code = orderCode;
     localStorage.removeItem('retropatch_cart');
     document.getElementById('cartWrap').style.display='none';
     document.getElementById('successWrap').style.display='block';
