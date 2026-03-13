@@ -1515,7 +1515,7 @@ function showOrderDetail(id) {
   const telefon = o.address?.phone || o.phone || '—';
   const email = o.userEmail || o.email || '—';
   const adres = o.address ? [o.address.address, o.address.district, o.address.city].filter(Boolean).join(', ') : '—';
-  const icerik = o.items ? o.items.map(i => `${i.name} x${i.qty}`).join('<br>') : (o.product || o.notes || '—');
+  const icerik = o.items ? o.items.map(i => `${i.name} x${i.qty||1}${i.backType?' <small style="color:#c8a96e">('+i.backType+')</small>':''}`).join('<br>') : (o.product || o.notes || '—');
   const tutar = o.total ? '₺'+o.total : (o.price ? '₺'+o.price : '—');
   document.getElementById('ordDetail').innerHTML = `
     <div style="display:flex;flex-direction:column;gap:12px;">
