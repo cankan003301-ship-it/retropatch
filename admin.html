@@ -402,7 +402,6 @@
           <button class="btn btn-outline btn-sm" onclick="openBulkPriceModal()">💰 Toplu Fiyat</button>
           <button class="btn btn-outline btn-sm" onclick="openBulkStatusModal()">🔄 Toplu Durum</button>
           <button class="btn btn-outline btn-sm" onclick="openBulkAddModal()">📋 Toplu Ekle</button>
-          <button class="btn btn-outline btn-sm" onclick="exportProductsJSON()" title="Tüm ürünleri JSON olarak indir">⬇ JSON İndir</button>
           <button class="btn btn-accent" onclick="openProdModal()">+ YENİ ÜRÜN</button>
         </div>
       </div>
@@ -520,7 +519,7 @@
             <span style="opacity:.7;">Sadece Ad ve Fiyat zorunlu, geri kalanlar varsayılan değerleri alır.</span>
           </div>
           <div class="fg"><label>Ürün Listesi</label>
-            <textarea id="bulkAddText" placeholder="Iron Maiden Patch | 149 | Müzik / Metal Grup Patch&#10;AC/DC Patch | 129&#10;Metallica Patch | 159 | Müzik / Metal Grup Patch | Nakış yama | 8x8 cm | Stokta | Ütüyle Yapışan / Velcro / Cırt Cırt Bant / Düz"
+            <textarea id="bulkAddText" placeholder="Iron Maiden Patch | 149 | Müzik / Metal Grup Patch&#10;AC/DC Patch | 129&#10;Metallica Patch | 159 | Müzik / Metal Grup Patch | Nakış yama | 8x8 cm | Stokta | Ütüyle Yapışan"
               style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:12px 14px;font-family:monospace;font-size:12px;outline:none;resize:vertical;min-height:160px;"></textarea>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
@@ -570,7 +569,7 @@
               </div>
               <div class="fg"><label>Boyut</label><input type="text" id="qeSize" placeholder="8x8 cm"></div>
               <div class="fg"><label>Arka Yüzey</label>
-                <select id="qeBack"><option>Ütüyle Yapışan</option><option>Velcro</option><option>Cırt Cırt Bant</option><option>Düz</option></select>
+                <select id="qeBack"><option>Ütüyle Yapışan</option><option>Düz</option></select>
               </div>
             </div>
             <div>
@@ -1111,7 +1110,7 @@
       <div class="fg-row">
         <div class="fg"><label>Boyut</label><input type="text" id="pSize" placeholder="8x8 cm"></div>
         <div class="fg"><label>Arka Yüzey</label>
-          <select id="pBack"><option>Ütüyle Yapışan</option><option>Velcro</option><option>Cırt Cırt Bant</option><option>Düz</option></select>
+          <select id="pBack"><option>Ütüyle Yapışan</option><option>Düz</option></select>
         </div>
       </div>
       <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveProd()">💾 KAYDET</button>
@@ -1765,31 +1764,6 @@ function bulkDeleteSelected() {
 }
 
 // ── TOPLU FİYAT ───────────────────────────────────────
-function exportProductsJSON() {
-  if (!allProducts || allProducts.length === 0) {
-    showToast('Ürünler henüz yüklenmedi!'); return;
-  }
-  const exportData = allProducts.map(p => ({
-    id: p.id,
-    name: p.name || '',
-    cat: p.cat || '',
-    size: p.size || '',
-    back: p.back || '',
-    price: p.price || 0,
-    image: p.image || '',
-    status: p.status || 'Stokta',
-    desc: p.desc || ''
-  }));
-  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'retropatch-products-' + new Date().toISOString().slice(0,10) + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('✓ ' + exportData.length + ' ürün indirildi!');
-}
-
 function openBulkPriceModal() {
   updateBulkPricePreview();
   openModal('bulkPriceModal');
