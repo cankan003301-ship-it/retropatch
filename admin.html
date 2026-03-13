@@ -1097,7 +1097,12 @@
       <div class="fg"><label>Açıklama</label><textarea id="pDesc" placeholder="Ürün açıklaması..."></textarea></div>
       <div class="fg-row">
         <div class="fg">
-          <label>Ürün Görseli URL</label>
+          <label>Ürün Görseli</label>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+            <label for="pImageFile" style="cursor:pointer;background:var(--accent);color:#000;padding:8px 14px;font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:2px;white-space:nowrap;">📁 PC'DEN YÜKLE</label>
+            <input type="file" id="pImageFile" accept="image/*" style="display:none;" onchange="uploadProductImage(this)">
+            <span id="pImageUploadStatus" style="font-size:11px;color:var(--muted2);"></span>
+          </div>
           <input type="text" id="pImage" placeholder="https://ik.imagekit.io/qqsmrt6nv/products/urun.jpg" oninput="previewImage(this.value)">
           <div id="pImagePreview" style="margin-top:8px;display:none;">
             <img id="pImagePreviewImg" style="max-width:120px;max-height:120px;border-radius:6px;border:1px solid var(--border);object-fit:cover;">
@@ -1992,6 +1997,38 @@ function editProd(id) {
 
 // ── ImageKit ──────────────────────────────────────────
 const IK_URL_ENDPOINT = 'https://ik.imagekit.io/qqsmrt6nv';
+
+async function uploadProductImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById("pImageUploadStatus");
+  status.textContent = "⏳ Yükleniyor...";
+  status.style.color = "var(--muted2)";
+  try {
+    const authRes = await fetch("/api/imagekit-auth");
+    const auth = await authRes.json();
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("fileName", file.name);
+    fd.append("folder", "/products");
+    fd.append("publicKey", "public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8=");
+    fd.append("signature", auth.signature);
+    fd.append("expire", auth.expire);
+    fd.append("token", auth.token);
+    const r = await fetch("https://upload.imagekit.io/api/v1/files/upload", { method: "POST", body: fd });
+    const d = await r.json();
+    if (d.url) {
+      document.getElementById("pImage").value = d.url;
+      previewImage(d.url);
+      status.textContent = "✅ Yüklendi!";
+      status.style.color = "var(--green)";
+    } else { throw new Error(d.message || "Hata"); }
+  } catch(e) {
+    status.textContent = "❌ " + e.message;
+    status.style.color = "var(--accent2)";
+  }
+  input.value = "";
+}
 
 function previewImage(url) {
   const preview = document.getElementById('pImagePreview');
