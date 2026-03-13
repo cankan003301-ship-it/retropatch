@@ -214,6 +214,10 @@
     @media(max-width:768px){.search-inner{margin-top:60px;}.search-input-main{font-size:18px;}}
 
 
+  .back-opt{border:1px solid var(--border);padding:8px 4px;text-align:center;font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;transition:all .2s;background:var(--bg2);}
+  .back-opt:hover{border-color:var(--accent);}
+  .back-opt.active{border-color:var(--accent);background:var(--accent);color:#000;}
+  .back-opt small{font-size:10px;font-weight:400;display:block;}
 </style>
 </head>
 <body>
@@ -310,14 +314,20 @@
       <div class="modal-desc" id="modalDesc"></div>
       <div class="modal-specs" id="modalSpecs"></div>
       <div class="modal-price" id="modalPrice"></div>
-      <div style="margin-bottom:10px;">
-        <label style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">ARKA YÜZEY</label>
-        <select id="modalBackType" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;outline:none;cursor:pointer;">
-          <option value="Ütüyle Yapışan">Ütüyle Yapışan</option>
-          <option value="Velcro">Velcro</option>
-          <option value="Cırt Cırt Bant">Cırt Cırt Bant</option>
-          <option value="Düz">Düz</option>
-        </select>
+      <div style="margin:10px 0 4px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);">ARKA YÜZEY</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <label style="flex:1;cursor:pointer;">
+          <input type="radio" name="backChoice" value="Düz" onchange="onBackChoice(this.value)" style="display:none;">
+          <div class="back-opt" data-val="Düz">Düz<br><small>+0₺</small></div>
+        </label>
+        <label style="flex:1;cursor:pointer;">
+          <input type="radio" name="backChoice" value="Ütüyle Yapışan" onchange="onBackChoice(this.value)" style="display:none;">
+          <div class="back-opt" data-val="Ütüyle Yapışan">Ütüyle<br><small>+20₺</small></div>
+        </label>
+        <label style="flex:1;cursor:pointer;">
+          <input type="radio" name="backChoice" value="Cırt Cırt" onchange="onBackChoice(this.value)" style="display:none;">
+          <div class="back-opt" data-val="Cırt Cırt">Cırt Cırt<br><small>+30₺</small></div>
+        </label>
       </div>
       <button class="modal-order-btn" onclick="addToCartFromModal()">🛒 SEPETE EKLE</button>
       <button class="modal-zoom-btn" onclick="openLB()">🔍 Tam Ekran Gör</button>
@@ -470,6 +480,10 @@ function openModal(id) {
   document.getElementById('modalName').textContent = p.name||'';
   document.getElementById('modalDesc').textContent = p.desc||'';
   document.getElementById('modalPrice').textContent = p.price?'₺'+p.price:'—';
+  selectedBack = "Düz";
+  document.querySelectorAll(".back-opt").forEach(el => el.classList.toggle("active", el.dataset.val === "Düz"));
+  document.querySelectorAll("input[name=backChoice]").forEach(r => r.checked = r.value === "Düz");
+
   document.getElementById('modalSpecs').innerHTML = `
     <div class="modal-spec"><span class="modal-spec-key">Boyut</span><span class="modal-spec-val">${p.size||'—'}</span></div>
     <div class="modal-spec"><span class="modal-spec-key">Arka</span><span class="modal-spec-val">${p.back||'—'}</span></div>
@@ -481,13 +495,6 @@ function openModal(id) {
   mi.innerHTML = p.image
     ? `<img src="${p.image}" alt="${p.name}"><div class="modal-zoom-hint">🔍 Büyütmek için tıkla</div>`
     : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#444;">Görsel Yok</div>`;
-  // Ürünün varsayılan arka yüzeyini seç
-  const backSel = document.getElementById('modalBackType');
-  if (backSel && p.back) {
-    const opt = [...backSel.options].find(o => o.value === p.back);
-    if (opt) backSel.value = p.back;
-    else backSel.value = backSel.options[0].value;
-  }
   document.getElementById('modalOverlay').classList.add('active');
   document.body.style.overflow='hidden';
   db.collection('products').doc(id).update({views:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
@@ -642,6 +649,21 @@ function updateCartCount() {
   if (el) el.textContent = count > 0 ? count : '0';
 }
 
+const BACK_PRICES = {"Düz":0,"Ütüyle Yapışan":20,"Cırt Cırt":30};
+db.collection("settings").doc("backPrices").get().then(s=>{
+  if(s.exists){const d=s.data();BACK_PRICES["Düz"]=d.duz||0;BACK_PRICES["Ütüyle Yapışan"]=d.utu||20;BACK_PRICES["Cırt Cırt"]=d.cirt||30;
+  document.querySelectorAll(".back-opt").forEach(el=>{
+    const v=el.dataset.val;el.querySelector("small").textContent="+"+(BACK_PRICES[v]||0)+"₺";});}});
+let selectedBack = "Düz";
+
+function onBackChoice(val) {
+  selectedBack = val;
+  document.querySelectorAll(".back-opt").forEach(el => el.classList.toggle("active", el.dataset.val === val));
+  const base = currentProduct ? (currentProduct.price||0) : 0;
+  const extra = BACK_PRICES[val]||0;
+  document.getElementById("modalPrice").textContent = "₺" + (base + extra);
+}
+
 function addToCart(p) {
   let cart = JSON.parse(localStorage.getItem('retropatch_cart')||'[]');
   const existing = cart.find(i=>i.id===p.id);
@@ -660,12 +682,12 @@ function addToCartById(id) {
 
 function addToCartFromModal() {
   if (!currentProduct) return;
-  const backType = document.getElementById('modalBackType')?.value || '';
-  const productWithBack = { ...currentProduct, backType };
-  addToCart(productWithBack);
-  showToast('✓ Sepete eklendi!');
+  const extra = BACK_PRICES[selectedBack]||0;
+  const p = {...currentProduct, price: (currentProduct.price||0)+extra, back: selectedBack};
+  addToCart(p);
+  showToast("✓ Sepete eklendi!");
   closeModal();
-  window.location.href = 'sepet.html';
+  window.location.href = "sepet.html";
 }
 
 function openLB() {

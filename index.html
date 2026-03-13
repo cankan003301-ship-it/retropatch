@@ -410,7 +410,7 @@
           <div class="form-group"><label>Boyut</label><select><option>Küçük (5x5 cm)</option><option>Orta (8x8 cm)</option><option>Büyük (10x10 cm)</option><option>Özel boyut</option></select></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Arka Yüzey</label><select><option>Ütüyle Yapışan</option><option>Cırt Cırt</option><option>Düz</option></select></div>
+          <div class="form-group"><label>Arka Yüzey</label><select id="backSelect" onchange="updateOrderPrice(this.value)"><option value="Ütüyle Yapışan">Ütüyle Yapışan (+20₺)</option><option value="Cırt Cırt">Cırt Cırt (+30₺)</option><option value="Düz">Düz (+0₺)</option></select></div>
           <div class="form-group"><label>Adet</label><input type="number" min="1" value="1"></div>
         </div>
         <div class="form-group"><label>Tasarım / Notlar</label><textarea placeholder="Tasarım hakkında bilgi verin..."></textarea></div>
@@ -1318,7 +1318,8 @@ function submitForm(e) {
     items: [{
       name: `${selects[0]?.value || 'Nakış Yama'} · ${selects[1]?.value || ''}`,
       qty: parseInt(f.querySelector('input[type=number]').value) || 1,
-      price: 0
+      price: window._backExtra || 0,
+      backExtra: window._backExtra || 0
     }],
     status: 'yeni',
     orderSource: 'form',
@@ -1641,6 +1642,13 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
 })();
 
 </script>
+const BACK_PRICES_IDX = {"Düz":0,"Ütüyle Yapışan":20,"Cırt Cırt":30};
+db.collection("settings").doc("backPrices").get().then(s=>{
+  if(s.exists){const d=s.data();BACK_PRICES_IDX["Düz"]=d.duz||0;BACK_PRICES_IDX["Ütüyle Yapışan"]=d.utu||20;BACK_PRICES_IDX["Cırt Cırt"]=d.cirt||30;
+  const sel=document.getElementById("backSelect");
+  if(sel){sel.options[0].text="Ütüyle Yapışan (+"+(d.utu||20)+"₺)";sel.options[1].text="Cırt Cırt (+"+(d.cirt||30)+"₺)";sel.options[2].text="Düz (+"+(d.duz||0)+"₺)";}}});
+function updateOrderPrice(val){window._backExtra=BACK_PRICES_IDX[val]||0;}
+
 
 
 <!-- GLOBAL SEARCH OVERLAY -->

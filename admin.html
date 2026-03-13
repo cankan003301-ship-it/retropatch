@@ -1033,6 +1033,15 @@
         </div>
 
         <div class="settings-card">
+          <h4>🧵 ARKA YÜZEY EK FİYATLARI</h4>
+          <div class="fg"><label>Düz (₺)</label><input type="number" id="backPriceDuz" placeholder="0"></div>
+          <div class="fg"><label>Ütüyle Yapışan (₺)</label><input type="number" id="backPriceUtu" placeholder="20"></div>
+          <div class="fg"><label>Cırt Cırt (₺)</label><input type="number" id="backPriceCirt" placeholder="30"></div>
+          <button class="btn btn-accent" onclick="saveBackPrices()">💾 KAYDET</button>
+        </div>
+
+
+        <div class="settings-card">
           <h4>🏦 HAVALE / EFT BİLGİLERİ</h4>
           <div class="fg"><label>Banka Adı</label><input type="text" id="bankAdi" placeholder="Ziraat Bankası"></div>
           <div class="fg"><label>Hesap Sahibi</label><input type="text" id="bankHesapSahibi" placeholder="RetroPatch Tic."></div>
@@ -1092,7 +1101,7 @@
             <option>Tişört</option>
           </select>
         </div>
-        <div class="fg"><label>Fiyat (₺) *</label><input type="number" id="pPrice" placeholder="149"></div>
+        <div class="fg"><label>Fiyat (₺) *</label><input type="number" id="pPrice" placeholder="149" oninput="basePrice=parseFloat(this.value)||0"></div>
       </div>
       <div class="fg"><label>Açıklama</label><textarea id="pDesc" placeholder="Ürün açıklaması..."></textarea></div>
       <div class="fg-row">
@@ -1115,7 +1124,8 @@
       <div class="fg-row">
         <div class="fg"><label>Boyut</label><div style="display:flex;align-items:center;gap:4px;"><input type="text" id="pSize" placeholder="8x8" style="flex:1;"><span style="color:var(--muted2);font-size:13px;white-space:nowrap;">cm</span></div></div>
         <div class="fg"><label>Arka Yüzey</label>
-          <select id="pBack"><option>Ütüyle Yapışan</option><option>Cırt Cırt</option><option>Düz</option></select>
+          <select id="pBack" onchange="updateBackPrice(this.value, 'pPrice')"><option>Ütüyle Yapışan</option><option>Cırt Cırt</option><option>Düz</option></select>
+          <small id="pBackPriceNote" style="color:var(--muted2);font-size:11px;">+20₺ eklendi</small>
         </div>
       </div>
       <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveProd()">💾 KAYDET</button>
@@ -1980,6 +1990,7 @@ function editProd(id) {
   document.getElementById('prodModalTitle').textContent = 'ÜRÜN DÜZENLE';
   document.getElementById('pName').value = p.name || '';
   document.getElementById('pPrice').value = p.price || '';
+  basePrice = parseFloat(p.price) || 0;
   document.getElementById('pDesc').value = p.desc || '';
   document.getElementById('pImage').value = p.image || '';
   document.getElementById('pSize').value = p.size || '';
@@ -1997,6 +2008,17 @@ function editProd(id) {
 
 // ── ImageKit ──────────────────────────────────────────
 const IK_URL_ENDPOINT = 'https://ik.imagekit.io/qqsmrt6nv';
+
+const BACK_PRICES = { "Düz": 0, "Ütüyle Yapışan": 20, "Cırt Cırt": 30 };
+let basePrice = 0;
+
+function updateBackPrice(backVal, priceFieldId) {
+  const priceField = document.getElementById(priceFieldId);
+  const note = document.getElementById("pBackPriceNote");
+  const extra = BACK_PRICES[backVal] || 0;
+  priceField.value = basePrice + extra;
+  note.textContent = extra > 0 ? "+" + extra + "₺ eklendi" : "Ekstra ücret yok";
+}
 
 async function uploadProductImage(input) {
   const file = input.files[0];
@@ -2305,6 +2327,26 @@ function saveKargo() {
     .catch(e => toast('Kaydedilemedi: ' + e.message, 'err'));
 }
 
+function saveBackPrices() {
+  const duz  = parseFloat(document.getElementById("backPriceDuz").value) || 0;
+  const utu  = parseFloat(document.getElementById("backPriceUtu").value) || 0;
+  const cirt = parseFloat(document.getElementById("backPriceCirt").value) || 0;
+  db.collection("settings").doc("backPrices").set({ duz, utu, cirt })
+    .then(() => toast("Arka yüzey fiyatları kaydedildi ✓", "ok"))
+    .catch(e => toast("Kaydedilemedi: " + e.message, "err"));
+}
+
+function loadBackPrices() {
+  db.collection("settings").doc("backPrices").get().then(s => {
+    if (!s.exists) return;
+    const d = s.data();
+    document.getElementById("backPriceDuz").value  = d.duz  ?? 0;
+    document.getElementById("backPriceUtu").value  = d.utu  ?? 20;
+    document.getElementById("backPriceCirt").value = d.cirt ?? 30;
+  });
+}
+
+
 function saveBank() {
   db.collection('settings').doc('bank').set({
     adi: document.getElementById('bankAdi').value,
@@ -2356,7 +2398,7 @@ function showPage(name) {
   if (name === 'gallery') loadGallery();
   if (name === 'stats') renderStatsPage();
   if (name === 'reviews') loadAllReviews();
-  if (name === 'settings') loadSiteSettings();
+  if (name === 'settings') { loadSiteSettings(); loadBackPrices(); }
 }
 
 // ============ İSTATİSTİKLER ============
