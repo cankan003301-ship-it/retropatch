@@ -3,7 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RetroPatch — Tüm Ürünler</title>
+  <title>Tüm Ürünler — RetroPatch Nakış Yama</title>
+
+  <!-- SEO -->
+  <meta name="description" content="RetroPatch ürün kataloğu. Nakış yamalar, askeri yamalar, retro tasarımlar. Dilediğiniz boyut ve arka yüzey seçeneğiyle sipariş verin.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://retropatch.com.tr/urunler.html">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://retropatch.com.tr/urunler.html">
+  <meta property="og:title" content="Tüm Ürünler — RetroPatch Nakış Yama">
+  <meta property="og:description" content="RetroPatch ürün kataloğu. Nakış yamalar, askeri yamalar, retro tasarımlar.">
+  <meta property="og:image" content="https://retropatch.com.tr/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="tr_TR">
+  <meta property="og:site_name" content="RetroPatch">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Tüm Ürünler — RetroPatch Nakış Yama">
+  <meta name="twitter:description" content="RetroPatch ürün kataloğu. Nakış yamalar, askeri yamalar, retro tasarımlar.">
+  <meta name="twitter:image" content="https://retropatch.com.tr/og-image.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -270,6 +292,7 @@
 
     @media(max-width:768px){
       .hamburger{display:flex;}
+      .nav-search-mobile{display:flex;}
       nav ul{display:none!important;}
     }
 
@@ -337,6 +360,9 @@
     <li><button class="search-btn" onclick="openSearch()" title="Ara (Ctrl+K / /)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></li>
   </ul>
 
+  <div style="display:none;align-items:center;gap:4px;" class="nav-search-mobile">
+    <button class="search-btn" onclick="openSearch()" title="Ara"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+  </div>
   <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Menü"><span></span><span></span><span></span></button>
 </nav>
 
@@ -824,7 +850,7 @@ function renderGrid() {
   grid.innerHTML = filtered.map(p=>`
     <div class="product-card" data-pid="${p.id}" onclick="openModal('${p.id}')">
       <div class="product-img">
-        <img src="${p.image||''}" alt="${p.name}" loading="lazy" onerror="this.parentElement.style.background='var(--bg3)';this.style.display='none'">
+        <img src="${p.image||''}" alt="${p.name}" loading="lazy" decoding="async" onerror="this.parentElement.style.background='var(--bg3)';this.style.display='none'">
         <div class="product-overlay"><button class="quick-btn" onclick="event.stopPropagation();openModal('${p.id}')">İNCELE</button></div>
         <button class="fav-btn${userFavorites.has(p.id)?' active':''}" onclick="event.stopPropagation();toggleFav('${p.id}',this)" title="Favorilere ekle">❤</button>
       </div>
@@ -1396,7 +1422,7 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
       items.forEach((p, i) => {
         const nameHl = highlight(p.name || '', q);
         const imgHtml = p.image
-          ? `<img class="sri-img" src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">`
+          ? `<img class="sri-img" src="${p.image}" alt="${p.name}" loading="lazy" decoding="async" loading="lazy" decoding="async" onerror="this.style.display='none'">`
           : `<div class="sri-img-empty">🏷</div>`;
         const stockBadge = p.status && p.status !== 'Stokta'
           ? `<span class="sri-badge">${p.status}</span>` : '';
