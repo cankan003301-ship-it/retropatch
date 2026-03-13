@@ -613,7 +613,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-if (!firebase.apps.length) firebase.initializeApp({
+firebase.initializeApp({
   apiKey:"AIzaSyA597pu8o7M2ZWcZc6gbGW2TAwceTfyVhA",
   authDomain:"retropatch-fd08e.firebaseapp.com",
   projectId:"retropatch-fd08e",
@@ -931,6 +931,17 @@ async function doCheckout() {
 
   orderRef.set(orderData).then(() => {
     const code = orderCode;
+
+    // Satış sayaçlarını artır (her ürün için qty kadar)
+    const batch = db.batch();
+    cart.forEach(item => {
+      if (item.id) {
+        const prodRef = db.collection('products').doc(item.id);
+        batch.update(prodRef, { sales: firebase.firestore.FieldValue.increment(item.qty || 1) });
+      }
+    });
+    batch.commit().catch(() => {}); // Arka planda, hata olsa sipariş etkilenmez
+
     localStorage.removeItem('retropatch_cart');
     document.getElementById('cartWrap').style.display='none';
     document.getElementById('successWrap').style.display='block';
