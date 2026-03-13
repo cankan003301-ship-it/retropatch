@@ -1456,7 +1456,7 @@ function toggleFav(p) {
     if (doc.exists) {
       ref.delete().then(()=>showToast('Favoriden çıkarıldı'));
     } else {
-      ref.set({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',addedAt:firebase.firestore.FieldValue.serverTimestamp()})
+      ref.set({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',size:p.size||'',status:p.status||'Stokta',addedAt:firebase.firestore.FieldValue.serverTimestamp()})
         .then(()=>showToast('❤️ Favorilere eklendi!'));
     }
   });

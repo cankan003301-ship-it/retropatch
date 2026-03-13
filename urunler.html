@@ -886,7 +886,7 @@ function toggleFav(productId, btn) {
     });
   } else {
     const p = allProducts.find(x => x.id === productId);
-    ref.set({ name: p?.name||'', price: p?.price||0, image: p?.image||'', cat: p?.cat||'', addedAt: firebase.firestore.FieldValue.serverTimestamp() })
+    ref.set({ name: p?.name||'', price: p?.price||0, image: p?.image||'', cat: p?.cat||'', size: p?.size||'', status: p?.status||'Stokta', addedAt: firebase.firestore.FieldValue.serverTimestamp() })
       .then(() => {
         db.collection('products').doc(productId).update({favorites: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
         showToast('❤ Favorilere eklendi');
