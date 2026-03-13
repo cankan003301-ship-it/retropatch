@@ -528,9 +528,9 @@
           <div class="back-opt" data-val="Cırt Cırt">Cırt Cırt<br><small>+30₺</small></div>
         </label>
       </div>
-      <div class="modal-btn-row">
-        <button class="modal-order-btn" onclick="addToCartFromModal()">🛒 SEPETE EKLE</button>
-        <button class="modal-fav-btn" id="modalFavBtn" onclick="toggleFavFromModal()" title="Favorilere ekle">♡</button>
+      <div style="display:flex;gap:8px;margin-bottom:6px;width:100%;">
+        <button class="modal-order-btn" onclick="addToCartFromModal()" style="flex:1;">🛒 SEPETE EKLE</button>
+        <button id="modalFavBtn" onclick="toggleFavFromModal()" title="Favorilere ekle" style="flex-shrink:0;width:50px;height:100%;background:transparent;border:1px solid #555;color:#e63946;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;">♡</button>
       </div>
       <button class="modal-zoom-btn" onclick="openLB()">🔍 Tam Ekran Gör</button>
 
