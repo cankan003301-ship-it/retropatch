@@ -655,6 +655,10 @@ function loadFavorites() {
     .onSnapshot(snap => {
       allFavorites = snap.docs.map(d => ({id: d.id, ...d.data()}));
       renderFavorites();
+    }, err => {
+      console.error('Favoriler yüklenemedi:', err);
+      const el = document.getElementById('favGrid');
+      if (el) el.innerHTML = `<div class="fav-empty" style="grid-column:1/-1"><div class="fav-empty-icon">❤️</div><p>Favoriler yüklenemedi. Lütfen sayfayı yenileyin.</p></div>`;
     });
 }
 
