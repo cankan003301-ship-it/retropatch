@@ -1160,13 +1160,21 @@ setInterval(() => {
 }, 1000);
 
 // ============ AUTH ============
+const ADMIN_EMAIL = 'retropatchyama@gmail.com';
+
 auth.onAuthStateChanged(user => {
-  if (user) {
+  if (user && user.email === ADMIN_EMAIL) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('adminEmail').textContent = user.email;
     initData();
   } else {
+    if (user) {
+      // Giriş yapılmış ama admin değil — hemen çıkış yap
+      auth.signOut();
+      const errEl = document.getElementById('loginError');
+      if (errEl) { errEl.textContent = 'Bu hesabın admin yetkisi yok.'; errEl.style.display = 'block'; }
+    }
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
   }
