@@ -965,6 +965,8 @@ firebase.initializeApp({
   appId:"1:449894507687:web:a932684047bd590579e782"
 });
 const db = firebase.firestore();
+const BACK_PRICES_IDX = {"Düz":0,"Ütüyle Yapışan":20,"Cırt Cırt":30};
+function updateOrderPrice(val){window._backExtra=BACK_PRICES_IDX[val]||0;}
 
 // ===== CONTACT SETTINGS =====
 function loadContactSettings() {
@@ -993,6 +995,13 @@ function loadContactSettings() {
   }).catch(() => {});
 }
 loadContactSettings();
+db.collection("settings").doc("backPrices").get().then(s=>{
+  const d=s.exists?s.data():{};
+  const prices={"Düz":d.duz||0,"Ütüyle Yapışan":d.utu||20,"Cırt Cırt":d.cirt||30};
+  Object.assign(BACK_PRICES_IDX,prices);
+  const sel=document.getElementById("backSelect");
+  if(sel){sel.options[0].text="Ütüyle Yapışan (+"+(prices["Ütüyle Yapışan"])+"₺)";sel.options[1].text="Cırt Cırt (+"+(prices["Cırt Cırt"])+"₺)";sel.options[2].text="Düz (+"+(prices["Düz"])+"₺)";}
+}).catch(()=>{});
 
 let allProducts = [];
 let currentProduct = null;
@@ -1642,12 +1651,6 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
 })();
 
 </script>
-const BACK_PRICES_IDX = {"Düz":0,"Ütüyle Yapışan":20,"Cırt Cırt":30};
-db.collection("settings").doc("backPrices").get().then(s=>{
-  if(s.exists){const d=s.data();BACK_PRICES_IDX["Düz"]=d.duz||0;BACK_PRICES_IDX["Ütüyle Yapışan"]=d.utu||20;BACK_PRICES_IDX["Cırt Cırt"]=d.cirt||30;
-  const sel=document.getElementById("backSelect");
-  if(sel){sel.options[0].text="Ütüyle Yapışan (+"+(d.utu||20)+"₺)";sel.options[1].text="Cırt Cırt (+"+(d.cirt||30)+"₺)";sel.options[2].text="Düz (+"+(d.duz||0)+"₺)";}}});
-function updateOrderPrice(val){window._backExtra=BACK_PRICES_IDX[val]||0;}
 
 
 
