@@ -103,7 +103,7 @@
     .quick-btn{background:var(--accent);color:#000;border:none;padding:10px 22px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
     .fav-btn{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);color:#fff;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .2s;opacity:0;}
     .product-card:hover .fav-btn{opacity:1;}
-    .fav-btn:hover,.fav-btn.active{background:rgba(230,57,70,.7);border-color:var(--accent2);color:#fff;}
+    .fav-btn:hover,.fav-btn.active{background:rgba(230,57,70,.7);border-color:var(--accent2);color:#fff;opacity:1!important;}
     .product-info{padding:14px 16px;border-top:1px solid var(--border);}
     .product-cat{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
     .product-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -232,8 +232,6 @@
     .modal-order-btn:hover{background:#d4b77a;}
     .modal-zoom-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;cursor:pointer;transition:all .2s;}
     .modal-zoom-btn:hover{border-color:var(--accent);color:var(--accent);}
-    .modal-fav-btn{flex-shrink:0;width:50px;background:transparent;border:1px solid #555;color:#e63946;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
-    .modal-fav-btn:hover,.modal-fav-btn.active{border-color:#e63946;background:rgba(230,57,70,.12);}
 
     /* TOAST */
     .toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#000;padding:12px 20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;z-index:99999;transform:translateY(60px);opacity:0;transition:all .35s cubic-bezier(.175,.885,.32,1.275);}
@@ -477,7 +475,7 @@
       <p>Sorularınız veya hızlı sipariş için aşağıdan ulaşabilirsiniz.</p>
       <div class="contact-links">
         <a href="https://wa.me/905XXXXXXXXX" class="contact-link" target="_blank" id="ctaWA"><div class="contact-link-icon">📱</div><span id="ctaWAText">WhatsApp: +90 5XX XXX XX XX</span></a>
-        <a href="mailto:info@retropatch.com" class="contact-link" id="ctaEmail"><div class="contact-link-icon">✉</div><span id="ctaEmailText">info@retropatch.com</span></a>
+        <a href="/cdn-cgi/l/email-protection#a7cec9c1c8e7d5c2d3d5c8d7c6d3c4cf89c4c8ca" class="contact-link" id="ctaEmail"><div class="contact-link-icon">✉</div><span id="ctaEmailText"><span class="__cf_email__" data-cfemail="127b7c747d52607766607d627366717a3c717d7f">[email&#160;protected]</span></span></a>
         <a href="https://dolap.com/profil/retropatch" class="contact-link" target="_blank" id="ctaDolap"><div class="contact-link-icon">🛍</div><span id="ctaDolapText">Dolap: @retropatch</span></a>
         <a href="https://instagram.com/retropatch" class="contact-link" target="_blank" id="ctaIG"><div class="contact-link-icon">📷</div><span id="ctaIGText">Instagram: @retropatch</span></a>
       </div>
@@ -767,7 +765,7 @@
 }
 </style>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── GALERİ ──────────────────────────────────────────────
 (function() {
   let _items = [];
@@ -990,10 +988,7 @@
         </div>
       </div>
       <div class="modal-price" id="modalPrice"></div>
-      <div style="display:flex;gap:8px;margin-bottom:6px;">
-        <button class="modal-order-btn" onclick="addToCartFromModal()" style="flex:1;margin-bottom:0;">🛒 SEPETE EKLE</button>
-        <button class="modal-fav-btn" id="modalFavBtn" onclick="toggleFavFromModal()" title="Favorilere ekle">♡</button>
-      </div>
+      <button class="modal-order-btn" onclick="addToCartFromModal()">🛒 SEPETE EKLE</button>
       <button class="modal-zoom-btn" onclick="openLightbox()">🔍 Resmi Tam Ekran Gör</button>
     </div>
   </div>
@@ -1002,7 +997,7 @@
 <div class="toast" id="toast"></div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-if (!firebase.apps.length) firebase.initializeApp({
+firebase.initializeApp({
   apiKey:"AIzaSyA597pu8o7M2ZWcZc6gbGW2TAwceTfyVhA",
   authDomain:"retropatch-fd08e.firebaseapp.com",
   projectId:"retropatch-fd08e",
@@ -1233,13 +1228,6 @@ function openModal(id) {
     : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#444;font-size:13px;">Görsel Yok</div>`;
   document.getElementById('modalOverlay').classList.add('active');
   document.body.style.overflow='hidden';
-  // Favori butonunu güncelle
-  const _mfb = document.getElementById('modalFavBtn');
-  if (_mfb) {
-    const _isFav = (typeof userFavIds !== 'undefined') && userFavIds.has(id);
-    _mfb.textContent = _isFav ? '❤' : '♡';
-    _mfb.classList.toggle('active', _isFav);
-  }
   db.collection('products').doc(id).update({views:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
 }
 function closeModal(){document.getElementById('modalOverlay').classList.remove('active');document.body.style.overflow='';}
@@ -1478,60 +1466,28 @@ function rpAddToCart(btn, id) {
 
 function toggleFavById(id, btn) {
   const p = allProducts.find(x=>x.id===id);
-  if (p) toggleFav(p.id);
+  if (p) {
+    toggleFav(p);
+    // Anlık UI güncelle
+    const isFav = btn.textContent === '♥';
+    btn.textContent = isFav ? '♡' : '♥';
+    btn.classList.toggle('active', !isFav);
+  }
 }
-
-function toggleFavFromModal() {
-  if (!currentProduct) return;
-  toggleFav(currentProduct.id);
-}
-
-// Set of user's favorited product ids — populated on auth
-let userFavIds = new Set();
 
 // ===== FAVORITES =====
-function toggleFav(productId) {
+function toggleFav(p) {
   const user = firebase.auth().currentUser;
   if (!user) { showToast('Favori eklemek için giriş yapın!'); setTimeout(()=>location.href='uye.html',1500); return; }
-  const ref = db.collection('users').doc(user.uid).collection('favorites').doc(productId);
-  const isFav = userFavIds.has(productId);
-  const p = allProducts.find(x=>x.id===productId);
-
-  function updateAllBtns(fav) {
-    userFavIds[fav ? 'add' : 'delete'](productId);
-    // Kart butonları
-    document.querySelectorAll('.product-card').forEach(card => {
-      if (card.dataset.id === productId) {
-        const btn = card.querySelector('.fav-btn');
-        if (btn) { btn.textContent = fav ? '♥' : '♡'; btn.classList.toggle('active', fav); }
-      }
-    });
-    // Modal butonu
-    const mfb = document.getElementById('modalFavBtn');
-    if (mfb && currentProduct?.id === productId) {
-      mfb.textContent = fav ? '❤' : '♡';
-      mfb.classList.toggle('active', fav);
-      mfb.title = fav ? 'Favorilerden çıkar' : 'Favorilere ekle';
+  const ref = db.collection('users').doc(user.uid).collection('favorites').doc(p.id);
+  ref.get().then(doc => {
+    if (doc.exists) {
+      ref.delete().then(()=>showToast('Favoriden çıkarıldı'));
+    } else {
+      ref.set({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',size:p.size||'',status:p.status||'Stokta',addedAt:firebase.firestore.FieldValue.serverTimestamp()})
+        .then(()=>showToast('❤️ Favorilere eklendi!'));
     }
-  }
-
-  if (isFav) {
-    updateAllBtns(false);
-    ref.delete()
-      .then(() => {
-        db.collection('products').doc(productId).update({favorites: firebase.firestore.FieldValue.increment(-1)}).catch(()=>{});
-        showToast('Favoriden çıkarıldı');
-      })
-      .catch(() => { updateAllBtns(true); showToast('Hata oluştu'); });
-  } else {
-    updateAllBtns(true);
-    ref.set({id:productId, name:p?.name||'', price:p?.price||0, image:p?.image||'', cat:p?.cat||'', size:p?.size||'', status:p?.status||'Stokta', addedAt:firebase.firestore.FieldValue.serverTimestamp()})
-      .then(() => {
-        db.collection('products').doc(productId).update({favorites: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
-        showToast('❤️ Favorilere eklendi!');
-      })
-      .catch(() => { updateAllBtns(false); showToast('Hata oluştu'); });
-  }
+  });
 }
 
 // ===== AUTH NAV =====
@@ -1547,22 +1503,13 @@ firebase.auth().onAuthStateChanged(user => {
   // Kullanıcı girişindeyse favori butonlarını güncelle
   if (user) {
     db.collection('users').doc(user.uid).collection('favorites').get().then(snap => {
-      userFavIds = new Set(snap.docs.map(d=>d.id));
+      const favIds = new Set(snap.docs.map(d=>d.id));
       document.querySelectorAll('.product-card').forEach(card => {
         const pid = card.dataset.id;
         const btn = card.querySelector('.fav-btn');
-        if (btn) { btn.textContent = userFavIds.has(pid) ? '♥' : '♡'; btn.classList.toggle('active', userFavIds.has(pid)); }
+        if (btn && favIds.has(pid)) { btn.textContent='♥'; btn.classList.add('active'); }
       });
-      // Modal açıksa onu da güncelle
-      const mfb = document.getElementById('modalFavBtn');
-      if (mfb && currentProduct) {
-        const isFav = userFavIds.has(currentProduct.id);
-        mfb.textContent = isFav ? '❤' : '♡';
-        mfb.classList.toggle('active', isFav);
-      }
     });
-  } else {
-    userFavIds = new Set();
   }
 });
 
@@ -2157,13 +2104,4 @@ function rpShowSkeleton(container, count) {
 
 // ── SSS / FAQ Toggle ──
 function rpFaqToggle(el) {
-  const item = el.closest('.rp-faq-item');
-  const isOpen = item.classList.contains('open');
-  // Diğerlerini kapat
-  document.querySelectorAll('.rp-faq-item.open').forEach(i => i.classList.remove('open'));
-  if (!isOpen) item.classList.add('open');
-}
-</script>
-
-</body>
-</html>
+  const item = el.closest('.rp-faq-it
