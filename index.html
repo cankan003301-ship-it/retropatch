@@ -1363,7 +1363,7 @@ function submitForm(e) {
     notes: f.querySelector('textarea').value,
     designFile: fileName || null,
     designFileUrl: uploadedFileUrl || null,
-    userId: currentUser ? currentUser.uid : 'guest',
+    userId: currentUser ? currentUser.uid : null,
     userEmail: currentUser ? currentUser.email : f.querySelector('input[type=email]').value,
     items: [{
       name: `${selects[0]?.value || 'Nakış Yama'} · ${selects[1]?.value || ''}`,
@@ -1456,7 +1456,7 @@ function toggleFav(p) {
     if (doc.exists) {
       ref.delete().then(()=>showToast('Favoriden çıkarıldı'));
     } else {
-      ref.set({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',size:p.size||'',status:p.status||'Stokta',addedAt:firebase.firestore.FieldValue.serverTimestamp()})
+      ref.set({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',addedAt:firebase.firestore.FieldValue.serverTimestamp()})
         .then(()=>showToast('❤️ Favorilere eklendi!'));
     }
   });

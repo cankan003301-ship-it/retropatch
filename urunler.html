@@ -109,65 +109,25 @@
     /* YORUM SİSTEMİ */
     .reviews-section{margin-top:16px;border-top:1px solid var(--border);padding-top:16px;}
     .reviews-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
-
-    /* Puan özet kartı */
-    .review-summary{display:flex;gap:16px;align-items:flex-start;margin-bottom:14px;padding:12px;background:var(--bg3);border:1px solid var(--border);}
-    .review-big-score{text-align:center;flex-shrink:0;}
-    .review-big-num{font-family:'Bebas Neue',cursive;font-size:48px;color:#f4c542;line-height:1;}
-    .review-big-stars{color:#f4c542;font-size:14px;letter-spacing:2px;}
-    .review-big-count{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:1px;}
-    .review-bars{flex:1;display:flex;flex-direction:column;gap:4px;}
-    .review-bar-row{display:flex;align-items:center;gap:6px;cursor:pointer;}
-    .review-bar-row:hover .review-bar-fill{filter:brightness(1.2);}
-    .review-bar-label{font-family:'Bebas Neue',cursive;font-size:13px;color:var(--muted);width:18px;text-align:right;flex-shrink:0;}
-    .review-bar-track{flex:1;height:6px;background:var(--border);overflow:hidden;}
-    .review-bar-fill{height:100%;background:#f4c542;transition:width .4s ease;}
-    .review-bar-cnt{font-size:10px;color:var(--muted);width:20px;text-align:right;flex-shrink:0;}
-    .review-bar-row.active-filter .review-bar-label{color:var(--accent);}
-    .review-bar-row.active-filter .review-bar-fill{background:var(--accent);}
-
-    /* Form */
     .stars-input{display:flex;gap:4px;margin-bottom:10px;flex-direction:row-reverse;justify-content:flex-end;}
     .stars-input input{display:none;}
-    .stars-input label{font-size:24px;cursor:pointer;color:var(--border);transition:color .15s;}
+    .stars-input label{font-size:20px;cursor:pointer;color:var(--border);transition:color .15s;}
     .stars-input input:checked ~ label,.stars-input label:hover,.stars-input label:hover ~ label{color:#f4c542;}
     .review-form{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
-    .review-textarea-wrap{position:relative;}
-    .review-form textarea{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 10px 24px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;resize:none;height:72px;transition:border-color .2s;box-sizing:border-box;}
+    .review-form textarea{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;resize:none;height:64px;transition:border-color .2s;}
     .review-form textarea:focus{border-color:var(--accent);}
-    .review-char-count{position:absolute;bottom:6px;right:8px;font-size:10px;color:var(--muted);}
-    .review-char-count.warn{color:var(--accent2);}
-    .review-form-footer{display:flex;align-items:center;justify-content:space-between;}
-    .review-submit{background:var(--accent);color:#000;border:none;padding:9px 20px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+    .review-submit{background:var(--accent);color:#000;border:none;padding:9px 20px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;align-self:flex-end;}
     .review-submit:hover{background:#d4b77a;}
     .review-submit:disabled{opacity:.5;cursor:not-allowed;}
-    .review-already{font-size:11px;color:var(--muted);font-style:italic;}
-
-    /* Liste */
-    .review-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;}
-    .review-filter-chips{display:flex;gap:4px;flex-wrap:wrap;}
-    .rv-chip{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;padding:4px 10px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s;background:transparent;}
-    .rv-chip:hover,.rv-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.07);}
-    .rv-sort{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;outline:none;cursor:pointer;}
-    .review-list{display:flex;flex-direction:column;gap:8px;}
-    .review-item{background:var(--bg3);border:1px solid var(--border);padding:12px;}
-    .review-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;gap:8px;}
-    .review-header-left{display:flex;flex-direction:column;gap:2px;}
+    .review-list{display:flex;flex-direction:column;gap:10px;max-height:200px;overflow-y:auto;}
+    .review-list::-webkit-scrollbar{width:3px;}
+    .review-list::-webkit-scrollbar-thumb{background:var(--border);}
+    .review-item{background:var(--bg3);border:1px solid var(--border);padding:10px 12px;}
+    .review-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
     .review-author{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--accent);}
-    .review-stars{color:#f4c542;font-size:12px;letter-spacing:1px;}
-    .review-text{font-size:12px;color:rgba(232,232,232,.8);line-height:1.65;margin-bottom:8px;}
-    .review-footer{display:flex;align-items:center;justify-content:space-between;}
-    .review-date{font-size:10px;color:var(--muted);}
-    .review-helpful{display:flex;align-items:center;gap:5px;}
-    .helpful-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 8px;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px;}
-    .helpful-btn:hover,.helpful-btn.voted{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.07);}
-    .helpful-btn.voted{cursor:default;}
-    .review-helpful-count{font-size:10px;color:var(--muted);}
-
-    /* Daha fazla göster */
-    .review-show-more{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;cursor:pointer;transition:all .2s;margin-top:4px;}
-    .review-show-more:hover{border-color:var(--accent);color:var(--accent);}
-
+    .review-stars{color:#f4c542;font-size:13px;letter-spacing:1px;}
+    .review-text{font-size:12px;color:var(--muted);line-height:1.6;}
+    .review-date{font-size:10px;color:var(--muted);margin-top:4px;}
     .review-avg{font-family:'Bebas Neue',cursive;font-size:28px;color:#f4c542;margin-right:8px;}
     .review-login-note{font-size:11px;color:var(--muted);text-align:center;padding:10px;border:1px solid var(--border);background:var(--bg3);}
     .review-login-note a{color:var(--accent);text-decoration:none;}
@@ -175,70 +135,14 @@
     .toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#000;padding:12px 20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;z-index:99999;transform:translateY(60px);opacity:0;transition:all .35s cubic-bezier(.175,.885,.32,1.275);}
     .toast.show{transform:translateY(0);opacity:1;}
 
-    /* ── YENİ FİLTRE SİSTEMİ CSS ── */
-    .toolbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-    .filter-stock-select{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;outline:none;cursor:pointer;}
-    .filter-stock-select option{background:var(--bg3);}
-
-    /* Aktif filtre rozetleri */
-    .active-filters{display:flex;gap:6px;flex-wrap:wrap;width:100%;min-height:0;}
-    .active-filters:empty{display:none;}
-    .af-badge{display:flex;align-items:center;gap:5px;background:rgba(200,169,110,0.12);border:1px solid rgba(200,169,110,0.3);color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;padding:4px 10px;}
-    .af-badge button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;line-height:1;padding:0 0 0 2px;opacity:.7;transition:opacity .2s;}
-    .af-badge button:hover{opacity:1;}
-
-    /* Mobil filtre butonu */
-    .filter-mobile-btn{display:none;align-items:center;gap:6px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;flex-shrink:0;}
-    .filter-mobile-btn:hover,.filter-mobile-btn.active{border-color:var(--accent);color:var(--accent);}
-    .filter-mobile-count{background:var(--accent);color:#000;font-family:'Bebas Neue',cursive;font-size:12px;padding:1px 6px;display:none;}
-    .filter-mobile-count.visible{display:inline;}
-
-    /* Filter Drawer */
-    .filter-drawer{position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--bg2);border-top:1px solid var(--border);transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:80vh;overflow-y:auto;}
-    .filter-drawer.open{transform:translateY(0);}
-    .filter-overlay{position:fixed;inset:0;z-index:499;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .3s;}
-    .filter-overlay.open{opacity:1;pointer-events:all;}
-    .filter-drawer-inner{padding:20px;}
-    .filter-drawer-header{display:flex;align-items:center;margin-bottom:20px;}
-    .filter-drawer-header span{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;flex:1;}
-    .filter-clear-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 12px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;cursor:pointer;margin-right:8px;transition:all .2s;}
-    .filter-clear-btn:hover{border-color:var(--accent2);color:var(--accent2);}
-    .filter-drawer-close{background:none;border:1px solid var(--border);color:var(--muted);width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s;}
-    .filter-drawer-close:hover{border-color:var(--accent);color:var(--accent);}
-    .filter-group{margin-bottom:20px;}
-    .filter-group-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
-
-    /* Fiyat aralığı */
-    .price-range-inputs{display:flex;align-items:center;gap:8px;}
-    .price-input-group{display:flex;align-items:center;border:1px solid var(--border);background:var(--bg3);flex:1;}
-    .price-prefix{padding:8px 10px;font-family:'Bebas Neue',cursive;font-size:16px;color:var(--accent);border-right:1px solid var(--border);}
-    .price-input-group input{background:transparent;border:none;color:var(--text);padding:8px 10px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;width:100%;}
-    .price-sep{color:var(--muted);font-size:16px;flex-shrink:0;}
-    .price-range-hint{font-size:11px;color:var(--muted);margin-top:6px;}
-
-    /* Drawer stok butonları */
-    .drawer-stock-btns,.drawer-sort-btns{display:flex;gap:4px;flex-wrap:wrap;}
-    .drawer-stock-btn,.drawer-sort-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .2s;}
-    .drawer-stock-btn:hover,.drawer-sort-btn:hover,.drawer-stock-btn.active,.drawer-sort-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.07);}
-
-    /* Uygula butonu */
-    .filter-apply-btn{width:100%;background:var(--accent);color:#000;border:none;padding:14px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:3px;cursor:pointer;margin-top:8px;transition:background .2s;}
-    .filter-apply-btn:hover{background:#d4b77a;}
-
     @media(max-width:768px){
       nav{padding:0 16px;}nav ul{display:none;}
       .page-header{padding:100px 20px 40px;flex-direction:column;align-items:flex-start;}
       .prod-count{font-size:48px;}
-      .toolbar{padding:0 20px 24px;flex-direction:column;align-items:flex-start;gap:12px;}
-      .toolbar-right{width:100%;}
-      .search-wrap{flex:1;}
+      .toolbar{padding:0 20px 24px;flex-direction:column;align-items:flex-start;}
       .search-wrap input{width:100%;}
-      .filter-stock-select{display:none;}
-      .sort-select{flex:1;}
-      .filter-mobile-btn{display:flex;}
       .products-wrap{padding:0 20px 60px;}
       .modal{grid-template-columns:1fr;}
-      .filter-bar{display:none;}
     }
   
     /* ===== HAMBURGER MENU ===== */
@@ -367,92 +271,24 @@
 </div>
 
 <div class="toolbar">
-  <!-- Kategori filtreleri + mobil filtre butonu -->
-  <div style="display:flex;align-items:center;gap:8px;width:100%;flex-wrap:wrap;">
-    <div class="filter-bar" id="filterBar">
-      <button class="filter-btn active" onclick="filterCat('Tümü',this)">Tümü</button>
-    </div>
-    <button class="filter-mobile-btn" id="filterMobileBtn" onclick="toggleFilterDrawer()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
-      Filtrele <span class="filter-mobile-count" id="filterMobileCount"></span>
-    </button>
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" onclick="filterCat('Tümü',this)">Tümü</button>
   </div>
-
-  <!-- Arama + sıralama + stok filtresi -->
-  <div class="toolbar-right">
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
     <div class="search-wrap">
-      <input type="text" id="searchInput" placeholder="Ürün ara..." oninput="doSearch()">
+      <input type="text" id="searchInput" placeholder="Ara..." oninput="doSearch()">
     </div>
-    <select class="filter-stock-select" onchange="doStockFilter(this.value)" id="stockSelect">
-      <option value="all">Tüm Stoklar</option>
-      <option value="instock">Stokta</option>
-      <option value="low">Son 3</option>
-      <option value="out">Tükendi</option>
-    </select>
-    <select class="sort-select" onchange="doSort(this.value)" id="sortSelect">
+    <select class="sort-select" onchange="doSort(this.value)">
       <option value="default">Sıralama</option>
       <option value="price_asc">Fiyat ↑</option>
       <option value="price_desc">Fiyat ↓</option>
-      <option value="sales">🔥 En Çok Satan</option>
-      <option value="favorites">❤ En Çok Favorilenen</option>
-      <option value="reviews">⭐ En Çok Yorum Alan</option>
+      <option value="sales">En Çok Satan</option>
+      <option value="favorites">En Çok Favorilenen</option>
+      <option value="reviews">En Çok Yorum Alan</option>
       <option value="name">A-Z</option>
     </select>
   </div>
-
-  <!-- Aktif filtre rozetleri -->
-  <div class="active-filters" id="activeFilters"></div>
 </div>
-
-<!-- Fiyat aralığı + mobil filtre drawer -->
-<div class="filter-drawer" id="filterDrawer">
-  <div class="filter-drawer-inner">
-    <div class="filter-drawer-header">
-      <span>Filtreler</span>
-      <button onclick="clearAllFilters()" class="filter-clear-btn">Tümünü Temizle</button>
-      <button onclick="toggleFilterDrawer()" class="filter-drawer-close">✕</button>
-    </div>
-    <div class="filter-group">
-      <div class="filter-group-label">Fiyat Aralığı</div>
-      <div class="price-range-wrap">
-        <div class="price-range-inputs">
-          <div class="price-input-group">
-            <span class="price-prefix">₺</span>
-            <input type="number" id="priceMin" placeholder="Min" oninput="doPriceFilter()" min="0">
-          </div>
-          <span class="price-sep">—</span>
-          <div class="price-input-group">
-            <span class="price-prefix">₺</span>
-            <input type="number" id="priceMax" placeholder="Max" oninput="doPriceFilter()" min="0">
-          </div>
-        </div>
-        <div class="price-range-hint" id="priceRangeHint"></div>
-      </div>
-    </div>
-    <div class="filter-group">
-      <div class="filter-group-label">Stok Durumu</div>
-      <div class="drawer-stock-btns">
-        <button class="drawer-stock-btn active" onclick="setDrawerStock('all',this)">Tümü</button>
-        <button class="drawer-stock-btn" onclick="setDrawerStock('instock',this)">Stokta</button>
-        <button class="drawer-stock-btn" onclick="setDrawerStock('low',this)">Son 3</button>
-        <button class="drawer-stock-btn" onclick="setDrawerStock('out',this)">Tükendi</button>
-      </div>
-    </div>
-    <div class="filter-group">
-      <div class="filter-group-label">Sıralama</div>
-      <div class="drawer-sort-btns" id="drawerSortBtns">
-        <button class="drawer-sort-btn active" onclick="setDrawerSort('default',this)">Varsayılan</button>
-        <button class="drawer-sort-btn" onclick="setDrawerSort('price_asc',this)">Fiyat ↑</button>
-        <button class="drawer-sort-btn" onclick="setDrawerSort('price_desc',this)">Fiyat ↓</button>
-        <button class="drawer-sort-btn" onclick="setDrawerSort('sales',this)">🔥 Çok Satan</button>
-        <button class="drawer-sort-btn" onclick="setDrawerSort('favorites',this)">❤ Favori</button>
-        <button class="drawer-sort-btn" onclick="setDrawerSort('name',this)">A-Z</button>
-      </div>
-    </div>
-    <button class="filter-apply-btn" onclick="toggleFilterDrawer()">Sonuçları Gör (<span id="drawerCount">0</span>)</button>
-  </div>
-</div>
-<div class="filter-overlay" id="filterOverlay" onclick="toggleFilterDrawer()"></div>
 
 <div class="products-wrap">
   <div class="products-grid" id="productsGrid">
@@ -561,30 +397,19 @@ let allProducts = [];
 let filtered = [];
 let currentCat = 'Tümü';
 let currentSort = 'default';
-let currentStock = 'all';
-let currentPriceMin = null;
-let currentPriceMax = null;
 let currentProduct = null;
 
-// Hash'ten modal açma için pending tutuyoruz
-// let kullan (const değil) — modal açılınca null'layabilelim
-let _pendingModal = location.hash.startsWith('#prod-') ? location.hash.replace('#prod-','') : null;
-
-loadURLParams();
 db.collection('products').onSnapshot(snap => {
   allProducts = snap.docs.map(d => ({id:d.id,...d.data()}));
   window.allProducts = allProducts;
   document.dispatchEvent(new Event('srProductsReady'));
   buildFilters();
   applyAll();
-  // Hash'ten modal aç — sadece bir kere çalışsın
-  if (_pendingModal) {
-    const pid = _pendingModal;
-    _pendingModal = null; // önce sıfırla, onSnapshot tekrar tetiklenirse açılmasın
-    history.replaceState(null, '', location.pathname);
-    if (allProducts.find(x => x.id === pid)) {
-      openModal(pid);
-    }
+  const hash = location.hash;
+  if (hash.startsWith('#prod-')) {
+    const pid = hash.replace('#prod-','');
+    setTimeout(() => { if (typeof openModal==='function') openModal(pid); }, 300);
+    history.replaceState(null,'',location.pathname);
   }
 });
 
@@ -592,17 +417,6 @@ function buildFilters() {
   const cats = ['Tümü',...new Set(allProducts.map(p=>p.cat).filter(Boolean))];
   const bar = document.getElementById('filterBar');
   bar.innerHTML = cats.map((c,i)=>`<button class="filter-btn${c===currentCat?' active':''}" onclick="filterCat('${c}',this)">${c}</button>`).join('');
-  // Fiyat aralığı hint göster
-  const prices = allProducts.map(p=>parseFloat(p.price)||0).filter(v=>v>0);
-  if (prices.length) {
-    const minP = Math.min(...prices);
-    const maxP = Math.max(...prices);
-    const hint = document.getElementById('priceRangeHint');
-    if (hint && !hint.textContent) hint.textContent = 'Ürün fiyat aralığı: ₺' + minP + ' — ₺' + maxP;
-  }
-  // Stock ve sort drawer sync
-  const sortSel = document.getElementById('sortSelect'); if (sortSel) sortSel.value = currentSort;
-  const stockSel = document.getElementById('stockSelect'); if (stockSel) stockSel.value = currentStock;
 }
 
 function filterCat(cat, btn) {
@@ -621,14 +435,7 @@ function applyAll() {
   filtered = allProducts.filter(p => {
     const matchCat = currentCat === 'Tümü' || p.cat === currentCat;
     const matchQ = !q || (p.name||'').toLowerCase().includes(q) || (p.cat||'').toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q);
-    const matchStock = currentStock === 'all' ||
-      (currentStock === 'instock' && (p.status||'Stokta') === 'Stokta') ||
-      (currentStock === 'low' && p.status === 'Son 3') ||
-      (currentStock === 'out' && p.status === 'Tükendi');
-    const price = parseFloat(p.price) || 0;
-    const matchMin = currentPriceMin === null || price >= currentPriceMin;
-    const matchMax = currentPriceMax === null || price <= currentPriceMax;
-    return matchCat && matchQ && matchStock && matchMin && matchMax;
+    return matchCat && matchQ;
   });
   if (currentSort==='price_asc') filtered.sort((a,b)=>(a.price||0)-(b.price||0));
   else if (currentSort==='price_desc') filtered.sort((a,b)=>(b.price||0)-(a.price||0));
@@ -637,182 +444,7 @@ function applyAll() {
   else if (currentSort==='reviews') filtered.sort((a,b)=>(b.reviews||0)-(a.reviews||0));
   else if (currentSort==='name') filtered.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   document.getElementById('prodCount').textContent = filtered.length;
-  // Drawer sonuç sayısını güncelle
-  const dc = document.getElementById('drawerCount');
-  if (dc) dc.textContent = filtered.length;
   renderGrid();
-  renderActiveBadges();
-  updateMobileFilterBadge();
-  syncURLParams();
-}
-
-function doStockFilter(val) {
-  currentStock = val;
-  // Drawer ile sync
-  document.querySelectorAll('.drawer-stock-btn').forEach(b => b.classList.remove('active'));
-  const drawerBtn = [...document.querySelectorAll('.drawer-stock-btn')].find(b => b.getAttribute('onclick').includes("'" + val + "'"));
-  if (drawerBtn) drawerBtn.classList.add('active');
-  applyAll();
-}
-
-function doPriceFilter() {
-  const minEl = document.getElementById('priceMin');
-  const maxEl = document.getElementById('priceMax');
-  const minVal = parseFloat(minEl.value);
-  const maxVal = parseFloat(maxEl.value);
-  currentPriceMin = isNaN(minVal) || minVal <= 0 ? null : minVal;
-  currentPriceMax = isNaN(maxVal) || maxVal <= 0 ? null : maxVal;
-  // Hint güncelle
-  const hint = document.getElementById('priceRangeHint');
-  if (hint) {
-    if (currentPriceMin !== null && currentPriceMax !== null) {
-      hint.textContent = '₺' + currentPriceMin + ' — ₺' + currentPriceMax + ' arası';
-    } else if (currentPriceMin !== null) {
-      hint.textContent = '₺' + currentPriceMin + ' ve üzeri';
-    } else if (currentPriceMax !== null) {
-      hint.textContent = '₺' + currentPriceMax + ' ve altı';
-    } else {
-      hint.textContent = '';
-    }
-  }
-  applyAll();
-}
-
-function setDrawerStock(val, btn) {
-  currentStock = val;
-  document.querySelectorAll('.drawer-stock-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  // Üst select ile sync
-  const sel = document.getElementById('stockSelect');
-  if (sel) sel.value = val;
-  applyAll();
-}
-
-function setDrawerSort(val, btn) {
-  currentSort = val;
-  document.querySelectorAll('.drawer-sort-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  // Üst select ile sync
-  const sel = document.getElementById('sortSelect');
-  if (sel) sel.value = val;
-  applyAll();
-}
-
-function toggleFilterDrawer() {
-  const drawer = document.getElementById('filterDrawer');
-  const overlay = document.getElementById('filterOverlay');
-  const btn = document.getElementById('filterMobileBtn');
-  const isOpen = drawer.classList.contains('open');
-  drawer.classList.toggle('open', !isOpen);
-  overlay.classList.toggle('open', !isOpen);
-  btn.classList.toggle('active', !isOpen);
-  document.body.style.overflow = isOpen ? '' : 'hidden';
-  // Fiyat alanlarını drawer açılınca doldur
-  if (!isOpen) {
-    const minEl = document.getElementById('priceMin');
-    const maxEl = document.getElementById('priceMax');
-    if (minEl && currentPriceMin !== null) minEl.value = currentPriceMin;
-    if (maxEl && currentPriceMax !== null) maxEl.value = currentPriceMax;
-  }
-}
-
-function clearAllFilters() {
-  currentCat = 'Tümü';
-  currentSort = 'default';
-  currentStock = 'all';
-  currentPriceMin = null;
-  currentPriceMax = null;
-  // UI sıfırla
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.textContent === 'Tümü'));
-  const sortSel = document.getElementById('sortSelect'); if (sortSel) sortSel.value = 'default';
-  const stockSel = document.getElementById('stockSelect'); if (stockSel) stockSel.value = 'all';
-  const minEl = document.getElementById('priceMin'); if (minEl) minEl.value = '';
-  const maxEl = document.getElementById('priceMax'); if (maxEl) maxEl.value = '';
-  const hint = document.getElementById('priceRangeHint'); if (hint) hint.textContent = '';
-  document.querySelectorAll('.drawer-stock-btn').forEach((b,i) => b.classList.toggle('active', i===0));
-  document.querySelectorAll('.drawer-sort-btn').forEach((b,i) => b.classList.toggle('active', i===0));
-  const searchEl = document.getElementById('searchInput'); if (searchEl) searchEl.value = '';
-  applyAll();
-}
-
-function renderActiveBadges() {
-  const container = document.getElementById('activeFilters');
-  if (!container) return;
-  const badges = [];
-  if (currentCat !== 'Tümü') {
-    badges.push({ label: currentCat, clear: () => { currentCat = 'Tümü'; document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.textContent === 'Tümü')); } });
-  }
-  if (currentStock !== 'all') {
-    const labels = { instock: 'Stokta', low: 'Son 3', out: 'Tükendi' };
-    badges.push({ label: labels[currentStock], clear: () => { currentStock = 'all'; const s = document.getElementById('stockSelect'); if(s) s.value='all'; document.querySelectorAll('.drawer-stock-btn').forEach((b,i)=>b.classList.toggle('active',i===0)); } });
-  }
-  if (currentPriceMin !== null || currentPriceMax !== null) {
-    let label = '';
-    if (currentPriceMin !== null && currentPriceMax !== null) label = '₺' + currentPriceMin + '-' + currentPriceMax;
-    else if (currentPriceMin !== null) label = '₺' + currentPriceMin + '+';
-    else label = '₺0-' + currentPriceMax;
-    badges.push({ label, clear: () => { currentPriceMin = null; currentPriceMax = null; const mn=document.getElementById('priceMin'); if(mn) mn.value=''; const mx=document.getElementById('priceMax'); if(mx) mx.value=''; const h=document.getElementById('priceRangeHint'); if(h) h.textContent=''; } });
-  }
-  if (currentSort !== 'default') {
-    const labels = { price_asc: 'Fiyat ↑', price_desc: 'Fiyat ↓', sales: '🔥 Çok Satan', favorites: '❤ Favori', reviews: '⭐ Yorum', name: 'A-Z' };
-    badges.push({ label: labels[currentSort] || currentSort, clear: () => { currentSort = 'default'; const s=document.getElementById('sortSelect'); if(s) s.value='default'; document.querySelectorAll('.drawer-sort-btn').forEach((b,i)=>b.classList.toggle('active',i===0)); } });
-  }
-  const q = document.getElementById('searchInput')?.value?.trim();
-  if (q) {
-    badges.push({ label: '"' + q + '"', clear: () => { document.getElementById('searchInput').value = ''; } });
-  }
-  container.innerHTML = badges.map((b, i) =>
-    '<div class="af-badge">' + b.label + '<button onclick="clearBadge(' + i + ')">✕</button></div>'
-  ).join('');
-  // Callback'leri window'a kaydet
-  window._badgeClearFns = badges.map(b => b.clear);
-}
-
-function clearBadge(i) {
-  if (window._badgeClearFns && window._badgeClearFns[i]) {
-    window._badgeClearFns[i]();
-    applyAll();
-  }
-}
-
-function updateMobileFilterBadge() {
-  let count = 0;
-  if (currentCat !== 'Tümü') count++;
-  if (currentStock !== 'all') count++;
-  if (currentPriceMin !== null || currentPriceMax !== null) count++;
-  if (currentSort !== 'default') count++;
-  if (document.getElementById('searchInput')?.value?.trim()) count++;
-  const badge = document.getElementById('filterMobileCount');
-  if (badge) {
-    badge.textContent = count || '';
-    badge.classList.toggle('visible', count > 0);
-  }
-}
-
-function syncURLParams() {
-  const params = new URLSearchParams();
-  if (currentCat !== 'Tümü') params.set('cat', currentCat);
-  if (currentSort !== 'default') params.set('sort', currentSort);
-  if (currentStock !== 'all') params.set('stock', currentStock);
-  if (currentPriceMin !== null) params.set('minPrice', currentPriceMin);
-  if (currentPriceMax !== null) params.set('maxPrice', currentPriceMax);
-  const q = document.getElementById('searchInput')?.value?.trim();
-  if (q) params.set('q', q);
-  const newUrl = params.toString() ? location.pathname + '?' + params.toString() : location.pathname;
-  history.replaceState(null, '', newUrl);
-}
-
-function loadURLParams() {
-  const params = new URLSearchParams(location.search);
-  if (params.get('cat')) currentCat = params.get('cat');
-  if (params.get('sort')) currentSort = params.get('sort');
-  if (params.get('stock')) currentStock = params.get('stock');
-  if (params.get('minPrice')) currentPriceMin = parseFloat(params.get('minPrice'));
-  if (params.get('maxPrice')) currentPriceMax = parseFloat(params.get('maxPrice'));
-  if (params.get('q')) {
-    const el = document.getElementById('searchInput');
-    if (el) el.value = params.get('q');
-  }
 }
 
 function renderGrid() {
@@ -893,275 +525,122 @@ function toggleFav(productId, btn) {
     });
   } else {
     const p = allProducts.find(x => x.id === productId);
-    ref.set({ name: p?.name||'', price: p?.price||0, image: p?.image||'', cat: p?.cat||'', size: p?.size||'', status: p?.status||'Stokta', addedAt: firebase.firestore.FieldValue.serverTimestamp() })
+    ref.set({ name: p?.name||'', price: p?.price||0, image: p?.image||'', cat: p?.cat||'', addedAt: firebase.firestore.FieldValue.serverTimestamp() })
       .then(() => {
         db.collection('products').doc(productId).update({favorites: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
         showToast('❤ Favorilere eklendi');
       });
   }
 }
-// Yorum sistemi state
-let _rvFilter = 0;     // 0=tümü, 1-5=puana göre
-let _rvSort   = 'new'; // 'new' | 'helpful'
-let _rvPage   = 5;     // gösterilen yorum sayısı
-let _rvAll    = [];    // tüm yorumlar
-let _rvVoted  = new Set(JSON.parse(localStorage.getItem('rp_rv_votes')||'[]'));
-
 function loadReviews(productId) {
   if (window._reviewsUnsub) { window._reviewsUnsub(); window._reviewsUnsub = null; }
-  _rvFilter = 0; _rvSort = 'new'; _rvPage = 5;
+  const list = document.getElementById('reviewList');
+  const formArea = document.getElementById('reviewFormArea');
+  const avgBadge = document.getElementById('reviewAvgBadge');
+  list.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:12px;">Yükleniyor...</div>';
 
-  const list      = document.getElementById('reviewList');
-  const formArea  = document.getElementById('reviewFormArea');
-  const avgBadge  = document.getElementById('reviewAvgBadge');
-  avgBadge.textContent = '';
-  list.innerHTML  = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:20px;">Yükleniyor...</div>';
-
-  // Form: önce satın alma ve daha önce yorum yazma kontrolü
   const user = auth.currentUser;
   if (user) {
-    formArea.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px;">Kontrol ediliyor...</div>';
-    Promise.all([
-      db.collection('orders').where('userId','==',user.uid).get(),
-      db.collection('products').doc(productId).collection('reviews')
-        .where('userId','==',user.uid).limit(1).get()
-    ]).then(([orderSnap, existingSnap]) => {
-      const hasPurchased = orderSnap.docs.some(doc => {
-        const d = doc.data();
-        if (d.status === 'iptal') return false;
-        return (d.items||[]).some(i => i.id === productId) ||
-               (d.orderSource === 'form' && d.userEmail === user.email);
-      });
-      const hasReviewed = !existingSnap.empty;
-      if (hasReviewed) {
-        formArea.innerHTML = `<div class="review-already">✓ Bu ürün için yorumunuz mevcut. Teşekkürler!</div>`;
-      } else if (!hasPurchased) {
-        formArea.innerHTML = `<div class="review-login-note">Yorum yazmak için bu ürünü satın almış olmanız gerekiyor.</div>`;
-      } else {
-        formArea.innerHTML = `
-          <div class="review-form">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;">PUANINIZ</div>
-            <div class="stars-input" id="starsInput">
-              <input type="radio" name="rstar" id="s5" value="5"><label for="s5">★</label>
-              <input type="radio" name="rstar" id="s4" value="4"><label for="s4">★</label>
-              <input type="radio" name="rstar" id="s3" value="3"><label for="s3">★</label>
-              <input type="radio" name="rstar" id="s2" value="2"><label for="s2">★</label>
-              <input type="radio" name="rstar" id="s1" value="1"><label for="s1">★</label>
-            </div>
-            <div class="review-textarea-wrap">
-              <textarea id="reviewText" placeholder="Deneyiminizi paylaşın... (en az 10 karakter)" maxlength="1000" oninput="rvCharCount(this)"></textarea>
-              <span class="review-char-count" id="rvCharCount">0/1000</span>
-            </div>
-            <div class="review-form-footer">
-              <button class="review-submit" id="reviewSubmitBtn" onclick="submitReview('${productId}')">Yorum Gönder</button>
-            </div>
-          </div>`;
-      }
-    }).catch(() => {
-      formArea.innerHTML = `<div class="review-login-note">Yorum yapmak için <a href="uye.html">giriş yapın</a></div>`;
-    });
+    formArea.innerHTML = `
+      <div class="review-form">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;color:var(--muted);margin-bottom:5px;">PUANINIZ</div>
+        <div class="stars-input" id="starsInput">
+          <input type="radio" name="rstar" id="s5" value="5"><label for="s5">★</label>
+          <input type="radio" name="rstar" id="s4" value="4"><label for="s4">★</label>
+          <input type="radio" name="rstar" id="s3" value="3"><label for="s3">★</label>
+          <input type="radio" name="rstar" id="s2" value="2"><label for="s2">★</label>
+          <input type="radio" name="rstar" id="s1" value="1"><label for="s1">★</label>
+        </div>
+        <textarea id="reviewText" placeholder="Ürün hakkında düşüncelerinizi yazın..."></textarea>
+        <button class="review-submit" id="reviewSubmitBtn" onclick="submitReview('${productId}')">Yorum Gönder</button>
+      </div>`;
   } else {
     formArea.innerHTML = `<div class="review-login-note">Yorum yapmak için <a href="uye.html">giriş yapın</a></div>`;
   }
 
-  // Yorumları dinle
   window._reviewsUnsub = db.collection('products').doc(productId)
-    .collection('reviews').orderBy('createdAt','desc').limit(50)
+    .collection('reviews').orderBy('createdAt','desc').limit(30)
     .onSnapshot(snap => {
-      _rvAll = snap.docs.map(d => ({id:d.id,...d.data()})).filter(r => r.approved !== false);
-      renderReviewSummary();
-      renderReviewList();
+      const reviews = snap.docs.map(d => ({id:d.id,...d.data()})).filter(r => r.approved !== false);
+      if (!reviews.length) {
+        list.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:14px;">Henüz yorum yok. İlk yorumu siz yapın!</div>';
+        avgBadge.textContent = '';
+        return;
+      }
+      const avg = reviews.reduce((s,r) => s+(r.rating||0), 0) / reviews.length;
+      avgBadge.textContent = '★ ' + avg.toFixed(1) + ' (' + reviews.length + ' yorum)';
+      list.innerHTML = reviews.map(r => `
+        <div class="review-item">
+          <div class="review-header">
+            <span class="review-author">${escHtml(r.userName||'Anonim')}</span>
+            <span class="review-stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</span>
+          </div>
+          <div class="review-text">${escHtml(r.text||'')}</div>
+          <div class="review-date">${r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('tr-TR') : ''}</div>
+        </div>`).join('');
     }, () => {
       list.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:14px;">Yorumlar yüklenemedi.</div>';
     });
-}
-
-function rvCharCount(el) {
-  const len = el.value.length;
-  const counter = document.getElementById('rvCharCount');
-  if (!counter) return;
-  counter.textContent = len + '/1000';
-  counter.classList.toggle('warn', len > 900);
-}
-
-function renderReviewSummary() {
-  const avgBadge = document.getElementById('reviewAvgBadge');
-  const listEl   = document.getElementById('reviewList');
-  if (!_rvAll.length) {
-    avgBadge.textContent = '';
-    return;
-  }
-  const avg = _rvAll.reduce((s,r)=>s+(r.rating||0),0) / _rvAll.length;
-  avgBadge.textContent = '★ ' + avg.toFixed(1) + ' (' + _rvAll.length + ' yorum)';
-
-  // Puan dağılımı
-  const dist = [0,0,0,0,0];
-  _rvAll.forEach(r => { const i = (r.rating||1)-1; if(i>=0 && i<5) dist[i]++; });
-  const maxD = Math.max(...dist) || 1;
-
-  const summaryHTML = `
-    <div class="review-summary">
-      <div class="review-big-score">
-        <div class="review-big-num">${avg.toFixed(1)}</div>
-        <div class="review-big-stars">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5-Math.round(avg))}</div>
-        <div class="review-big-count">${_rvAll.length} YORUM</div>
-      </div>
-      <div class="review-bars">
-        ${[5,4,3,2,1].map(star => {
-          const cnt = dist[star-1];
-          const pct = Math.round((cnt/maxD)*100);
-          return `<div class="review-bar-row${_rvFilter===star?' active-filter':''}" onclick="rvSetFilter(${star})">
-            <span class="review-bar-label">${star}</span>
-            <div class="review-bar-track"><div class="review-bar-fill" style="width:${pct}%"></div></div>
-            <span class="review-bar-cnt">${cnt}</span>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-
-  // Kontroller
-  const ctrlHTML = `
-    <div class="review-controls">
-      <div class="review-filter-chips">
-        <span class="rv-chip${_rvFilter===0?' active':''}" onclick="rvSetFilter(0)">Tümü</span>
-        ${[5,4,3,2,1].map(s=>`<span class="rv-chip${_rvFilter===s?' active':''}" onclick="rvSetFilter(${s})">${s}★</span>`).join('')}
-      </div>
-      <select class="rv-sort" onchange="rvSetSort(this.value)">
-        <option value="new"${_rvSort==='new'?' selected':''}>En Yeni</option>
-        <option value="helpful"${_rvSort==='helpful'?' selected':''}>En Faydalı</option>
-        <option value="high"${_rvSort==='high'?' selected':''}>Yüksek Puan</option>
-        <option value="low"${_rvSort==='low'?' selected':''}>Düşük Puan</option>
-      </select>
-    </div>`;
-
-  // Yorumlar başına summary ve kontroller ekle
-  if (!document.getElementById('rvSummaryEl')) {
-    const section = document.querySelector('.reviews-section');
-    const div = document.createElement('div');
-    div.id = 'rvSummaryEl';
-    section.insertBefore(div, document.getElementById('reviewList'));
-  }
-  document.getElementById('rvSummaryEl').innerHTML = summaryHTML + ctrlHTML;
-}
-
-function renderReviewList() {
-  const listEl = document.getElementById('reviewList');
-  let reviews = [..._rvAll];
-
-  // Puan filtresi
-  if (_rvFilter > 0) reviews = reviews.filter(r => r.rating === _rvFilter);
-
-  // Sıralama
-  if (_rvSort === 'helpful') reviews.sort((a,b)=>(b.helpful||0)-(a.helpful||0));
-  else if (_rvSort === 'high') reviews.sort((a,b)=>(b.rating||0)-(a.rating||0));
-  else if (_rvSort === 'low')  reviews.sort((a,b)=>(a.rating||0)-(b.rating||0));
-  else reviews.sort((a,b)=>((b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)));
-
-  if (!reviews.length) {
-    listEl.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:20px;">Bu puan için yorum bulunamadı.</div>';
-    return;
-  }
-
-  const visible = reviews.slice(0, _rvPage);
-  listEl.innerHTML = visible.map(r => {
-    const starsStr = '★'.repeat(r.rating||0) + '☆'.repeat(5-(r.rating||0));
-    const dateStr  = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}) : '';
-    const helpful  = r.helpful || 0;
-    const voted    = _rvVoted.has(r.id);
-    return `
-      <div class="review-item">
-        <div class="review-header">
-          <div class="review-header-left">
-            <span class="review-author">${escHtml(r.userName||'Üye')}</span>
-            <span class="review-stars">${starsStr}</span>
-          </div>
-          <span class="review-date">${dateStr}</span>
-        </div>
-        <div class="review-text">${escHtml(r.text||'')}</div>
-        <div class="review-footer">
-          <div class="review-helpful">
-            <button class="helpful-btn" id="hbtn_${r.id}" data-voted="${voted}" onclick="if(!this.dataset.voted||this.dataset.voted==='false')rvHelpful('${r.id}',this)" style="${voted?'border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.07);':''}">
-              👍 Faydalı${helpful>0?' ('+helpful+')':''}
-            </button>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-
-  // Daha fazla butonu
-  if (reviews.length > _rvPage) {
-    listEl.innerHTML += `<button class="review-show-more" onclick="rvShowMore()">DAHA FAZLA GÖSTER (${reviews.length - _rvPage} yorum daha)</button>`;
-  }
-}
-
-function rvSetFilter(star) {
-  _rvFilter = (_rvFilter === star) ? 0 : star;
-  _rvPage = 5;
-  renderReviewSummary();
-  renderReviewList();
-}
-
-function rvSetSort(val) {
-  _rvSort = val;
-  _rvPage = 5;
-  renderReviewList();
-}
-
-function rvShowMore() {
-  _rvPage += 5;
-  renderReviewList();
-}
-
-function rvHelpful(reviewId, btn) {
-  if (_rvVoted.has(reviewId)) return;
-  _rvVoted.add(reviewId);
-  localStorage.setItem('rp_rv_votes', JSON.stringify([..._rvVoted]));
-  btn.classList.add('voted');
-  // Firestore güncelle
-  const prodId = window.currentProduct?.id;
-  if (!prodId) return;
-  db.collection('products').doc(prodId).collection('reviews').doc(reviewId)
-    .update({ helpful: firebase.firestore.FieldValue.increment(1) }).catch(()=>{});
-  // Butonu güncelle
-  const cur = parseInt(btn.textContent.match(/\d+/)?.[0]||'0');
-  btn.textContent = '👍 Faydalı (' + (cur+1) + ')';
 }
 
 function submitReview(productId) {
   const user = auth.currentUser;
   if (!user) { showToast('Lütfen giriş yapın', 'err'); return; }
   const ratingEl = document.querySelector('input[name="rstar"]:checked');
-  const textEl   = document.getElementById('reviewText');
-  const rating   = ratingEl ? parseInt(ratingEl.value) : 0;
-  const text     = textEl?.value.trim() || '';
-  if (!rating)         { showToast('Lütfen puan seçin ★', 'err'); return; }
-  if (text.length < 10){ showToast('Yorum en az 10 karakter olmalı', 'err'); return; }
+  const textEl = document.getElementById('reviewText');
+  const rating = ratingEl ? parseInt(ratingEl.value) : 0;
+  const text = textEl?.value.trim() || '';
+  if (!rating) { showToast('Lütfen puan seçin ★', 'err'); return; }
+  if (text.length < 3) { showToast('Lütfen bir yorum yazın', 'err'); return; }
 
   const btn = document.getElementById('reviewSubmitBtn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Gönderiliyor...'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Kontrol ediliyor...'; }
 
-  db.collection('products').doc(productId).collection('reviews').add({
-    userId:    user.uid,
-    userName:  user.displayName || user.email?.split('@')[0] || 'Üye',
-    userEmail: user.email || '',
-    productId: productId,
-    rating:    rating,
-    text:      text,
-    helpful:   0,
-    approved:  true,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(() => {
-    db.collection('products').doc(productId).update({
-      reviews: firebase.firestore.FieldValue.increment(1)
-    }).catch(() => {});
-    showToast('✓ Yorumunuz yayınlandı!', 'ok');
-    // Formu "daha önce yazdın" mesajıyla değiştir
-    const formArea = document.getElementById('reviewFormArea');
-    if (formArea) formArea.innerHTML = '<div class="review-already">✓ Yorumunuz yayınlandı. Teşekkürler!</div>';
-  }).catch(() => {
-    showToast('Bir hata oluştu, tekrar deneyin', 'err');
-    if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
-  });
+  // Satın alma kontrolü
+  db.collection('orders')
+    .where('userId', '==', user.uid)
+    .get()
+    .then(orderSnap => {
+      const hasPurchased = orderSnap.docs.some(doc => {
+        const data = doc.data();
+        if (data.status === 'iptal') return false;
+        const items = data.items || [];
+        const inItems = items.some(i => i.id === productId);
+        const isFormOrder = data.orderSource === 'form' && data.userEmail === user.email;
+        return inItems || isFormOrder;
+      });
+
+      if (!hasPurchased) {
+        showToast('Yorum yapmak için bu ürünü satın almış olmanız gerekiyor', 'err');
+        if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
+        return;
+      }
+
+      // Yorumu direkt yayınla (approved: true)
+      if (btn) btn.textContent = 'Gönderiliyor...';
+      return db.collection('products').doc(productId).collection('reviews').add({
+        userId:    user.uid,
+        userName:  user.displayName || user.email?.split('@')[0] || 'Üye',
+        userEmail: user.email || '',
+        productId: productId,
+        rating:    rating,
+        text:      text,
+        approved:  true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        db.collection('products').doc(productId).update({
+          reviews: firebase.firestore.FieldValue.increment(1)
+        }).catch(() => {});
+        showToast('✓ Yorumunuz yayınlandı!', 'ok');
+        if (textEl) textEl.value = '';
+        document.querySelectorAll('input[name="rstar"]').forEach(r => r.checked = false);
+        if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
+      });
+    })
+    .catch(() => {
+      showToast('Bir hata oluştu, tekrar deneyin', 'err');
+      if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
+    });
 }
 
 function escHtml(str) {
