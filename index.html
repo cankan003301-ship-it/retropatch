@@ -1363,7 +1363,7 @@ function submitForm(e) {
     notes: f.querySelector('textarea').value,
     designFile: fileName || null,
     designFileUrl: uploadedFileUrl || null,
-    userId: currentUser ? currentUser.uid : null,
+    userId: currentUser ? currentUser.uid : 'guest',
     userEmail: currentUser ? currentUser.email : f.querySelector('input[type=email]').value,
     items: [{
       name: `${selects[0]?.value || 'Nakış Yama'} · ${selects[1]?.value || ''}`,
