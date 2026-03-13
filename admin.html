@@ -567,7 +567,7 @@
               <div class="fg"><label>Durum</label>
                 <select id="qeStatus"><option>Stokta</option><option>Son 3</option><option>Tükendi</option></select>
               </div>
-              <div class="fg"><label>Boyut</label><input type="text" id="qeSize" placeholder="8x8 cm"></div>
+              <div class="fg"><label>Boyut</label><div style="display:flex;align-items:center;gap:4px;"><input type="text" id="qeSize" placeholder="8x8" style="flex:1;"><span style="color:var(--muted2);font-size:13px;white-space:nowrap;">cm</span></div></div>
               <div class="fg"><label>Arka Yüzey</label>
                 <select id="qeBack"><option>Ütüyle Yapışan</option><option>Cırt Cırt</option><option>Düz</option></select>
               </div>
@@ -1113,7 +1113,7 @@
         </div>
       </div>
       <div class="fg-row">
-        <div class="fg"><label>Boyut</label><input type="text" id="pSize" placeholder="8x8 cm"></div>
+        <div class="fg"><label>Boyut</label><div style="display:flex;align-items:center;gap:4px;"><input type="text" id="pSize" placeholder="8x8" style="flex:1;"><span style="color:var(--muted2);font-size:13px;white-space:nowrap;">cm</span></div></div>
         <div class="fg"><label>Arka Yüzey</label>
           <select id="pBack"><option>Ütüyle Yapışan</option><option>Cırt Cırt</option><option>Düz</option></select>
         </div>
@@ -1947,7 +1947,7 @@ function saveQuickEdit() {
     price: parseFloat(document.getElementById('qePrice').value) || 0,
     cat: document.getElementById('qeCat').value,
     status: document.getElementById('qeStatus').value,
-    size: document.getElementById('qeSize').value,
+    size: (document.getElementById('qeSize').value.trim() + ' cm').replace(/s*cms*cm$/, ' cm'),
     back: document.getElementById('qeBack').value,
     desc: document.getElementById('qeDesc').value,
     image: document.getElementById('qeImage').value,
@@ -2051,7 +2051,7 @@ function saveProd() {
     cat: document.getElementById('pCat').value,
     desc: document.getElementById('pDesc').value,
     image: document.getElementById('pImage').value,
-    size: document.getElementById('pSize').value,
+    size: (document.getElementById('pSize').value.trim() + ' cm').replace(/s*cms*cm$/, ' cm'),
     status: document.getElementById('pStatus').value,
     back: document.getElementById('pBack').value,
   };
