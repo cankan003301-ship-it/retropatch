@@ -1,20 +1,99 @@
 // api/send-email.js — RetroPatch Email API (Resend)
 // Vercel Serverless Function — repo'nun /api/ klasörüne koy
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY; // Vercel env variable
-const ADMIN_EMAIL    = process.env.ADMIN_EMAIL || 'retropatchyama@gmail.com';
-const FROM_EMAIL     = process.env.FROM_EMAIL  || 'onboarding@resend.dev';
+const RESEND_API_KEY  = process.env.RESEND_API_KEY;
+const ADMIN_EMAIL     = process.env.ADMIN_EMAIL || 'admin@retropatch.com';
+const FROM_EMAIL      = process.env.FROM_EMAIL  || 'onboarding@resend.dev';
+const ALLOWED_ORIGIN  = process.env.ALLOWED_ORIGIN || 'https://retropatch.vercel.app';
+
+// ── Rate limiter (IP başına dakikada maks 5 istek) ──────────
+const rateLimitMap = new Map();
+const RATE_LIMIT = 5;
+const RATE_WINDOW_MS = 60 * 1000;
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip) || { count: 0, start: now };
+  if (now - entry.start > RATE_WINDOW_MS) {
+    rateLimitMap.set(ip, { count: 1, start: now });
+    return false;
+  }
+  if (entry.count >= RATE_LIMIT) return true;
+  entry.count++;
+  rateLimitMap.set(ip, entry);
+  return false;
+}
+
+// ── Yardımcı doğrulama fonksiyonları ────────────────────────
+function isValidEmail(email) {
+  return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254;
+}
+
+function isValidPhone(phone) {
+  return typeof phone === 'string' && /^[\d\s\+\-\.\(\)]{7,20}$/.test(phone);
+}
+
+function sanitize(str, maxLen = 200) {
+  if (typeof str !== 'string') return '';
+  return str.trim().slice(0, maxLen);
+}
+
+// ── İzin verilen type'lar ────────────────────────────────────
+const ALLOWED_TYPES = ['order_confirmed', 'cargo_updated', 'order_completed'];
 
 export default async function handler(req, res) {
-  // CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // CORS — sadece kendi domain
+  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Vary', 'Origin');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  // Origin kontrolü
+  const origin = req.headers.origin || '';
+  if (origin && origin !== ALLOWED_ORIGIN) {
+    return res.status(403).json({ error: 'Yetkisiz kaynak' });
+  }
+
+  // Rate limit
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+  if (isRateLimited(ip)) {
+    return res.status(429).json({ error: 'Çok fazla istek, lütfen bekleyin' });
+  }
+
   const { type, data } = req.body || {};
-  if (!type || !data) return res.status(400).json({ error: 'type ve data zorunlu' });
+
+  // Type doğrulama
+  if (!type || !ALLOWED_TYPES.includes(type)) {
+    return res.status(400).json({ error: 'Geçersiz veya eksik type' });
+  }
+  if (!data || typeof data !== 'object') {
+    return res.status(400).json({ error: 'data alanı zorunlu' });
+  }
+
+  // Zorunlu alan doğrulamaları
+  if (!sanitize(data.orderCode)) {
+    return res.status(400).json({ error: 'orderCode zorunlu' });
+  }
+  if (!sanitize(data.customerName)) {
+    return res.status(400).json({ error: 'customerName zorunlu' });
+  }
+  if (data.customerEmail && !isValidEmail(data.customerEmail)) {
+    return res.status(400).json({ error: 'Geçersiz customerEmail' });
+  }
+  if (data.customerPhone && !isValidPhone(data.customerPhone)) {
+    return res.status(400).json({ error: 'Geçersiz customerPhone' });
+  }
+
+  // Alanları temizle
+  data.orderCode    = sanitize(data.orderCode, 50);
+  data.customerName = sanitize(data.customerName, 100);
+  data.customerEmail = data.customerEmail ? sanitize(data.customerEmail, 254) : '';
+  data.customerPhone = data.customerPhone ? sanitize(data.customerPhone, 20) : '';
+  data.address      = sanitize(data.address, 500);
+  data.paymentMethod = sanitize(data.paymentMethod, 100);
+  data.total        = sanitize(String(data.total || ''), 20);
 
   let emails = [];
 
