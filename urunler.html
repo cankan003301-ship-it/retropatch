@@ -936,41 +936,46 @@ function goOrder(){closeModal();window.location.href='index.html#siparis';}
 // ============ FAVORİLER ============
 function toggleFavFromModal() {
   if (!currentProduct) return;
-  const btn = document.getElementById('modalFavBtn');
-  toggleFav(currentProduct.id, btn);
-  // Buton görünümünü hemen güncelle (onSnapshot gecikme olmadan)
-  const willBeFav = !userFavorites.has(currentProduct.id);
-  setTimeout(() => {
-    const isFav = userFavorites.has(currentProduct.id);
-    if (btn) {
-      btn.classList.toggle('active', isFav);
-      btn.textContent = isFav ? '❤' : '♡';
-      btn.title = isFav ? 'Favorilerden çıkar' : 'Favorilere ekle';
-    }
-    // Modal'daki favori sayacını da güncelle
-    const specs = document.getElementById('modalSpecs');
-    if (specs && currentProduct) {
-      const favEl = specs.querySelector('.modal-fav-count');
-      if (favEl) favEl.textContent = '❤️ ' + (currentProduct.favorites||0);
-    }
-  }, 600);
+  toggleFav(currentProduct.id);
 }
 function toggleFav(productId, btn) {
   const user = auth.currentUser;
   if (!user) { showToast('Favori eklemek için giriş yapın'); window.location.href='uye.html'; return; }
   const ref = db.collection('users').doc(user.uid).collection('favorites').doc(productId);
-  if (userFavorites.has(productId)) {
+  const isFav = userFavorites.has(productId);
+
+  // Optimistik UI güncelle (onSnapshot beklemeden)
+  function updateBtns(fav) {
+    // Kart butonu
+    document.querySelectorAll('.fav-btn').forEach(b => {
+      const card = b.closest('.product-card');
+      if (card?.getAttribute('data-pid') === productId) b.classList.toggle('active', fav);
+    });
+    // Modal butonu
+    const modalFavBtn = document.getElementById('modalFavBtn');
+    if (modalFavBtn && currentProduct?.id === productId) {
+      modalFavBtn.classList.toggle('active', fav);
+      modalFavBtn.textContent = fav ? '❤' : '♡';
+      modalFavBtn.title = fav ? 'Favorilerden çıkar' : 'Favorilere ekle';
+    }
+  }
+
+  if (isFav) {
+    userFavorites.delete(productId);
+    updateBtns(false);
     ref.delete().then(() => {
       db.collection('products').doc(productId).update({favorites: firebase.firestore.FieldValue.increment(-1)}).catch(()=>{});
       showToast('Favorilerden çıkarıldı');
-    });
+    }).catch(() => { userFavorites.add(productId); updateBtns(true); });
   } else {
+    userFavorites.add(productId);
+    updateBtns(true);
     const p = allProducts.find(x => x.id === productId);
     ref.set({ name: p?.name||'', price: p?.price||0, image: p?.image||'', cat: p?.cat||'', size: p?.size||'', status: p?.status||'Stokta', addedAt: firebase.firestore.FieldValue.serverTimestamp() })
       .then(() => {
         db.collection('products').doc(productId).update({favorites: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
         showToast('❤ Favorilere eklendi');
-      });
+      }).catch(() => { userFavorites.delete(productId); updateBtns(false); });
   }
 }
 // Yorum sistemi state
