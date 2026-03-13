@@ -638,7 +638,11 @@ function renderCart() {
             <div class="qty-btn" onclick="changeQty(${i},1)">+</div>
           </div>
           ${item.size?`<span class="item-size">${item.size}</span>`:''}
-          ${item.backType?`<span class="item-size" style="color:var(--accent);border-color:rgba(200,169,110,.3);">🔧 ${item.backType}</span>`:''}
+          ${item.backType ? `<span style="display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 9px;border:1px solid rgba(200,169,110,.35);color:var(--accent);background:rgba(200,169,110,.08);">${
+            item.backType==='Ütüyle Yapışan' ? '🔥 ÜTÜ İLE YAPIŞTIRMALı' :
+            item.backType==='Cırt Cırt' ? '⚡ CIRT CIRT' :
+            '◻ DÜZ'
+          }</span>` : ''}
         </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
