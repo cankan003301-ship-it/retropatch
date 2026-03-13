@@ -41,15 +41,23 @@ service cloud.firestore {
 
     // ── SİPARİŞLER ───────────────────────────────────────────
     match /orders/{orderId} {
-      // Kullanıcı sadece kendi siparişini okuyabilir
+      // Admin tüm siparişleri okuyabilir; kullanıcı sadece kendi siparişini
       allow read: if request.auth != null
         && (resource.data.userId == request.auth.uid
             || request.auth.token.email == 'retropatchyama@gmail.com');
 
-      // Yeni sipariş: giriş yapmış kullanıcı SADECE kendi userId'siyle ekleyebilir
-      allow create: if request.auth != null
-        && request.resource.data.userId == request.auth.uid
-        && request.resource.data.status == 'yeni';
+      // Yeni sipariş oluşturma:
+      //   - Giriş yapmış kullanıcı kendi userId'siyle ekleyebilir
+      //   - Misafir (giriş yapmamaış) sadece userId='guest' olarak form gönderebilir
+      allow create: if (
+          request.auth != null
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.status == 'yeni'
+        ) || (
+          request.resource.data.userId == 'guest'
+          && request.resource.data.status == 'yeni'
+          && request.resource.data.orderSource == 'form'
+        );
 
       // Güncelleme / silme: sadece admin
       allow update, delete: if request.auth != null
