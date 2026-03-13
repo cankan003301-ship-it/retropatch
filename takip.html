@@ -155,6 +155,20 @@
     .toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#000;padding:12px 20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;z-index:9999;transform:translateY(60px);opacity:0;transition:all .35s cubic-bezier(.175,.885,.32,1.275);}
     .toast.show{transform:translateY(0);opacity:1;}
 
+    /* GERİ / HIZLI ERİŞİM ÇUBUĞU */
+    .back-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:28px;flex-wrap:wrap;}
+    .back-btn{display:inline-flex;align-items:center;gap:7px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:all .2s;}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .back-btn svg{flex-shrink:0;}
+    .back-bar-right{display:flex;align-items:center;gap:8px;}
+    .user-pill{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);padding:7px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;color:var(--muted);}
+    .user-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;}
+    .user-pill-name{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .account-link{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#000;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:all .2s;white-space:nowrap;}
+    .account-link:hover{background:#d4b77a;}
+    .login-link{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid rgba(200,169,110,.35);color:var(--accent);padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:all .2s;white-space:nowrap;}
+    .login-link:hover{background:rgba(200,169,110,.07);}
+
     /* MOBİL */
     @media(max-width:600px){
       .page-wrap{padding:80px 16px 60px;}
@@ -190,6 +204,18 @@
 </div>
 
 <div class="page-wrap">
+
+  <!-- GERİ BUTONU + AUTH DURUMU -->
+  <div class="back-bar">
+    <a href="javascript:history.back()" class="back-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Geri Dön
+    </a>
+    <div class="back-bar-right" id="authBar">
+      <!-- JS ile doldurulur -->
+    </div>
+  </div>
+
   <div class="page-hero">
     <div class="hero-label">Sipariş Sorgulama</div>
     <h1 class="hero-title">SİPARİŞ<br>TAKİP</h1>
@@ -245,8 +271,32 @@ window.addEventListener('DOMContentLoaded', () => {
 // Giriş yapmış kullanıcının siparişlerini yükle
 auth.onAuthStateChanged(user => {
   currentUser = user;
+  renderAuthBar(user);
   if (user) loadMyOrders(user.uid);
 });
+
+function renderAuthBar(user) {
+  const bar = document.getElementById('authBar');
+  if (!bar) return;
+  if (user) {
+    const name = user.displayName || user.email?.split('@')[0] || 'Hesabım';
+    bar.innerHTML = `
+      <div class="user-pill">
+        <span class="dot"></span>
+        <span class="user-pill-name">${esc(name)}</span>
+      </div>
+      <a href="hesap.html" class="account-link">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Hesabıma Git
+      </a>`;
+  } else {
+    bar.innerHTML = `
+      <a href="uye.html" class="login-link">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Giriş Yap
+      </a>`;
+  }
+}
 
 function loadMyOrders(uid) {
   const area = document.getElementById('myOrdersArea');
