@@ -566,6 +566,9 @@ let currentPriceMin = null;
 let currentPriceMax = null;
 let currentProduct = null;
 
+// Hash'ten modal açma için pending tutuyoruz
+const _pendingModal = location.hash.startsWith('#prod-') ? location.hash.replace('#prod-','') : null;
+
 loadURLParams();
 db.collection('products').onSnapshot(snap => {
   allProducts = snap.docs.map(d => ({id:d.id,...d.data()}));
@@ -573,11 +576,10 @@ db.collection('products').onSnapshot(snap => {
   document.dispatchEvent(new Event('srProductsReady'));
   buildFilters();
   applyAll();
-  const hash = location.hash;
-  if (hash.startsWith('#prod-')) {
-    const pid = hash.replace('#prod-','');
-    setTimeout(() => { if (typeof openModal==='function') openModal(pid); }, 300);
-    history.replaceState(null,'',location.pathname);
+  // Hash'ten modal aç — ürünler artık yüklenmiş durumda
+  if (_pendingModal && allProducts.find(x => x.id === _pendingModal)) {
+    openModal(_pendingModal);
+    history.replaceState(null, '', location.pathname);
   }
 });
 
