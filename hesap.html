@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sipariş geçmişiniz, favorileriniz ve hesap ayarlarınız.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://retropatch.com.tr/hesap.html">
   <title>RetroPatch — Hesabım</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -82,17 +85,42 @@
     .track-code span{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
 
     /* FAVORİLER */
-    .fav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:2px;}
-    .fav-card{background:var(--card);border:1px solid var(--border);overflow:hidden;transition:all .3s;cursor:pointer;}
-    .fav-card:hover{border-color:var(--accent);transform:translateY(-2px);}
-    .fav-img{width:100%;aspect-ratio:1;background:var(--bg3);overflow:hidden;position:relative;}
+    .fav-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;flex-wrap:wrap;}
+    .fav-count-badge{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;color:var(--muted);}
+    .fav-sort{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;outline:none;cursor:pointer;}
+    .fav-sort option{background:var(--bg3);}
+    .fav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:2px;}
+    .fav-card{background:var(--card);border:1px solid var(--border);overflow:hidden;transition:all .3s;display:flex;flex-direction:column;}
+    .fav-card:hover{border-color:rgba(200,169,110,.35);}
+    .fav-img{width:100%;aspect-ratio:1;background:var(--bg3);overflow:hidden;position:relative;cursor:pointer;}
     .fav-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
-    .fav-card:hover .fav-img img{transform:scale(1.07);}
-    .fav-remove{position:absolute;top:6px;right:6px;background:rgba(230,57,70,.8);color:#fff;border:none;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;opacity:0;transition:opacity .2s;}
-    .fav-card:hover .fav-remove{opacity:1;}
-    .fav-info{padding:10px 12px;border-top:1px solid var(--border);}
-    .fav-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .fav-price{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);}
+    .fav-card:hover .fav-img img{transform:scale(1.05);}
+    .fav-img-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;}
+    .fav-card:hover .fav-img-overlay{opacity:1;}
+    .fav-overlay-btn{background:var(--accent);color:#000;border:none;padding:8px 18px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
+    .fav-remove{position:absolute;top:7px;right:7px;background:rgba(10,10,10,.75);border:1px solid rgba(230,57,70,.4);color:rgba(230,57,70,.8);width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:all .2s;border-radius:2px;}
+    .fav-remove:hover{background:var(--accent2);border-color:var(--accent2);color:#fff;}
+    .fav-cat-badge{position:absolute;top:7px;left:7px;background:rgba(10,10,10,.8);border:1px solid var(--border);font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:2px 7px;}
+    .fav-info{padding:12px 14px;border-top:1px solid var(--border);flex:1;display:flex;flex-direction:column;gap:4px;}
+    .fav-name{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:color .2s;}
+    .fav-name:hover{color:var(--accent);}
+    .fav-price{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--accent);}
+    .fav-status{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;display:inline-block;align-self:flex-start;}
+    .fav-status.instock{background:rgba(46,204,113,.1);color:var(--green);border:1px solid rgba(46,204,113,.2);}
+    .fav-status.low{background:rgba(200,169,110,.1);color:var(--accent);border:1px solid rgba(200,169,110,.2);}
+    .fav-status.out{background:rgba(230,57,70,.1);color:var(--accent2);border:1px solid rgba(230,57,70,.2);}
+    .fav-actions{display:flex;gap:4px;margin-top:4px;}
+    .fav-cart-btn{flex:1;background:var(--accent);color:#000;border:none;padding:8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+    .fav-cart-btn:hover{background:#d4b77a;}
+    .fav-cart-btn:disabled{background:#333;color:#555;cursor:not-allowed;}
+    .fav-detail-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 10px;font-size:13px;cursor:pointer;transition:all .2s;flex-shrink:0;}
+    .fav-detail-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .fav-empty{grid-column:1/-1;text-align:center;padding:60px 20px;}
+    .fav-empty-icon{font-size:48px;margin-bottom:16px;opacity:.25;}
+    .fav-empty-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:3px;color:var(--muted);margin-bottom:8px;}
+    .fav-empty-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+    .fav-empty-btn{background:var(--accent);color:#000;padding:11px 28px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;text-decoration:none;display:inline-block;transition:background .2s;}
+    .fav-empty-btn:hover{background:#d4b77a;}
 
     /* PROFİL */
     .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -175,6 +203,7 @@
 
     @media(max-width:768px){
       .hamburger{display:flex;}
+      .nav-search-mobile{display:flex;}
       nav ul{display:none!important;}
     }
 
@@ -275,6 +304,9 @@
     <li><button class="search-btn" onclick="openSearch()" title="Ara (Ctrl+K / /)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></li>
   </ul>
 
+  <div style="display:none;align-items:center;gap:4px;" class="nav-search-mobile">
+    <button class="search-btn" onclick="openSearch()" title="Ara"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+  </div>
   <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Menü"><span></span><span></span><span></span></button>
 </nav>
 
@@ -304,6 +336,7 @@
     <div class="nav-lbl">Hesabım</div>
     <div class="nav-item active" onclick="showPage('orders',this)"><span>🛒</span> Siparişlerim</div>
     <div class="nav-item" onclick="showPage('cargo',this)"><span>🚚</span> Kargo Takibi</div>
+    <a href="takip.html" class="nav-item" style="text-decoration:none;"><span>🔍</span> Sipariş Sorgula</a>
     <div class="nav-item" onclick="showPage('favorites',this)"><span>❤️</span> Favorilerim</div>
     <div class="nav-lbl">Ayarlar</div>
     <div class="nav-item" onclick="showPage('addresses',this)"><span>📍</span> Adres Defteri</div>
@@ -349,8 +382,17 @@
     <!-- FAVORİLER -->
     <div class="page" id="page-favorites">
       <div class="page-hdr"><h2>FAVORİLERİM</h2></div>
+      <div class="fav-toolbar" id="favToolbar" style="display:none;">
+        <span class="fav-count-badge" id="favCountBadge"></span>
+        <select class="fav-sort" onchange="sortFavorites(this.value)">
+          <option value="recent">En Son Eklenen</option>
+          <option value="price_asc">Fiyat: Düşükten Yükseğe</option>
+          <option value="price_desc">Fiyat: Yüksekten Düşüğe</option>
+          <option value="name">A-Z</option>
+        </select>
+      </div>
       <div class="fav-grid" id="favGrid">
-        <div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">❤️</div><p>Favori ürününüz yok</p></div>
+        <div class="fav-empty" style="grid-column:1/-1"><div class="fav-empty-icon">❤️</div><p>Yükleniyor...</p></div>
       </div>
     </div>
 
@@ -414,7 +456,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-firebase.initializeApp({
+if (!firebase.apps.length) firebase.initializeApp({
   apiKey:"AIzaSyA597pu8o7M2ZWcZc6gbGW2TAwceTfyVhA",
   authDomain:"retropatch-fd08e.firebaseapp.com",
   projectId:"retropatch-fd08e",
@@ -606,33 +648,111 @@ function openTracking(company, code) {
 }
 
 // ═══ FAVORİLER ═══
+let _favSort = 'recent';
+
 function loadFavorites() {
-  db.collection('users').doc(currentUser.uid).collection('favorites').onSnapshot(snap => {
-    allFavorites = snap.docs.map(d=>({id:d.id,...d.data()}));
-    renderFavorites();
-  });
+  db.collection('users').doc(currentUser.uid).collection('favorites')
+    .onSnapshot(snap => {
+      allFavorites = snap.docs.map(d => ({id: d.id, ...d.data()}));
+      renderFavorites();
+    });
+}
+
+function sortFavorites(val) {
+  _favSort = val;
+  renderFavorites();
 }
 
 function renderFavorites() {
-  const el = document.getElementById('favGrid');
-  if (!allFavorites.length) { el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">❤️</div><p>Favori ürününüz yok</p></div>'; return; }
-  el.innerHTML = allFavorites.map(p=>`
-    <div class="fav-card" onclick="window.location.href='urunler.html'">
-      <div class="fav-img">
-        ${p.image?`<img src="${p.image}" alt="${p.name}">`:''}
-        <button class="fav-remove" onclick="event.stopPropagation();removeFav('${p.id}')">✕</button>
-      </div>
-      <div class="fav-info">
-        <div class="fav-name">${p.name}</div>
-        <div class="fav-price">${p.price?'₺'+p.price:'—'}</div>
-      </div>
-    </div>`).join('');
+  const el      = document.getElementById('favGrid');
+  const toolbar = document.getElementById('favToolbar');
+  const badge   = document.getElementById('favCountBadge');
+
+  if (!allFavorites.length) {
+    if (toolbar) toolbar.style.display = 'none';
+    el.innerHTML = `
+      <div class="fav-empty" style="grid-column:1/-1">
+        <div class="fav-empty-icon">❤️</div>
+        <div class="fav-empty-title">Favori Listeniz Boş</div>
+        <p class="fav-empty-sub">Beğendiğiniz ürünleri favorilerinize ekleyin,<br>kolayca takip edin ve sepete ekleyin.</p>
+        <a href="urunler.html" class="fav-empty-btn">ÜRÜNLERİ KEŞFET →</a>
+      </div>`;
+    return;
+  }
+
+  if (toolbar) toolbar.style.display = 'flex';
+  if (badge) badge.textContent = allFavorites.length + ' ürün';
+
+  let sorted = [...allFavorites];
+  if (_favSort === 'price_asc')  sorted.sort((a,b) => (a.price||0)-(b.price||0));
+  else if (_favSort === 'price_desc') sorted.sort((a,b) => (b.price||0)-(a.price||0));
+  else if (_favSort === 'name')  sorted.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+  else sorted.sort((a,b) => ((b.addedAt?.seconds||0)-(a.addedAt?.seconds||0)));
+
+  el.innerHTML = sorted.map(p => {
+    const statusCls = p.status === 'Tükendi' ? 'out' : p.status === 'Son 3' ? 'low' : 'instock';
+    const statusTxt = p.status === 'Tükendi' ? 'Tükendi' : p.status === 'Son 3' ? 'Son 3' : 'Stokta';
+    const isOut     = p.status === 'Tükendi';
+    return `
+      <div class="fav-card">
+        <div class="fav-img" onclick="goToProduct('${p.id}')">
+          ${p.image ? '<img src="' + p.image + '" alt="' + escH(p.name||'') + '">' : ''}
+          ${p.cat ? '<div class="fav-cat-badge">' + escH(p.cat) + '</div>' : ''}
+          <div class="fav-img-overlay"><button class="fav-overlay-btn">İNCELE</button></div>
+          <button class="fav-remove" onclick="event.stopPropagation();removeFav('${p.id}')" title="Favorilerden çıkar">✕</button>
+        </div>
+        <div class="fav-info">
+          <div class="fav-name" onclick="goToProduct('${p.id}')">${escH(p.name||'')}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div class="fav-price">${p.price ? '₺'+p.price : '—'}</div>
+            <span class="fav-status ${statusCls}">${statusTxt}</span>
+          </div>
+          <div class="fav-actions">
+            <button class="fav-cart-btn" onclick="favAddToCart('${p.id}')" ${isOut ? 'disabled' : ''}>
+              ${isOut ? 'TÜKENDI' : '🛒 SEPETE EKLE'}
+            </button>
+            <button class="fav-detail-btn" onclick="goToProduct('${p.id}')" title="Ürün detayı">→</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function goToProduct(id) {
+  window.location.href = 'urunler.html#prod-' + id;
+}
+
+function favAddToCart(id) {
+  const p = allFavorites.find(x => x.id === id);
+  if (!p || p.status === 'Tükendi') return;
+  let cart = JSON.parse(localStorage.getItem('retropatch_cart') || '[]');
+  const existing = cart.find(i => i.id === id && (!i.back || i.back === 'Düz'));
+  if (existing) {
+    existing.qty = (existing.qty || 1) + 1;
+  } else {
+    cart.push({ id: p.id, name: p.name, price: p.price||0, image: p.image||'', cat: p.cat||'', back: 'Düz', size: p.size||'', qty: 1 });
+  }
+  localStorage.setItem('retropatch_cart', JSON.stringify(cart));
+  const btn = document.querySelector('.fav-cart-btn[onclick="favAddToCart(\''+id+'\')"]');
+  if (btn) {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Eklendi!';
+    btn.style.background = 'var(--green)';
+    setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; }, 1800);
+  }
+  toast('✓ Sepete eklendi!');
+  updateCartCount();
 }
 
 function removeFav(id) {
   db.collection('users').doc(currentUser.uid).collection('favorites').doc(id).delete()
-    .then(()=>toast('Favoriden çıkarıldı'));
+    .then(() => toast('Favorilerden çıkarıldı'));
 }
+
+function escH(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 
 // ═══ ADRES DEFTERİ ═══
 function loadAddresses() {
