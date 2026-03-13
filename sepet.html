@@ -451,10 +451,12 @@
   <div id="successWrap">
     <div class="success-icon">✅</div>
     <div class="success-title">SİPARİŞ ALINDI!</div>
-    <div class="success-sub">Siparişiniz başarıyla oluşturuldu. Sipariş durumunuzu hesabınızdan takip edebilirsiniz.</div>
+    <div class="success-sub">Siparişiniz başarıyla oluşturuldu. Sipariş kodunuzu not alın, kargo takibi için kullanabilirsiniz.</div>
     <div class="success-code" id="successCode">RP-000000</div>
     <br>
-    <a href="hesap.html" style="background:var(--accent);color:#000;padding:13px 32px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;text-decoration:none;display:inline-block;">HESABIMA GİT →</a>
+    <a id="trackOrderBtn" href="takip.html" style="background:var(--accent);color:#000;padding:13px 32px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;text-decoration:none;display:inline-block;">🚚 SİPARİŞİ TAKİP ET →</a>
+    &nbsp;
+    <a href="hesap.html" style="border:1px solid rgba(200,169,110,.4);color:var(--accent);padding:13px 32px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;text-decoration:none;display:inline-block;margin-top:8px;">HESABIMA GİT</a>
     &nbsp;
     <a href="urunler.html" style="border:1px solid var(--border);color:var(--text);padding:13px 32px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;text-decoration:none;display:inline-block;margin-top:8px;">ALIŞVERİŞE DEVAM</a>
   </div>
@@ -925,6 +927,9 @@ async function doCheckout() {
     const cb = document.getElementById('checkoutBtn');
     if (cb) cb.style.display = 'none';
     document.getElementById('successCode').textContent = code;
+    // Takip butonuna sipariş kodunu ekle
+    const trackBtn = document.getElementById('trackOrderBtn');
+    if (trackBtn) trackBtn.href = 'takip.html?code=' + code;
     window.scrollTo(0,0);
     // Email bildirimi (arka planda, hata olsa sipariş etkilenmez)
     const _fullOrder = {...orderData, userEmail: orderData.userEmail || (currentUser && currentUser.email) || ''};
