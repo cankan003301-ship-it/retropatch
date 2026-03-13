@@ -109,25 +109,65 @@
     /* YORUM SİSTEMİ */
     .reviews-section{margin-top:16px;border-top:1px solid var(--border);padding-top:16px;}
     .reviews-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+
+    /* Puan özet kartı */
+    .review-summary{display:flex;gap:16px;align-items:flex-start;margin-bottom:14px;padding:12px;background:var(--bg3);border:1px solid var(--border);}
+    .review-big-score{text-align:center;flex-shrink:0;}
+    .review-big-num{font-family:'Bebas Neue',cursive;font-size:48px;color:#f4c542;line-height:1;}
+    .review-big-stars{color:#f4c542;font-size:14px;letter-spacing:2px;}
+    .review-big-count{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:1px;}
+    .review-bars{flex:1;display:flex;flex-direction:column;gap:4px;}
+    .review-bar-row{display:flex;align-items:center;gap:6px;cursor:pointer;}
+    .review-bar-row:hover .review-bar-fill{filter:brightness(1.2);}
+    .review-bar-label{font-family:'Bebas Neue',cursive;font-size:13px;color:var(--muted);width:18px;text-align:right;flex-shrink:0;}
+    .review-bar-track{flex:1;height:6px;background:var(--border);overflow:hidden;}
+    .review-bar-fill{height:100%;background:#f4c542;transition:width .4s ease;}
+    .review-bar-cnt{font-size:10px;color:var(--muted);width:20px;text-align:right;flex-shrink:0;}
+    .review-bar-row.active-filter .review-bar-label{color:var(--accent);}
+    .review-bar-row.active-filter .review-bar-fill{background:var(--accent);}
+
+    /* Form */
     .stars-input{display:flex;gap:4px;margin-bottom:10px;flex-direction:row-reverse;justify-content:flex-end;}
     .stars-input input{display:none;}
-    .stars-input label{font-size:20px;cursor:pointer;color:var(--border);transition:color .15s;}
+    .stars-input label{font-size:24px;cursor:pointer;color:var(--border);transition:color .15s;}
     .stars-input input:checked ~ label,.stars-input label:hover,.stars-input label:hover ~ label{color:#f4c542;}
     .review-form{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
-    .review-form textarea{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;resize:none;height:64px;transition:border-color .2s;}
+    .review-textarea-wrap{position:relative;}
+    .review-form textarea{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 10px 24px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;resize:none;height:72px;transition:border-color .2s;box-sizing:border-box;}
     .review-form textarea:focus{border-color:var(--accent);}
-    .review-submit{background:var(--accent);color:#000;border:none;padding:9px 20px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;align-self:flex-end;}
+    .review-char-count{position:absolute;bottom:6px;right:8px;font-size:10px;color:var(--muted);}
+    .review-char-count.warn{color:var(--accent2);}
+    .review-form-footer{display:flex;align-items:center;justify-content:space-between;}
+    .review-submit{background:var(--accent);color:#000;border:none;padding:9px 20px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
     .review-submit:hover{background:#d4b77a;}
     .review-submit:disabled{opacity:.5;cursor:not-allowed;}
-    .review-list{display:flex;flex-direction:column;gap:10px;max-height:200px;overflow-y:auto;}
-    .review-list::-webkit-scrollbar{width:3px;}
-    .review-list::-webkit-scrollbar-thumb{background:var(--border);}
-    .review-item{background:var(--bg3);border:1px solid var(--border);padding:10px 12px;}
-    .review-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+    .review-already{font-size:11px;color:var(--muted);font-style:italic;}
+
+    /* Liste */
+    .review-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;}
+    .review-filter-chips{display:flex;gap:4px;flex-wrap:wrap;}
+    .rv-chip{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;padding:4px 10px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s;background:transparent;}
+    .rv-chip:hover,.rv-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.07);}
+    .rv-sort{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;outline:none;cursor:pointer;}
+    .review-list{display:flex;flex-direction:column;gap:8px;}
+    .review-item{background:var(--bg3);border:1px solid var(--border);padding:12px;}
+    .review-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;gap:8px;}
+    .review-header-left{display:flex;flex-direction:column;gap:2px;}
     .review-author{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--accent);}
-    .review-stars{color:#f4c542;font-size:13px;letter-spacing:1px;}
-    .review-text{font-size:12px;color:var(--muted);line-height:1.6;}
-    .review-date{font-size:10px;color:var(--muted);margin-top:4px;}
+    .review-stars{color:#f4c542;font-size:12px;letter-spacing:1px;}
+    .review-text{font-size:12px;color:rgba(232,232,232,.8);line-height:1.65;margin-bottom:8px;}
+    .review-footer{display:flex;align-items:center;justify-content:space-between;}
+    .review-date{font-size:10px;color:var(--muted);}
+    .review-helpful{display:flex;align-items:center;gap:5px;}
+    .helpful-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 8px;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px;}
+    .helpful-btn:hover,.helpful-btn.voted{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.07);}
+    .helpful-btn.voted{cursor:default;}
+    .review-helpful-count{font-size:10px;color:var(--muted);}
+
+    /* Daha fazla göster */
+    .review-show-more{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;cursor:pointer;transition:all .2s;margin-top:4px;}
+    .review-show-more:hover{border-color:var(--accent);color:var(--accent);}
+
     .review-avg{font-family:'Bebas Neue',cursive;font-size:28px;color:#f4c542;margin-right:8px;}
     .review-login-note{font-size:11px;color:var(--muted);text-align:center;padding:10px;border:1px solid var(--border);background:var(--bg3);}
     .review-login-note a{color:var(--accent);text-decoration:none;}
@@ -853,115 +893,268 @@ function toggleFav(productId, btn) {
       });
   }
 }
+// Yorum sistemi state
+let _rvFilter = 0;     // 0=tümü, 1-5=puana göre
+let _rvSort   = 'new'; // 'new' | 'helpful'
+let _rvPage   = 5;     // gösterilen yorum sayısı
+let _rvAll    = [];    // tüm yorumlar
+let _rvVoted  = new Set(JSON.parse(localStorage.getItem('rp_rv_votes')||'[]'));
+
 function loadReviews(productId) {
   if (window._reviewsUnsub) { window._reviewsUnsub(); window._reviewsUnsub = null; }
-  const list = document.getElementById('reviewList');
-  const formArea = document.getElementById('reviewFormArea');
-  const avgBadge = document.getElementById('reviewAvgBadge');
-  list.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:12px;">Yükleniyor...</div>';
+  _rvFilter = 0; _rvSort = 'new'; _rvPage = 5;
 
+  const list      = document.getElementById('reviewList');
+  const formArea  = document.getElementById('reviewFormArea');
+  const avgBadge  = document.getElementById('reviewAvgBadge');
+  avgBadge.textContent = '';
+  list.innerHTML  = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:20px;">Yükleniyor...</div>';
+
+  // Form: önce satın alma ve daha önce yorum yazma kontrolü
   const user = auth.currentUser;
   if (user) {
-    formArea.innerHTML = `
-      <div class="review-form">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;color:var(--muted);margin-bottom:5px;">PUANINIZ</div>
-        <div class="stars-input" id="starsInput">
-          <input type="radio" name="rstar" id="s5" value="5"><label for="s5">★</label>
-          <input type="radio" name="rstar" id="s4" value="4"><label for="s4">★</label>
-          <input type="radio" name="rstar" id="s3" value="3"><label for="s3">★</label>
-          <input type="radio" name="rstar" id="s2" value="2"><label for="s2">★</label>
-          <input type="radio" name="rstar" id="s1" value="1"><label for="s1">★</label>
-        </div>
-        <textarea id="reviewText" placeholder="Ürün hakkında düşüncelerinizi yazın..."></textarea>
-        <button class="review-submit" id="reviewSubmitBtn" onclick="submitReview('${productId}')">Yorum Gönder</button>
-      </div>`;
+    formArea.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px;">Kontrol ediliyor...</div>';
+    Promise.all([
+      db.collection('orders').where('userId','==',user.uid).get(),
+      db.collection('products').doc(productId).collection('reviews')
+        .where('userId','==',user.uid).limit(1).get()
+    ]).then(([orderSnap, existingSnap]) => {
+      const hasPurchased = orderSnap.docs.some(doc => {
+        const d = doc.data();
+        if (d.status === 'iptal') return false;
+        return (d.items||[]).some(i => i.id === productId) ||
+               (d.orderSource === 'form' && d.userEmail === user.email);
+      });
+      const hasReviewed = !existingSnap.empty;
+      if (hasReviewed) {
+        formArea.innerHTML = `<div class="review-already">✓ Bu ürün için yorumunuz mevcut. Teşekkürler!</div>`;
+      } else if (!hasPurchased) {
+        formArea.innerHTML = `<div class="review-login-note">Yorum yazmak için bu ürünü satın almış olmanız gerekiyor.</div>`;
+      } else {
+        formArea.innerHTML = `
+          <div class="review-form">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;">PUANINIZ</div>
+            <div class="stars-input" id="starsInput">
+              <input type="radio" name="rstar" id="s5" value="5"><label for="s5">★</label>
+              <input type="radio" name="rstar" id="s4" value="4"><label for="s4">★</label>
+              <input type="radio" name="rstar" id="s3" value="3"><label for="s3">★</label>
+              <input type="radio" name="rstar" id="s2" value="2"><label for="s2">★</label>
+              <input type="radio" name="rstar" id="s1" value="1"><label for="s1">★</label>
+            </div>
+            <div class="review-textarea-wrap">
+              <textarea id="reviewText" placeholder="Deneyiminizi paylaşın... (en az 10 karakter)" maxlength="1000" oninput="rvCharCount(this)"></textarea>
+              <span class="review-char-count" id="rvCharCount">0/1000</span>
+            </div>
+            <div class="review-form-footer">
+              <button class="review-submit" id="reviewSubmitBtn" onclick="submitReview('${productId}')">Yorum Gönder</button>
+            </div>
+          </div>`;
+      }
+    }).catch(() => {
+      formArea.innerHTML = `<div class="review-login-note">Yorum yapmak için <a href="uye.html">giriş yapın</a></div>`;
+    });
   } else {
     formArea.innerHTML = `<div class="review-login-note">Yorum yapmak için <a href="uye.html">giriş yapın</a></div>`;
   }
 
+  // Yorumları dinle
   window._reviewsUnsub = db.collection('products').doc(productId)
-    .collection('reviews').orderBy('createdAt','desc').limit(30)
+    .collection('reviews').orderBy('createdAt','desc').limit(50)
     .onSnapshot(snap => {
-      const reviews = snap.docs.map(d => ({id:d.id,...d.data()})).filter(r => r.approved !== false);
-      if (!reviews.length) {
-        list.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:14px;">Henüz yorum yok. İlk yorumu siz yapın!</div>';
-        avgBadge.textContent = '';
-        return;
-      }
-      const avg = reviews.reduce((s,r) => s+(r.rating||0), 0) / reviews.length;
-      avgBadge.textContent = '★ ' + avg.toFixed(1) + ' (' + reviews.length + ' yorum)';
-      list.innerHTML = reviews.map(r => `
-        <div class="review-item">
-          <div class="review-header">
-            <span class="review-author">${escHtml(r.userName||'Anonim')}</span>
-            <span class="review-stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</span>
-          </div>
-          <div class="review-text">${escHtml(r.text||'')}</div>
-          <div class="review-date">${r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('tr-TR') : ''}</div>
-        </div>`).join('');
+      _rvAll = snap.docs.map(d => ({id:d.id,...d.data()})).filter(r => r.approved !== false);
+      renderReviewSummary();
+      renderReviewList();
     }, () => {
       list.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:14px;">Yorumlar yüklenemedi.</div>';
     });
+}
+
+function rvCharCount(el) {
+  const len = el.value.length;
+  const counter = document.getElementById('rvCharCount');
+  if (!counter) return;
+  counter.textContent = len + '/1000';
+  counter.classList.toggle('warn', len > 900);
+}
+
+function renderReviewSummary() {
+  const avgBadge = document.getElementById('reviewAvgBadge');
+  const listEl   = document.getElementById('reviewList');
+  if (!_rvAll.length) {
+    avgBadge.textContent = '';
+    return;
+  }
+  const avg = _rvAll.reduce((s,r)=>s+(r.rating||0),0) / _rvAll.length;
+  avgBadge.textContent = '★ ' + avg.toFixed(1) + ' (' + _rvAll.length + ' yorum)';
+
+  // Puan dağılımı
+  const dist = [0,0,0,0,0];
+  _rvAll.forEach(r => { const i = (r.rating||1)-1; if(i>=0 && i<5) dist[i]++; });
+  const maxD = Math.max(...dist) || 1;
+
+  const summaryHTML = `
+    <div class="review-summary">
+      <div class="review-big-score">
+        <div class="review-big-num">${avg.toFixed(1)}</div>
+        <div class="review-big-stars">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5-Math.round(avg))}</div>
+        <div class="review-big-count">${_rvAll.length} YORUM</div>
+      </div>
+      <div class="review-bars">
+        ${[5,4,3,2,1].map(star => {
+          const cnt = dist[star-1];
+          const pct = Math.round((cnt/maxD)*100);
+          return `<div class="review-bar-row${_rvFilter===star?' active-filter':''}" onclick="rvSetFilter(${star})">
+            <span class="review-bar-label">${star}</span>
+            <div class="review-bar-track"><div class="review-bar-fill" style="width:${pct}%"></div></div>
+            <span class="review-bar-cnt">${cnt}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  // Kontroller
+  const ctrlHTML = `
+    <div class="review-controls">
+      <div class="review-filter-chips">
+        <span class="rv-chip${_rvFilter===0?' active':''}" onclick="rvSetFilter(0)">Tümü</span>
+        ${[5,4,3,2,1].map(s=>`<span class="rv-chip${_rvFilter===s?' active':''}" onclick="rvSetFilter(${s})">${s}★</span>`).join('')}
+      </div>
+      <select class="rv-sort" onchange="rvSetSort(this.value)">
+        <option value="new"${_rvSort==='new'?' selected':''}>En Yeni</option>
+        <option value="helpful"${_rvSort==='helpful'?' selected':''}>En Faydalı</option>
+        <option value="high"${_rvSort==='high'?' selected':''}>Yüksek Puan</option>
+        <option value="low"${_rvSort==='low'?' selected':''}>Düşük Puan</option>
+      </select>
+    </div>`;
+
+  // Yorumlar başına summary ve kontroller ekle
+  if (!document.getElementById('rvSummaryEl')) {
+    const section = document.querySelector('.reviews-section');
+    const div = document.createElement('div');
+    div.id = 'rvSummaryEl';
+    section.insertBefore(div, document.getElementById('reviewList'));
+  }
+  document.getElementById('rvSummaryEl').innerHTML = summaryHTML + ctrlHTML;
+}
+
+function renderReviewList() {
+  const listEl = document.getElementById('reviewList');
+  let reviews = [..._rvAll];
+
+  // Puan filtresi
+  if (_rvFilter > 0) reviews = reviews.filter(r => r.rating === _rvFilter);
+
+  // Sıralama
+  if (_rvSort === 'helpful') reviews.sort((a,b)=>(b.helpful||0)-(a.helpful||0));
+  else if (_rvSort === 'high') reviews.sort((a,b)=>(b.rating||0)-(a.rating||0));
+  else if (_rvSort === 'low')  reviews.sort((a,b)=>(a.rating||0)-(b.rating||0));
+  else reviews.sort((a,b)=>((b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)));
+
+  if (!reviews.length) {
+    listEl.innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;padding:20px;">Bu puan için yorum bulunamadı.</div>';
+    return;
+  }
+
+  const visible = reviews.slice(0, _rvPage);
+  listEl.innerHTML = visible.map(r => {
+    const starsStr = '★'.repeat(r.rating||0) + '☆'.repeat(5-(r.rating||0));
+    const dateStr  = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}) : '';
+    const helpful  = r.helpful || 0;
+    const voted    = _rvVoted.has(r.id);
+    return `
+      <div class="review-item">
+        <div class="review-header">
+          <div class="review-header-left">
+            <span class="review-author">${escHtml(r.userName||'Üye')}</span>
+            <span class="review-stars">${starsStr}</span>
+          </div>
+          <span class="review-date">${dateStr}</span>
+        </div>
+        <div class="review-text">${escHtml(r.text||'')}</div>
+        <div class="review-footer">
+          <div class="review-helpful">
+            <button class="helpful-btn" id="hbtn_${r.id}" data-voted="${voted}" onclick="if(!this.dataset.voted||this.dataset.voted==='false')rvHelpful('${r.id}',this)" style="${voted?'border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.07);':''}">
+              👍 Faydalı${helpful>0?' ('+helpful+')':''}
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Daha fazla butonu
+  if (reviews.length > _rvPage) {
+    listEl.innerHTML += `<button class="review-show-more" onclick="rvShowMore()">DAHA FAZLA GÖSTER (${reviews.length - _rvPage} yorum daha)</button>`;
+  }
+}
+
+function rvSetFilter(star) {
+  _rvFilter = (_rvFilter === star) ? 0 : star;
+  _rvPage = 5;
+  renderReviewSummary();
+  renderReviewList();
+}
+
+function rvSetSort(val) {
+  _rvSort = val;
+  _rvPage = 5;
+  renderReviewList();
+}
+
+function rvShowMore() {
+  _rvPage += 5;
+  renderReviewList();
+}
+
+function rvHelpful(reviewId, btn) {
+  if (_rvVoted.has(reviewId)) return;
+  _rvVoted.add(reviewId);
+  localStorage.setItem('rp_rv_votes', JSON.stringify([..._rvVoted]));
+  btn.classList.add('voted');
+  // Firestore güncelle
+  const prodId = window.currentProduct?.id;
+  if (!prodId) return;
+  db.collection('products').doc(prodId).collection('reviews').doc(reviewId)
+    .update({ helpful: firebase.firestore.FieldValue.increment(1) }).catch(()=>{});
+  // Butonu güncelle
+  const cur = parseInt(btn.textContent.match(/\d+/)?.[0]||'0');
+  btn.textContent = '👍 Faydalı (' + (cur+1) + ')';
 }
 
 function submitReview(productId) {
   const user = auth.currentUser;
   if (!user) { showToast('Lütfen giriş yapın', 'err'); return; }
   const ratingEl = document.querySelector('input[name="rstar"]:checked');
-  const textEl = document.getElementById('reviewText');
-  const rating = ratingEl ? parseInt(ratingEl.value) : 0;
-  const text = textEl?.value.trim() || '';
-  if (!rating) { showToast('Lütfen puan seçin ★', 'err'); return; }
-  if (text.length < 3) { showToast('Lütfen bir yorum yazın', 'err'); return; }
+  const textEl   = document.getElementById('reviewText');
+  const rating   = ratingEl ? parseInt(ratingEl.value) : 0;
+  const text     = textEl?.value.trim() || '';
+  if (!rating)         { showToast('Lütfen puan seçin ★', 'err'); return; }
+  if (text.length < 10){ showToast('Yorum en az 10 karakter olmalı', 'err'); return; }
 
   const btn = document.getElementById('reviewSubmitBtn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Kontrol ediliyor...'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Gönderiliyor...'; }
 
-  // Satın alma kontrolü
-  db.collection('orders')
-    .where('userId', '==', user.uid)
-    .get()
-    .then(orderSnap => {
-      const hasPurchased = orderSnap.docs.some(doc => {
-        const data = doc.data();
-        if (data.status === 'iptal') return false;
-        const items = data.items || [];
-        const inItems = items.some(i => i.id === productId);
-        const isFormOrder = data.orderSource === 'form' && data.userEmail === user.email;
-        return inItems || isFormOrder;
-      });
-
-      if (!hasPurchased) {
-        showToast('Yorum yapmak için bu ürünü satın almış olmanız gerekiyor', 'err');
-        if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
-        return;
-      }
-
-      // Yorumu direkt yayınla (approved: true)
-      if (btn) btn.textContent = 'Gönderiliyor...';
-      return db.collection('products').doc(productId).collection('reviews').add({
-        userId:    user.uid,
-        userName:  user.displayName || user.email?.split('@')[0] || 'Üye',
-        userEmail: user.email || '',
-        productId: productId,
-        rating:    rating,
-        text:      text,
-        approved:  true,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => {
-        db.collection('products').doc(productId).update({
-          reviews: firebase.firestore.FieldValue.increment(1)
-        }).catch(() => {});
-        showToast('✓ Yorumunuz yayınlandı!', 'ok');
-        if (textEl) textEl.value = '';
-        document.querySelectorAll('input[name="rstar"]').forEach(r => r.checked = false);
-        if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
-      });
-    })
-    .catch(() => {
-      showToast('Bir hata oluştu, tekrar deneyin', 'err');
-      if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
-    });
+  db.collection('products').doc(productId).collection('reviews').add({
+    userId:    user.uid,
+    userName:  user.displayName || user.email?.split('@')[0] || 'Üye',
+    userEmail: user.email || '',
+    productId: productId,
+    rating:    rating,
+    text:      text,
+    helpful:   0,
+    approved:  true,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    db.collection('products').doc(productId).update({
+      reviews: firebase.firestore.FieldValue.increment(1)
+    }).catch(() => {});
+    showToast('✓ Yorumunuz yayınlandı!', 'ok');
+    // Formu "daha önce yazdın" mesajıyla değiştir
+    const formArea = document.getElementById('reviewFormArea');
+    if (formArea) formArea.innerHTML = '<div class="review-already">✓ Yorumunuz yayınlandı. Teşekkürler!</div>';
+  }).catch(() => {
+    showToast('Bir hata oluştu, tekrar deneyin', 'err');
+    if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
+  });
 }
 
 function escHtml(str) {
