@@ -472,12 +472,7 @@ function renderGrid() {
           <span class="pstat">❤️ ${p.favorites||0}</span>
           <span class="pstat">⭐ ${p.reviews||0}</span>
         </div>
-        <div class="card-back-selector" onclick="event.stopPropagation()">
-          <button class="card-back-btn selected" onclick="selectCardBackU(this,'Düz',BACK_PRICES['Düz']||0)">Düz<span class="card-back-price">+${BACK_PRICES['Düz']||0}₺</span></button>
-          <button class="card-back-btn" onclick="selectCardBackU(this,'Ütüyle Yapışan',BACK_PRICES['Ütüyle Yapışan']||20)">Ütüyle<span class="card-back-price">+${BACK_PRICES['Ütüyle Yapışan']||20}₺</span></button>
-          <button class="card-back-btn" onclick="selectCardBackU(this,'Cırt Cırt',BACK_PRICES['Cırt Cırt']||30)">Cırt Cırt<span class="card-back-price">+${BACK_PRICES['Cırt Cırt']||30}₺</span></button>
-        </div>
-        <button onclick="event.stopPropagation();addToCartFromCard('${p.id}',this)" style="margin-top:8px;width:100%;background:var(--accent);color:#000;border:none;padding:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:background .2s;">🛒 SEPETE EKLE</button>
+        <button onclick="event.stopPropagation();openModal('${p.id}')" style="margin-top:10px;width:100%;background:var(--accent);color:#000;border:none;padding:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;">🛒 SEPETE EKLE</button>
       </div>
     </div>`).join('');
 }
