@@ -567,7 +567,8 @@ let currentPriceMax = null;
 let currentProduct = null;
 
 // Hash'ten modal açma için pending tutuyoruz
-const _pendingModal = location.hash.startsWith('#prod-') ? location.hash.replace('#prod-','') : null;
+// let kullan (const değil) — modal açılınca null'layabilelim
+let _pendingModal = location.hash.startsWith('#prod-') ? location.hash.replace('#prod-','') : null;
 
 loadURLParams();
 db.collection('products').onSnapshot(snap => {
@@ -576,10 +577,14 @@ db.collection('products').onSnapshot(snap => {
   document.dispatchEvent(new Event('srProductsReady'));
   buildFilters();
   applyAll();
-  // Hash'ten modal aç — ürünler artık yüklenmiş durumda
-  if (_pendingModal && allProducts.find(x => x.id === _pendingModal)) {
-    openModal(_pendingModal);
+  // Hash'ten modal aç — sadece bir kere çalışsın
+  if (_pendingModal) {
+    const pid = _pendingModal;
+    _pendingModal = null; // önce sıfırla, onSnapshot tekrar tetiklenirse açılmasın
     history.replaceState(null, '', location.pathname);
+    if (allProducts.find(x => x.id === pid)) {
+      openModal(pid);
+    }
   }
 });
 
