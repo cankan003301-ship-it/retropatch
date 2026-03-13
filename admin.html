@@ -766,9 +766,23 @@
       </div>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>Ad Soyad</th><th>E-posta</th><th>Telefon</th><th>Kayıt Tarihi</th><th>Sipariş</th><th>Harcama</th></tr></thead>
+          <thead><tr><th>Ad Soyad</th><th>E-posta</th><th>Telefon</th><th>Kayıt Tarihi</th><th>Sipariş</th><th>Harcama</th><th></th></tr></thead>
           <tbody id="membersTbody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ADRES MODAL -->
+    <div id="memberAddrOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:9000;align-items:center;justify-content:center;padding:20px;">
+      <div style="background:var(--card);border:1px solid var(--border);width:100%;max-width:560px;max-height:80vh;overflow-y:auto;animation:fadeIn .2s ease;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);">
+          <div>
+            <div style="font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;" id="memberAddrName"></div>
+            <div style="font-size:11px;color:var(--muted2);margin-top:2px;">KAYITLI ADRESLER</div>
+          </div>
+          <button onclick="closeMemberAddresses()" style="background:none;border:1px solid var(--border);color:var(--muted2);width:30px;height:30px;cursor:pointer;font-size:14px;transition:all .2s;" onmouseover="this.style.borderColor='#e63946';this.style.color='#e63946'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'">✕</button>
+        </div>
+        <div id="memberAddrList" style="padding:16px 24px;"></div>
       </div>
     </div>
 
@@ -3002,8 +3016,81 @@ function renderMembers() {
       <td style="font-size:11px;color:var(--muted2);">${formatDate(u.createdAt)}</td>
       <td><span style="font-family:'Bebas Neue',cursive;font-size:18px;">${userOrders.length}</span></td>
       <td style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);">₺${spent.toLocaleString('tr-TR')}</td>
+      <td style="display:flex;gap:6px;align-items:center;">
+        <button onclick="showMemberAddresses('${u.id}','${(u.name||'').replace(/'/g,\'')}')" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'">📍 Adresler</button>
+        <button onclick="deleteMember('${u.id}','${(u.name||u.email||'bu üyeyi').replace(/'/g,\'')}')" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid rgba(230,57,70,.3);background:transparent;color:#e63946;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(230,57,70,.1)';this.style.borderColor='#e63946'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(230,57,70,.3)'">🗑 Sil</button>
+      </td>
     </tr>`;
   }).join('');
+}
+
+// ============ ÜYE ADRESLERİ ============
+function showMemberAddresses(uid, name) {
+  const overlay = document.getElementById('memberAddrOverlay');
+  const list = document.getElementById('memberAddrList');
+  document.getElementById('memberAddrName').textContent = name || 'Üye';
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted2);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:12px;">YÜKLENİYOR...</div>';
+
+  db.collection('users').doc(uid).collection('addresses').get()
+    .then(snap => {
+      if (snap.empty) {
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted2);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:12px;">📍 KAYITLI ADRES YOK</div>';
+        return;
+      }
+      const addresses = snap.docs.map(d => ({id: d.id, ...d.data()}));
+      list.innerHTML = addresses.map(a => `
+        <div style="border:1px solid var(--border);padding:16px;margin-bottom:8px;position:relative;${a.isDefault ? 'border-color:rgba(200,169,110,.5);background:rgba(200,169,110,.04);' : ''}">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:1px;">${a.title || 'Adres'}</span>
+            ${a.isDefault ? '<span style="font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1.5px;padding:2px 7px;background:rgba(200,169,110,.15);border:1px solid rgba(200,169,110,.4);color:var(--accent);">VARSAYILAN</span>' : ''}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;font-size:12px;">
+            <div><span style="color:var(--muted2);font-size:10px;letter-spacing:1px;display:block;margin-bottom:2px;">AD SOYAD</span>${a.name || '—'}</div>
+            <div><span style="color:var(--muted2);font-size:10px;letter-spacing:1px;display:block;margin-bottom:2px;">TELEFON</span>${a.phone || '—'}</div>
+            <div style="grid-column:1/-1;"><span style="color:var(--muted2);font-size:10px;letter-spacing:1px;display:block;margin-bottom:2px;">ADRES</span>${a.line || '—'}</div>
+            <div><span style="color:var(--muted2);font-size:10px;letter-spacing:1px;display:block;margin-bottom:2px;">İLÇE / İL</span>${a.district || '—'} / ${a.city || '—'}</div>
+            <div><span style="color:var(--muted2);font-size:10px;letter-spacing:1px;display:block;margin-bottom:2px;">POSTA KODU</span>${a.zip || '—'}</div>
+          </div>
+        </div>`).join('');
+    })
+    .catch(err => {
+      list.innerHTML = '<div style="text-align:center;padding:32px;color:#e63946;font-size:12px;">Adresler yüklenemedi: ' + err.message + '</div>';
+    });
+}
+
+function closeMemberAddresses() {
+  document.getElementById('memberAddrOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function deleteMember(uid, name) {
+  if (!confirm('⚠️ "' + name + '" adlı üyeyi silmek istediğinize emin misiniz?
+
+Bu işlem kullanıcı verisini Firestore'dan siler. Firebase Auth kaydı Manuel silinmelidir.')) return;
+  // Önce alt koleksiyonları sil
+  const userRef = db.collection('users').doc(uid);
+  const deleteSubcollection = (colName) => {
+    return userRef.collection(colName).get().then(snap => {
+      const batch = db.batch();
+      snap.docs.forEach(d => batch.delete(d.ref));
+      return batch.commit();
+    });
+  };
+  Promise.all([
+    deleteSubcollection('addresses'),
+    deleteSubcollection('favorites'),
+  ]).then(() => {
+    return userRef.delete();
+  }).then(() => {
+    allMembers = allMembers.filter(u => u.id !== uid);
+    renderMembers();
+    document.getElementById('memberCount').textContent = allMembers.length + ' üye';
+    showToast('✓ Üye silindi');
+  }).catch(err => {
+    showToast('❌ Silinemedi: ' + err.message, true);
+  });
 }
 
 // ============ KUPONLAR ============
