@@ -467,7 +467,7 @@ function renderGrid() {
           <span class="pstat">❤️ ${p.favorites||0}</span>
           <span class="pstat">⭐ ${p.reviews||0}</span>
         </div>
-        <button onclick="event.stopPropagation();addToCartById('${p.id}')" style="margin-top:10px;width:100%;background:var(--accent);color:#000;border:none;padding:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;">🛒 SEPETE EKLE</button>
+        <button onclick="event.stopPropagation();openModal('${p.id}')" style="margin-top:10px;width:100%;background:var(--accent);color:#000;border:none;padding:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;">🛒 SEPETE EKLE</button>
       </div>
     </div>`).join('');
 }
@@ -665,11 +665,11 @@ function onBackChoice(val) {
 }
 
 function addToCart(p) {
-  let cart = JSON.parse(localStorage.getItem('retropatch_cart')||'[]');
-  const existing = cart.find(i=>i.id===p.id);
+  let cart = JSON.parse(localStorage.getItem("retropatch_cart")||"[]");
+  const existing = cart.find(i=>i.id===p.id && i.back===(p.back||""));
   if (existing) existing.qty = (existing.qty||1)+1;
-  else cart.push({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',qty:1});
-  localStorage.setItem('retropatch_cart', JSON.stringify(cart));
+  else cart.push({id:p.id, name:p.name, price:p.price, image:p.image||"", cat:p.cat||"", back:p.back||"", size:p.size||"", qty:1});
+  localStorage.setItem("retropatch_cart", JSON.stringify(cart));
   updateCartCount();
 }
 
