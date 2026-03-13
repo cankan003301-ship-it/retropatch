@@ -1518,12 +1518,19 @@ function toggleFav(p) {
   const user = firebase.auth().currentUser;
   if (!user) { showToast('Favori eklemek için giriş yapın!'); setTimeout(()=>location.href='uye.html',1500); return; }
   const ref = db.collection('users').doc(user.uid).collection('favorites').doc(p.id);
+  const prodRef = db.collection('products').doc(p.id);
   ref.get().then(doc => {
     if (doc.exists) {
-      ref.delete().then(()=>showToast('Favoriden çıkarıldı'));
+      ref.delete().then(()=>{
+        prodRef.update({favorites: firebase.firestore.FieldValue.increment(-1)}).catch(()=>{});
+        showToast('Favoriden çıkarıldı');
+      });
     } else {
       ref.set({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',size:p.size||'',status:p.status||'Stokta',addedAt:firebase.firestore.FieldValue.serverTimestamp()})
-        .then(()=>showToast('❤️ Favorilere eklendi!'));
+        .then(()=>{
+          prodRef.update({favorites: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
+          showToast('❤️ Favorilere eklendi!');
+        });
     }
   });
 }
@@ -1533,12 +1540,20 @@ function toggleFavFromModal(btn) {
   const user = firebase.auth().currentUser;
   if (!user) { showToast('Favori eklemek için giriş yapın!'); setTimeout(()=>location.href='uye.html',1500); return; }
   const ref = db.collection('users').doc(user.uid).collection('favorites').doc(currentProduct.id);
+  const prodRef = db.collection('products').doc(currentProduct.id);
   const isFav = btn.classList.contains('active');
   if (isFav) {
     ref.delete().then(() => {
+      prodRef.update({favorites: firebase.firestore.FieldValue.increment(-1)}).then(() => {
+        // Bellekteki veriyi güncelle
+        const prod = allProducts.find(x => x.id === currentProduct.id);
+        if (prod) prod.favorites = Math.max(0, (prod.favorites||0) - 1);
+        // Modal spec satırını güncelle
+        const specFav = document.querySelector('#modalSpecs .modal-spec:last-child .modal-spec-val');
+        if (specFav) specFav.textContent = '❤️ ' + (prod?.favorites || 0);
+      }).catch(()=>{});
       btn.textContent = '♡'; btn.classList.remove('active');
       showToast('Favoriden çıkarıldı');
-      // Karttaki butonu da güncelle
       const card = document.querySelector(`.product-card[data-id="${currentProduct.id}"]`);
       const cardBtn = card?.querySelector('.fav-btn');
       if (cardBtn) { cardBtn.textContent='♡'; cardBtn.classList.remove('active'); }
@@ -1546,9 +1561,14 @@ function toggleFavFromModal(btn) {
   } else {
     ref.set({id:currentProduct.id,name:currentProduct.name,price:currentProduct.price,image:currentProduct.image||'',cat:currentProduct.cat||'',size:currentProduct.size||'',status:currentProduct.status||'Stokta',addedAt:firebase.firestore.FieldValue.serverTimestamp()})
       .then(() => {
+        prodRef.update({favorites: firebase.firestore.FieldValue.increment(1)}).then(() => {
+          const prod = allProducts.find(x => x.id === currentProduct.id);
+          if (prod) prod.favorites = (prod.favorites||0) + 1;
+          const specFav = document.querySelector('#modalSpecs .modal-spec:last-child .modal-spec-val');
+          if (specFav) specFav.textContent = '❤️ ' + (prod?.favorites || 0);
+        }).catch(()=>{});
         btn.textContent = '♥'; btn.classList.add('active');
         showToast('❤️ Favorilere eklendi!');
-        // Karttaki butonu da güncelle
         const card = document.querySelector(`.product-card[data-id="${currentProduct.id}"]`);
         const cardBtn = card?.querySelector('.fav-btn');
         if (cardBtn) { cardBtn.textContent='♥'; cardBtn.classList.add('active'); }
