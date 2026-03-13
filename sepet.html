@@ -505,6 +505,10 @@
 
           <button class="checkout-btn" id="checkoutBtn" onclick="doCheckout()">SİPARİŞİ TAMAMLA</button>
           <div class="secure-badge">🔒 256-bit SSL şifreleme ile güvenli ödeme</div>
+          <button onclick="sendToWhatsApp()" style="width:100%;margin-top:8px;background:#25D366;color:#fff;border:none;padding:13px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s;" onmouseover="this.style.background='#1ebe59'" onmouseout="this.style.background='#25D366'">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.553 4.122 1.523 5.859L.057 23.885a.5.5 0 0 0 .598.598l6.044-1.461A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.879a9.862 9.862 0 0 1-5.022-1.371l-.36-.214-3.735.902.919-3.716-.234-.374A9.862 9.862 0 0 1 2.121 12C2.121 6.527 6.527 2.121 12 2.121S21.879 6.527 21.879 12 17.473 21.879 12 21.879z"/></svg>
+            WHATSAPP İLE SİPARİŞ
+          </button>
         </div>
       </div>
     </div>
@@ -632,6 +636,7 @@ function renderCart() {
             <div class="qty-btn" onclick="changeQty(${i},1)">+</div>
           </div>
           ${item.size?`<span class="item-size">${item.size}</span>`:''}
+          ${item.backType?`<span class="item-size" style="color:var(--accent);border-color:rgba(200,169,110,.3);">🔧 ${item.backType}</span>`:''}
         </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
@@ -753,6 +758,36 @@ function applyCoupon() {
 function copyIBAN() {
   const iban = (window.currentIBAN || document.getElementById('bankIBANVal').textContent).replace(/\s/g,'');
   navigator.clipboard.writeText(iban).then(()=>toast('IBAN kopyalandı!'));
+}
+
+function sendToWhatsApp() {
+  if (!cart.length) { toast('Sepetiniz boş!', true); return; }
+  const subtotal = cart.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0);
+  const cargoPrice = CARGO_PRICES[selectedCargo]||49;
+  const kapidaExtra = selectedPay==='kapida' ? 15 : 0;
+  const total = subtotal + cargoPrice + kapidaExtra - discountAmount;
+  let msg = '🏷 *RetroPatch Sipariş*
+
+';
+  cart.forEach(item => {
+    msg += `• ${item.name}`;
+    if (item.backType) msg += ` (${item.backType})`;
+    msg += ` x${item.qty||1} — ₺${((item.price||0)*(item.qty||1)).toLocaleString('tr-TR')}
+`;
+  });
+  msg += `
+💰 *Toplam: ₺${total.toLocaleString('tr-TR')}*`;
+  msg += `
+🚚 Kargo: ${CARGO_NAMES[selectedCargo]} (₺${cargoPrice})`;
+  if (discountAmount > 0) msg += `
+🎟 İndirim: -₺${discountAmount}`;
+  const adName = document.getElementById('adName').value.trim();
+  const adCity = document.getElementById('adCity').value.trim();
+  if (adName) msg += `
+
+📦 Alıcı: ${adName}`;
+  if (adCity) msg += `, ${adCity}`;
+  window.open('https://wa.me/905375295290?text=' + encodeURIComponent(msg), '_blank');
 }
 
 async function doCheckout() {

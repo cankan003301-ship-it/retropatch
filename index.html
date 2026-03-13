@@ -89,15 +89,11 @@
     .product-price{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--accent);}
     .product-stats{display:flex;gap:8px;margin-top:7px;}
     .pstat{font-size:10px;color:var(--muted);}
-    .card-back-selector{display:flex;gap:4px;margin-top:8px;}
-    .card-back-btn{flex:1;font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:4px 2px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;line-height:1.2;}
-    .card-back-btn:hover{border-color:var(--accent);color:var(--accent);}
-    .card-back-btn.selected{border-color:var(--accent);background:rgba(200,169,110,.15);color:var(--accent);}
     .card-back-price{font-size:11px;display:block;font-weight:600;opacity:.85;}
     .modal-back-btn{flex:1;font-size:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:6px 4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;line-height:1.3;}
     .modal-back-btn:hover{border-color:var(--accent);color:var(--accent);}
     .modal-back-selected{border-color:var(--accent)!important;background:rgba(200,169,110,.15)!important;color:var(--accent)!important;}
-    .modal-back-price{font-size:11px;display:block;font-weight:600;opacity:.85;}
+    .modal-back-price{font-size:11px;display:block;font-weight:600;opacity:.75;}
 
     /* ── YENİ SEPET BUTONU ── */
     .add-cart-btn{
@@ -303,20 +299,7 @@
     .search-highlight{color:var(--accent);}
     @media(max-width:768px){.search-inner{margin-top:60px;}.search-input-main{font-size:18px;}}
 
-
-    /* ===== MOBİL ALT ÇUBUK ===== */
-    .mobile-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:rgba(10,10,10,0.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:8px 0 max(8px,env(safe-area-inset-bottom));justify-content:space-around;align-items:center;}
-    .mbb-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--muted);cursor:pointer;padding:4px 12px;text-decoration:none;transition:color .2s;min-width:56px;}
-    .mbb-btn:hover,.mbb-btn.active{color:var(--accent);}
-    .mbb-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
-    .mbb-label{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;}
-    .mbb-cart-wrap{position:relative;}
-    .mbb-cart-badge{position:absolute;top:-4px;right:-2px;background:var(--accent);color:#000;font-family:'Bebas Neue',cursive;font-size:11px;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1;}
-    @media(max-width:768px){
-      .mobile-bottom-bar{display:flex;}
-      body{padding-bottom:64px;}
-    }
-  </style>
+</style>
 </head>
 <body>
 
@@ -1166,8 +1149,6 @@ function renderFeatured(field) {
           <button class="quick-btn" onclick="event.stopPropagation();openModal(this.closest('.product-card').dataset.id)">İNCELE</button>
         </div>
         <button class="fav-btn" onclick="event.stopPropagation();toggleFavById(this.closest('.product-card').dataset.id,this)" title="Favorilere ekle">♡</button>
-        ${p.status==='Tükendi' ? '<div style="position:absolute;top:8px;left:8px;background:rgba(230,57,70,.9);color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 8px;">TÜKENDİ</div>' : ''}
-        ${p.status==='Yeni' ? '<div style="position:absolute;top:8px;left:8px;background:rgba(46,204,113,.9);color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 8px;">YENİ</div>' : ''}
       </div>
       <div class="product-info">
         <div class="product-cat">${p.cat||''}</div>
@@ -1184,7 +1165,6 @@ function renderFeatured(field) {
           <span class="pstat">❤️ ${p.favorites||0}</span>
           <span class="pstat">⭐ ${p.reviews||0}</span>
         </div>
-
       </div>
     </div>`).join('');
 }
@@ -1198,7 +1178,7 @@ function openModal(id) {
   document.getElementById('modalName').textContent = p.name||'';
   document.getElementById('modalDesc').textContent = p.desc||'';
   document.getElementById('modalPrice').textContent = p.price?'₺'+p.price:'—';
-  // Arka yüzey seçimini sıfırla ve fiyatları güncelle
+  // Arka yüzey seçimini sıfırla
   document.querySelectorAll('.modal-back-btn').forEach(b => b.classList.remove('modal-back-selected'));
   const firstBack = document.querySelector('.modal-back-btn');
   if (firstBack) firstBack.classList.add('modal-back-selected');
@@ -1238,6 +1218,7 @@ function updateModalTotalPrice() {
   const base = parseFloat(currentProduct.price) || 0;
   document.getElementById('modalPrice').textContent = base ? '₺' + (base + backExtra) : '—';
 }
+
 function closeModalBg(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
 function goOrder(){closeModal();document.getElementById('siparis').scrollIntoView({behavior:'smooth'});}
 
@@ -1438,22 +1419,10 @@ function addToCartById(id) {
   if (p) addToCart(p);
 }
 
-function selectCardBack(btn, type, extra) {
-  const card = btn.closest('.card-back-selector');
-  card.querySelectorAll('.card-back-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  card.dataset.backType = type;
-  card.dataset.backExtra = extra;
-}
-
 function rpAddToCart(btn, id) {
   const p = allProducts.find(x => x.id === id);
   if (!p) return;
-  const card = btn.closest('.product-card');
-  const sel = card ? card.querySelector('.card-back-selector') : null;
-  const backType = sel ? (sel.dataset.backType || 'Düz') : 'Düz';
-  const backExtra = sel ? parseInt(sel.dataset.backExtra || '0') : 0;
-  addToCart(p, backType, backExtra);
+  addToCart(p);
   // Animasyon
   const span = btn.querySelector('span');
   const origText = span.textContent;
@@ -1760,53 +1729,7 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
 <!-- ============================================================
      RETROPATCH — GLOBAL WIDGETS
      WhatsApp Balonu + Scroll-to-Top + Skeleton Loading + SSS
-     Bu snippet her HTML dosyasına <!-- MOBİL ALT ÇUBUK -->
-<div class="mobile-bottom-bar" id="mobileBottomBar">
-  <a class="mbb-btn" href="index.html">
-    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span class="mbb-label">Ana Sayfa</span>
-  </a>
-  <a class="mbb-btn" href="urunler.html">
-    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-    <span class="mbb-label">Ürünler</span>
-  </a>
-  <a class="mbb-btn mbb-cart-wrap" href="sepet.html">
-    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-    <span class="mbb-cart-badge" id="mbbCartBadge" style="display:none">0</span>
-    <span class="mbb-label">Sepet</span>
-  </a>
-  <a class="mbb-btn" href="hesap.html" id="mbbHesap">
-    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span class="mbb-label">Hesabım</span>
-  </a>
-</div>
-<script>
-// Mobil alt çubuk sepet sayacı
-(function() {
-  function updateMbbCart() {
-    const cart = JSON.parse(localStorage.getItem('retropatch_cart')||'[]');
-    const count = cart.reduce((s,i)=>s+(i.qty||1),0);
-    const badge = document.getElementById('mbbCartBadge');
-    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
-  }
-  updateMbbCart();
-  window.addEventListener('storage', updateMbbCart);
-  // Mevcut sayfayı aktif göster
-  const path = window.location.pathname;
-  document.querySelectorAll('.mbb-btn').forEach(btn => {
-    const href = btn.getAttribute('href');
-    if (href && path.includes(href.replace('.html',''))) btn.classList.add('active');
-  });
-  // Auth durumuna göre hesabım linki
-  if (typeof firebase !== 'undefined') {
-    firebase.auth().onAuthStateChanged(u => {
-      const el = document.getElementById('mbbHesap');
-      if (el) el.href = u ? 'hesap.html' : 'uye.html';
-    });
-  }
-})();
-</script>
-</body> öncesine eklenecek
+     Bu snippet her HTML dosyasına </body> öncesine eklenecek
      ============================================================ -->
 
 <!-- ─── FLOATING BUTTONS HTML ─── -->
