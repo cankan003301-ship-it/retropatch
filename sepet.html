@@ -212,8 +212,90 @@
     .toast.show{transform:translateY(0);opacity:1;}
     .toast.err{background:var(--accent2);color:#fff;}
 
-    @media(max-width:900px){.cart-layout{grid-template-columns:1fr;}.order-summary{position:static;}}
-    @media(max-width:600px){.page-wrap{padding:90px 16px 40px;}.cart-item{grid-template-columns:56px 1fr auto;gap:10px;}.fg-row{grid-template-columns:1fr;}}
+    @media(max-width:900px){
+      .cart-layout{grid-template-columns:1fr;}
+      .order-summary{position:static;}
+    }
+
+    @media(max-width:600px){
+      /* Sayfa genel */
+      .page-wrap{padding:80px 12px 80px;}
+      .page-title{font-size:34px;}
+
+      /* Sepet urunu - gorsel + icerik yan yana, fiyat/silme alta */
+      .cart-item{
+        grid-template-columns:64px 1fr;
+        grid-template-rows:auto auto;
+        gap:10px 12px;
+        padding:12px;
+      }
+      .cart-item-img{width:64px;height:64px;}
+      .cart-item-price{
+        grid-column:1 / -1;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        border-top:1px solid var(--border);
+        padding-top:10px;
+        margin-top:2px;
+        font-size:22px;
+      }
+      .cart-item-remove{margin-top:0;}
+      .cart-item-name{font-size:14px;}
+      .cart-item-meta{flex-wrap:wrap;gap:6px;}
+
+      /* Adres formu */
+      .address-section{padding:16px;}
+      .address-title{font-size:15px;margin-bottom:12px;}
+      .fg-row{grid-template-columns:1fr;}
+      .fg input,.fg select,.fg textarea{font-size:16px;} /* iOS zoom engelleme */
+
+      /* Kargo secenekleri */
+      .cargo-opt{padding:10px 12px;}
+      .cargo-opt-price{font-size:16px;}
+
+      /* Siparis ozeti */
+      .order-summary{padding:16px;}
+      .summary-title{font-size:18px;}
+      .summary-row{font-size:13px;}
+      .summary-row.total{font-size:20px;}
+
+      /* Odeme yontemleri */
+      .pay-method{padding:12px;}
+      .pay-method-name{font-size:13px;}
+
+      /* Checkout butonu - ekranin altina sabitlenmis cubuk */
+      .checkout-btn{
+        position:fixed;
+        bottom:0; left:0; right:0;
+        z-index:100;
+        margin:0;
+        padding:18px;
+        font-size:18px;
+        border-radius:0;
+        box-shadow:0 -4px 20px rgba(0,0,0,0.5);
+      }
+      /* Sabit buton icin alta bosluk */
+      .order-summary{padding-bottom:80px;}
+
+      /* Kupon inputu */
+      #couponInput{font-size:16px;}
+
+      /* Basari ekrani */
+      #successWrap{padding:40px 16px;}
+      .success-title{font-size:32px;}
+      .success-code{font-size:22px;padding:10px 20px;}
+
+      /* Guvenlik rozeti kucultme */
+      .secure-badge{font-size:10px;}
+    }
+
+    /* Cok kucuk ekranlar (360px alti) */
+    @media(max-width:360px){
+      .page-title{font-size:28px;}
+      .cart-item-img{width:56px;height:56px;}
+      .cart-item-name{font-size:13px;}
+    }
   
     /* ===== HAMBURGER MENU ===== */
     .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;background:none;border:none;cursor:pointer;padding:8px;z-index:310;}
@@ -839,6 +921,9 @@ async function doCheckout() {
     localStorage.removeItem('retropatch_cart');
     document.getElementById('cartWrap').style.display='none';
     document.getElementById('successWrap').style.display='block';
+    // Mobilde sabit checkout butonunu gizle
+    const cb = document.getElementById('checkoutBtn');
+    if (cb) cb.style.display = 'none';
     document.getElementById('successCode').textContent = code;
     window.scrollTo(0,0);
     // Email bildirimi (arka planda, hata olsa sipariş etkilenmez)
