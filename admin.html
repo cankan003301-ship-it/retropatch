@@ -224,7 +224,7 @@
     <div class="login-logo">RETRO<span>PATCH</span></div>
     <div class="login-sub">Admin Paneli</div>
     <label>E-posta</label>
-    <input type="email" id="loginEmail" placeholder="admin@retropatch.com">
+    <input type="email" id="loginEmail" placeholder="retropatchyama@gmail.com">
     <label>Şifre</label>
     <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">GİRİŞ YAP</button>
@@ -1189,10 +1189,10 @@ setInterval(() => {
 }, 1000);
 
 // ============ AUTH ============
-const ADMIN_EMAIL = 'admin@retropatch.com';
+const ADMIN_EMAILS = ['retropatchyama@gmail.com'];
 
 auth.onAuthStateChanged(user => {
-  if (user && user.email === ADMIN_EMAIL) {
+  if (user && ADMIN_EMAILS.includes(user.email)) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('adminEmail').textContent = user.email;
