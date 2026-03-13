@@ -1195,6 +1195,21 @@ function renderFeatured(field) {
         </div>
       </div>
     </div>`).join('');
+
+  // Tab değişince favori state'ini geri yükle
+  const user = firebase.auth().currentUser;
+  if (user) {
+    db.collection('users').doc(user.uid).collection('favorites').get().then(snap => {
+      const favIds = new Set(snap.docs.map(d => d.id));
+      document.querySelectorAll('#featGrid .product-card').forEach(card => {
+        const btn = card.querySelector('.fav-btn');
+        if (btn && favIds.has(card.dataset.id)) {
+          btn.textContent = '♥';
+          btn.classList.add('active');
+        }
+      });
+    }).catch(() => {});
+  }
 }
 
 // ===== MODAL =====
