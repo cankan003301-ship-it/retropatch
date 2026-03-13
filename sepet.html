@@ -596,14 +596,16 @@ let selectedCargo = 'mng';
 let discountAmount = 0;
 let appliedCoupon = '';
 
+// Sepeti hemen yükle - auth beklemeden
+loadCart();
+loadKargoSettings();
+loadBankSettings();
+
 auth.onAuthStateChanged(user => {
   currentUser = user;
   document.getElementById('navHesap').textContent = user ? '👤 Hesabım' : 'Giriş Yap';
   document.getElementById('navHesap').href = user ? 'hesap.html' : 'uye.html';
   if (user) prefillAddress(user);
-  loadCart();
-  loadKargoSettings();
-  loadBankSettings();
 });
 
 function loadCart() {
