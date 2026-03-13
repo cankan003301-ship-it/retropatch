@@ -310,6 +310,15 @@
       <div class="modal-desc" id="modalDesc"></div>
       <div class="modal-specs" id="modalSpecs"></div>
       <div class="modal-price" id="modalPrice"></div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">ARKA YÜZEY</label>
+        <select id="modalBackType" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;outline:none;cursor:pointer;">
+          <option value="Ütüyle Yapışan">Ütüyle Yapışan</option>
+          <option value="Velcro">Velcro</option>
+          <option value="Cırt Cırt Bant">Cırt Cırt Bant</option>
+          <option value="Düz">Düz</option>
+        </select>
+      </div>
       <button class="modal-order-btn" onclick="addToCartFromModal()">🛒 SEPETE EKLE</button>
       <button class="modal-zoom-btn" onclick="openLB()">🔍 Tam Ekran Gör</button>
 
@@ -472,6 +481,13 @@ function openModal(id) {
   mi.innerHTML = p.image
     ? `<img src="${p.image}" alt="${p.name}"><div class="modal-zoom-hint">🔍 Büyütmek için tıkla</div>`
     : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#444;">Görsel Yok</div>`;
+  // Ürünün varsayılan arka yüzeyini seç
+  const backSel = document.getElementById('modalBackType');
+  if (backSel && p.back) {
+    const opt = [...backSel.options].find(o => o.value === p.back);
+    if (opt) backSel.value = p.back;
+    else backSel.value = backSel.options[0].value;
+  }
   document.getElementById('modalOverlay').classList.add('active');
   document.body.style.overflow='hidden';
   db.collection('products').doc(id).update({views:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
@@ -644,7 +660,9 @@ function addToCartById(id) {
 
 function addToCartFromModal() {
   if (!currentProduct) return;
-  addToCart(currentProduct);
+  const backType = document.getElementById('modalBackType')?.value || '';
+  const productWithBack = { ...currentProduct, backType };
+  addToCart(productWithBack);
   showToast('✓ Sepete eklendi!');
   closeModal();
   window.location.href = 'sepet.html';
