@@ -926,58 +926,52 @@ function closeModal(){
 function closeMBg(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
 function goOrder(){closeModal();window.location.href='index.html#siparis';}
 
-// ============ FAVORİLER ============
-function toggleFavFromModal(btn) {
-  if (!currentProduct) return;
+// ============ FAVORİLER — tek merkezi fonksiyon ============
+function _favSetUIU(id, isFav) {
+  document.querySelectorAll(`.product-card[data-id="${id}"] .fav-btn`).forEach(b => {
+    b.textContent = isFav ? '♥' : '♡';
+    b.classList.toggle('active', isFav);
+  });
+  const mBtn = document.getElementById('modalFavBtn');
+  if (mBtn && currentProduct && currentProduct.id === id) {
+    mBtn.textContent = isFav ? '♥' : '♡';
+    mBtn.classList.toggle('active', isFav);
+  }
+  const prod = allProducts.find(x => x.id === id);
+  const specFav = document.querySelector('#modalSpecs .modal-spec:last-child .modal-spec-val');
+  if (specFav && prod) specFav.textContent = '❤️ ' + (prod.favorites || 0);
+}
+
+function _doToggleFavU(id) {
   const user = auth.currentUser;
   if (!user) { showToast('Favori eklemek için giriş yapın'); window.location.href='uye.html'; return; }
-  const productId = currentProduct.id;
-  const isFav = btn.classList.contains('active');
-  const ref = db.collection('users').doc(user.uid).collection('favorites').doc(productId);
-  const prodRef = db.collection('products').doc(productId);
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  const ref = db.collection('users').doc(user.uid).collection('favorites').doc(id);
+  const prodRef = db.collection('products').doc(id);
+  const isFav = userFavorites.has(id);
   if (isFav) {
+    userFavorites.delete(id);
+    _favSetUIU(id, false);
+    if (p) p.favorites = Math.max(0, (p.favorites||0) - 1);
     ref.delete().then(() => {
-      userFavorites.delete(productId);
-      btn.textContent = '♡'; btn.classList.remove('active');
       prodRef.update({favorites: firebase.firestore.FieldValue.increment(-1)}).catch(()=>{});
-      // Karttaki butonu da güncelle
-      const cardBtn = document.querySelector(`.product-card[data-id="${productId}"] .fav-btn`);
-      if (cardBtn) { cardBtn.textContent='♡'; cardBtn.classList.remove('active'); }
       showToast('Favoriden çıkarıldı');
-    });
+    }).catch(() => { userFavorites.add(id); if(p) p.favorites=(p.favorites||0)+1; _favSetUIU(id, true); });
   } else {
-    const p = currentProduct;
+    userFavorites.add(id);
+    _favSetUIU(id, true);
+    if (p) p.favorites = (p.favorites||0) + 1;
     ref.set({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',size:p.size||'',status:p.status||'Stokta',addedAt:firebase.firestore.FieldValue.serverTimestamp()})
       .then(() => {
-        userFavorites.add(productId);
-        btn.textContent = '♥'; btn.classList.add('active');
         prodRef.update({favorites: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
-        // Karttaki butonu da güncelle
-        const cardBtn = document.querySelector(`.product-card[data-id="${productId}"] .fav-btn`);
-        if (cardBtn) { cardBtn.textContent='♥'; cardBtn.classList.add('active'); }
         showToast('❤️ Favorilere eklendi!');
-      });
+      }).catch(() => { userFavorites.delete(id); if(p) p.favorites=Math.max(0,(p.favorites||0)-1); _favSetUIU(id, false); });
   }
 }
 
-function toggleFav(productId, btn) {
-  const user = auth.currentUser;
-  if (!user) { showToast('Favori eklemek için giriş yapın'); window.location.href='uye.html'; return; }
-  const ref = db.collection('users').doc(user.uid).collection('favorites').doc(productId);
-  if (userFavorites.has(productId)) {
-    ref.delete().then(() => {
-      db.collection('products').doc(productId).update({favorites: firebase.firestore.FieldValue.increment(-1)}).catch(()=>{});
-      showToast('Favorilerden çıkarıldı');
-    });
-  } else {
-    const p = allProducts.find(x => x.id === productId);
-    ref.set({ name: p?.name||'', price: p?.price||0, image: p?.image||'', cat: p?.cat||'', size: p?.size||'', status: p?.status||'Stokta', addedAt: firebase.firestore.FieldValue.serverTimestamp() })
-      .then(() => {
-        db.collection('products').doc(productId).update({favorites: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
-        showToast('❤ Favorilere eklendi');
-      });
-  }
-}
+function toggleFav(productId, btn) { _doToggleFavU(productId); }
+function toggleFavFromModal(btn) { if (currentProduct) _doToggleFavU(currentProduct.id); }
 // Yorum sistemi state
 let _rvFilter = 0;     // 0=tümü, 1-5=puana göre
 let _rvSort   = 'new'; // 'new' | 'helpful'
