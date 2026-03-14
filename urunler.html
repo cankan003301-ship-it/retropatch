@@ -584,8 +584,19 @@ auth.onAuthStateChanged(user => {
         document.querySelectorAll('.fav-btn').forEach(btn => {
           const card = btn.closest('.product-card');
           const pid = card?.getAttribute('data-pid');
-          if (pid) btn.classList.toggle('active', userFavorites.has(pid));
+          if (pid) {
+            const isFav = userFavorites.has(pid);
+            btn.textContent = isFav ? '♥' : '♡';
+            btn.classList.toggle('active', isFav);
+          }
         });
+        // Modal açıksa modal fav butonunu da güncelle
+        const mBtn = document.getElementById('modalFavBtn');
+        if (mBtn && currentProduct) {
+          const isFav = userFavorites.has(currentProduct.id);
+          mBtn.textContent = isFav ? '♥' : '♡';
+          mBtn.classList.toggle('active', isFav);
+        }
       });
   } else {
     userFavorites = new Set();
@@ -928,7 +939,7 @@ function goOrder(){closeModal();window.location.href='index.html#siparis';}
 
 // ============ FAVORİLER — tek merkezi fonksiyon ============
 function _favSetUIU(id, isFav) {
-  document.querySelectorAll(`.product-card[data-id="${id}"] .fav-btn`).forEach(b => {
+  document.querySelectorAll(`.product-card[data-pid="${id}"] .fav-btn`).forEach(b => {
     b.textContent = isFav ? '♥' : '♡';
     b.classList.toggle('active', isFav);
   });
