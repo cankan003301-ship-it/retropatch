@@ -897,7 +897,7 @@ function openModal(id) {
 
     <div class="modal-spec"><span class="modal-spec-key">Durum</span><span class="modal-spec-val">${p.status||'Stokta'}</span></div>
     <div class="modal-spec"><span class="modal-spec-key">Satış</span><span class="modal-spec-val">🔥 ${p.sales||0}</span></div>
-    <div class="modal-spec"><span class="modal-spec-key">Favori</span><span class="modal-spec-val">❤️ ${p.favorites||0}</span></div>
+    <div class="modal-spec"><span class="modal-spec-key">Favori</span><span class="modal-spec-val" id="modalSpecFav">❤️ ${p.favorites||0}</span></div>
     <div class="modal-spec"><span class="modal-spec-key">Yorum</span><span class="modal-spec-val">⭐ ${p.reviews||0}</span></div>`;
   const mi = document.getElementById('modalImg');
   mi.innerHTML = p.image
@@ -938,7 +938,7 @@ function _favSetUIU(id, isFav) {
     mBtn.classList.toggle('active', isFav);
   }
   const prod = allProducts.find(x => x.id === id);
-  const specFav = document.querySelector('#modalSpecs .modal-spec:last-child .modal-spec-val');
+  const specFav = document.getElementById('modalSpecFav');
   if (specFav && prod) specFav.textContent = '❤️ ' + (prod.favorites || 0);
 }
 
