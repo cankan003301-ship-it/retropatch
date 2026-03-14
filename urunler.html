@@ -1014,6 +1014,7 @@ let _rvVoted  = new Set(JSON.parse(localStorage.getItem('rp_rv_votes')||'[]'));
 function loadReviews(productId) {
   if (window._reviewsUnsub) { window._reviewsUnsub(); window._reviewsUnsub = null; }
   _rvFilter = 0; _rvSort = 'new'; _rvPage = 5;
+  _rvAll = []; // Eski ürünün yorumlarını temizle
 
   const list      = document.getElementById('reviewList');
   const formArea  = document.getElementById('reviewFormArea');
@@ -1072,7 +1073,7 @@ function loadReviews(productId) {
   window._reviewsUnsub = db.collection('products').doc(productId)
     .collection('reviews').orderBy('createdAt','desc').limit(50)
     .onSnapshot(snap => {
-      _rvAll = snap.docs.map(d => ({id:d.id,...d.data()})).filter(r => r.approved !== false);
+      _rvAll = snap.docs.map(d => ({id:d.id,...d.data()})).filter(r => r.approved === true);
       renderReviewSummary();
       renderReviewList();
     }, () => {
