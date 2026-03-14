@@ -962,22 +962,16 @@ function _doToggleFavU(id) {
   const prodRef = db.collection('products').doc(id);
   const isFav = userFavorites.has(id);
   if (isFav) {
-    userFavorites.delete(id);
-    _favSetUIU(id, false);
-    if (p) p.favorites = Math.max(0, (p.favorites||0) - 1);
     ref.delete().then(() => {
       prodRef.update({favorites: firebase.firestore.FieldValue.increment(-1)}).catch(()=>{});
       showToast('Favoriden çıkarıldı');
-    }).catch(() => { userFavorites.add(id); if(p) p.favorites=(p.favorites||0)+1; _favSetUIU(id, true); });
+    }).catch(() => showToast('Hata oluştu'));
   } else {
-    userFavorites.add(id);
-    _favSetUIU(id, true);
-    if (p) p.favorites = (p.favorites||0) + 1;
     ref.set({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',size:p.size||'',status:p.status||'Stokta',addedAt:firebase.firestore.FieldValue.serverTimestamp()})
       .then(() => {
         prodRef.update({favorites: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
         showToast('❤️ Favorilere eklendi!');
-      }).catch(() => { userFavorites.delete(id); if(p) p.favorites=Math.max(0,(p.favorites||0)-1); _favSetUIU(id, false); });
+      }).catch(() => showToast('Hata oluştu'));
   }
 }
 
