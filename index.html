@@ -1520,16 +1520,45 @@ function _doToggleFav(id) {
   const prodRef = db.collection('products').doc(id);
   const isFav = userFavs.has(id);
   if (isFav) {
+    // Anında UI güncelle
+    p.favorites = Math.max(0, (p.favorites||0) - 1);
+    _updateFavUI(id, false, p.favorites);
     ref.delete().then(() => {
       prodRef.update({favorites: firebase.firestore.FieldValue.increment(-1)}).catch(()=>{});
       showToast('Favoriden çıkarıldı');
-    }).catch(() => showToast('Hata oluştu'));
+    }).catch(() => { p.favorites=(p.favorites||0)+1; _updateFavUI(id,true,p.favorites); showToast('Hata oluştu'); });
   } else {
+    // Anında UI güncelle
+    p.favorites = (p.favorites||0) + 1;
+    _updateFavUI(id, true, p.favorites);
     ref.set({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',size:p.size||'',status:p.status||'Stokta',addedAt:firebase.firestore.FieldValue.serverTimestamp()})
       .then(() => {
         prodRef.update({favorites: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
         showToast('❤️ Favorilere eklendi!');
-      }).catch(() => showToast('Hata oluştu'));
+      }).catch(() => { p.favorites=Math.max(0,(p.favorites||0)-1); _updateFavUI(id,false,p.favorites); showToast('Hata oluştu'); });
+  }
+}
+
+function _updateFavUI(id, isFav, count) {
+  // Kart butonu
+  document.querySelectorAll(`.product-card[data-id="${id}"] .fav-btn`).forEach(b => {
+    b.textContent = isFav ? '♥' : '♡';
+    b.classList.toggle('active', isFav);
+  });
+  // Kart istatistik satırı
+  document.querySelectorAll(`.product-card[data-id="${id}"] .pstat`).forEach(s => {
+    if (s.textContent.includes('❤️')) s.textContent = '❤️ ' + count;
+  });
+  // Modal butonu
+  const mBtn = document.getElementById('modalFavBtn');
+  if (mBtn && currentProduct && currentProduct.id === id) {
+    mBtn.textContent = isFav ? '♥' : '♡';
+    mBtn.classList.toggle('active', isFav);
+  }
+  // Modal spec satırı
+  const specFav = document.getElementById('modalSpecFav');
+  if (specFav && currentProduct && currentProduct.id === id) {
+    specFav.textContent = '❤️ ' + count;
   }
 }
 
