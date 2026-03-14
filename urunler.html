@@ -127,6 +127,12 @@
     .modal-order-btn:hover{background:#d4b77a;}
     .modal-zoom-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;cursor:pointer;transition:all .2s;}
     .modal-zoom-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .modal-action-row{display:flex;gap:8px;margin-bottom:6px;}
+    .modal-order-btn-main{flex:1;background:var(--accent);color:#000;border:none;padding:12px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:3px;cursor:pointer;transition:all .2s;}
+    .modal-order-btn-main:hover{background:#d4b77a;}
+    .modal-fav-btn{width:44px;flex-shrink:0;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:18px;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;}
+    .modal-fav-btn:hover{border-color:#e63946;color:#e63946;background:rgba(230,57,70,.08);}
+    .modal-fav-btn.active{border-color:#e63946;color:#e63946;background:rgba(230,57,70,.12);}
 
     /* YORUM SİSTEMİ */
     .reviews-section{margin-top:16px;border-top:1px solid var(--border);padding-top:16px;}
@@ -524,7 +530,10 @@
           <div class="back-opt" data-val="Cırt Cırt">Cırt Cırt<br><small>+30₺</small></div>
         </label>
       </div>
-      <button class="modal-order-btn" onclick="addToCartFromModal()">🛒 SEPETE EKLE</button>
+      <div class="modal-action-row">
+        <button class="modal-order-btn-main" onclick="addToCartFromModal()">🛒 SEPETE EKLE</button>
+        <button class="modal-fav-btn" id="modalFavBtn" onclick="toggleFavFromModal(this)" title="Favorilere ekle">♡</button>
+      </div>
       <button class="modal-zoom-btn" onclick="openLB()">🔍 Tam Ekran Gör</button>
 
       <!-- YORUM BÖLÜMÜ -->
@@ -898,6 +907,16 @@ function openModal(id) {
   document.body.style.overflow='hidden';
   db.collection('products').doc(id).update({views:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
   loadReviews(id);
+
+  // Favori butonunu güncelle
+  const favBtn = document.getElementById('modalFavBtn');
+  if (favBtn) {
+    if (userFavorites.has(id)) {
+      favBtn.textContent = '♥'; favBtn.classList.add('active');
+    } else {
+      favBtn.textContent = '♡'; favBtn.classList.remove('active');
+    }
+  }
 }
 function closeModal(){
   document.getElementById('modalOverlay').classList.remove('active');
@@ -908,6 +927,39 @@ function closeMBg(e){if(e.target===document.getElementById('modalOverlay'))close
 function goOrder(){closeModal();window.location.href='index.html#siparis';}
 
 // ============ FAVORİLER ============
+function toggleFavFromModal(btn) {
+  if (!currentProduct) return;
+  const user = auth.currentUser;
+  if (!user) { showToast('Favori eklemek için giriş yapın'); window.location.href='uye.html'; return; }
+  const productId = currentProduct.id;
+  const isFav = btn.classList.contains('active');
+  const ref = db.collection('users').doc(user.uid).collection('favorites').doc(productId);
+  const prodRef = db.collection('products').doc(productId);
+  if (isFav) {
+    ref.delete().then(() => {
+      userFavorites.delete(productId);
+      btn.textContent = '♡'; btn.classList.remove('active');
+      prodRef.update({favorites: firebase.firestore.FieldValue.increment(-1)}).catch(()=>{});
+      // Karttaki butonu da güncelle
+      const cardBtn = document.querySelector(`.product-card[data-id="${productId}"] .fav-btn`);
+      if (cardBtn) { cardBtn.textContent='♡'; cardBtn.classList.remove('active'); }
+      showToast('Favoriden çıkarıldı');
+    });
+  } else {
+    const p = currentProduct;
+    ref.set({id:p.id,name:p.name,price:p.price,image:p.image||'',cat:p.cat||'',size:p.size||'',status:p.status||'Stokta',addedAt:firebase.firestore.FieldValue.serverTimestamp()})
+      .then(() => {
+        userFavorites.add(productId);
+        btn.textContent = '♥'; btn.classList.add('active');
+        prodRef.update({favorites: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
+        // Karttaki butonu da güncelle
+        const cardBtn = document.querySelector(`.product-card[data-id="${productId}"] .fav-btn`);
+        if (cardBtn) { cardBtn.textContent='♥'; cardBtn.classList.add('active'); }
+        showToast('❤️ Favorilere eklendi!');
+      });
+  }
+}
+
 function toggleFav(productId, btn) {
   const user = auth.currentUser;
   if (!user) { showToast('Favori eklemek için giriş yapın'); window.location.href='uye.html'; return; }
@@ -1174,15 +1226,18 @@ function submitReview(productId) {
     rating:    rating,
     text:      text,
     helpful:   0,
-    approved:  false,
+    approved:  true,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
-    showToast('✓ Yorumunuz alındı, onay bekliyor!', 'ok');
+    db.collection('products').doc(productId).update({
+      reviews: firebase.firestore.FieldValue.increment(1)
+    }).catch(() => {});
+    showToast('✓ Yorumunuz yayınlandı!', 'ok');
+    // Formu "daha önce yazdın" mesajıyla değiştir
     const formArea = document.getElementById('reviewFormArea');
-    if (formArea) formArea.innerHTML = '<div class="review-already">✓ Yorumunuz alındı, admin onayından sonra yayınlanacak.</div>';
-  }).catch((err) => {
-    console.error('Yorum hatası:', err);
-    showToast('Bir hata oluştu: ' + (err.code || err.message || 'bilinmiyor'), 'err');
+    if (formArea) formArea.innerHTML = '<div class="review-already">✓ Yorumunuz yayınlandı. Teşekkürler!</div>';
+  }).catch(() => {
+    showToast('Bir hata oluştu, tekrar deneyin', 'err');
     if (btn) { btn.disabled = false; btn.textContent = 'Yorum Gönder'; }
   });
 }
