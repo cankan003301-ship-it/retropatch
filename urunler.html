@@ -301,7 +301,26 @@
       .sort-select{flex:1;}
       .filter-mobile-btn{display:flex;}
       .products-wrap{padding:0 20px 60px;}
-      .modal{grid-template-columns:1fr;}
+      .modal{
+        display:flex;
+        flex-direction:column;
+        max-height:95vh;
+        width:95vw;
+        border-radius:4px;
+      }
+      .modal-img{
+        width:100%;
+        min-width:unset;
+        aspect-ratio:1;
+        height:auto;
+        max-height:55vw;
+        flex-shrink:0;
+      }
+      .modal-body{
+        flex:1;
+        overflow-y:auto;
+        padding:20px;
+      }
       .filter-bar{display:none;}
     }
   
