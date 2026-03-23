@@ -672,7 +672,7 @@ let currentProduct = null;
 let _pendingModal = location.hash.startsWith('#prod-') ? location.hash.replace('#prod-','') : null;
 
 loadURLParams();
-db.collection('products').where('cat','==','Çanta / Anahtarlık').onSnapshot(snap => {
+db.collection('products').onSnapshot(snap => {
   allProducts = snap.docs.map(d => ({id:d.id,...d.data()}));
   window.allProducts = allProducts;
   document.dispatchEvent(new Event('srProductsReady'));
@@ -717,10 +717,16 @@ function doSort(val) { currentSort = val; applyAll(); }
 
 function doSearch() { applyAll(); }
 
+const PAGE_CATS_CANTA = ['çanta','canta','anahtarlık','anahtarlik','bag','keychain'];
+function matchPageCat(p) {
+  const cat = (p.cat||'').toLowerCase();
+  return PAGE_CATS_CANTA.some(k => cat.includes(k));
+}
+
 function applyAll() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   filtered = allProducts.filter(p => {
-    const matchCat = currentCat === 'Tümü' || p.cat === currentCat;
+    const matchCat = currentCat === 'Tümü' ? matchPageCat(p) : p.cat === currentCat;
     const matchQ = !q || (p.name||'').toLowerCase().includes(q) || (p.cat||'').toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q);
     const matchStock = currentStock === 'all' ||
       (currentStock === 'instock' && (p.status||'Stokta') === 'Stokta') ||
