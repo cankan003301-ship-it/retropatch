@@ -1779,33 +1779,38 @@ function setCatFields(catValue) {
 
 // ── Firestore'dan kategorileri çekip tüm seçim kutularını doldur ──
 let _catOptionsLoaded = false;
-function loadCategoryOptions() {
-  if (_catOptionsLoaded) return;
+function loadCategoryOptions(callback) {
+  if (_catOptionsLoaded) { if (callback) callback(); return; }
   db.collection('categories')
-    .where('active', '!=', false)
-    .orderBy('active')
     .orderBy('order')
     .get()
-    .catch(() => db.collection('categories').get()) // order yoksa fallback
+    .catch(() => db.collection('categories').get())
     .then(snap => {
       _catOptionsLoaded = true;
-      const cats = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      // Seçenekleri oluştur
+      let cats = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                         .filter(c => c.active !== false);
+      if (!cats.length) throw new Error('empty');
       const opts = cats.map(c => `<option value="${c.name}">${c.icon ? c.icon + ' ' : ''}${c.name}</option>`).join('');
-      // Tüm ilgili select'leri güncelle
       ['pCat', 'qeCat', 'bulkDefaultCat'].forEach(selId => {
         const el = document.getElementById(selId);
-        if (el) el.innerHTML = opts || '<option value="">Kategori bulunamadı</option>';
+        if (el) el.innerHTML = opts;
       });
+      // İlk seçili değere göre alt kategoriyi göster/gizle
+      const pCat = document.getElementById('pCat');
+      if (pCat) onMainCatChange(pCat.value);
+      if (callback) callback();
     })
     .catch(() => {
-      // Firestore'a bağlanamadıysa sabit liste kullan
+      // Fallback: sabit liste
       const fallback = ['Nakış Yama','Tişört / Sweatshirt','Şapka','Çanta / Anahtarlık']
         .map(c => `<option value="${c}">${c}</option>`).join('');
       ['pCat', 'qeCat', 'bulkDefaultCat'].forEach(selId => {
         const el = document.getElementById(selId);
         if (el) el.innerHTML = fallback;
       });
+      const pCat = document.getElementById('pCat');
+      if (pCat) onMainCatChange(pCat.value);
+      if (callback) callback();
     });
 }
 
@@ -2188,9 +2193,14 @@ function openProdModal(id) {
   ['pName','pPrice','pDesc','pImage','pSize'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('pStatus').value = 'Stokta';
   document.getElementById('pImagePreview').style.display = 'none';
-  // Kategoriler yüklenmemişse yükle, sonra aç
-  if (!_catOptionsLoaded) loadCategoryOptions();
-  openModal('prodModal');
+  document.getElementById('pSubCatWrap').style.display = 'none';
+
+  loadCategoryOptions(() => {
+    // Yüklendikten sonra ilk seçeneğe göre alt kategoriyi göster
+    const pCat = document.getElementById('pCat');
+    if (pCat) onMainCatChange(pCat.value);
+    openModal('prodModal');
+  });
 }
 
 function editProd(id) {
@@ -2212,17 +2222,11 @@ function editProd(id) {
   } else {
     document.getElementById('pImagePreview').style.display = 'none';
   }
-  // Kategoriler yüklenmemişse yükle, sonra kategoriyi seç
-  function _setAndOpen() {
+  // Kategoriler yüklendikten sonra kategori alanlarını set et ve modali aç
+  loadCategoryOptions(() => {
     setCatFields(p.cat || '');
     openModal('prodModal');
-  }
-  if (!_catOptionsLoaded) {
-    loadCategoryOptions();
-    setTimeout(_setAndOpen, 600);
-  } else {
-    _setAndOpen();
-  }
+  });
 }
 
 // ── ImageKit ──────────────────────────────────────────
