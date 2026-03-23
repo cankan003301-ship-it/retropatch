@@ -526,10 +526,7 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
             <div class="fg" style="margin:0;"><label>Varsayılan Kategori</label>
               <select id="bulkDefaultCat" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
-                <option>Müzik / Metal Grup Patch</option><option>Dizi / Film Patch</option>
-                <option>Çizgi film / Anime</option><option>Spor Patch</option><option>Oyun Patch</option>
-                <option>Askeri / Tarihi Patch</option><option>Bayrak Patch</option><option>Sembol Patch</option>
-                <option>Sweatshirt</option><option>Tişört</option>
+                <option value="">Yükleniyor...</option>
               </select>
             </div>
             <div class="fg" style="margin:0;"><label>Varsayılan Durum</label>
@@ -559,10 +556,7 @@
               <div class="fg"><label>Fiyat (₺)</label><input type="number" id="qePrice" min="0"></div>
               <div class="fg"><label>Kategori</label>
                 <select id="qeCat">
-                  <option>Müzik / Metal Grup Patch</option><option>Dizi / Film Patch</option>
-                  <option>Çizgi film / Anime</option><option>Spor Patch</option><option>Oyun Patch</option>
-                  <option>Askeri / Tarihi Patch</option><option>Bayrak Patch</option><option>Sembol Patch</option>
-                  <option>Sweatshirt</option><option>Tişört</option>
+                  <option value="">Yükleniyor...</option>
                 </select>
               </div>
               <div class="fg"><label>Durum</label>
@@ -1190,16 +1184,7 @@
       <div class="fg-row">
         <div class="fg"><label>Kategori</label>
           <select id="pCat">
-            <option>Müzik / Metal Grup Patch</option>
-            <option>Dizi / Film Patch</option>
-            <option>Çizgi film / Anime</option>
-            <option>Spor Patch</option>
-            <option>Oyun Patch</option>
-            <option>Askeri / Tarihi Patch</option>
-            <option>Bayrak Patch</option>
-            <option>Sembol Patch</option>
-            <option>Sweatshirt</option>
-            <option>Tişört</option>
+            <option value="">Yükleniyor...</option>
           </select>
         </div>
         <div class="fg"><label>Fiyat (₺) *</label><input type="number" id="pPrice" placeholder="149" oninput="basePrice=parseFloat(this.value)||0"></div>
@@ -1721,7 +1706,10 @@ let selectedProdIds = new Set();
 let filteredProds = [];
 
 function renderProducts() {
-  // Kategori filtre dropdown'larını doldur
+  // Firestore kategorilerini dropdown'lara yükle (bir kez)
+  loadCategoryOptions();
+
+  // Ürünlerden gelen kategori filtre dropdown'larını doldur
   const cats = ['all', ...new Set(allProducts.map(p => p.cat).filter(Boolean))];
   ['prodCatFilter','bpCat','bsCat'].forEach(id => {
     const el = document.getElementById(id);
@@ -1731,6 +1719,38 @@ function renderProducts() {
     });
   });
   applyProdFilters();
+}
+
+// ── Firestore'dan kategorileri çekip tüm seçim kutularını doldur ──
+let _catOptionsLoaded = false;
+function loadCategoryOptions() {
+  if (_catOptionsLoaded) return;
+  db.collection('categories')
+    .where('active', '!=', false)
+    .orderBy('active')
+    .orderBy('order')
+    .get()
+    .catch(() => db.collection('categories').get()) // order yoksa fallback
+    .then(snap => {
+      _catOptionsLoaded = true;
+      const cats = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Seçenekleri oluştur
+      const opts = cats.map(c => `<option value="${c.name}">${c.icon ? c.icon + ' ' : ''}${c.name}</option>`).join('');
+      // Tüm ilgili select'leri güncelle
+      ['pCat', 'qeCat', 'bulkDefaultCat'].forEach(selId => {
+        const el = document.getElementById(selId);
+        if (el) el.innerHTML = opts || '<option value="">Kategori bulunamadı</option>';
+      });
+    })
+    .catch(() => {
+      // Firestore'a bağlanamadıysa sabit liste kullan
+      const fallback = ['Nakış Yama','Tişört / Sweatshirt','Şapka','Çanta / Anahtarlık']
+        .map(c => `<option value="${c}">${c}</option>`).join('');
+      ['pCat', 'qeCat', 'bulkDefaultCat'].forEach(selId => {
+        const el = document.getElementById(selId);
+        if (el) el.innerHTML = fallback;
+      });
+    });
 }
 
 function applyProdFilters() {
@@ -2112,6 +2132,8 @@ function openProdModal(id) {
   ['pName','pPrice','pDesc','pImage','pSize'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('pStatus').value = 'Stokta';
   document.getElementById('pImagePreview').style.display = 'none';
+  // Kategoriler yüklenmemişse yükle, sonra aç
+  if (!_catOptionsLoaded) loadCategoryOptions();
   openModal('prodModal');
 }
 
@@ -2126,7 +2148,6 @@ function editProd(id) {
   document.getElementById('pDesc').value = p.desc || '';
   document.getElementById('pImage').value = p.image || '';
   document.getElementById('pSize').value = p.size || '';
-  document.getElementById('pCat').value = p.cat || 'Müzik / Metal Grup Patch';
   document.getElementById('pStatus').value = p.status || 'Stokta';
   document.getElementById('pBack').value = p.back || 'Ütüyle Yapışan';
   if (p.image) {
@@ -2135,7 +2156,29 @@ function editProd(id) {
   } else {
     document.getElementById('pImagePreview').style.display = 'none';
   }
-  openModal('prodModal');
+  // Kategoriler yüklenmemişse yükle, sonra kategoriyi seç
+  function _setAndOpen() {
+    const sel = document.getElementById('pCat');
+    if (p.cat) {
+      // Tam eşleşme dene
+      let found = [...sel.options].find(o => o.value === p.cat);
+      if (found) { sel.value = p.cat; }
+      else {
+        // Yoksa ekle (eski kategori ismi olabilir)
+        const o = document.createElement('option');
+        o.value = p.cat; o.textContent = p.cat;
+        sel.appendChild(o);
+        sel.value = p.cat;
+      }
+    }
+    openModal('prodModal');
+  }
+  if (!_catOptionsLoaded) {
+    loadCategoryOptions();
+    setTimeout(_setAndOpen, 600);
+  } else {
+    _setAndOpen();
+  }
 }
 
 // ── ImageKit ──────────────────────────────────────────
@@ -3810,6 +3853,7 @@ function saveCat() {
   }
   prom.then(() => {
     toast(editId ? '✓ Kategori güncellendi!' : '✓ Kategori eklendi!', 'ok');
+    _catOptionsLoaded = false; // Ürün modalındaki dropdown'u tazele
     closeCatModal();
     loadCategories();
   }).catch(e => toast('Hata: ' + e.message, 'err'));
@@ -3824,7 +3868,7 @@ function deleteCat(id) {
   const item = categoryItems.find(c => c.id === id);
   if (!confirm(`"${item?.name || id}" kategorisini silmek istediğine emin misin?`)) return;
   db.collection('categories').doc(id).delete()
-    .then(() => { toast('Kategori silindi.', 'ok'); loadCategories(); })
+    .then(() => { toast('Kategori silindi.', 'ok'); _catOptionsLoaded = false; loadCategories(); })
     .catch(e => toast('Hata: ' + e.message, 'err'));
 }
 
