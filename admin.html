@@ -254,6 +254,7 @@
         <div class="nav-lbl">Katalog</div>
         <div class="nav-item" onclick="showPage('stats')"><span class="ic">📈</span> İstatistikler</div>
         <div class="nav-item" onclick="showPage('products')"><span class="ic">🏷</span> Ürünler</div>
+        <div class="nav-item" onclick="showPage('categories')"><span class="ic">🗂</span> Kategoriler</div>
       </div>
       <div class="nav-sec">
         <div class="nav-lbl">Sistem</div>
@@ -584,6 +585,89 @@
             </div>
           </div>
           <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;margin-top:12px;" onclick="saveQuickEdit()">💾 KAYDET</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KATEGORİLER -->
+    <div class="page" id="page-categories">
+      <div class="section-hdr">
+        <div class="section-ttl">KATEGORİLER</div>
+        <button class="btn btn-accent" onclick="openCatModal(null)">+ YENİ KATEGORİ</button>
+      </div>
+
+      <!-- Kategori kartları grid -->
+      <div id="catAdminGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2px;margin-bottom:32px;">
+        <div class="empty"><div class="empty-icon">🗂</div><div class="empty-text">Yükleniyor...</div></div>
+      </div>
+    </div>
+
+    <!-- KATEGORİ MODAL -->
+    <div class="modal-ov" id="catModal" onclick="closeCatModal(event)">
+      <div class="modal-box" style="max-width:480px;">
+        <div class="modal-hdr">
+          <h3 id="catModalTitle">YENİ KATEGORİ</h3>
+          <button class="modal-x" onclick="closeCatModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="catEditId">
+
+          <!-- Resim önizleme -->
+          <div id="catImgPreviewWrap" style="display:none;margin-bottom:14px;position:relative;">
+            <img id="catImgPreview" src="" alt="" style="width:100%;max-height:200px;object-fit:cover;border:1px solid var(--border);display:block;">
+            <button onclick="clearCatImg()" style="position:absolute;top:6px;right:6px;background:rgba(230,57,70,.8);border:none;color:#fff;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;">✕</button>
+          </div>
+
+          <div class="fg">
+            <label>Kategori Adı *</label>
+            <input type="text" id="catName" placeholder="ör. Nakış Yama">
+          </div>
+          <div class="fg">
+            <label>Slug (URL) *</label>
+            <input type="text" id="catSlug" placeholder="ör. nakis-yama">
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1px;">Boşluk bırakmayın, küçük harf kullanın</div>
+          </div>
+          <div class="fg">
+            <label>Sayfa URL</label>
+            <select id="catPage" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;">
+              <option value="urunler.html">urunler.html (Nakış Yama)</option>
+              <option value="tisort-sweatshirt.html">tisort-sweatshirt.html</option>
+              <option value="sapka.html">sapka.html</option>
+              <option value="canta-anahtarlik.html">canta-anahtarlik.html</option>
+              <option value="">Özel URL...</option>
+            </select>
+          </div>
+          <div class="fg" id="catCustomUrlWrap" style="display:none;">
+            <label>Özel URL</label>
+            <input type="text" id="catCustomUrl" placeholder="ör. ozel-kategori.html">
+          </div>
+          <div class="fg">
+            <label>İkon (Emoji)</label>
+            <input type="text" id="catIcon" placeholder="🧵" maxlength="4" style="font-size:22px;width:80px;">
+          </div>
+          <div class="fg">
+            <label>Resim URL</label>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="catImage" placeholder="https://..." oninput="catImgPreview(this.value)" style="flex:1;">
+              <label style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);padding:0 14px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;color:var(--accent);white-space:nowrap;margin:0;">
+                📁 Yükle
+                <input type="file" accept="image/*" style="display:none;" onchange="catUploadFile(this)">
+              </label>
+            </div>
+            <div id="catUploadStatus" style="font-size:11px;margin-top:5px;color:var(--muted);"></div>
+          </div>
+          <div class="fg">
+            <label>Sıra</label>
+            <input type="number" id="catOrder" placeholder="1" min="1" value="1">
+          </div>
+          <div class="fg" style="display:flex;align-items:center;gap:10px;">
+            <input type="checkbox" id="catActive" checked style="width:16px;height:16px;accent-color:var(--accent);">
+            <label style="margin:0;cursor:pointer;" for="catActive">Aktif (Anasayfada göster)</label>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="btn btn-accent" style="flex:1;" onclick="saveCat()">KAYDET</button>
+            <button class="btn btn-outline" onclick="closeCatModal()">İPTAL</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2458,7 +2542,7 @@ function showPage(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   event.currentTarget?.classList.add('active');
-  const titles = {dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ'};
+  const titles = {dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ',categories:'KATEGORİLER'};
   document.getElementById('pageTitle').textContent = titles[name] || name.toUpperCase();
   if (name === 'orders') renderOrders('cart', document.getElementById('orderFilter')?.value || 'all');
   if (name === 'products') renderProducts();
@@ -2471,6 +2555,7 @@ function showPage(name) {
   if (name === 'stats') renderStatsPage();
   if (name === 'reviews') loadAllReviews();
   if (name === 'settings') { loadSiteSettings(); loadBackPrices(); }
+  if (name === 'categories') loadCategories();
 }
 
 // ============ İSTATİSTİKLER ============
@@ -3549,6 +3634,197 @@ function deleteGalleryItem(id) {
   if (!confirm('Bu fotoğrafı silmek istediğine emin misin?')) return;
   db.collection('gallery').doc(id).delete()
     .then(() => { toast('Fotoğraf silindi.', 'ok'); loadGallery(); })
+    .catch(e => toast('Hata: ' + e.message, 'err'));
+}
+
+// ============================================================
+// KATEGORİLER
+// ============================================================
+let categoryItems = [];
+
+function loadCategories() {
+  const grid = document.getElementById('catAdminGrid');
+  grid.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div><div class="empty-text">Yükleniyor...</div></div>';
+  db.collection('categories').orderBy('order').get()
+    .catch(() => db.collection('categories').get())
+    .then(snap => {
+      categoryItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderCatGrid();
+    })
+    .catch(e => {
+      grid.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">' + e.message + '</div></div>';
+    });
+}
+
+function renderCatGrid() {
+  const grid = document.getElementById('catAdminGrid');
+  if (!categoryItems.length) {
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">🗂</div><div class="empty-text">Henüz kategori yok</div></div>';
+    return;
+  }
+  grid.innerHTML = categoryItems.map(c => `
+    <div class="prod-card" style="position:relative;">
+      <div style="position:absolute;top:8px;left:8px;z-index:2;">
+        <span class="badge ${c.active !== false ? 'b-green' : 'b-red'}">${c.active !== false ? 'AKTİF' : 'PASİF'}</span>
+      </div>
+      <div class="prod-img" style="aspect-ratio:4/3;background:var(--bg3);">
+        ${c.image
+          ? `<img src="${c.image}" alt="${c.name}" style="width:100%;height:100%;object-fit:cover;">`
+          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;">${c.icon || '🗂'}</div>`
+        }
+      </div>
+      <div class="prod-info">
+        <div class="prod-name" style="font-size:15px;">${c.name || '—'}</div>
+        <div class="prod-cat">/${c.slug || c.id} · Sıra: ${c.order ?? '—'}</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">→ ${c.page || 'urunler.html'}</div>
+        <div class="prod-actions">
+          <button class="btn btn-blue btn-sm" onclick="editCat('${c.id}')">✏ Düzenle</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCat('${c.id}')">🗑 Sil</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openCatModal(item) {
+  document.getElementById('catEditId').value = item ? item.id : '';
+  document.getElementById('catName').value = item ? (item.name || '') : '';
+  document.getElementById('catSlug').value = item ? (item.slug || item.id || '') : '';
+  document.getElementById('catIcon').value = item ? (item.icon || '') : '';
+  document.getElementById('catImage').value = item ? (item.image || '') : '';
+  document.getElementById('catOrder').value = item ? (item.order ?? categoryItems.length + 1) : categoryItems.length + 1;
+  document.getElementById('catActive').checked = item ? item.active !== false : true;
+  document.getElementById('catUploadStatus').textContent = '';
+
+  const pageSelect = document.getElementById('catPage');
+  const pageVal = item ? (item.page || 'urunler.html') : 'urunler.html';
+  const knownPages = ['urunler.html','tisort-sweatshirt.html','sapka.html','canta-anahtarlik.html'];
+  if (knownPages.includes(pageVal)) {
+    pageSelect.value = pageVal;
+    document.getElementById('catCustomUrlWrap').style.display = 'none';
+  } else {
+    pageSelect.value = '';
+    document.getElementById('catCustomUrl').value = pageVal;
+    document.getElementById('catCustomUrlWrap').style.display = 'block';
+  }
+
+  catImgPreview(item ? (item.image || '') : '');
+  document.getElementById('catModalTitle').textContent = item ? 'KATEGORİ DÜZENLE' : 'YENİ KATEGORİ';
+  document.getElementById('catModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+document.getElementById('catPage')?.addEventListener('change', function() {
+  document.getElementById('catCustomUrlWrap').style.display = this.value === '' ? 'block' : 'none';
+});
+
+document.getElementById('catName')?.addEventListener('input', function() {
+  const editId = document.getElementById('catEditId').value;
+  if (editId) return;
+  const slug = this.value
+    .toLowerCase()
+    .replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s')
+    .replace(/ı/g,'i').replace(/ö/g,'o').replace(/ç/g,'c')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  document.getElementById('catSlug').value = slug;
+});
+
+function closeCatModal(e) {
+  if (e && e.target !== document.getElementById('catModal')) return;
+  document.getElementById('catModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function catImgPreview(url) {
+  const wrap = document.getElementById('catImgPreviewWrap');
+  const img  = document.getElementById('catImgPreview');
+  if (url) { img.src = url; wrap.style.display = 'block'; }
+  else     { wrap.style.display = 'none'; }
+}
+
+function clearCatImg() {
+  document.getElementById('catImage').value = '';
+  catImgPreview('');
+}
+
+async function catUploadFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('catUploadStatus');
+  status.textContent = '⏳ Yükleniyor...';
+  status.style.color = 'var(--accent)';
+  try {
+    const authRes = await fetch('/api/imagekit-auth');
+    const auth = await authRes.json();
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('fileName', 'cat_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g,'_'));
+    fd.append('folder', '/categories');
+    fd.append('publicKey', 'public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8=');
+    fd.append('signature', auth.signature);
+    fd.append('expire', auth.expire);
+    fd.append('token', auth.token);
+    const r = await fetch('https://upload.imagekit.io/api/v1/files/upload', { method:'POST', body:fd });
+    const data = await r.json();
+    if (data.url) {
+      document.getElementById('catImage').value = data.url;
+      catImgPreview(data.url);
+      status.textContent = '✓ Görsel yüklendi!';
+      status.style.color = 'var(--green)';
+      toast('✓ Kategori görseli yüklendi!', 'ok');
+    } else {
+      status.textContent = 'Hata: ' + (data.message || 'Bilinmiyor');
+      status.style.color = 'var(--accent2)';
+    }
+  } catch(e) {
+    status.textContent = 'Hata: ' + e.message;
+    status.style.color = 'var(--accent2)';
+  }
+}
+
+function saveCat() {
+  const name = document.getElementById('catName').value.trim();
+  const slug = document.getElementById('catSlug').value.trim();
+  if (!name) { toast('Kategori adı zorunlu!', 'err'); return; }
+  if (!slug)  { toast('Slug zorunlu!', 'err'); return; }
+
+  const pageSelect = document.getElementById('catPage');
+  const page = pageSelect.value || document.getElementById('catCustomUrl').value.trim() || 'urunler.html';
+
+  const data = {
+    name, slug, page,
+    icon:   document.getElementById('catIcon').value.trim(),
+    image:  document.getElementById('catImage').value.trim(),
+    order:  parseInt(document.getElementById('catOrder').value) || 1,
+    active: document.getElementById('catActive').checked,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  };
+
+  const editId = document.getElementById('catEditId').value;
+  let prom;
+  if (editId) {
+    prom = db.collection('categories').doc(editId).update(data);
+  } else {
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    prom = db.collection('categories').add(data);
+  }
+  prom.then(() => {
+    toast(editId ? '✓ Kategori güncellendi!' : '✓ Kategori eklendi!', 'ok');
+    closeCatModal();
+    loadCategories();
+  }).catch(e => toast('Hata: ' + e.message, 'err'));
+}
+
+function editCat(id) {
+  const item = categoryItems.find(c => c.id === id);
+  if (item) openCatModal(item);
+}
+
+function deleteCat(id) {
+  const item = categoryItems.find(c => c.id === id);
+  if (!confirm(`"${item?.name || id}" kategorisini silmek istediğine emin misin?`)) return;
+  db.collection('categories').doc(id).delete()
+    .then(() => { toast('Kategori silindi.', 'ok'); loadCategories(); })
     .catch(e => toast('Hata: ' + e.message, 'err'));
 }
 
