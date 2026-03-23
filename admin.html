@@ -1182,12 +1182,29 @@
       <input type="hidden" id="editProdId">
       <div class="fg"><label>Ürün Adı *</label><input type="text" id="pName" placeholder="Ürün adı"></div>
       <div class="fg-row">
-        <div class="fg"><label>Kategori</label>
-          <select id="pCat">
+        <div class="fg">
+          <label>Ana Kategori</label>
+          <select id="pCat" onchange="onMainCatChange(this.value)">
             <option value="">Yükleniyor...</option>
           </select>
         </div>
         <div class="fg"><label>Fiyat (₺) *</label><input type="number" id="pPrice" placeholder="149" oninput="basePrice=parseFloat(this.value)||0"></div>
+      </div>
+      <!-- Alt kategori — sadece Nakış Yama seçilince görünür -->
+      <div class="fg" id="pSubCatWrap" style="display:none;">
+        <label>Alt Kategori</label>
+        <select id="pSubCat">
+          <option value="">— Seç —</option>
+          <option>Müzik / Metal Grup Patch</option>
+          <option>Dizi / Film Patch</option>
+          <option>Çizgi film / Anime</option>
+          <option>Spor Patch</option>
+          <option>Oyun Patch</option>
+          <option>Askeri / Tarihi Patch</option>
+          <option>Bayrak Patch</option>
+          <option>Sembol Patch</option>
+          <option>Diğer</option>
+        </select>
       </div>
       <div class="fg"><label>Açıklama</label><textarea id="pDesc" placeholder="Ürün açıklaması..."></textarea></div>
       <div class="fg-row">
@@ -1721,6 +1738,45 @@ function renderProducts() {
   applyProdFilters();
 }
 
+// ── Ana kategori değişince alt kategori göster/gizle ──
+const NAKIS_YAMA_CAT = 'Nakış Yama';
+
+function onMainCatChange(val) {
+  const wrap = document.getElementById('pSubCatWrap');
+  if (wrap) wrap.style.display = (val === NAKIS_YAMA_CAT) ? 'block' : 'none';
+}
+
+function buildCatValue() {
+  const main = document.getElementById('pCat')?.value || '';
+  if (main === NAKIS_YAMA_CAT) {
+    const sub = document.getElementById('pSubCat')?.value;
+    return (sub && sub !== '— Seç —') ? sub : NAKIS_YAMA_CAT;
+  }
+  return main;
+}
+
+const NAKIS_SUB_CATS = [
+  'Müzik / Metal Grup Patch','Dizi / Film Patch','Çizgi film / Anime',
+  'Spor Patch','Oyun Patch','Askeri / Tarihi Patch','Bayrak Patch','Sembol Patch','Diğer'
+];
+
+function setCatFields(catValue) {
+  const pCat    = document.getElementById('pCat');
+  const pSubCat = document.getElementById('pSubCat');
+  const wrap    = document.getElementById('pSubCatWrap');
+  if (!catValue) return;
+
+  if (NAKIS_SUB_CATS.includes(catValue) || catValue === NAKIS_YAMA_CAT) {
+    pCat.value = NAKIS_YAMA_CAT;
+    if (!pCat.value) setTimeout(() => { pCat.value = NAKIS_YAMA_CAT; }, 400);
+    if (wrap) wrap.style.display = 'block';
+    if (pSubCat && catValue !== NAKIS_YAMA_CAT) pSubCat.value = catValue;
+  } else {
+    pCat.value = catValue;
+    if (wrap) wrap.style.display = 'none';
+  }
+}
+
 // ── Firestore'dan kategorileri çekip tüm seçim kutularını doldur ──
 let _catOptionsLoaded = false;
 function loadCategoryOptions() {
@@ -2158,19 +2214,7 @@ function editProd(id) {
   }
   // Kategoriler yüklenmemişse yükle, sonra kategoriyi seç
   function _setAndOpen() {
-    const sel = document.getElementById('pCat');
-    if (p.cat) {
-      // Tam eşleşme dene
-      let found = [...sel.options].find(o => o.value === p.cat);
-      if (found) { sel.value = p.cat; }
-      else {
-        // Yoksa ekle (eski kategori ismi olabilir)
-        const o = document.createElement('option');
-        o.value = p.cat; o.textContent = p.cat;
-        sel.appendChild(o);
-        sel.value = p.cat;
-      }
-    }
+    setCatFields(p.cat || '');
     openModal('prodModal');
   }
   if (!_catOptionsLoaded) {
@@ -2245,7 +2289,7 @@ function saveProd() {
   if (!name) { toast('Ürün adı zorunlu!', 'err'); return; }
   const data = {
     name, price: parseFloat(price) || 0,
-    cat: document.getElementById('pCat').value,
+    cat: buildCatValue(),
     desc: document.getElementById('pDesc').value,
     image: document.getElementById('pImage').value,
     size: (document.getElementById('pSize').value.trim() + ' cm').replace(/s*cms*cm$/, ' cm'),
