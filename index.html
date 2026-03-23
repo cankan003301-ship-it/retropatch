@@ -507,6 +507,247 @@
   </div>
 </div>
 
+<!-- KATEGORİ GRID (Modam tarzı) -->
+<div id="kategori-section" style="padding:60px 40px 0;max-width:1280px;margin:0 auto;">
+  <div class="section-label">Koleksiyonlar</div>
+  <div class="section-title" style="margin-bottom:28px;">KATEGORİYE GÖRE</div>
+  <div id="kategoriGrid" class="kategori-grid">
+    <!-- JS ile doldurulur, fallback statik kartlar aşağıda -->
+    <a href="urunler.html" class="kat-card">
+      <div class="kat-img-wrap">
+        <div class="kat-img-placeholder">🧵</div>
+      </div>
+      <div class="kat-label">
+        <span class="kat-name">Nakış Yama</span>
+        <span class="kat-arrow">→</span>
+      </div>
+    </a>
+    <a href="tisort-sweatshirt.html" class="kat-card">
+      <div class="kat-img-wrap">
+        <div class="kat-img-placeholder">👕</div>
+      </div>
+      <div class="kat-label">
+        <span class="kat-name">Tişört / Sweatshirt</span>
+        <span class="kat-arrow">→</span>
+      </div>
+    </a>
+    <a href="sapka.html" class="kat-card">
+      <div class="kat-img-wrap">
+        <div class="kat-img-placeholder">🧢</div>
+      </div>
+      <div class="kat-label">
+        <span class="kat-name">Şapka</span>
+        <span class="kat-arrow">→</span>
+      </div>
+    </a>
+    <a href="canta-anahtarlik.html" class="kat-card">
+      <div class="kat-img-wrap">
+        <div class="kat-img-placeholder">👜</div>
+      </div>
+      <div class="kat-label">
+        <span class="kat-name">Çanta / Anahtarlık</span>
+        <span class="kat-arrow">→</span>
+      </div>
+    </a>
+  </div>
+</div>
+
+<style>
+/* ── KATEGORİ GRID ── */
+.kategori-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.kat-card {
+  display: block;
+  text-decoration: none;
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--border);
+  transition: border-color .3s, transform .3s, box-shadow .3s;
+  cursor: pointer;
+  aspect-ratio: 3/4;
+}
+.kat-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 48px rgba(0,0,0,0.55);
+}
+.kat-img-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.kat-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .5s ease;
+  display: block;
+}
+.kat-card:hover .kat-img-wrap img {
+  transform: scale(1.07);
+}
+.kat-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  background: var(--bg3);
+  transition: transform .5s ease;
+}
+.kat-card:hover .kat-img-placeholder {
+  transform: scale(1.07);
+}
+/* Gradient overlay */
+.kat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.05) 0%,
+    rgba(0,0,0,0.15) 40%,
+    rgba(0,0,0,0.72) 100%
+  );
+  z-index: 1;
+  transition: background .3s;
+}
+.kat-card:hover::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.1) 0%,
+    rgba(0,0,0,0.25) 40%,
+    rgba(200,169,110,0.45) 100%
+  );
+}
+.kat-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  padding: 20px 18px 18px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.kat-name {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: #fff;
+  line-height: 1;
+  transition: color .3s;
+}
+.kat-card:hover .kat-name {
+  color: var(--accent);
+}
+.kat-arrow {
+  font-size: 18px;
+  color: rgba(255,255,255,0.4);
+  transition: color .3s, transform .3s;
+}
+.kat-card:hover .kat-arrow {
+  color: var(--accent);
+  transform: translateX(4px);
+}
+
+/* Kategori badge (ürün sayısı) */
+.kat-count {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #000;
+  background: var(--accent);
+  padding: 3px 10px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .kategori-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  #kategori-section { padding: 40px 20px 0; }
+  .kategori-grid { gap: 10px; }
+  .kat-name { font-size: 18px; }
+}
+</style>
+
+<script>
+/* ── Firestore'dan kategori verisi çek ve kartları güncelle ── */
+(function() {
+  function buildKatCards(cats) {
+    const grid = document.getElementById('kategoriGrid');
+    if (!grid || !cats || !cats.length) return;
+    // Sayfaya göre URL eşlemesi
+    const pageMap = {
+      'nakis-yama': 'urunler.html',
+      'tisort-sweatshirt': 'tisort-sweatshirt.html',
+      'sapka': 'sapka.html',
+      'canta-anahtarlik': 'canta-anahtarlik.html',
+    };
+    grid.innerHTML = cats.map(c => {
+      const slug = c.slug || c.id;
+      const href = pageMap[slug] || ('urunler.html?kategori=' + encodeURIComponent(slug));
+      return `
+      <a href="${href}" class="kat-card">
+        <div class="kat-img-wrap">
+          ${c.image
+            ? `<img src="${c.image}" alt="${c.name}" loading="lazy">`
+            : `<div class="kat-img-placeholder">${c.icon || '🧵'}</div>`
+          }
+        </div>
+        ${c.count ? `<div class="kat-count">${c.count} ürün</div>` : ''}
+        <div class="kat-label">
+          <span class="kat-name">${c.name}</span>
+          <span class="kat-arrow">→</span>
+        </div>
+      </a>
+    `}).join('');
+  }
+
+  // Firestore bağlantısı kurulduktan sonra kategori verisi çek
+  window.addEventListener('load', function() {
+    if (typeof db === 'undefined') return;
+    db.collection('categories')
+      .where('active', '!=', false)
+      .orderBy('active')
+      .orderBy('order')
+      .get()
+      .then(snap => {
+        if (snap.empty) return;
+        const cats = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        buildKatCards(cats);
+      })
+      .catch(() => {
+        // Firestore'da 'order' alanı yoksa sıralamasız dene
+        db.collection('categories')
+          .where('active', '!=', false)
+          .get()
+          .then(snap => {
+            if (snap.empty) return;
+            const cats = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            buildKatCards(cats);
+          })
+          .catch(() => {});
+      });
+  });
+})();
+</script>
+
 <!-- FEATURED -->
 <div class="section" id="featured">
   <div class="section-label">Koleksiyon</div>
@@ -547,7 +788,7 @@
         </div>
         <div class="form-group"><label>E-posta *</label><input type="email" placeholder="ornek@email.com" required></div>
         <div class="form-row">
-          <div class="form-group"><label>Yama Türü</label><select><option>Nakış Yama</option><option>PVC Yama</option><option>Kumaş Yama</option></select></div>
+          <div class="form-group"><label>Yama Türü</label><select><option>Nakış Yama</option><option>Tişört / Sweatshirt</option><option>Şapka</option><option>Çanta / Anahtarlık</option></select></div>
           <div class="form-group"><label>Boyut</label><select><option>Küçük (5x5 cm)</option><option>Orta (8x8 cm)</option><option>Büyük (10x10 cm)</option><option>Özel boyut</option></select></div>
         </div>
         <div class="form-row">
