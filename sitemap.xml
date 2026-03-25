@@ -1,30 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
+  <!-- Ana Sayfa -->
   <url>
-    <loc>https://retropatch.vercel.app/</loc>
-    <lastmod>2026-03-14</lastmod>
+    <loc>https://retropatch.com.tr/</loc>
+    <lastmod>2026-03-25</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
+  <!-- Ürün Kataloğu -->
   <url>
-    <loc>https://retropatch.vercel.app/urunler.html</loc>
-    <lastmod>2026-03-14</lastmod>
+    <loc>https://retropatch.com.tr/urunler.html</loc>
+    <lastmod>2026-03-25</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
+  <!-- Kategori: Şapka -->
   <url>
-    <loc>https://retropatch.vercel.app/uye.html</loc>
-    <lastmod>2026-03-14</lastmod>
+    <loc>https://retropatch.com.tr/sapka.html</loc>
+    <lastmod>2026-03-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Kategori: Tişört & Sweatshirt -->
+  <url>
+    <loc>https://retropatch.com.tr/tisort-sweatshirt.html</loc>
+    <lastmod>2026-03-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Kategori: Çanta & Anahtarlık -->
+  <url>
+    <loc>https://retropatch.com.tr/canta-anahtarlik.html</loc>
+    <lastmod>2026-03-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Üyelik / Giriş -->
+  <url>
+    <loc>https://retropatch.com.tr/uye.html</loc>
+    <lastmod>2026-03-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
 
+  <!-- Hesabım -->
   <url>
-    <loc>https://retropatch.vercel.app/hesap.html</loc>
-    <lastmod>2026-03-14</lastmod>
+    <loc>https://retropatch.com.tr/hesap.html</loc>
+    <lastmod>2026-03-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
