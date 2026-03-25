@@ -441,9 +441,23 @@
   <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Menü"><span></span><span></span><span></span></button>
 </nav>
 <!-- GERİ BUTONU -->
-<div style="padding:72px 40px 0;max-width:1280px;margin:0 auto;">
-  <a href="javascript:history.back()" style="display:inline-flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">&lsaquo; GERİ</a>
+<div style="max-width:1280px;margin:0 auto;padding:80px 40px 0;">
+  <a href="javascript:history.back()" class="rp-back-btn">
+    <span class="rp-back-arrow">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </span>
+    <span class="rp-back-label">GERİ</span>
+  </a>
 </div>
+<style>
+.rp-back-btn{display:inline-flex;align-items:center;gap:0;text-decoration:none;font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);padding:8px 16px 8px 10px;transition:all .25s ease;position:relative;overflow:hidden;}
+.rp-back-btn::before{content:"";position:absolute;inset:0;background:var(--accent);transform:translateX(-101%);transition:transform .25s ease;z-index:0;}
+.rp-back-btn:hover::before{transform:translateX(0);}
+.rp-back-btn:hover{color:#000;border-color:var(--accent);}
+.rp-back-arrow,.rp-back-label{position:relative;z-index:1;}
+.rp-back-arrow{display:flex;align-items:center;margin-right:6px;transition:transform .25s ease;}
+.rp-back-btn:hover .rp-back-arrow{transform:translateX(-3px);}
+</style>
 
 
 <!-- MOBILE MENU -->
