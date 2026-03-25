@@ -701,7 +701,7 @@
     };
     grid.innerHTML = cats.map(c => {
       const slug = c.slug || c.id;
-      const href = pageMap[slug] || ('urunler.html?kategori=' + encodeURIComponent(slug));
+      const href = c.page || pageMap[slug] || ('urunler.html?kategori=' + encodeURIComponent(slug));
       return `
       <a href="${href}" class="kat-card">
         <div class="kat-img-wrap">
