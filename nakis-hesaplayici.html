@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nakış Fiyat Hesaplayıcı — RetroPatch</title>
+  <meta name="description" content="Nakış siparişiniz için anında fiyat teklifi alın. Ürün tipi, boyut, renk ve adet seçin, fiyatınızı öğrenin.">
+  <link rel="canonical" href="https://retropatch.com.tr/nakis-hesaplayici.html">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    :root{
+      --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:#2a2a2a;
+      --accent:#c8a96e;--accent2:#e63946;--text:#e8e8e8;--muted:#888;--card:#141414;
+      --green:#2ecc71;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;overflow-x:hidden;min-height:100vh;}
+    ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);}
+
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+    .logo{text-decoration:none;display:flex;align-items:center;}
+    .logo img{height:34px;width:auto;}
+    nav ul{display:flex;gap:28px;list-style:none;}
+    nav ul a{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+    nav ul a:hover{color:var(--accent);}
+    .nav-cta{background:var(--accent);color:#000!important;padding:8px 20px;font-weight:700!important;}
+    @media(max-width:768px){
+      nav ul{display:none;}
+      nav{padding:0 20px;}
+    }
+
+    /* PAGE HERO */
+    .page-hero{padding:120px 40px 60px;text-align:center;background:linear-gradient(180deg,rgba(200,169,110,.04) 0%,transparent 100%);}
+    .page-hero-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--accent);border:1px solid rgba(200,169,110,0.3);padding:6px 16px;display:inline-block;margin-bottom:20px;}
+    .page-hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(44px,7vw,80px);letter-spacing:3px;line-height:0.95;margin-bottom:16px;}
+    .page-hero p{font-size:15px;color:var(--muted);max-width:500px;margin:0 auto;}
+
+    /* MAIN LAYOUT */
+    .calc-wrap{max-width:1100px;margin:0 auto;padding:0 40px 80px;display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;}
+    @media(max-width:900px){.calc-wrap{grid-template-columns:1fr;padding:0 20px 60px;}}
+
+    /* SECTION CARD */
+    .calc-section{background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:16px;}
+    .calc-section h3{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;}
+    .calc-section p{font-size:12px;color:var(--muted);letter-spacing:1px;margin-bottom:22px;}
+
+    /* PRODUCT GRID */
+    .product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+    @media(max-width:480px){.product-grid{grid-template-columns:repeat(2,1fr);}}
+    .prod-btn{background:var(--bg3);border:1px solid var(--border);padding:16px 12px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+    .prod-btn:hover{border-color:rgba(200,169,110,.5);background:rgba(200,169,110,.04);}
+    .prod-btn.selected{border-color:var(--accent);background:rgba(200,169,110,.08);}
+    .prod-btn.selected::after{content:'✓';position:absolute;top:6px;right:8px;font-size:11px;color:var(--accent);}
+    .prod-btn .pb-icon{font-size:28px;margin-bottom:8px;}
+    .prod-btn .pb-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;display:block;margin-bottom:4px;}
+    .prod-btn .pb-from{font-size:11px;color:var(--accent);font-family:'Bebas Neue',cursive;font-size:14px;}
+
+    /* SIZE BUTTONS */
+    .size-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+    @media(max-width:480px){.size-grid{grid-template-columns:repeat(2,1fr);}}
+    .size-btn{background:var(--bg3);border:1px solid var(--border);padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+    .size-btn:hover{border-color:rgba(200,169,110,.5);}
+    .size-btn.selected{border-color:var(--accent);background:rgba(200,169,110,.08);}
+    .size-btn.selected::after{content:'✓';position:absolute;top:5px;right:7px;font-size:10px;color:var(--accent);}
+    .size-btn .sb-name{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;display:block;}
+    .size-btn .sb-cm{font-size:11px;color:var(--muted);}
+
+    /* COLOR SLIDER */
+    .color-slider-wrap{position:relative;}
+    .color-slider{width:100%;-webkit-appearance:none;height:4px;background:linear-gradient(to right,var(--accent),#888);outline:none;border:none;cursor:pointer;}
+    .color-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:var(--accent);cursor:pointer;border:2px solid var(--bg);}
+    .color-slider::-moz-range-thumb{width:20px;height:20px;background:var(--accent);cursor:pointer;border:2px solid var(--bg);}
+    .slider-labels{display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;}
+    .slider-val{display:inline-block;background:var(--accent);color:#000;font-family:'Bebas Neue',cursive;font-size:16px;padding:3px 12px;margin:12px 0 0;letter-spacing:1px;}
+
+    /* QTY */
+    .qty-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .qty-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:16px;width:100px;outline:none;text-align:center;transition:border-color .2s;}
+    .qty-input:focus{border-color:var(--accent);}
+    .qty-preset{display:flex;gap:6px;flex-wrap:wrap;}
+    .qty-preset-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;}
+    .qty-preset-btn:hover,.qty-preset-btn.selected{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.06);}
+
+    /* BACK TYPE */
+    .back-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+    .back-btn{background:var(--bg3);border:1px solid var(--border);padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+    .back-btn:hover{border-color:rgba(200,169,110,.5);}
+    .back-btn.selected{border-color:var(--accent);background:rgba(200,169,110,.08);}
+    .back-btn.selected::after{content:'✓';position:absolute;top:5px;right:7px;font-size:10px;color:var(--accent);}
+    .back-btn .bb-icon{font-size:22px;display:block;margin-bottom:6px;}
+    .back-btn .bb-name{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;display:block;margin-bottom:3px;}
+    .back-btn .bb-price{font-size:12px;color:var(--accent);font-family:'Bebas Neue',cursive;}
+
+    /* QUOTE PANEL */
+    .quote-panel{background:var(--bg2);border:1px solid rgba(200,169,110,.3);padding:28px;position:sticky;top:80px;}
+    .quote-panel h3{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:4px;}
+    .quote-sub{font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:24px;}
+    .quote-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+    .quote-row:last-of-type{border-bottom:none;}
+    .quote-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;color:var(--muted);}
+    .quote-val{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
+    .quote-total{border-top:1px solid var(--border);margin-top:16px;padding-top:16px;}
+    .quote-total-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+    .quote-total-price{font-family:'Bebas Neue',cursive;font-size:52px;color:var(--accent);line-height:1;letter-spacing:1px;}
+    .quote-per{font-size:12px;color:var(--muted);margin-top:4px;}
+    .quote-discount-badge{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;padding:5px 12px;margin:12px 0;display:none;}
+    .quote-cta{width:100%;background:var(--accent);color:#000;border:none;padding:14px;font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:3px;cursor:pointer;margin-top:20px;transition:all .2s;}
+    .quote-cta:hover{background:#d4b77a;}
+    .quote-note{font-size:10px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6;}
+
+    /* DISCOUNT TABLE */
+    .discount-table{width:100%;border-collapse:collapse;margin-top:20px;}
+    .discount-table th{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);}
+    .discount-table td{font-size:12px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--muted);}
+    .discount-table td:last-child{color:var(--green);font-weight:700;}
+    .discount-table tr.active-tier td{color:var(--text);}
+    .discount-table tr.active-tier td:last-child{color:var(--green);}
+
+    /* INFO BOXES */
+    .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:40px;}
+    @media(max-width:700px){.info-grid{grid-template-columns:1fr;}}
+    .info-box{background:var(--bg2);border:1px solid var(--border);padding:24px;text-align:center;}
+    .info-box .ib-icon{font-size:32px;margin-bottom:12px;}
+    .info-box h4{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+    .info-box p{font-size:12px;color:var(--muted);line-height:1.6;}
+
+    /* LOADING */
+    .calc-loading{text-align:center;padding:60px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;}
+
+    /* FOOTER */
+    footer{border-top:1px solid var(--border);padding:40px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;}
+    footer p{font-size:12px;color:var(--muted);}
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo"><img src="retro_logo.png" alt="RetroPatch"></a>
+  <ul>
+    <li><a href="index.html#featured">Öne Çıkanlar</a></li>
+    <li><a href="urunler.html">Tüm Ürünler</a></li>
+    <li><a href="nakis-hesaplayici.html" style="color:var(--accent)">Fiyat Hesapla</a></li>
+    <li><a href="index.html#iletisim">İletişim</a></li>
+    <li><a href="urunler.html" class="nav-cta">Sipariş Ver</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="page-hero-label">Anlık Fiyat Teklifi</div>
+  <h1>NAKIŞ FİYAT<br><em style="color:var(--accent);font-style:normal;">HESAPLAYICI</em></h1>
+  <p>Ürün tipi, boyut, renk sayısı ve adedi seçin — anında tahmini fiyatınızı öğrenin.</p>
+</div>
+
+<!-- LOADING -->
+<div id="calcLoading" class="calc-loading">⏳ Fiyatlar yükleniyor...</div>
+
+<!-- MAIN -->
+<div class="calc-wrap" id="calcMain" style="display:none;">
+
+  <!-- LEFT: INPUTS -->
+  <div>
+
+    <!-- ÜRÜN TİPİ -->
+    <div class="calc-section">
+      <h3>ÜRÜN TİPİ</h3>
+      <p>Nakış yapılacak ürünü seçin</p>
+      <div class="product-grid" id="productGrid">
+        <!-- JS ile dolacak -->
+      </div>
+    </div>
+
+    <!-- NAKIŞ BOYUTU -->
+    <div class="calc-section">
+      <h3>NAKIŞ BOYUTU</h3>
+      <p>Tasarımın yaklaşık boyutunu seçin</p>
+      <div class="size-grid" id="sizeGrid">
+        <!-- JS ile dolacak -->
+      </div>
+    </div>
+
+    <!-- RENK SAYISI -->
+    <div class="calc-section">
+      <h3>İPLİK RENK SAYISI</h3>
+      <p>Tasarımınızdaki farklı renk adedi (1-12)</p>
+      <input type="range" class="color-slider" id="colorSlider" min="1" max="12" value="1" oninput="onColorChange(this.value)">
+      <div class="slider-labels"><span>1 Renk</span><span>12 Renk</span></div>
+      <span class="slider-val" id="colorVal">1 Renk</span>
+    </div>
+
+    <!-- ARKA YÜZEY -->
+    <div class="calc-section">
+      <h3>ARKA YÜZEY</h3>
+      <p>Yamanın arka tarafı nasıl olsun?</p>
+      <div class="back-grid" id="backGrid">
+        <!-- JS ile dolacak -->
+      </div>
+    </div>
+
+    <!-- ADET -->
+    <div class="calc-section">
+      <h3>ADET</h3>
+      <p>Toplu siparişlerde özel indirim uygulanır</p>
+      <div class="qty-row">
+        <input type="number" class="qty-input" id="qtyInput" value="1" min="1" max="9999" oninput="onQtyChange(this.value)">
+        <div class="qty-preset">
+          <button class="qty-preset-btn selected" onclick="setQty(1,this)">1</button>
+          <button class="qty-preset-btn" onclick="setQty(10,this)">10</button>
+          <button class="qty-preset-btn" onclick="setQty(25,this)">25</button>
+          <button class="qty-preset-btn" onclick="setQty(50,this)">50</button>
+          <button class="qty-preset-btn" onclick="setQty(100,this)">100</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPLU İNDİRİM TABLOSU -->
+    <div class="calc-section" id="discountTableSection">
+      <h3>TOPLU SİPARİŞ İNDİRİMLERİ</h3>
+      <p>Bu ürün için geçerli indirim kademeleri</p>
+      <table class="discount-table" id="discountTable">
+        <thead><tr><th>Adet</th><th>İndirim</th><th>Birim Fiyat</th></tr></thead>
+        <tbody id="discountTbody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: QUOTE PANEL -->
+  <div>
+    <div class="quote-panel">
+      <h3>TEKLİFİNİZ</h3>
+      <div class="quote-sub">Tahmini fiyat dökümü</div>
+      <div class="quote-row"><span class="quote-label">Ürün</span><span class="quote-val" id="qProduct">—</span></div>
+      <div class="quote-row"><span class="quote-label">Nakış Boyutu</span><span class="quote-val" id="qSize">—</span></div>
+      <div class="quote-row"><span class="quote-label">Renk Sayısı</span><span class="quote-val" id="qColors">1</span></div>
+      <div class="quote-row"><span class="quote-label">Arka Yüzey</span><span class="quote-val" id="qBack">—</span></div>
+      <div class="quote-row"><span class="quote-label">Adet</span><span class="quote-val" id="qQty">1</span></div>
+      <div class="quote-row"><span class="quote-label">Birim Fiyat</span><span class="quote-val" id="qUnit">—</span></div>
+      <div id="discountBadge" class="quote-discount-badge">🎉 Toplu indirim uygulandı!</div>
+      <div class="quote-total">
+        <div class="quote-total-label">Toplam Tahmini Fiyat</div>
+        <div class="quote-total-price" id="qTotal">₺—</div>
+        <div class="quote-per" id="qPer"></div>
+      </div>
+      <button class="quote-cta" onclick="goToOrder()">SİPARİŞ VER →</button>
+      <div class="quote-note">* Fiyatlar tahminidir. Tasarım karmaşıklığına göre değişebilir.<br>Büyük siparişler için özel teklif alın.</div>
+    </div>
+  </div>
+</div>
+
+<!-- INFO BOXES -->
+<div style="max-width:1100px;margin:0 auto;padding:0 40px 80px;" id="infoSection" style="display:none;">
+  <div class="info-grid">
+    <div class="info-box">
+      <div class="ib-icon">🧵</div>
+      <h4>Profesyonel Makine Nakışı</h4>
+      <p>Yüksek çözünürlüklü endüstriyel makinelerle üretim. Her detay titizlikle işlenir.</p>
+    </div>
+    <div class="info-box">
+      <div class="ib-icon">🚚</div>
+      <h4>Hızlı Teslimat</h4>
+      <p>Siparişler hazırlandıktan sonra kargo ile hızlıca teslim edilir.</p>
+    </div>
+    <div class="info-box">
+      <div class="ib-icon">💬</div>
+      <h4>WhatsApp Destek</h4>
+      <p>Tasarım konusunda yardım almak için bize WhatsApp'tan ulaşabilirsiniz.</p>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <a href="index.html" class="logo"><img src="retro_logo.png" alt="RetroPatch" style="height:28px;"></a>
+  <p>© 2025 RetroPatch. Tüm hakları saklıdır.</p>
+  <p>Profesyonel Makine Nakışı · Türkiye</p>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script>
+// ===== FIREBASE =====
+if (!firebase.apps.length) {
+  firebase.initializeApp({
+    apiKey:"AIzaSyA597pu8o7M2ZWcZc6gbGW2TAwceTfyVhA",
+    authDomain:"retropatch-fd08e.firebaseapp.com",
+    projectId:"retropatch-fd08e",
+    storageBucket:"retropatch-fd08e.firebasestorage.app",
+    messagingSenderId:"449894507687",
+    appId:"1:449894507687:web:a932684047bd590579e782"
+  });
+}
+const db = firebase.firestore();
+
+// ===== STATE =====
+let calcConfig = null;
+let selectedProduct = null;
+let selectedSize    = null;
+let selectedBack    = null;
+let colorCount      = 1;
+let qty             = 1;
+
+// ===== DEFAULTS (admin ayar yapmamışsa kullanılır) =====
+const DEFAULT_CONFIG = {
+  products: [
+    { id:'patch',       name:'Nakış Yama',    icon:'🪡', basePrice:{ kucuk:40,  orta:65,  buyuk:95,  xlarge:140 } },
+    { id:'tshirt',      name:'Tişört',        icon:'👕', basePrice:{ kucuk:80,  orta:100, buyuk:130, xlarge:180 } },
+    { id:'sweatshirt',  name:'Sweatshirt',    icon:'🧥', basePrice:{ kucuk:100, orta:130, buyuk:160, xlarge:210 } },
+    { id:'cap',         name:'Şapka',         icon:'🧢', basePrice:{ kucuk:70,  orta:90,  buyuk:120, xlarge:160 } },
+    { id:'bag',         name:'Çanta',         icon:'👜', basePrice:{ kucuk:80,  orta:110, buyuk:145, xlarge:190 } },
+    { id:'jacket',      name:'Ceket / Mont',  icon:'🥼', basePrice:{ kucuk:120, orta:160, buyuk:200, xlarge:260 } },
+  ],
+  sizes: [
+    { id:'kucuk',  name:'Küçük',   desc:'≤ 5 cm',   multiplier:1.0 },
+    { id:'orta',   name:'Orta',    desc:'5–10 cm',  multiplier:1.0 },
+    { id:'buyuk',  name:'Büyük',   desc:'10–15 cm', multiplier:1.0 },
+    { id:'xlarge', name:'X-Büyük', desc:'15+ cm',   multiplier:1.0 },
+  ],
+  backTypes: [
+    { id:'duz',  name:'Düz',             icon:'⬜', extra:0  },
+    { id:'utu',  name:'Ütüyle Yapışan',  icon:'🔥', extra:20 },
+    { id:'cirt', name:'Cırt Cırt',       icon:'🔗', extra:30 },
+  ],
+  colorExtra: 5,       // Her ek renk için ₺
+  discounts: [
+    { minQty:10,  pct:5  },
+    { minQty:25,  pct:10 },
+    { minQty:50,  pct:15 },
+    { minQty:100, pct:20 },
+  ]
+};
+
+// ===== LOAD CONFIG FROM FIRESTORE =====
+async function loadConfig() {
+  try {
+    const doc = await db.collection('settings').doc('calculator').get();
+    calcConfig = doc.exists ? { ...DEFAULT_CONFIG, ...doc.data() } : DEFAULT_CONFIG;
+  } catch(e) {
+    calcConfig = DEFAULT_CONFIG;
+  }
+  buildUI();
+}
+
+// ===== BUILD UI =====
+function buildUI() {
+  buildProductGrid();
+  buildSizeGrid();
+  buildBackGrid();
+  document.getElementById('calcLoading').style.display = 'none';
+  document.getElementById('calcMain').style.display    = 'grid';
+  document.getElementById('infoSection').style.display = 'block';
+
+  // Varsayılan seçimler
+  const firstProd = document.querySelector('.prod-btn');
+  if (firstProd) firstProd.click();
+  const firstSize = document.querySelector('.size-btn');
+  if (firstSize) firstSize.click();
+  const firstBack = document.querySelector('.back-btn');
+  if (firstBack) firstBack.click();
+}
+
+function buildProductGrid() {
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = calcConfig.products.map(p => {
+    const minPrice = Math.min(...Object.values(p.basePrice));
+    return `<div class="prod-btn" onclick="selectProduct('${p.id}',this)" data-id="${p.id}">
+      <div class="pb-icon">${p.icon}</div>
+      <span class="pb-name">${p.name}</span>
+      <span class="pb-from">₺${minPrice}'den</span>
+    </div>`;
+  }).join('');
+}
+
+function buildSizeGrid() {
+  const grid = document.getElementById('sizeGrid');
+  grid.innerHTML = calcConfig.sizes.map(s => `
+    <div class="size-btn" onclick="selectSize('${s.id}',this)" data-id="${s.id}">
+      <span class="sb-name">${s.name}</span>
+      <span class="sb-cm">${s.desc}</span>
+    </div>`).join('');
+}
+
+function buildBackGrid() {
+  const grid = document.getElementById('backGrid');
+  grid.innerHTML = calcConfig.backTypes.map(b => `
+    <div class="back-btn" onclick="selectBack('${b.id}',this)" data-id="${b.id}">
+      <span class="bb-icon">${b.icon}</span>
+      <span class="bb-name">${b.name}</span>
+      <span class="bb-price">${b.extra > 0 ? '+₺'+b.extra : 'Ücretsiz'}</span>
+    </div>`).join('');
+}
+
+// ===== SELECTION HANDLERS =====
+function selectProduct(id, el) {
+  document.querySelectorAll('.prod-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedProduct = calcConfig.products.find(p => p.id === id);
+  updateQuote();
+}
+
+function selectSize(id, el) {
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSize = calcConfig.sizes.find(s => s.id === id);
+  updateQuote();
+}
+
+function selectBack(id, el) {
+  document.querySelectorAll('.back-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedBack = calcConfig.backTypes.find(b => b.id === id);
+  updateQuote();
+}
+
+function onColorChange(v) {
+  colorCount = parseInt(v);
+  document.getElementById('colorVal').textContent = v + (v == 1 ? ' Renk' : ' Renk');
+  updateQuote();
+}
+
+function setQty(n, el) {
+  document.querySelectorAll('.qty-preset-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('qtyInput').value = n;
+  qty = n;
+  updateQuote();
+}
+
+function onQtyChange(v) {
+  qty = Math.max(1, parseInt(v) || 1);
+  document.querySelectorAll('.qty-preset-btn').forEach(b => b.classList.remove('selected'));
+  const presets = [1,10,25,50,100];
+  document.querySelectorAll('.qty-preset-btn').forEach((b,i) => {
+    if (presets[i] === qty) b.classList.add('selected');
+  });
+  updateQuote();
+}
+
+// ===== PRICE CALCULATION =====
+function calcPrice() {
+  if (!selectedProduct || !selectedSize || !selectedBack) return null;
+
+  let unit = selectedProduct.basePrice[selectedSize.id] || 0;
+  unit += (colorCount - 1) * (calcConfig.colorExtra || 5);
+  unit += selectedBack.extra || 0;
+
+  // Toplu indirim
+  let discountPct = 0;
+  const discounts = [...(calcConfig.discounts || [])].sort((a,b) => b.minQty - a.minQty);
+  for (const d of discounts) {
+    if (qty >= d.minQty) { discountPct = d.pct; break; }
+  }
+
+  const discounted = unit * (1 - discountPct / 100);
+  const total      = discounted * qty;
+  return { unit, discounted, total, discountPct };
+}
+
+function updateQuote() {
+  document.getElementById('qProduct').textContent = selectedProduct ? selectedProduct.name : '—';
+  document.getElementById('qSize').textContent    = selectedSize ? selectedSize.name + ' (' + selectedSize.desc + ')' : '—';
+  document.getElementById('qColors').textContent  = colorCount;
+  document.getElementById('qBack').textContent    = selectedBack ? selectedBack.name : '—';
+  document.getElementById('qQty').textContent     = qty;
+
+  const p = calcPrice();
+  if (!p) { document.getElementById('qTotal').textContent = '₺—'; return; }
+
+  document.getElementById('qUnit').textContent  = '₺' + p.discounted.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('qTotal').textContent = '₺' + p.total.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('qPer').textContent   = qty > 1 ? 'Adet başı ₺' + p.discounted.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '';
+
+  const badge = document.getElementById('discountBadge');
+  badge.style.display = p.discountPct > 0 ? 'block' : 'none';
+  if (p.discountPct > 0) badge.textContent = '🎉 %' + p.discountPct + ' toplu sipariş indirimi uygulandı!';
+
+  buildDiscountTable(p);
+}
+
+function buildDiscountTable(p) {
+  const tbody = document.getElementById('discountTbody');
+  const discounts = [...(calcConfig.discounts || [])].sort((a,b) => a.minQty - b.minQty);
+  tbody.innerHTML = discounts.map(d => {
+    const unitBase = selectedProduct && selectedSize
+      ? (selectedProduct.basePrice[selectedSize.id] || 0) + (colorCount-1)*(calcConfig.colorExtra||5) + (selectedBack?.extra||0)
+      : 0;
+    const discountedUnit = unitBase * (1 - d.pct / 100);
+    const isActive = qty >= d.minQty && d.pct === p.discountPct;
+    return `<tr class="${isActive?'active-tier':''}">
+      <td>${d.minQty}+ adet</td>
+      <td style="color:var(--green)">%${d.pct}</td>
+      <td>₺${discountedUnit.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+    </tr>`;
+  }).join('');
+}
+
+function goToOrder() {
+  const p = calcPrice();
+  if (!p) { alert('Lütfen tüm seçimleri yapın.'); return; }
+  const msg = encodeURIComponent(
+    `Merhaba! Fiyat hesaplayıcıdan teklif aldım:\n` +
+    `• Ürün: ${selectedProduct?.name}\n` +
+    `• Boyut: ${selectedSize?.name} (${selectedSize?.desc})\n` +
+    `• Renk: ${colorCount}\n` +
+    `• Arka: ${selectedBack?.name}\n` +
+    `• Adet: ${qty}\n` +
+    `• Tahmini Toplam: ₺${p.total.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})}\n\n` +
+    `Sipariş vermek istiyorum.`
+  );
+  window.open('https://wa.me/905375295290?text=' + msg, '_blank');
+}
+
+// ===== INIT =====
+loadConfig();
+</script>
+</body>
+</html>
