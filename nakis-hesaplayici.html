@@ -40,8 +40,24 @@
     .page-hero p{font-size:15px;color:var(--muted);max-width:500px;margin:0 auto;}
 
     /* MAIN LAYOUT */
-    .calc-wrap{max-width:1100px;margin:0 auto;padding:0 40px 80px;display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;}
-    @media(max-width:900px){.calc-wrap{grid-template-columns:1fr;padding:0 20px 60px;}}
+    .calc-wrap{max-width:1100px;margin:0 auto;padding:0 40px 120px;display:grid;grid-template-columns:1fr;gap:24px;align-items:start;}
+    @media(max-width:900px){.calc-wrap{grid-template-columns:1fr;padding:0 20px 120px;}}
+    .calc-wrap > div:last-child{display:none;}
+
+    /* STICKY BOTTOM BAR */
+    .sticky-quote-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid rgba(200,169,110,.4);z-index:999;padding:14px 40px;display:flex;align-items:center;justify-content:space-between;gap:20px;backdrop-filter:blur(12px);}
+    @media(max-width:700px){.sticky-quote-bar{flex-wrap:wrap;padding:14px 20px;gap:10px;}}
+    .sq-items{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+    .sq-item{display:flex;flex-direction:column;}
+    .sq-item-label{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+    .sq-item-val{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
+    .sq-total{display:flex;flex-direction:column;align-items:flex-end;}
+    .sq-total-label{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+    .sq-total-price{font-family:'Bebas Neue',cursive;font-size:38px;color:var(--accent);line-height:1;letter-spacing:1px;}
+    .sq-right{display:flex;align-items:center;gap:16px;}
+    .sq-cta{background:var(--accent);color:#000;border:none;padding:12px 28px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:3px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+    .sq-cta:hover{background:#d4b77a;}
+    .sq-discount{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 10px;display:none;}
 
     /* SECTION CARD */
     .calc-section{background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:16px;}
@@ -266,8 +282,28 @@
         <div class="quote-per" id="qPer"></div>
       </div>
       <button class="quote-cta" onclick="goToOrder()">SİPARİŞ VER →</button>
-      <div class="quote-note">⚠ Fiyatlar tahmini değerlerdir. Nihai fiyatlandırma, tasarım karmaşıklığına bağlı olarak değişebilir.<br><br>Büyük siparişler veya karmaşık tasarımlar için özel fiyat teklifleri almak üzere bizimle iletişime geçin.</div>
+      <div class="quote-note">* Fiyatlar tahminidir. Tasarım karmaşıklığına göre değişebilir.<br>Büyük siparişler için özel teklif alın.</div>
     </div>
+  </div>
+</div>
+
+<!-- STICKY BOTTOM BAR -->
+<div class="sticky-quote-bar" id="stickyBar">
+  <div class="sq-items">
+    <div class="sq-item"><span class="sq-item-label">Ürün</span><span class="sq-item-val" id="sqProduct">—</span></div>
+    <div class="sq-item"><span class="sq-item-label">Boyut</span><span class="sq-item-val" id="sqSize">—</span></div>
+    <div class="sq-item"><span class="sq-item-label">Renk</span><span class="sq-item-val" id="sqColors">1</span></div>
+    <div class="sq-item"><span class="sq-item-label">Arka Yüzey</span><span class="sq-item-val" id="sqBack">—</span></div>
+    <div class="sq-item"><span class="sq-item-label">Adet</span><span class="sq-item-val" id="sqQty">1</span></div>
+    <div class="sq-item"><span class="sq-item-label">Birim</span><span class="sq-item-val" id="sqUnit">—</span></div>
+  </div>
+  <div class="sq-right">
+    <div id="sqDiscount" class="sq-discount">🎉 Toplu indirim!</div>
+    <div class="sq-total">
+      <span class="sq-total-label">Toplam Tahmini</span>
+      <span class="sq-total-price" id="sqTotal">₺—</span>
+    </div>
+    <button class="sq-cta" onclick="goToOrder()">SİPARİŞ VER →</button>
   </div>
 </div>
 
@@ -520,16 +556,31 @@ function updateQuote() {
   document.getElementById('qDesign').textContent  = selectedDesign ? selectedDesign.name + (selectedDesign.extra ? ' (+₺'+selectedDesign.extra+')' : ' (Ücretsiz)') : '—';
   document.getElementById('qQty').textContent     = qty;
 
+  // sticky bar sync
+  document.getElementById('sqProduct').textContent = selectedProduct ? selectedProduct.name : '—';
+  document.getElementById('sqSize').textContent    = selectedSize ? selectedSize.name : '—';
+  document.getElementById('sqColors').textContent  = colorCount;
+  document.getElementById('sqBack').textContent    = selectedBack ? selectedBack.name : '—';
+  document.getElementById('sqQty').textContent     = qty;
+
   const p = calcPrice();
-  if (!p) { document.getElementById('qTotal').textContent = '₺—'; return; }
+  if (!p) { document.getElementById('qTotal').textContent = '₺—'; document.getElementById('sqTotal').textContent = '₺—'; document.getElementById('sqUnit').textContent = '—'; return; }
 
   document.getElementById('qUnit').textContent  = '₺' + p.discounted.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
   document.getElementById('qTotal').textContent = '₺' + p.total.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
   document.getElementById('qPer').textContent   = qty > 1 ? 'Adet başı ₺' + p.discounted.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '';
 
+  // sticky bar fiyat
+  document.getElementById('sqUnit').textContent  = '₺' + p.discounted.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('sqTotal').textContent = '₺' + p.total.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
+
   const badge = document.getElementById('discountBadge');
   badge.style.display = p.discountPct > 0 ? 'block' : 'none';
   if (p.discountPct > 0) badge.textContent = '🎉 %' + p.discountPct + ' toplu sipariş indirimi uygulandı!';
+
+  const sqDiscount = document.getElementById('sqDiscount');
+  sqDiscount.style.display = p.discountPct > 0 ? 'block' : 'none';
+  if (p.discountPct > 0) sqDiscount.textContent = '🎉 %' + p.discountPct + ' indirim!';
 
   buildDiscountTable(p);
 }
