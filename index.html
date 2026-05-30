@@ -801,6 +801,11 @@
           <div style="display:flex;flex-wrap:wrap;gap:6px;" id="cw-backs"></div>
         </div>
 
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Tasarım</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;" id="cw-designs"></div>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Renk Sayısı</div>
@@ -893,6 +898,11 @@
         { id:'utu',  name:'Ütüyle Yapışan', icon:'🔥', extra:20 },
         { id:'cirt', name:'Cırt Cırt',      icon:'🔗', extra:30 },
       ],
+      designTypes: [
+        { id:'yok',     name:'Tasarımım Var',    icon:'📁', extra:0   },
+        { id:'basit',   name:'Basit Tasarım',    icon:'✏️',  extra:100 },
+        { id:'karisik', name:'Karmaşık Tasarım', icon:'🎨', extra:200 },
+      ],
       colorExtra: 5,
       discounts: [
         { minQty:10,  pct:5  },
@@ -902,7 +912,7 @@
       ],
       waNumber: '905375295290',
     },
-    sel: { product: 'patch', size: 'kucuk', back: 'duz' },
+    sel: { product: 'patch', size: 'kucuk', back: 'duz', design: 'yok' },
   };
 
   function chip(id, label, group, active) {
@@ -914,6 +924,7 @@
     document.getElementById('cw-products').innerHTML = d.products.map(p => chip(p.id, p.icon+' '+p.name, 'product', CW.sel.product===p.id)).join('');
     document.getElementById('cw-sizes').innerHTML    = d.sizes.map(s => chip(s.id, s.name+' <span style="font-size:10px;opacity:.6;">'+s.desc+'</span>', 'size', CW.sel.size===s.id)).join('');
     document.getElementById('cw-backs').innerHTML    = d.backs.map(b => chip(b.id, b.icon+' '+b.name+(b.extra?` +₺${b.extra}`:''), 'back', CW.sel.back===b.id)).join('');
+    document.getElementById('cw-designs').innerHTML  = d.designTypes.map(dg => chip(dg.id, dg.icon+' '+dg.name+(dg.extra?` +₺${dg.extra}`:''), 'design', CW.sel.design===dg.id)).join('');
     cwCalc();
   }
 
@@ -921,6 +932,7 @@
     if (group==='product') CW.sel.product = id;
     else if (group==='size') CW.sel.size = id;
     else if (group==='back') CW.sel.back = id;
+    else if (group==='design') CW.sel.design = id;
     render();
   };
 
@@ -928,6 +940,7 @@
     const d = CW.data;
     const prod  = d.products.find(p => p.id===CW.sel.product);
     const back  = d.backs.find(b => b.id===CW.sel.back);
+    const design = d.designTypes.find(dg => dg.id===CW.sel.design);
     const colors = parseInt(document.getElementById('cw-color')?.value)||1;
     const qty    = parseInt(document.getElementById('cw-qty')?.value)||1;
     if (!prod || !back) return;
@@ -935,6 +948,7 @@
     let unit = prod.basePrice[CW.sel.size] || 0;
     unit += (colors-1) * d.colorExtra;
     unit += back.extra || 0;
+    unit += design ? (design.extra || 0) : 0;
 
     let pct = 0;
     const sorted = [...d.discounts].sort((a,b)=>b.minQty-a.minQty);
@@ -956,12 +970,13 @@
       `<span>Baz: ₺${prod.basePrice[CW.sel.size]}</span>`,
       colors>1 ? `<span>+${colors-1} renk: ₺${((colors-1)*d.colorExtra).toFixed(0)}</span>` : '',
       back.extra ? `<span>${back.icon} ${back.name}: +₺${back.extra}</span>` : '',
+      design && design.extra ? `<span>${design.icon} ${design.name}: +₺${design.extra}</span>` : '',
       pct ? `<span style="color:#2ecc71;">Toplu indirim: -%${pct}</span>` : '',
     ].filter(Boolean).join('');
 
     const waBtn = document.getElementById('cw-wa-btn');
     if (waBtn) {
-      const msg = `Merhaba! Fiyat hesaplayıcıdan seçimlerim:\n- Ürün: ${prod.icon} ${prod.name}\n- Boyut: ${size.name} (${size.desc})\n- Arka Yüzey: ${back.name}\n- Renk: ${colors}\n- Adet: ${qty}\n- Tahmini Fiyat: ₺${total.toLocaleString('tr-TR',{minimumFractionDigits:2})}\n\nSipariş vermek istiyorum.`;
+      const msg = `Merhaba! Fiyat hesaplayıcıdan seçimlerim:\n- Ürün: ${prod.icon} ${prod.name}\n- Boyut: ${size.name} (${size.desc})\n- Arka Yüzey: ${back.name}\n- Tasarım: ${design ? design.name : '—'}\n- Renk: ${colors}\n- Adet: ${qty}\n- Tahmini Fiyat: ₺${total.toLocaleString('tr-TR',{minimumFractionDigits:2})}\n\nSipariş vermek istiyorum.`;
       waBtn.href = `https://wa.me/${d.waNumber}?text=${encodeURIComponent(msg)}`;
     }
   };
@@ -974,6 +989,7 @@
       if (fd.products && fd.products.length) CW.data.products = fd.products;
       if (fd.sizes    && fd.sizes.length)    CW.data.sizes    = fd.sizes;
       if (fd.backTypes && fd.backTypes.length) CW.data.backs  = fd.backTypes;
+      if (fd.designTypes && fd.designTypes.length) CW.data.designTypes = fd.designTypes;
       if (fd.colorExtra != null) CW.data.colorExtra = fd.colorExtra;
       if (fd.discounts && fd.discounts.length) CW.data.discounts = fd.discounts;
       if (fd.waNumber) CW.data.waNumber = fd.waNumber;

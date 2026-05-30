@@ -760,6 +760,20 @@
     </div>
   </div>
 
+  <!-- TASARIM TİPLERİ -->
+  <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:2px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);">🎨 TASARIM TİPLERİ</div>
+        <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Tasarım seçenekleri ve ek ücretleri</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="addDesignRow()">+ Tip Ekle</button>
+    </div>
+    <div id="designTypesList" style="display:flex;flex-direction:column;gap:8px;">
+      <!-- JS ile doldurulacak -->
+    </div>
+  </div>
+
   <!-- BOYUT TANIMLAMALARI -->
   <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:2px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
@@ -796,6 +810,10 @@
       <div class="fg" style="margin:0;">
         <label>Arka Yüzey</label>
         <select id="pvBack" onchange="updatePreview()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-size:13px;outline:none;"></select>
+      </div>
+      <div class="fg" style="margin:0;">
+        <label>Tasarım</label>
+        <select id="pvDesign" onchange="updatePreview()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-size:13px;outline:none;"></select>
       </div>
       <div class="fg" style="margin:0;">
         <label>Adet</label>
@@ -4099,6 +4117,11 @@ let calcAdminData = {
     { id:'utu',  name:'Ütüyle Yapışan',  icon:'🔥', extra:20 },
     { id:'cirt', name:'Cırt Cırt',       icon:'🔗', extra:30 },
   ],
+  designTypes: [
+    { id:'yok',     name:'Tasarımım Var',    icon:'📁', extra:0   },
+    { id:'basit',   name:'Basit Tasarım',    icon:'✏️',  extra:100 },
+    { id:'karisik', name:'Karmaşık Tasarım', icon:'🎨', extra:200 },
+  ],
   colorExtra: 5,
   discounts: [
     { minQty:10,  pct:5  },
@@ -4116,6 +4139,11 @@ function loadCalcConfig() {
     if (doc.exists) {
       const d = doc.data();
       calcAdminData = { ...calcAdminData, ...d };
+      if (!calcAdminData.designTypes) calcAdminData.designTypes = [
+        { id:'yok',     name:'Tasarımım Var',    icon:'📁', extra:0   },
+        { id:'basit',   name:'Basit Tasarım',    icon:'✏️',  extra:100 },
+        { id:'karisik', name:'Karmaşık Tasarım', icon:'🎨', extra:200 },
+      ];
     }
     renderCalcAdmin();
   }).catch(() => renderCalcAdmin());
@@ -4131,6 +4159,7 @@ function renderCalcAdmin() {
   renderDiscountTiers();
   renderProductTable();
   renderBackTypesList();
+  renderDesignTypesList();
   renderSizesList();
   buildPreviewSelectors();
   updatePreview();
@@ -4251,6 +4280,40 @@ function removeBackRow(i) {
   buildPreviewSelectors();
 }
 
+// ── TASARIM TİPLERİ ──
+function renderDesignTypesList() {
+  const container = document.getElementById('designTypesList');
+  if (!container) return;
+  const types = calcAdminData.designTypes || [];
+  container.innerHTML = types.map((d, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);">
+      <input type="text" value="${d.icon||''}" maxlength="4"
+        onchange="calcAdminData.designTypes[${i}].icon=this.value"
+        style="width:50px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-size:20px;outline:none;text-align:center;">
+      <input type="text" value="${d.name||''}"
+        onchange="calcAdminData.designTypes[${i}].name=this.value;buildPreviewSelectors()"
+        style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:13px;outline:none;">
+      <label style="font-size:10px;color:var(--muted);white-space:nowrap;margin:0;">Ek Ücret (₺)</label>
+      <input type="number" value="${d.extra||0}" min="0"
+        onchange="calcAdminData.designTypes[${i}].extra=parseFloat(this.value)||0;updatePreview()"
+        style="width:80px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:13px;outline:none;">
+      <button onclick="removeDesignRow(${i})" style="background:none;border:1px solid rgba(230,57,70,.3);color:var(--accent2);width:28px;height:28px;cursor:pointer;font-size:12px;">✕</button>
+    </div>`).join('');
+}
+
+function addDesignRow() {
+  if (!calcAdminData.designTypes) calcAdminData.designTypes = [];
+  calcAdminData.designTypes.push({ id:'tasarim_'+Date.now(), name:'Yeni Tip', icon:'🖊', extra:0 });
+  renderDesignTypesList();
+  buildPreviewSelectors();
+}
+
+function removeDesignRow(i) {
+  calcAdminData.designTypes.splice(i, 1);
+  renderDesignTypesList();
+  buildPreviewSelectors();
+}
+
 // ── BOYUTLAR ──
 function renderSizesList() {
   const container = document.getElementById('sizesList');
@@ -4281,6 +4344,10 @@ function buildPreviewSelectors() {
   pvProduct.innerHTML = calcAdminData.products.map(p => `<option value="${p.id}">${p.icon||''} ${p.name}</option>`).join('');
   pvSize.innerHTML    = calcAdminData.sizes.map(s    => `<option value="${s.id}">${s.name} (${s.desc})</option>`).join('');
   pvBack.innerHTML    = calcAdminData.backTypes.map(b => `<option value="${b.id}">${b.icon||''} ${b.name} (+₺${b.extra||0})</option>`).join('');
+  const pvDesign = document.getElementById('pvDesign');
+  if (pvDesign && calcAdminData.designTypes) {
+    pvDesign.innerHTML = calcAdminData.designTypes.map(d => `<option value="${d.id}">${d.icon||''} ${d.name} (+₺${d.extra||0})</option>`).join('');
+  }
   updatePreview();
 }
 
@@ -4295,6 +4362,8 @@ function updatePreview() {
   const prod  = calcAdminData.products.find(p => p.id === pvProduct.value);
   const size  = calcAdminData.sizes.find(s => s.id === pvSize.value);
   const back  = calcAdminData.backTypes.find(b => b.id === pvBack.value);
+  const pvDesign = document.getElementById('pvDesign');
+  const design = pvDesign && calcAdminData.designTypes ? calcAdminData.designTypes.find(d => d.id === pvDesign.value) : null;
   const colors = parseInt(pvColor.value) || 1;
   const qty   = parseInt(pvQty.value) || 1;
 
@@ -4303,6 +4372,7 @@ function updatePreview() {
   let unit = prod.basePrice[size.id] || 0;
   unit += (colors - 1) * (parseFloat(document.getElementById('calcColorExtra').value) || 5);
   unit += back.extra || 0;
+  unit += design ? (design.extra || 0) : 0;
 
   let discountPct = 0;
   const sorted = [...calcAdminData.discounts].sort((a,b) => b.minQty - a.minQty);
@@ -4334,6 +4404,7 @@ function saveCalcConfig() {
   // ID'leri normalize et
   calcAdminData.products   = calcAdminData.products.map((p,i) => ({ ...p, id: p.id || 'product_'+i }));
   calcAdminData.backTypes  = calcAdminData.backTypes.map((b,i) => ({ ...b, id: b.id || 'back_'+i }));
+  calcAdminData.designTypes = (calcAdminData.designTypes||[]).map((d,i) => ({ ...d, id: d.id || 'design_'+i }));
   calcAdminData.discounts  = calcAdminData.discounts.sort((a,b) => a.minQty - b.minQty);
 
   db.collection('settings').doc('calculator').set(calcAdminData, { merge: true })

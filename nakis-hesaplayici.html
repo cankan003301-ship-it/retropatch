@@ -86,6 +86,14 @@
     .qty-preset-btn:hover,.qty-preset-btn.selected{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.06);}
 
     /* BACK TYPE */
+    .design-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+    .design-btn{background:var(--bg3);border:1px solid var(--border);padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+    .design-btn:hover{border-color:rgba(200,169,110,.5);}
+    .design-btn.selected{border-color:var(--accent);background:rgba(200,169,110,.08);}
+    .design-btn.selected::after{content:'✓';position:absolute;top:5px;right:7px;font-size:10px;color:var(--accent);}
+    .design-btn .db-icon{font-size:22px;display:block;margin-bottom:6px;}
+    .design-btn .db-name{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;display:block;margin-bottom:3px;}
+    .design-btn .db-price{font-size:12px;color:var(--accent);font-family:'Bebas Neue',cursive;}
     .back-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
     .back-btn{background:var(--bg3);border:1px solid var(--border);padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
     .back-btn:hover{border-color:rgba(200,169,110,.5);}
@@ -202,6 +210,15 @@
       </div>
     </div>
 
+    <!-- TASARIM -->
+    <div class="calc-section">
+      <h3>TASARIM</h3>
+      <p>Tasarımı kim yapıyor?</p>
+      <div class="design-grid" id="designGrid">
+        <!-- JS ile dolacak -->
+      </div>
+    </div>
+
     <!-- ADET -->
     <div class="calc-section">
       <h3>ADET</h3>
@@ -239,6 +256,7 @@
       <div class="quote-row"><span class="quote-label">Nakış Boyutu</span><span class="quote-val" id="qSize">—</span></div>
       <div class="quote-row"><span class="quote-label">Renk Sayısı</span><span class="quote-val" id="qColors">1</span></div>
       <div class="quote-row"><span class="quote-label">Arka Yüzey</span><span class="quote-val" id="qBack">—</span></div>
+      <div class="quote-row"><span class="quote-label">Tasarım</span><span class="quote-val" id="qDesign">—</span></div>
       <div class="quote-row"><span class="quote-label">Adet</span><span class="quote-val" id="qQty">1</span></div>
       <div class="quote-row"><span class="quote-label">Birim Fiyat</span><span class="quote-val" id="qUnit">—</span></div>
       <div id="discountBadge" class="quote-discount-badge">🎉 Toplu indirim uygulandı!</div>
@@ -302,6 +320,7 @@ let calcConfig = null;
 let selectedProduct = null;
 let selectedSize    = null;
 let selectedBack    = null;
+let selectedDesign  = null;
 let colorCount      = 1;
 let qty             = 1;
 
@@ -325,6 +344,11 @@ const DEFAULT_CONFIG = {
     { id:'duz',  name:'Düz',             icon:'⬜', extra:0  },
     { id:'utu',  name:'Ütüyle Yapışan',  icon:'🔥', extra:20 },
     { id:'cirt', name:'Cırt Cırt',       icon:'🔗', extra:30 },
+  ],
+  designTypes: [
+    { id:'yok',     name:'Tasarımım Var',  icon:'📁', extra:0   },
+    { id:'basit',   name:'Basit Tasarım',  icon:'✏️',  extra:100 },
+    { id:'karisik', name:'Karmaşık Tasarım', icon:'🎨', extra:200 },
   ],
   colorExtra: 5,       // Her ek renk için ₺
   discounts: [
@@ -351,6 +375,7 @@ function buildUI() {
   buildProductGrid();
   buildSizeGrid();
   buildBackGrid();
+  buildDesignGrid();
   document.getElementById('calcLoading').style.display = 'none';
   document.getElementById('calcMain').style.display    = 'grid';
   document.getElementById('infoSection').style.display = 'block';
@@ -362,6 +387,8 @@ function buildUI() {
   if (firstSize) firstSize.click();
   const firstBack = document.querySelector('.back-btn');
   if (firstBack) firstBack.click();
+  const firstDesign = document.querySelector('.design-btn');
+  if (firstDesign) firstDesign.click();
 }
 
 function buildProductGrid() {
@@ -395,6 +422,21 @@ function buildBackGrid() {
     </div>`).join('');
 }
 
+function buildDesignGrid() {
+  const types = calcConfig.designTypes || [
+    { id:'yok',     name:'Tasarımım Var',    icon:'📁', extra:0   },
+    { id:'basit',   name:'Basit Tasarım',    icon:'✏️',  extra:100 },
+    { id:'karisik', name:'Karmaşık Tasarım', icon:'🎨', extra:200 },
+  ];
+  const grid = document.getElementById('designGrid');
+  grid.innerHTML = types.map(d => `
+    <div class="design-btn" onclick="selectDesign('${d.id}',this)" data-id="${d.id}">
+      <span class="db-icon">${d.icon}</span>
+      <span class="db-name">${d.name}</span>
+      <span class="db-price">${d.extra > 0 ? '+₺'+d.extra : 'Ücretsiz'}</span>
+    </div>`).join('');
+}
+
 // ===== SELECTION HANDLERS =====
 function selectProduct(id, el) {
   document.querySelectorAll('.prod-btn').forEach(b => b.classList.remove('selected'));
@@ -414,6 +456,14 @@ function selectBack(id, el) {
   document.querySelectorAll('.back-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
   selectedBack = calcConfig.backTypes.find(b => b.id === id);
+  updateQuote();
+}
+
+function selectDesign(id, el) {
+  document.querySelectorAll('.design-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  const types = calcConfig.designTypes || [];
+  selectedDesign = types.find(d => d.id === id) || { id, name: id, extra: 0 };
   updateQuote();
 }
 
@@ -448,6 +498,7 @@ function calcPrice() {
   let unit = selectedProduct.basePrice[selectedSize.id] || 0;
   unit += (colorCount - 1) * (calcConfig.colorExtra || 5);
   unit += selectedBack.extra || 0;
+  unit += selectedDesign ? (selectedDesign.extra || 0) : 0;
 
   // Toplu indirim
   let discountPct = 0;
@@ -466,6 +517,7 @@ function updateQuote() {
   document.getElementById('qSize').textContent    = selectedSize ? selectedSize.name + ' (' + selectedSize.desc + ')' : '—';
   document.getElementById('qColors').textContent  = colorCount;
   document.getElementById('qBack').textContent    = selectedBack ? selectedBack.name : '—';
+  document.getElementById('qDesign').textContent  = selectedDesign ? selectedDesign.name + (selectedDesign.extra ? ' (+₺'+selectedDesign.extra+')' : ' (Ücretsiz)') : '—';
   document.getElementById('qQty').textContent     = qty;
 
   const p = calcPrice();
@@ -487,7 +539,7 @@ function buildDiscountTable(p) {
   const discounts = [...(calcConfig.discounts || [])].sort((a,b) => a.minQty - b.minQty);
   tbody.innerHTML = discounts.map(d => {
     const unitBase = selectedProduct && selectedSize
-      ? (selectedProduct.basePrice[selectedSize.id] || 0) + (colorCount-1)*(calcConfig.colorExtra||5) + (selectedBack?.extra||0)
+      ? (selectedProduct.basePrice[selectedSize.id] || 0) + (colorCount-1)*(calcConfig.colorExtra||5) + (selectedBack?.extra||0) + (selectedDesign?.extra||0)
       : 0;
     const discountedUnit = unitBase * (1 - d.pct / 100);
     const isActive = qty >= d.minQty && d.pct === p.discountPct;
@@ -508,6 +560,7 @@ function goToOrder() {
     `• Boyut: ${selectedSize?.name} (${selectedSize?.desc})\n` +
     `• Renk: ${colorCount}\n` +
     `• Arka: ${selectedBack?.name}\n` +
+    `• Tasarım: ${selectedDesign?.name}${selectedDesign?.extra ? ' (+₺'+selectedDesign.extra+')' : ''}\n` +
     `• Adet: ${qty}\n` +
     `• Tahmini Toplam: ₺${p.total.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})}\n\n` +
     `Sipariş vermek istiyorum.`
