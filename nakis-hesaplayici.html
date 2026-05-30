@@ -43,21 +43,19 @@
     .calc-wrap{max-width:1100px;margin:0 auto;padding:0 40px 120px;display:grid;grid-template-columns:1fr;gap:24px;align-items:start;}
     @media(max-width:900px){.calc-wrap{grid-template-columns:1fr;padding:0 20px 120px;}}
     .calc-wrap > div:last-child{display:none;}
-
-    /* STICKY BOTTOM BAR */
-    .sticky-quote-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid rgba(200,169,110,.4);z-index:999;padding:14px 40px;display:flex;align-items:center;justify-content:space-between;gap:20px;backdrop-filter:blur(12px);}
-    @media(max-width:700px){.sticky-quote-bar{flex-wrap:wrap;padding:14px 20px;gap:10px;}}
-    .sq-items{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+    .sticky-quote-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(15,15,15,.97);border-top:1px solid rgba(200,169,110,.4);z-index:999;padding:14px 40px;display:flex;align-items:center;justify-content:space-between;gap:20px;backdrop-filter:blur(12px);}
+    @media(max-width:700px){.sticky-quote-bar{flex-wrap:wrap;padding:12px 16px;gap:8px;}}
+    .sq-items{display:flex;align-items:center;gap:20px;flex-wrap:wrap;flex:1;}
     .sq-item{display:flex;flex-direction:column;}
     .sq-item-label{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
     .sq-item-val{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
+    .sq-right{display:flex;align-items:center;gap:16px;flex-shrink:0;}
+    .sq-discount{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 10px;display:none;}
     .sq-total{display:flex;flex-direction:column;align-items:flex-end;}
     .sq-total-label{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
-    .sq-total-price{font-family:'Bebas Neue',cursive;font-size:38px;color:var(--accent);line-height:1;letter-spacing:1px;}
-    .sq-right{display:flex;align-items:center;gap:16px;}
+    .sq-total-price{font-family:'Bebas Neue',cursive;font-size:36px;color:var(--accent);line-height:1;letter-spacing:1px;}
     .sq-cta{background:var(--accent);color:#000;border:none;padding:12px 28px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:3px;cursor:pointer;transition:all .2s;white-space:nowrap;}
     .sq-cta:hover{background:#d4b77a;}
-    .sq-discount{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 10px;display:none;}
 
     /* SECTION CARD */
     .calc-section{background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:16px;}
@@ -288,17 +286,17 @@
 </div>
 
 <!-- STICKY BOTTOM BAR -->
-<div class="sticky-quote-bar" id="stickyBar">
+<div class="sticky-quote-bar">
   <div class="sq-items">
     <div class="sq-item"><span class="sq-item-label">Ürün</span><span class="sq-item-val" id="sqProduct">—</span></div>
     <div class="sq-item"><span class="sq-item-label">Boyut</span><span class="sq-item-val" id="sqSize">—</span></div>
     <div class="sq-item"><span class="sq-item-label">Renk</span><span class="sq-item-val" id="sqColors">1</span></div>
     <div class="sq-item"><span class="sq-item-label">Arka Yüzey</span><span class="sq-item-val" id="sqBack">—</span></div>
     <div class="sq-item"><span class="sq-item-label">Adet</span><span class="sq-item-val" id="sqQty">1</span></div>
-    <div class="sq-item"><span class="sq-item-label">Birim</span><span class="sq-item-val" id="sqUnit">—</span></div>
+    <div class="sq-item"><span class="sq-item-label">Birim Fiyat</span><span class="sq-item-val" id="sqUnit">—</span></div>
   </div>
   <div class="sq-right">
-    <div id="sqDiscount" class="sq-discount">🎉 Toplu indirim!</div>
+    <div id="sqDiscount" class="sq-discount">🎉 İndirim!</div>
     <div class="sq-total">
       <span class="sq-total-label">Toplam Tahmini</span>
       <span class="sq-total-price" id="sqTotal">₺—</span>
@@ -308,7 +306,7 @@
 </div>
 
 <!-- INFO BOXES -->
-<div style="max-width:1100px;margin:0 auto;padding:0 40px 80px;" id="infoSection" style="display:none;">
+<div style="max-width:1100px;margin:0 auto;padding:0 40px 120px;" id="infoSection" style="display:none;">
   <div class="info-grid">
     <div class="info-box">
       <div class="ib-icon">🧵</div>
@@ -564,13 +562,17 @@ function updateQuote() {
   document.getElementById('sqQty').textContent     = qty;
 
   const p = calcPrice();
-  if (!p) { document.getElementById('qTotal').textContent = '₺—'; document.getElementById('sqTotal').textContent = '₺—'; document.getElementById('sqUnit').textContent = '—'; return; }
+  if (!p) {
+    document.getElementById('qTotal').textContent  = '₺—';
+    document.getElementById('sqTotal').textContent = '₺—';
+    document.getElementById('sqUnit').textContent  = '—';
+    return;
+  }
 
   document.getElementById('qUnit').textContent  = '₺' + p.discounted.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
   document.getElementById('qTotal').textContent = '₺' + p.total.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
   document.getElementById('qPer').textContent   = qty > 1 ? 'Adet başı ₺' + p.discounted.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '';
 
-  // sticky bar fiyat
   document.getElementById('sqUnit').textContent  = '₺' + p.discounted.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
   document.getElementById('sqTotal').textContent = '₺' + p.total.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
 
@@ -616,7 +618,7 @@ function goToOrder() {
     `• Tahmini Toplam: ₺${p.total.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})}\n\n` +
     `Sipariş vermek istiyorum.`
   );
-  window.open('https://wa.me/905375295290?text=' + msg, '_blank');
+  const a = document.createElement('a'); a.href = 'https://wa.me/905375295290?text=' + msg; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 
 // ===== INIT =====
