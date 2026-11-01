@@ -773,6 +773,13 @@
 <style>
   .dgh-tab{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:10px 24px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s;}
   .dgh-tab.active,.dgh-tab:hover{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,0.07);}
+  .dgh-add{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:6px;padding:11px 12px;background:transparent;border:1px solid rgba(200,169,110,.45);color:var(--accent);font-family:'Bebas Neue',cursive;font-size:15px;letter-spacing:2.5px;cursor:pointer;transition:background .25s,color .25s,border-color .25s,transform .15s;}
+  .dgh-add svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s;}
+  .dgh-add:hover{background:var(--accent);border-color:var(--accent);color:#000;}
+  .dgh-add:hover svg{transform:translateX(3px) rotate(-8deg);}
+  .dgh-add:active{transform:scale(.98);}
+  .dgh-add.added{background:rgba(46,204,113,.1);border-color:rgba(46,204,113,.5);color:#2ecc71;}
+  .dgh-add.added:hover{background:#2ecc71;border-color:#2ecc71;color:#000;}
   .dgh-stats{display:flex;gap:10px;font-size:10px;color:var(--muted);}
   @media(max-width:768px){.dgh-tab{padding:8px 14px;font-size:11px;}}
   .dgh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px;}
@@ -2478,14 +2485,18 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
   const thumb=u=>(u&&u.includes('ik.imagekit.io')&&!u.includes('?'))?u+'?tr=w-500,q-80':u;
   let files=[], field='sold';
 
+  function readCart(){ try{ return JSON.parse(localStorage.getItem('retropatch_cart')||'[]'); }catch(e){ return []; } }
+  function inCart(id){ return readCart().some(i=>i.id===id && i.digital); }
+
   window.dghAdd=function(id){
+    if(inCart(id)){ location.href='sepet.html'; return; }
     const f=files.find(z=>z.id===id); if(!f) return;
-    let cart=[]; try{ cart=JSON.parse(localStorage.getItem('retropatch_cart')||'[]'); }catch(e){}
-    if(cart.some(i=>i.id===id && i.digital)){ showToast('Bu dosya zaten sepette'); return; }
+    const cart=readCart();
     cart.push({id:f.id,name:f.title,price:Number(f.price||0),image:f.image||'',cat:'Dijital Dosya',qty:1,digital:true});
     try{ localStorage.setItem('retropatch_cart',JSON.stringify(cart)); }catch(e){ showToast('Sepet kaydedilemedi'); return; }
     if(typeof updateCartCount==='function') updateCartCount();
     showToast('✓ Sepete eklendi!');
+    render();
   };
 
   window.dghSwitch=function(f,btn){
@@ -2515,10 +2526,12 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
             <span>❤️ ${Number(f.favorites)||0}</span>
             <span>⭐ ${Number(f.reviews)||0} yorum</span>
           </div>
-          <div class="dgh-price" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-            <span>${f.oldPrice>f.price?`<s>${money(f.oldPrice)}</s>`:''}${money(f.price)}</span>
-            <button type="button" class="add-cart-btn" title="Sepete ekle" onclick="event.preventDefault();event.stopPropagation();dghAdd('${esc(f.id)}')">+</button>
-          </div>
+          <div class="dgh-price">${f.oldPrice>f.price?`<s>${money(f.oldPrice)}</s>`:''}${money(f.price)}</div>
+          <button type="button" class="dgh-add${inCart(f.id)?' added':''}" onclick="event.preventDefault();event.stopPropagation();dghAdd('${esc(f.id)}')">
+            ${inCart(f.id)
+              ? '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span>SEPETTE · GÖR</span>'
+              : '<svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span>SEPETE EKLE</span>'}
+          </button>
         </div>
       </a>`).join('');
   }
@@ -2892,4 +2905,13 @@ function rpShowSkeleton(container, count) {
 
 // ── SSS / FAQ Toggle ──
 function rpFaqToggle(el) {
-  const item = el.closest('.rp-faq-it
+  const item = el.closest('.rp-faq-item');
+  const isOpen = item.classList.contains('open');
+  // Diğerlerini kapat
+  document.querySelectorAll('.rp-faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+</script>
+
+</body>
+</html>
