@@ -481,8 +481,9 @@
   <div id="successWrap">
     <div class="success-icon">✅</div>
     <div class="success-title">SİPARİŞ ALINDI!</div>
-    <div class="success-sub">Siparişiniz başarıyla oluşturuldu. Sipariş kodunuzu not alın, kargo takibi için kullanabilirsiniz.</div>
+    <div class="success-sub" id="successSub">Siparişiniz başarıyla oluşturuldu. Sipariş kodunuzu not alın, kargo takibi için kullanabilirsiniz.</div>
     <div class="success-code" id="successCode">RP-000000</div>
+    <div id="successDigital" style="display:none;max-width:520px;margin:18px auto 0;text-align:left;border:1px solid rgba(200,169,110,.3);background:rgba(200,169,110,.05);padding:18px 20px;font-size:13px;line-height:1.8;"></div>
     <br>
     <a id="trackOrderBtn" href="takip.html" style="background:var(--accent);color:#000;padding:13px 32px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;text-decoration:none;display:inline-block;">🚚 SİPARİŞİ TAKİP ET →</a>
     &nbsp;
@@ -499,7 +500,7 @@
     <div class="cart-layout">
       <div>
         <!-- ADDRESS -->
-        <div class="address-section">
+        <div class="address-section" id="addrSection">
           <div class="address-title">📦 TESLİMAT ADRESİ</div>
           <div class="fg-row">
             <div class="fg"><label>Ad Soyad *</label><input type="text" id="adName" placeholder="Alıcı adı"></div>
@@ -514,7 +515,7 @@
         </div>
 
         <!-- CARGO -->
-        <div class="address-section" style="margin-top:2px;">
+        <div class="address-section" id="cargoSection" style="margin-top:2px;">
           <div class="address-title">🚚 KARGO SEÇİMİ</div>
           <div class="cargo-options" id="cargoOptions">
             <label class="cargo-opt active">
@@ -582,7 +583,7 @@
                 <div class="pay-method-desc">Banka hesabına transfer</div>
               </div>
             </label>
-            <label class="pay-method" onclick="selectPay('kapida',this)">
+            <label class="pay-method" id="kapidaMethod" onclick="selectPay('kapida',this)">
               <input type="radio" name="paymethod" value="kapida">
               <div class="pay-method-info">
                 <div class="pay-method-name">💰 Kapıda Ödeme</div>
@@ -592,6 +593,8 @@
           </div>
 
 
+
+          <div id="digitalPayNote" style="display:none;font-size:12px;color:var(--muted);margin:8px 0 12px;padding:10px 12px;border:1px solid rgba(200,169,110,.3);background:rgba(200,169,110,.05);line-height:1.6;">💾 Sepetinizde dijital dosya var: ödeme yalnızca <b>Havale / EFT</b> ile yapılır. Dosyalar ödemeniz onaylanınca <b>Dosyalarım</b> sayfasında açılır.</div>
 
           <!-- HAVALE BİLGİLERİ -->
           <div id="havale-info">
@@ -689,7 +692,7 @@ function updateCargoPriceDisplay() {
   const opts = document.querySelectorAll('.cargo-opt');
   const keys = ['mng','yurtici','ptt','surat'];
   const limit = window.FREE_CARGO_LIMIT !== undefined ? window.FREE_CARGO_LIMIT : (kargoSettings.limit || 500);
-  const subtotal = cart.reduce((s,item)=>s+(item.price||0)*(item.qty||1),0);
+  const subtotal = physSubtotal();
   const isFree = limit > 0 && subtotal >= limit;
   opts.forEach((opt, i) => {
     const priceEl = opt.querySelector('.cargo-opt-price');
@@ -722,6 +725,34 @@ auth.onAuthStateChanged(user => {
   if (user) prefillAddress(user);
 });
 
+function physItems(){ return cart.filter(i=>!i.digital); }
+function digItems(){ return cart.filter(i=>i.digital); }
+function hasPhys(){ return physItems().length>0; }
+function hasDig(){ return digItems().length>0; }
+function physSubtotal(){ return physItems().reduce((s,i)=>s+(i.price||0)*(i.qty||1),0); }
+function digSubtotal(){ return digItems().reduce((s,i)=>s+(i.price||0),0); }
+function escH(v){ return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function genDigitalCode(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s='DJ-';
+  for(let i=0;i<6;i++) s+=c[Math.floor(Math.random()*c.length)];
+  return s;
+}
+// Dijital dosya varsa adres/kargo gizlenir, kapıda ödeme kapatılır
+function updateSectionsVisibility(){
+  const phys=hasPhys(), dig=hasDig();
+  const a=document.getElementById('addrSection'), c=document.getElementById('cargoSection');
+  const k=document.getElementById('kapidaMethod'), n=document.getElementById('digitalPayNote');
+  if(a) a.style.display=phys?'':'none';
+  if(c) c.style.display=phys?'':'none';
+  if(k) k.style.display=dig?'none':'';
+  if(n) n.style.display=dig?'block':'none';
+  if(dig && selectedPay==='kapida'){
+    const inp=document.querySelector('.pay-method input[value="havale"]');
+    const l=inp && inp.closest('.pay-method');
+    if(l){ inp.checked=true; selectPay('havale',l); }
+  }
+}
+
 function loadCart() {
   cart = JSON.parse(localStorage.getItem('retropatch_cart') || '[]');
   renderCart();
@@ -746,11 +777,13 @@ function renderCart() {
         <div class="cart-item-name">${item.name}</div>
         <div class="cart-item-cat">${item.cat||''}</div>
         <div class="cart-item-meta">
-          <div class="qty-ctrl">
+          ${item.digital
+            ? `<span style="display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 9px;border:1px solid rgba(200,169,110,.3);color:var(--accent);">💾 DİJİTAL DOSYA · 1 ADET</span>`
+            : `<div class="qty-ctrl">
             <div class="qty-btn" onclick="changeQty(${i},-1)">−</div>
             <div class="qty-val">${item.qty||1}</div>
             <div class="qty-btn" onclick="changeQty(${i},1)">+</div>
-          </div>
+          </div>`}
           ${item.size?`<span class="item-size">${item.size}</span>`:''}
           ${item.backType ? `<span style="display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 9px;border:1px solid rgba(200,169,110,.35);color:var(--accent);background:rgba(200,169,110,.08);">${
             item.backType==='Ütüyle Yapışan' ? '🔥 ÜTÜ İLE YAPIŞTIRMALı' :
@@ -808,6 +841,7 @@ function toggleMiniCart() {
 }
 
 function changeQty(i, d) {
+  if (cart[i].digital) return;
   cart[i].qty = Math.max(1, (cart[i].qty||1) + d);
   saveCart();
 }
@@ -821,17 +855,21 @@ function saveCart() {
 }
 
 function updateSummary() {
-  const subtotal = cart.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0);
-  const kapidaExtra = selectedPay==='kapida' ? 15 : 0;
+  const physSub = physSubtotal(), digSub = digSubtotal();
+  const subtotal = physSub + digSub;
+  const phys = hasPhys();
+  const kapidaExtra = (phys && selectedPay==='kapida') ? 15 : 0;
   const freeLimit = window.FREE_CARGO_LIMIT || kargoSettings.limit || 500;
-  const cargoPrice = (freeLimit > 0 && subtotal >= freeLimit) ? 0 : (CARGO_PRICES[selectedCargo]||49);
-  const cargo = cargoPrice + kapidaExtra;
-  const total = subtotal + cargo - discountAmount;
+  const cargoPrice = !phys ? 0 : ((freeLimit > 0 && physSub >= freeLimit) ? 0 : (CARGO_PRICES[selectedCargo]||49));
+  const cargo = phys ? cargoPrice + kapidaExtra : 0;
+  const disc = phys ? Math.min(discountAmount, physSub) : 0;
+  const total = subtotal + cargo - disc;
   document.getElementById('sumSubtotal').textContent = '₺'+subtotal.toLocaleString('tr-TR');
-  document.getElementById('sumCargo').textContent = cargoPrice === 0 ? '₺0 (Ücretsiz)' : '₺'+cargo;
-  document.getElementById('sumDiscount').textContent = '-₺'+discountAmount;
+  document.getElementById('sumCargo').textContent = !phys ? 'Yok (dijital)' : (cargoPrice === 0 ? '₺0 (Ücretsiz)' : '₺'+cargo);
+  document.getElementById('sumDiscount').textContent = '-₺'+disc;
   document.getElementById('sumTotal').textContent = '₺'+Math.max(0,total).toLocaleString('tr-TR');
   updateCargoPriceDisplay();
+  updateSectionsVisibility();
 }
 
 function updateCargo(el) {
@@ -855,6 +893,7 @@ function selectPay(method, label) {
 function applyCoupon() {
   const code = document.getElementById('couponInput').value.trim().toUpperCase();
   if (!code) return;
+  if (!hasPhys()) { toast('Kupon yalnızca fiziksel ürünlerde geçerli!', true); return; }
   db.collection('coupons').doc(code).get().then(doc => {
     if (!doc.exists) { toast('Geçersiz kupon kodu!', true); return; }
     const c = doc.data();
@@ -866,9 +905,9 @@ function applyCoupon() {
     // Kullanım limiti kontrolü
     if (c.limit && c.used >= c.limit) { toast('Bu kupon tükenmiş!', true); return; }
     // Minimum sepet tutarı kontrolü
-    const subtotal = cart.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0);
+    const subtotal = physSubtotal();
     if (c.minCart && subtotal < c.minCart) { toast(`Minimum sepet tutarı ₺${c.minCart}!`, true); return; }
-    discountAmount = c.type==='percent' ? Math.round(subtotal*c.value/100) : c.value;
+    discountAmount = Math.min(subtotal, c.type==='percent' ? Math.round(subtotal*c.value/100) : c.value);
     appliedCoupon = code;
     updateSummary();
     toast('✓ Kupon uygulandı! -₺'+discountAmount+' indirim');
@@ -883,17 +922,18 @@ function copyIBAN() {
 function sendToWhatsApp() {
   if (!cart.length) { toast('Sepetiniz boş!', true); return; }
   var subtotal = cart.reduce(function(s,i){return s+(i.price||0)*(i.qty||1);},0);
-  var cargoPrice = CARGO_PRICES[selectedCargo]||49;
-  var kapidaExtra = selectedPay==='kapida' ? 15 : 0;
+  var cargoPrice = hasPhys() ? (CARGO_PRICES[selectedCargo]||49) : 0;
+  var kapidaExtra = (hasPhys() && selectedPay==='kapida') ? 15 : 0;
   var total = subtotal + cargoPrice + kapidaExtra - discountAmount;
   var msg = '🏷 *RetroPatch Sipariş*\n\n';
   cart.forEach(function(item) {
     msg += '• ' + item.name;
+    if (item.digital) msg += ' (💾 Dijital dosya)';
     if (item.backType) msg += ' (' + item.backType + ')';
     msg += ' x' + (item.qty||1) + ' — ₺' + ((item.price||0)*(item.qty||1)).toLocaleString('tr-TR') + '\n';
   });
   msg += '\n💰 *Toplam: ₺' + total.toLocaleString('tr-TR') + '*';
-  msg += '\n🚚 Kargo: ' + CARGO_NAMES[selectedCargo] + ' (₺' + cargoPrice + ')';
+  if (hasPhys()) msg += '\n🚚 Kargo: ' + CARGO_NAMES[selectedCargo] + ' (₺' + cargoPrice + ')';
   if (discountAmount > 0) msg += '\n🎟 İndirim: -₺' + discountAmount;
   var adName = document.getElementById('adName').value.trim();
   var adCity = document.getElementById('adCity').value.trim();
@@ -904,82 +944,156 @@ function sendToWhatsApp() {
 
 async function doCheckout() {
   if (!cart.length) { toast('Sepetiniz boş!', true); return; }
-  const adName = document.getElementById('adName').value.trim();
-  const adPhone = document.getElementById('adPhone').value.trim();
-  const adAddress = document.getElementById('adAddress').value.trim();
-  const adDistrict = document.getElementById('adDistrict').value.trim();
-  const adCity = document.getElementById('adCity').value.trim();
-  if (!adName||!adPhone||!adAddress||!adDistrict||!adCity) {
-    toast('Teslimat adresini eksiksiz doldurun!', true); return;
+  const P = physItems(), D = digItems();
+
+  let adName='', adPhone='', adAddress='', adDistrict='', adCity='';
+  if (P.length) {
+    adName = document.getElementById('adName').value.trim();
+    adPhone = document.getElementById('adPhone').value.trim();
+    adAddress = document.getElementById('adAddress').value.trim();
+    adDistrict = document.getElementById('adDistrict').value.trim();
+    adCity = document.getElementById('adCity').value.trim();
+    if (!adName||!adPhone||!adAddress||!adDistrict||!adCity) {
+      toast('Teslimat adresini eksiksiz doldurun!', true); return;
+    }
   }
   if (!currentUser) {
     location.href = 'uye.html?redirect=sepet.html';
     return;
   }
+  if (D.length && selectedPay === 'kapida') { toast('Dijital dosyalar için Havale / EFT seçin.', true); return; }
 
   const btn = document.getElementById('checkoutBtn');
   btn.textContent = 'İŞLENİYOR...'; btn.disabled = true;
+  const fail = (msg) => { btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false; toast(msg, true); };
 
-  const subtotal = cart.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0);
-  const kapidaExtra = selectedPay==='kapida' ? 15 : 0;
-  const freeLimit2 = window.FREE_CARGO_LIMIT !== undefined ? window.FREE_CARGO_LIMIT : (kargoSettings.limit || 500);
-  const baseCargoPrice = (freeLimit2 > 0 && subtotal >= freeLimit2) ? 0 : (CARGO_PRICES[selectedCargo]||49);
-  const cargoPrice = baseCargoPrice + kapidaExtra;
-  const total = subtotal + cargoPrice - discountAmount;
-
-  const orderData = {
-    userId: currentUser.uid,
-    userName: currentUser.displayName||adName,
-    userEmail: currentUser.email||'',
-    items: cart.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty,image:i.image||'',cat:i.cat||''})),
-    address: { name:adName, phone:adPhone, address:adAddress, district:adDistrict, city:adCity, zip:document.getElementById('adZip').value.trim() },
-    cargo: { company: selectedCargo, companyName: CARGO_NAMES[selectedCargo], price: cargoPrice, trackingCode:'', status:'Hazırlanıyor' },
-    payment: { method: selectedPay, status: selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery' },
-    subtotal, cargoPrice, discount: discountAmount, total,
-    coupon: appliedCoupon||'',
-    status: 'yeni',
-    orderSource: 'cart',
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-  // Siparişi Firestore'a kaydet
-  // orderCode'u önceden üret: doc ref al, kodu hesapla, tek seferde yaz
-  const orderRef = db.collection('orders').doc();
-  const orderCode = 'RP-' + orderRef.id.slice(-6).toUpperCase();
-  orderData.orderCode = orderCode;
-
-  orderRef.set(orderData).then(() => {
-    const code = orderCode;
-
-    // Satış sayaçlarını artır (her ürün için qty kadar)
-    const batch = db.batch();
-    cart.forEach(item => {
-      if (item.id) {
-        const prodRef = db.collection('products').doc(item.id);
-        batch.update(prodRef, { sales: firebase.firestore.FieldValue.increment(item.qty || 1) });
+  // Dijital dosyalar: güncel fiyat / satış durumu / sahiplik sunucudan doğrulanır
+  const digOut = []; let digTotal = 0;
+  if (D.length) {
+    try {
+      const [snaps, dl] = await Promise.all([
+        Promise.all(D.map(i => db.collection('digital_files').doc(i.id).get())),
+        db.collection('users').doc(currentUser.uid).collection('downloads').get()
+      ]);
+      const owned = new Set(dl.docs.map(d => d.id));
+      const drop = []; let priceChanged = false;
+      snaps.forEach((sn, idx) => {
+        const it = D[idx], d = sn.exists ? sn.data() : null;
+        if (!d || d.active === false || owned.has(it.id)) { drop.push(it.id); return; }
+        const live = Number(d.price || 0);
+        if (live !== Number(it.price || 0)) { it.price = live; priceChanged = true; }
+        digOut.push({ id: it.id, title: d.title || it.name, price: live });
+        digTotal += live;
+      });
+      if (drop.length || priceChanged) {
+        fail(drop.length
+          ? 'Bazı dijital dosyalar artık satışta değil ya da zaten sahipsiniz; sepet güncellendi.'
+          : 'Dijital dosya fiyatları güncellendi, lütfen tutarı kontrol edin.');
+        cart = cart.filter(i => !(i.digital && drop.includes(i.id)));
+        saveCart();
+        return;
       }
-    });
-    batch.commit().catch(() => {}); // Arka planda, hata olsa sipariş etkilenmez
+    } catch (e) { return fail('Dijital dosyalar doğrulanamadı: ' + e.message); }
+  }
 
-    localStorage.removeItem('retropatch_cart');
-    document.getElementById('cartWrap').style.display='none';
-    document.getElementById('successWrap').style.display='block';
-    // Mobilde sabit checkout butonunu gizle
-    const cb = document.getElementById('checkoutBtn');
-    if (cb) cb.style.display = 'none';
-    document.getElementById('successCode').textContent = code;
-    // Takip butonuna sipariş kodunu ekle
-    const trackBtn = document.getElementById('trackOrderBtn');
-    if (trackBtn) trackBtn.href = 'takip.html?code=' + code;
-    window.scrollTo(0,0);
-    // Email bildirimi (arka planda, hata olsa sipariş etkilenmez)
+  // Fiziksel kısım
+  const physSub = physSubtotal();
+  const kapidaExtra = (P.length && selectedPay==='kapida') ? 15 : 0;
+  const freeLimit2 = window.FREE_CARGO_LIMIT !== undefined ? window.FREE_CARGO_LIMIT : (kargoSettings.limit || 500);
+  const baseCargoPrice = !P.length ? 0 : ((freeLimit2 > 0 && physSub >= freeLimit2) ? 0 : (CARGO_PRICES[selectedCargo]||49));
+  const cargoPrice = baseCargoPrice + kapidaExtra;
+  const disc = P.length ? Math.min(discountAmount, physSub) : 0;
+  const physTotal = P.length ? physSub + cargoPrice - disc : 0;
+
+  const batch = db.batch();
+  let orderCode = null, orderData = null, digCode = null;
+
+  if (P.length) {
+    const orderRef = db.collection('orders').doc();
+    orderCode = 'RP-' + orderRef.id.slice(-6).toUpperCase();
+    orderData = {
+      userId: currentUser.uid,
+      userName: currentUser.displayName||adName,
+      userEmail: currentUser.email||'',
+      items: P.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty,image:i.image||'',cat:i.cat||''})),
+      address: { name:adName, phone:adPhone, address:adAddress, district:adDistrict, city:adCity, zip:document.getElementById('adZip').value.trim() },
+      cargo: { company: selectedCargo, companyName: CARGO_NAMES[selectedCargo], price: cargoPrice, trackingCode:'', status:'Hazırlanıyor' },
+      payment: { method: selectedPay, status: selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery' },
+      subtotal: physSub, cargoPrice, discount: disc, total: physTotal,
+      coupon: appliedCoupon||'',
+      status: 'yeni',
+      orderSource: 'cart',
+      orderCode,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    batch.set(orderRef, orderData);
+  }
+  if (D.length) {
+    digCode = genDigitalCode();
+    batch.set(db.collection('digital_orders').doc(), {
+      code: digCode, userId: currentUser.uid, email: currentUser.email||'', name: currentUser.displayName||'',
+      items: digOut, total: digTotal, status: 'bekliyor',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+
+  try { await batch.commit(); }
+  catch (e) { return fail('Sipariş kaydedilemedi: ' + e.message); }
+
+  // Satış sayaçları (yalnızca fiziksel ürünler; hata siparişi etkilemez)
+  if (P.length) {
+    const b2 = db.batch();
+    P.forEach(item => {
+      if (item.id) b2.update(db.collection('products').doc(item.id), { sales: firebase.firestore.FieldValue.increment(item.qty || 1) });
+    });
+    b2.commit().catch(() => {});
+  }
+
+  localStorage.removeItem('retropatch_cart');
+  cart = [];
+  document.getElementById('cartWrap').style.display='none';
+  document.getElementById('successWrap').style.display='block';
+  const cb = document.getElementById('checkoutBtn');
+  if (cb) cb.style.display = 'none';
+  document.getElementById('successCode').textContent = orderCode || digCode;
+
+  const trackBtn = document.getElementById('trackOrderBtn');
+  if (trackBtn) {
+    if (P.length) { trackBtn.href = 'takip.html?code=' + orderCode; trackBtn.style.display = 'inline-block'; }
+    else trackBtn.style.display = 'none';
+  }
+  if (!P.length) {
+    document.getElementById('successSub').textContent = 'Siparişiniz oluşturuldu. Aşağıdaki kodu havale açıklamasına yazın; ödemeniz onaylanınca dosyalarınız açılır.';
+  }
+
+  if (D.length) {
+    const payTotal = physTotal + digTotal;
+    const codes = [orderCode, digCode].filter(Boolean).join(' + ');
+    const txt = id => (document.getElementById(id)?.textContent || '').trim();
+    const bank = txt('bankAdiVal'), holder = txt('bankHesapVal'), iban = txt('bankIBANVal');
+    const msg = encodeURIComponent('Merhaba! Sipariş dekontumu gönderiyorum.\nSipariş kodu: ' + codes + '\nTutar: ₺' + payTotal.toLocaleString('tr-TR'));
+    const box = document.getElementById('successDigital');
+    box.innerHTML =
+      '<div style="font-family:\'Bebas Neue\',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;">💾 DİJİTAL DOSYA ÖDEMESİ</div>' +
+      (P.length ? '<b>Dijital sipariş kodu:</b> ' + escH(digCode) + '<br>' : '') +
+      '<b>Havale açıklamasına yazın:</b> ' + escH(codes) + '<br>' +
+      '<b>Ödenecek toplam:</b> ₺' + payTotal.toLocaleString('tr-TR') + '<br>' +
+      (bank && bank !== '—' ? '<b>Banka:</b> ' + escH(bank) + '<br>' : '') +
+      (holder && holder !== '—' ? '<b>Hesap sahibi:</b> ' + escH(holder) + '<br>' : '') +
+      (iban && iban !== '—' ? '<b>IBAN:</b> ' + escH(iban) + '<br>' : '<b>IBAN bilgisi için WhatsApp ile iletişime geçin.</b><br>') +
+      '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">' +
+      '<a href="https://wa.me/905375295290?text=' + msg + '" target="_blank" rel="noopener" style="background:var(--accent);color:#000;padding:11px 20px;font-family:\'Bebas Neue\',cursive;font-size:16px;letter-spacing:2px;text-decoration:none;">💬 DEKONTU WHATSAPP\'TAN GÖNDER</a>' +
+      '<a href="dijital-dosyalar.html" style="border:1px solid rgba(200,169,110,.4);color:var(--accent);padding:11px 20px;font-family:\'Bebas Neue\',cursive;font-size:16px;letter-spacing:2px;text-decoration:none;">DOSYALARIM / SİPARİŞLERİM</a>' +
+      '</div>';
+    box.style.display = 'block';
+  }
+  window.scrollTo(0,0);
+
+  if (P.length && orderData) {
     const _fullOrder = {...orderData, userEmail: orderData.userEmail || (currentUser && currentUser.email) || ''};
-    sendOrderEmail(code, _fullOrder);
-    sendOrderWhatsApp(code, _fullOrder);
-  }).catch(e => {
-    btn.textContent='SİPARİŞİ TAMAMLA'; btn.disabled=false;
-    toast('Sipariş kaydedilemedi: '+e.message, true);
-  });
+    sendOrderEmail(orderCode, _fullOrder);
+    sendOrderWhatsApp(orderCode, _fullOrder);
+  }
 }
 
 function prefillAddress(user) {

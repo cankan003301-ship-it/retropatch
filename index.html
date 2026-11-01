@@ -2478,6 +2478,16 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
   const thumb=u=>(u&&u.includes('ik.imagekit.io')&&!u.includes('?'))?u+'?tr=w-500,q-80':u;
   let files=[], field='sold';
 
+  window.dghAdd=function(id){
+    const f=files.find(z=>z.id===id); if(!f) return;
+    let cart=[]; try{ cart=JSON.parse(localStorage.getItem('retropatch_cart')||'[]'); }catch(e){}
+    if(cart.some(i=>i.id===id && i.digital)){ showToast('Bu dosya zaten sepette'); return; }
+    cart.push({id:f.id,name:f.title,price:Number(f.price||0),image:f.image||'',cat:'Dijital Dosya',qty:1,digital:true});
+    try{ localStorage.setItem('retropatch_cart',JSON.stringify(cart)); }catch(e){ showToast('Sepet kaydedilemedi'); return; }
+    if(typeof updateCartCount==='function') updateCartCount();
+    showToast('✓ Sepete eklendi!');
+  };
+
   window.dghSwitch=function(f,btn){
     field=f;
     document.querySelectorAll('.dgh-tab').forEach(b=>b.classList.toggle('active',b===btn));
@@ -2505,7 +2515,10 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
             <span>❤️ ${Number(f.favorites)||0}</span>
             <span>⭐ ${Number(f.reviews)||0} yorum</span>
           </div>
-          <div class="dgh-price">${f.oldPrice>f.price?`<s>${money(f.oldPrice)}</s>`:''}${money(f.price)}</div>
+          <div class="dgh-price" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span>${f.oldPrice>f.price?`<s>${money(f.oldPrice)}</s>`:''}${money(f.price)}</span>
+            <button type="button" class="add-cart-btn" title="Sepete ekle" onclick="event.preventDefault();event.stopPropagation();dghAdd('${esc(f.id)}')">+</button>
+          </div>
         </div>
       </a>`).join('');
   }
