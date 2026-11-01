@@ -769,6 +769,33 @@
   </div>
 </div>
 
+<!-- DİJİTAL NAKIŞ DOSYALARI (anasayfa vitrini) -->
+<style>
+  .dgh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px;}
+  .dgh-card{background:var(--card,#141414);border:1px solid var(--border);text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:border-color .2s;}
+  .dgh-card:hover{border-color:rgba(200,169,110,.5);}
+  .dgh-img{aspect-ratio:1/1;background:var(--bg3,#1a1a1a);overflow:hidden;position:relative;}
+  .dgh-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+  .dgh-card:hover .dgh-img img{transform:scale(1.05);}
+  .dgh-img .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:44px;opacity:.25;}
+  .dgh-tag{position:absolute;top:10px;left:10px;background:var(--accent);color:#000;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 10px;}
+  .dgh-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1;}
+  .dgh-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px;line-height:1.2;}
+  .dgh-fmts{display:flex;gap:5px;flex-wrap:wrap;}
+  .dgh-fmts span{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:2px 8px;border:1px solid var(--border);color:var(--muted);}
+  .dgh-price{margin-top:auto;font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:1px;color:var(--accent);}
+  .dgh-price s{font-family:'Barlow',sans-serif;font-size:12px;color:var(--muted);margin-right:6px;}
+  @media(max-width:768px){.dgh-grid{grid-template-columns:repeat(2,1fr);}.dgh-title{font-size:16px;}}
+</style>
+<div class="section" id="dijital" style="display:none;border-top:1px solid var(--border);">
+  <div class="section-label">Nakış Makinesi Dosyaları</div>
+  <div class="section-title">DİJİTAL NAKIŞ DOSYALARI</div>
+  <div class="dgh-grid" id="dghGrid"></div>
+  <div class="view-all-wrap">
+    <a href="dijital-dosyalar.html" class="btn-primary">TÜM DİJİTAL DOSYALARI GÖR →</a>
+  </div>
+</div>
+
 <!-- ORDER -->
 <!-- HESAPLAYICI BÖLÜMÜ -->
 <div id="hesaplayici" style="background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:80px 40px;">
@@ -2431,7 +2458,33 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
 <!-- ============================================================
      RETROPATCH — GLOBAL WIDGETS
      WhatsApp Balonu + Scroll-to-Top + Skeleton Loading + SSS
-     Bu snippet her HTML dosyasına </body> öncesine eklenecek
+     Bu snippet her HTML dosyasına <script>
+/* Anasayfa: dijital dosya vitrini */
+(function(){
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const money=n=>Number(n||0).toLocaleString('tr-TR',{maximumFractionDigits:2})+' ₺';
+  const thumb=u=>(u&&u.includes('ik.imagekit.io')&&!u.includes('?'))?u+'?tr=w-500,q-80':u;
+  db.collection('digital_files').where('active','==',true).get().then(snap=>{
+    const list=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,4);
+    if(!list.length)return;                       // dosya yoksa bölüm gizli kalır
+    document.getElementById('dghGrid').innerHTML=list.map(f=>`
+      <a class="dgh-card" href="dijital-dosyalar.html#f-${esc(f.id)}">
+        <div class="dgh-img">
+          ${f.image?`<img src="${esc(thumb(f.image))}" alt="${esc(f.title)}" loading="lazy">`:'<div class="ph">🧵</div>'}
+          ${f.oldPrice>f.price?`<span class="dgh-tag">%${Math.round((1-f.price/f.oldPrice)*100)} İNDİRİM</span>`:''}
+        </div>
+        <div class="dgh-body">
+          <div class="dgh-title">${esc(f.title)}</div>
+          <div class="dgh-fmts">${(f.formats||[]).map(x=>`<span>${esc(x)}</span>`).join('')}</div>
+          <div class="dgh-price">${f.oldPrice>f.price?`<s>${money(f.oldPrice)}</s>`:''}${money(f.price)}</div>
+        </div>
+      </a>`).join('');
+    document.getElementById('dijital').style.display='block';
+  }).catch(e=>console.warn('Dijital vitrin yüklenemedi:',e.message));
+})();
+</script>
+</body> öncesine eklenecek
      ============================================================ -->
 
 <!-- ─── FLOATING BUTTONS HTML ─── -->

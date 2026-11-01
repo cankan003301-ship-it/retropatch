@@ -908,10 +908,12 @@
             <div class="fg"><label>Dikiş Sayısı</label><input type="number" id="dgSt" min="0"></div>
             <div class="fg"><label>Renk Sayısı</label><input type="number" id="dgCol" min="0"></div>
           </div>
-          <div class="fg"><label>Önizleme Görseli (URL veya dosya seç)</label>
-            <input type="text" id="dgImg" placeholder="https://… veya aşağıdan yükleyin">
-            <input type="file" id="dgImgFile" accept="image/*" onchange="dgPickImage(this)" style="margin-top:8px;padding:8px;">
-            <div style="font-size:10px;color:var(--muted);margin-top:4px;">Seçilen görsel otomatik küçültülüp (700px) kaydedilir.</div>
+          <div class="fg"><label>Önizleme Görseli (ImageKit)</label>
+            <input type="text" id="dgImg" placeholder="https://ik.imagekit.io/qqsmrt6nv/digital/desen.jpg" oninput="dgPreview(this.value)">
+            <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
+              <input type="file" id="dgImgFile" accept="image/*" onchange="dgPickImage(this)" style="padding:8px;flex:1;">
+              <span id="dgImgStatus" style="font-size:12px;color:var(--muted2);white-space:nowrap;"></span>
+            </div>
             <img id="dgImgPrev" style="display:none;max-width:140px;margin-top:8px;border:1px solid var(--border);">
           </div>
           <div class="fg" style="background:rgba(200,169,110,.05);border:1px solid rgba(200,169,110,.2);padding:14px;">
@@ -4622,6 +4624,7 @@ async function openDigModal(id) {
   document.getElementById('dgCol').value = f?.colors || '';
   document.getElementById('dgImg').value = f?.image || '';
   document.getElementById('dgImgFile').value = '';
+  document.getElementById('dgImgStatus').textContent = '';
   dgPreview(f?.image || '');
   dgBuildFmtBoxes(f?.formats || ['DST', 'PES']);
   document.getElementById('dgUrl').value = '';
@@ -4643,23 +4646,30 @@ function dgPreview(src) {
   if (src) { im.src = src; im.style.display = 'block'; } else { im.style.display = 'none'; }
 }
 
-function dgPickImage(input) {
+async function dgPickImage(input) {
   const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const max = 700, r = Math.min(1, max / Math.max(img.width, img.height));
-      const c = document.createElement('canvas');
-      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
-      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      const data = c.toDataURL('image/jpeg', 0.82);
-      document.getElementById('dgImg').value = data;
-      dgPreview(data);
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+  const st = document.getElementById('dgImgStatus');
+  st.textContent = '⏳ Yükleniyor...'; st.style.color = 'var(--muted2)';
+  try {
+    const auth = await (await fetch('/api/imagekit-auth')).json();
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('fileName', 'dijital_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_'));
+    fd.append('folder', '/digital');
+    fd.append('publicKey', 'public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8=');
+    fd.append('signature', auth.signature);
+    fd.append('expire', auth.expire);
+    fd.append('token', auth.token);
+    const r = await fetch('https://upload.imagekit.io/api/v1/files/upload', { method: 'POST', body: fd });
+    const d = await r.json();
+    if (!d.url) throw new Error(d.message || 'Yükleme başarısız');
+    document.getElementById('dgImg').value = d.url;
+    dgPreview(d.url);
+    st.textContent = '✅ Yüklendi'; st.style.color = 'var(--green)';
+  } catch (e) {
+    st.textContent = '❌ ' + e.message; st.style.color = 'var(--accent2)';
+  }
+  input.value = '';
 }
 
 async function saveDigital() {
@@ -4672,7 +4682,6 @@ async function saveDigital() {
   if (!url) return toast('Gizli indirme linki gerekli', 'err');
   if (!/^https?:\/\//i.test(url)) return toast('Link http(s):// ile başlamalı', 'err');
   const image = document.getElementById('dgImg').value.trim();
-  if (image.length > 700000) return toast('Görsel çok büyük, daha küçük seçin', 'err');
   const num = k => { const v = parseFloat(document.getElementById(k).value); return isNaN(v) ? 0 : v; };
   const data = {
     title,
