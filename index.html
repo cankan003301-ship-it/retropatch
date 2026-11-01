@@ -787,10 +787,10 @@
   .dgh-price s{font-family:'Barlow',sans-serif;font-size:12px;color:var(--muted);margin-right:6px;}
   @media(max-width:768px){.dgh-grid{grid-template-columns:repeat(2,1fr);}.dgh-title{font-size:16px;}}
 </style>
-<div class="section" id="dijital" style="display:none;border-top:1px solid var(--border);">
+<div class="section" id="dijital" style="border-top:1px solid var(--border);">
   <div class="section-label">Nakış Makinesi Dosyaları</div>
   <div class="section-title">DİJİTAL NAKIŞ DOSYALARI</div>
-  <div class="dgh-grid" id="dghGrid"></div>
+  <div class="dgh-grid" id="dghGrid"><div style="grid-column:1/-1;text-align:center;padding:50px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">YÜKLENİYOR...</div></div>
   <div class="view-all-wrap">
     <a href="dijital-dosyalar.html" class="btn-primary">TÜM DİJİTAL DOSYALARI GÖR →</a>
   </div>
@@ -1091,7 +1091,7 @@
       <p>Sorularınız veya hızlı sipariş için aşağıdan ulaşabilirsiniz.</p>
       <div class="contact-links">
         <a href="https://wa.me/905XXXXXXXXX" class="contact-link" target="_blank" id="ctaWA"><div class="contact-link-icon">📱</div><span id="ctaWAText">WhatsApp: +90 5XX XXX XX XX</span></a>
-        <a href="/cdn-cgi/l/email-protection#a7cec9c1c8e7d5c2d3d5c8d7c6d3c4cf89c4c8ca" class="contact-link" id="ctaEmail"><div class="contact-link-icon">✉</div><span id="ctaEmailText"><span class="__cf_email__" data-cfemail="127b7c747d52607766607d627366717a3c717d7f">[email&#160;protected]</span></span></a>
+        <a href="mailto:retropatchyama@gmail.com" class="contact-link" id="ctaEmail"><div class="contact-link-icon">✉</div><span id="ctaEmailText">retropatchyama@gmail.com</span></a>
         <a href="https://dolap.com/profil/retropatch" class="contact-link" target="_blank" id="ctaDolap"><div class="contact-link-icon">🛍</div><span id="ctaDolapText">Dolap: @retropatch</span></a>
         <a href="https://instagram.com/retropatch" class="contact-link" target="_blank" id="ctaIG"><div class="contact-link-icon">📷</div><span id="ctaIGText">Instagram: @retropatch</span></a>
       </div>
@@ -1381,7 +1381,7 @@
 }
 </style>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ── GALERİ ──────────────────────────────────────────────
 (function() {
   let _items = [];
@@ -1615,7 +1615,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 firebase.initializeApp({
   apiKey:"AIzaSyA597pu8o7M2ZWcZc6gbGW2TAwceTfyVhA",
   authDomain:"retropatch-fd08e.firebaseapp.com",
@@ -2467,7 +2467,7 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
   db.collection('digital_files').where('active','==',true).get().then(snap=>{
     const list=snap.docs.map(d=>({id:d.id,...d.data()}))
       .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,4);
-    if(!list.length)return;                       // dosya yoksa bölüm gizli kalır
+    if(!list.length){ showEmpty(); return; }
     document.getElementById('dghGrid').innerHTML=list.map(f=>`
       <a class="dgh-card" href="dijital-dosyalar.html#f-${esc(f.id)}">
         <div class="dgh-img">
@@ -2480,8 +2480,17 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
           <div class="dgh-price">${f.oldPrice>f.price?`<s>${money(f.oldPrice)}</s>`:''}${money(f.price)}</div>
         </div>
       </a>`).join('');
-    document.getElementById('dijital').style.display='block';
-  }).catch(e=>console.warn('Dijital vitrin yüklenemedi:',e.message));
+  }).catch(e=>{ console.warn('Dijital vitrin yüklenemedi:',e.message); showEmpty(); });
+  function showEmpty(){
+    document.getElementById('dghGrid').innerHTML=`
+      <a href="dijital-dosyalar.html" class="dgh-card" style="grid-column:1/-1;flex-direction:row;align-items:center;gap:24px;padding:32px;">
+        <div style="font-size:48px;">🧵</div>
+        <div>
+          <div class="dgh-title" style="font-size:22px;">DST · PES · JEF · EXP formatlarında hazır nakış dosyaları</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:6px;">Yeni desenler çok yakında. Mağazayı inceleyin →</div>
+        </div>
+      </a>`;
+  }
 })();
 </script>
 </body> öncesine eklenecek
