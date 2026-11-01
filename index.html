@@ -771,6 +771,10 @@
 
 <!-- DİJİTAL NAKIŞ DOSYALARI (anasayfa vitrini) -->
 <style>
+  .dgh-tab{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:10px 24px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s;}
+  .dgh-tab.active,.dgh-tab:hover{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,0.07);}
+  .dgh-stats{display:flex;gap:10px;font-size:10px;color:var(--muted);}
+  @media(max-width:768px){.dgh-tab{padding:8px 14px;font-size:11px;}}
   .dgh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px;}
   .dgh-card{background:var(--card,#141414);border:1px solid var(--border);text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:border-color .2s;}
   .dgh-card:hover{border-color:rgba(200,169,110,.5);}
@@ -788,8 +792,13 @@
   @media(max-width:768px){.dgh-grid{grid-template-columns:repeat(2,1fr);}.dgh-title{font-size:16px;}}
 </style>
 <div class="section" id="dijital" style="border-top:1px solid var(--border);">
-  <div class="section-label">Nakış Makinesi Dosyaları</div>
+  <div class="section-label">Koleksiyon</div>
   <div class="section-title">DİJİTAL NAKIŞ DOSYALARI</div>
+  <div class="feat-tabs" id="dghTabs">
+    <button class="dgh-tab active" data-f="sold" onclick="dghSwitch('sold',this)">🔥 En Çok Satan</button>
+    <button class="dgh-tab" data-f="favorites" onclick="dghSwitch('favorites',this)">❤️ En Çok Favorilenen</button>
+    <button class="dgh-tab" data-f="reviews" onclick="dghSwitch('reviews',this)">⭐ En Çok Yorum Alan</button>
+  </div>
   <div class="dgh-grid" id="dghGrid"><div style="grid-column:1/-1;text-align:center;padding:50px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">YÜKLENİYOR...</div></div>
   <div class="view-all-wrap">
     <a href="dijital-dosyalar.html" class="btn-primary">TÜM DİJİTAL DOSYALARI GÖR →</a>
@@ -2458,17 +2467,31 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
 <!-- ============================================================
      RETROPATCH — GLOBAL WIDGETS
      WhatsApp Balonu + Scroll-to-Top + Skeleton Loading + SSS
-     Bu snippet her HTML dosyasına <script>
-/* Anasayfa: dijital dosya vitrini */
+     Bu snippet her HTML dosyasına eklenir.
+     ============================================================ -->
+
+<script>
+/* Anasayfa: dijital dosya vitrini (sekmeli) */
 (function(){
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const money=n=>Number(n||0).toLocaleString('tr-TR',{maximumFractionDigits:2})+' ₺';
   const thumb=u=>(u&&u.includes('ik.imagekit.io')&&!u.includes('?'))?u+'?tr=w-500,q-80':u;
-  db.collection('digital_files').where('active','==',true).get().then(snap=>{
-    const list=snap.docs.map(d=>({id:d.id,...d.data()}))
-      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,4);
-    if(!list.length){ showEmpty(); return; }
-    document.getElementById('dghGrid').innerHTML=list.map(f=>`
+  let files=[], field='sold';
+
+  window.dghSwitch=function(f,btn){
+    field=f;
+    document.querySelectorAll('.dgh-tab').forEach(b=>b.classList.toggle('active',b===btn));
+    render();
+  };
+
+  function render(){
+    const grid=document.getElementById('dghGrid');
+    if(!files.length){ showEmpty(); return; }
+    const list=[...files].sort((a,b)=>{
+      const d=(Number(b[field])||0)-(Number(a[field])||0);
+      return d || ((b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    }).slice(0,4);
+    grid.innerHTML=list.map(f=>`
       <a class="dgh-card" href="dijital-dosyalar.html#f-${esc(f.id)}">
         <div class="dgh-img">
           ${f.image?`<img src="${esc(thumb(f.image))}" alt="${esc(f.title)}" loading="lazy">`:'<div class="ph">🧵</div>'}
@@ -2477,10 +2500,28 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
         <div class="dgh-body">
           <div class="dgh-title">${esc(f.title)}</div>
           <div class="dgh-fmts">${(f.formats||[]).map(x=>`<span>${esc(x)}</span>`).join('')}</div>
+          <div class="dgh-stats">
+            <span>🔥 ${Number(f.sold)||0} satış</span>
+            <span>❤️ ${Number(f.favorites)||0}</span>
+            <span>⭐ ${Number(f.reviews)||0} yorum</span>
+          </div>
           <div class="dgh-price">${f.oldPrice>f.price?`<s>${money(f.oldPrice)}</s>`:''}${money(f.price)}</div>
         </div>
       </a>`).join('');
+  }
+
+  db.collection('digital_files').where('active','==',true).get().then(snap=>{
+    files=snap.docs.map(d=>({id:d.id,...d.data()}));
+    render();
+    // Yorum sayıları: digital_reviews koleksiyonundan hesaplanır
+    db.collection('digital_reviews').get().then(rs=>{
+      const cnt={};
+      rs.forEach(r=>{const d=r.data(); if(d.approved!==false && d.fileId) cnt[d.fileId]=(cnt[d.fileId]||0)+1;});
+      files.forEach(f=>{f.reviews=cnt[f.id]||0;});
+      render();
+    }).catch(e=>console.warn('Yorum sayıları okunamadı:',e.message));
   }).catch(e=>{ console.warn('Dijital vitrin yüklenemedi:',e.message); showEmpty(); });
+
   function showEmpty(){
     document.getElementById('dghGrid').innerHTML=`
       <a href="dijital-dosyalar.html" class="dgh-card" style="grid-column:1/-1;flex-direction:row;align-items:center;gap:24px;padding:32px;">
@@ -2493,8 +2534,6 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
   }
 })();
 </script>
-</body> öncesine eklenecek
-     ============================================================ -->
 
 <!-- ─── FLOATING BUTTONS HTML ─── -->
 <div class="rp-fab-group" id="rpFabGroup">

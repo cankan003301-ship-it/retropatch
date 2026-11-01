@@ -152,7 +152,25 @@
       .detail{grid-template-columns:1fr;}.basket-bar{padding:10px 16px;}
       footer{padding:20px;flex-direction:column;text-align:center;}
     }
-  </style>
+  
+    /* ── YORUMLAR ── */
+    .rv-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;}
+    .rv-title{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--accent);}
+    .rv-avg{font-size:12px;color:var(--muted);}
+    .rv-note{font-size:12px;color:var(--muted);padding:12px 14px;border:1px solid var(--border);background:var(--bg3);margin-bottom:16px;}
+    .rv-form{border:1px solid var(--border);background:var(--bg3);padding:14px;margin-bottom:18px;}
+    .rv-stars{display:flex;gap:2px;margin-bottom:10px;}
+    .rv-stars button{background:none;border:none;cursor:pointer;font-size:26px;color:#444;padding:0 2px;line-height:1;transition:color .15s;}
+    .rv-stars button.on{color:var(--accent);}
+    .rv-form textarea{width:100%;min-height:80px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;resize:vertical;}
+    .rv-form textarea:focus{border-color:var(--accent);}
+    .rv-item{border-bottom:1px solid var(--border);padding:12px 0;}
+    .rv-item:last-child{border-bottom:none;}
+    .rv-meta{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:var(--muted);margin-bottom:4px;}
+    .rv-meta b{color:var(--text);font-weight:600;}
+    .rv-star-row{color:var(--accent);letter-spacing:1px;font-size:13px;}
+    .rv-text{font-size:13px;line-height:1.7;white-space:pre-line;}
+</style>
 </head>
 <body>
 
@@ -379,8 +397,74 @@ function openDetail(id){
       <div class="price" style="margin:14px 0">${f.oldPrice>f.price?`<s>${money(f.oldPrice)}</s>`:''}${money(f.price)}</div>
       ${own?`<button class="btn dl" style="width:100%" onclick="closeOv('detailOv');showTab('mine')">DOSYALARIMA GİT</button>`
            :`<button class="btn ${inB?'in':''}" style="width:100%;padding:13px" onclick="toggleBasket('${id}');openDetail('${id}')">${inB?'✓ SEÇİLDİ — ÇIKAR':'+ SİPARİŞE EKLE'}</button>`}
-    </div>`;
+    </div>
+    <div id="rvBox" style="grid-column:1/-1;border-top:1px solid var(--border);padding-top:20px"></div>`;
   openOv('detailOv');
+  loadReviews(id);
+}
+
+
+/* ── YORUMLAR ── */
+let RV_RATING = 0;
+const rvStars = n => '★'.repeat(n) + '☆'.repeat(5-n);
+function rvDate(ts){ try{ return ts?.toDate ? ts.toDate().toLocaleDateString('tr-TR') : ''; }catch(e){ return ''; } }
+
+async function loadReviews(id){
+  const box=document.getElementById('rvBox'); if(!box) return;
+  box.innerHTML='<div class="rv-note">Yorumlar yükleniyor…</div>';
+  let list=[];
+  try{
+    const s=await db.collection('digital_reviews').where('fileId','==',id).get();
+    list=s.docs.map(d=>({id:d.id,...d.data()})).filter(r=>r.approved!==false)
+      .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  }catch(e){ console.warn('Yorumlar okunamadı:',e.message); box.innerHTML='<div class="rv-note">Yorumlar şu an yüklenemedi.</div>'; return; }
+
+  const avg=list.length ? list.reduce((t,r)=>t+(Number(r.rating)||0),0)/list.length : 0;
+  const mine=USER && list.some(r=>r.userId===USER.uid);
+  RV_RATING=0;
+  let form;
+  if(!USER) form='<div class="rv-note">Yorum yazmak için <a href="uye.html?redirect=dijital-dosyalar.html" style="color:var(--accent)">giriş yapın</a>.</div>';
+  else if(!OWNED.has(id)) form='<div class="rv-note">Yorum yazmak için bu dosyayı satın almış olmanız gerekiyor.</div>';
+  else if(mine) form='<div class="rv-note">✓ Bu dosya için yorumunuz mevcut. Teşekkürler!</div>';
+  else form=`<div class="rv-form">
+      <div class="rv-stars" id="rvStars">${[1,2,3,4,5].map(n=>`<button type="button" onclick="rvPick(${n})" aria-label="${n} yıldız">★</button>`).join('')}</div>
+      <textarea id="rvText" maxlength="1000" placeholder="Deneyiminizi paylaşın… (en az 10 karakter)"></textarea>
+      <button class="btn" id="rvBtn" style="margin-top:10px" onclick="submitReview('${id}')">YORUM GÖNDER</button>
+    </div>`;
+
+  box.innerHTML=`
+    <div class="rv-head"><div class="rv-title">YORUMLAR (${list.length})</div>
+      ${list.length?`<div class="rv-avg"><span class="rv-star-row">${rvStars(Math.round(avg))}</span> ${avg.toFixed(1)}</div>`:''}</div>
+    ${form}
+    ${list.length ? list.map(r=>`<div class="rv-item">
+        <div class="rv-meta"><span><b>${esc(r.userName||'Üye')}</b> · <span class="rv-star-row">${rvStars(Math.max(0,Math.min(5,Number(r.rating)||0)))}</span></span><span>${rvDate(r.createdAt)}</span></div>
+        <div class="rv-text">${esc(r.text)}</div></div>`).join('')
+      : '<div style="font-size:12px;color:var(--muted)">Henüz yorum yok.</div>'}`;
+}
+function rvPick(n){
+  RV_RATING=n;
+  document.querySelectorAll('#rvStars button').forEach((b,i)=>b.classList.toggle('on',i<n));
+}
+async function submitReview(fileId){
+  if(!USER){ toast('Lütfen giriş yapın','err'); return; }
+  if(!OWNED.has(fileId)){ toast('Önce dosyayı satın almalısınız','err'); return; }
+  const text=(document.getElementById('rvText')?.value||'').trim();
+  if(!RV_RATING){ toast('Lütfen puan seçin ★','err'); return; }
+  if(text.length<10){ toast('Yorum en az 10 karakter olmalı','err'); return; }
+  const btn=document.getElementById('rvBtn'); btn.disabled=true; btn.textContent='GÖNDERİLİYOR…';
+  try{
+    await db.collection('digital_reviews').doc(fileId+'_'+USER.uid).set({
+      fileId, userId:USER.uid,
+      userName: USER.displayName || (USER.email||'').split('@')[0] || 'Üye',
+      rating:RV_RATING, text, approved:true,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    toast('✓ Yorumunuz yayınlandı!');
+    loadReviews(fileId);
+  }catch(e){
+    console.warn(e); toast('Yorum gönderilemedi: '+(e.code||e.message),'err');
+    btn.disabled=false; btn.textContent='YORUM GÖNDER';
+  }
 }
 
 /* ── SEPET ── */
