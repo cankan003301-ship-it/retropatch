@@ -259,6 +259,7 @@
       <div class="nav-sec">
         <div class="nav-lbl">Sistem</div>
         <div class="nav-item" onclick="showPage('calculator')"><span class="ic">🧮</span> Fiyat Hesaplayıcı</div>
+        <div class="nav-item" onclick="showPage('digital')"><span class="ic">💾</span> Dijital Dosyalar <span class="nav-badge" id="badgeDigital" style="display:none">0</span></div>
         <div class="nav-item" onclick="showPage('gallery')"><span class="ic">🖼</span> Galeri</div>
         <div class="nav-item" onclick="showPage('sitemanage')"><span class="ic">🖥</span> Site Yönetimi</div>
         <div class="nav-item" onclick="showPage('settings')"><span class="ic">⚙</span> Ayarlar</div>
@@ -838,6 +839,91 @@
 
 </div>
 <!-- / HESAPLAYICI YÖNETİMİ -->
+
+    <!-- DİJİTAL DOSYALAR -->
+    <div class="page" id="page-digital">
+      <div class="section-hdr">
+        <div class="section-ttl">DİJİTAL NAKIŞ DOSYALARI</div>
+        <div style="display:flex;gap:8px;">
+          <a class="btn btn-outline btn-sm" href="https://retropatch.vercel.app/dijital-dosyalar.html" target="_blank" style="text-decoration:none;">🌐 Sayfayı Gör</a>
+          <button class="btn btn-accent" onclick="openDigModal()">＋ YENİ DOSYA</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:20px;">
+        <div class="stat-card gold"><div class="stat-label">Aktif Dosya</div><div class="stat-value" id="dgStFiles">0</div></div>
+        <div class="stat-card red"><div class="stat-label">Bekleyen Sipariş</div><div class="stat-value" id="dgStPend">0</div></div>
+        <div class="stat-card green"><div class="stat-label">Onaylı Sipariş</div><div class="stat-value" id="dgStOk">0</div></div>
+        <div class="stat-card blue"><div class="stat-label">Toplam Ciro</div><div class="stat-value" id="dgStRev">0 ₺</div></div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="period-btn active" id="dgTabF" onclick="dgTab('files')">DOSYALAR</button>
+        <button class="period-btn" id="dgTabO" onclick="dgTab('orders')">SİPARİŞLER <span id="dgPendBadge" style="color:var(--accent2);"></span></button>
+      </div>
+
+      <div id="dgPaneFiles">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th style="width:64px">Görsel</th><th>Dosya</th><th>Formatlar</th><th>Fiyat</th><th>Satış</th><th>Durum</th><th style="width:170px">İşlem</th></tr></thead>
+          <tbody id="dgFilesBody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px;">Yükleniyor…</td></tr></tbody>
+        </table></div>
+      </div>
+
+      <div id="dgPaneOrders" style="display:none;">
+        <div class="fg" style="max-width:240px;"><select id="dgOrdFilter" onchange="renderDgOrders()">
+          <option value="bekliyor">Bekleyenler</option><option value="onaylandı">Onaylananlar</option><option value="iptal">İptaller</option><option value="all">Tümü</option>
+        </select></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Kod</th><th>Müşteri</th><th>Dosyalar</th><th>Tutar</th><th>Tarih</th><th>Durum</th><th style="width:200px">İşlem</th></tr></thead>
+          <tbody id="dgOrdBody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- DİJİTAL DOSYA MODAL -->
+    <div class="modal-ov" id="dgModal">
+      <div class="modal-box" style="max-width:640px;">
+        <div class="modal-hdr"><h3 id="dgModalTitle">YENİ DİJİTAL DOSYA</h3><button class="modal-x" onclick="closeModal('dgModal')">✕</button></div>
+        <div class="modal-body">
+          <input type="hidden" id="dgId">
+          <div class="fg"><label>Dosya Adı *</label><input type="text" id="dgTitle" placeholder="Retro Kartal Nakış Deseni"></div>
+          <div class="fg-row">
+            <div class="fg"><label>Kategori</label><input type="text" id="dgCat" placeholder="Logo, Hayvan, Yazı…" list="dgCatList"><datalist id="dgCatList"></datalist></div>
+            <div class="fg"><label>Durum</label><select id="dgActive"><option value="1">Aktif (satışta)</option><option value="0">Pasif (gizli)</option></select></div>
+          </div>
+          <div class="fg"><label>Açıklama</label><textarea id="dgDesc" placeholder="Hangi makinelerde çalışır, önerilen kumaş/iplik vb."></textarea></div>
+          <div class="fg-row">
+            <div class="fg"><label>Satış Fiyatı (₺) *</label><input type="number" id="dgPrice" min="0" step="1"></div>
+            <div class="fg"><label>Eski Fiyat (₺, üstü çizili)</label><input type="number" id="dgOld" min="0" step="1"></div>
+          </div>
+          <div class="fg"><label>Formatlar</label>
+            <div id="dgFmtBox" style="display:flex;gap:8px;flex-wrap:wrap;">
+            </div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>En (mm)</label><input type="number" id="dgW" min="0"></div>
+            <div class="fg"><label>Boy (mm)</label><input type="number" id="dgH" min="0"></div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>Dikiş Sayısı</label><input type="number" id="dgSt" min="0"></div>
+            <div class="fg"><label>Renk Sayısı</label><input type="number" id="dgCol" min="0"></div>
+          </div>
+          <div class="fg"><label>Önizleme Görseli (URL veya dosya seç)</label>
+            <input type="text" id="dgImg" placeholder="https://… veya aşağıdan yükleyin">
+            <input type="file" id="dgImgFile" accept="image/*" onchange="dgPickImage(this)" style="margin-top:8px;padding:8px;">
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;">Seçilen görsel otomatik küçültülüp (700px) kaydedilir.</div>
+            <img id="dgImgPrev" style="display:none;max-width:140px;margin-top:8px;border:1px solid var(--border);">
+          </div>
+          <div class="fg" style="background:rgba(200,169,110,.05);border:1px solid rgba(200,169,110,.2);padding:14px;">
+            <label style="color:var(--accent);">🔒 Gizli İndirme Linki * (yalnızca satın alanlar görür)</label>
+            <input type="text" id="dgUrl" placeholder="https://drive.google.com/… (ZIP: tüm formatlar)">
+            <input type="text" id="dgNote" placeholder="Müşteriye not (ops.) — örn. ZIP içinde DST, PES, JEF var" style="margin-top:8px;">
+            <div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.6;">Drive'da "Bağlantıya sahip olan herkes" ile paylaşın. Bu link herkese açık sayfada değil, güvenli bir kayıtta tutulur.</div>
+          </div>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveDigital()">💾 KAYDET</button>
+        </div>
+      </div>
+    </div>
 
     <!-- SITE MANAGEMENT -->
     <div class="page" id="page-sitemanage">
@@ -2806,7 +2892,7 @@ function showPage(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   event.currentTarget?.classList.add('active');
-  const titles = {dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ',categories:'KATEGORİLER'};
+  const titles = {dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ',categories:'KATEGORİLER',digital:'DİJİTAL DOSYALAR'};
   document.getElementById('pageTitle').textContent = titles[name] || name.toUpperCase();
   if (name === 'orders') renderOrders('cart', document.getElementById('orderFilter')?.value || 'all');
   if (name === 'products') renderProducts();
@@ -2820,6 +2906,7 @@ function showPage(name) {
   if (name === 'reviews') loadAllReviews();
   if (name === 'settings') { loadSiteSettings(); loadBackPrices(); }
   if (name === 'categories') loadCategories();
+  if (name === 'digital') loadDigital();
 }
 
 // ============ İSTATİSTİKLER ============
@@ -4428,6 +4515,252 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // =============================================
 // / HESAPLAYICI YÖNETİMİ
+// =============================================
+
+// =============================================
+// DİJİTAL NAKIŞ DOSYALARI YÖNETİMİ
+// =============================================
+const DG_FORMATS = ['DST','PES','JEF','EXP','HUS','VP3','XXX','PEC','SEW','CSD','ART'];
+let dgFiles = [], dgOrders = [];
+const dgEsc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dgMoney = n => Number(n||0).toLocaleString('tr-TR',{maximumFractionDigits:2}) + ' ₺';
+
+function dgTab(t) {
+  document.getElementById('dgPaneFiles').style.display = t === 'files' ? 'block' : 'none';
+  document.getElementById('dgPaneOrders').style.display = t === 'orders' ? 'block' : 'none';
+  document.getElementById('dgTabF').classList.toggle('active', t === 'files');
+  document.getElementById('dgTabO').classList.toggle('active', t === 'orders');
+}
+
+async function loadDigital() {
+  try {
+    const [fs, os] = await Promise.all([
+      db.collection('digital_files').get(),
+      db.collection('digital_orders').get()
+    ]);
+    dgFiles = fs.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    dgOrders = os.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+  } catch (e) {
+    toast('Dijital veriler yüklenemedi: ' + e.message, 'err');
+    return;
+  }
+  renderDgFiles(); renderDgOrders(); renderDgStats();
+}
+
+function renderDgStats() {
+  const pend = dgOrders.filter(o => o.status === 'bekliyor').length;
+  const ok = dgOrders.filter(o => o.status === 'onaylandı');
+  document.getElementById('dgStFiles').textContent = dgFiles.filter(f => f.active).length;
+  document.getElementById('dgStPend').textContent = pend;
+  document.getElementById('dgStOk').textContent = ok.length;
+  document.getElementById('dgStRev').textContent = dgMoney(ok.reduce((s, o) => s + Number(o.total || 0), 0));
+  document.getElementById('dgPendBadge').textContent = pend ? '(' + pend + ')' : '';
+}
+
+function renderDgFiles() {
+  const b = document.getElementById('dgFilesBody');
+  if (!dgFiles.length) {
+    b.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px;">Henüz dosya yok. “＋ YENİ DOSYA” ile ekleyin.</td></tr>';
+    return;
+  }
+  b.innerHTML = dgFiles.map(f => `<tr>
+    <td>${f.image ? `<img src="${dgEsc(f.image)}" style="width:48px;height:48px;object-fit:cover;border:1px solid var(--border);">` : '🧵'}</td>
+    <td><b>${dgEsc(f.title)}</b><div style="font-size:11px;color:var(--muted)">${dgEsc(f.category || '')}</div></td>
+    <td>${(f.formats || []).map(x => `<span class="badge" style="background:var(--bg3);color:var(--muted2);margin-right:3px;">${dgEsc(x)}</span>`).join('')}</td>
+    <td>${f.oldPrice > f.price ? `<s style="color:var(--muted);font-size:11px;">${dgMoney(f.oldPrice)}</s> ` : ''}${dgMoney(f.price)}</td>
+    <td>${f.sold || 0}</td>
+    <td>${f.active ? '<span class="badge" style="background:rgba(74,222,128,.1);color:#4ade80;">AKTİF</span>' : '<span class="badge" style="background:rgba(230,57,70,.1);color:var(--accent2);">PASİF</span>'}</td>
+    <td style="display:flex;gap:6px;">
+      <button class="btn btn-outline btn-sm" onclick="openDigModal('${f.id}')">✎ Düzenle</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteDigital('${f.id}')">🗑</button>
+    </td></tr>`).join('');
+  const cats = [...new Set(dgFiles.map(f => f.category).filter(Boolean))];
+  document.getElementById('dgCatList').innerHTML = cats.map(c => `<option value="${dgEsc(c)}">`).join('');
+}
+
+function renderDgOrders() {
+  const flt = document.getElementById('dgOrdFilter').value;
+  const list = flt === 'all' ? dgOrders : dgOrders.filter(o => (o.status || 'bekliyor') === flt);
+  const b = document.getElementById('dgOrdBody');
+  if (!list.length) { b.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px;">Sipariş yok.</td></tr>'; return; }
+  const col = { 'bekliyor': 'var(--accent)', 'onaylandı': '#4ade80', 'iptal': 'var(--accent2)' };
+  b.innerHTML = list.map(o => `<tr>
+    <td style="font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:2px;color:var(--accent);">${dgEsc(o.code)}</td>
+    <td>${dgEsc(o.email)}<div style="font-size:11px;color:var(--muted)">${dgEsc(o.name || '')}</div></td>
+    <td style="font-size:12px;">${(o.items || []).map(i => dgEsc(i.title)).join('<br>')}</td>
+    <td><b>${dgMoney(o.total)}</b></td>
+    <td style="font-size:12px;color:var(--muted);">${o.createdAt ? o.createdAt.toDate().toLocaleString('tr-TR') : ''}</td>
+    <td><span class="badge" style="color:${col[o.status] || 'var(--muted)'};border:1px solid ${col[o.status] || 'var(--border)'};">${dgEsc(o.status)}</span></td>
+    <td style="display:flex;gap:6px;flex-wrap:wrap;">
+      ${o.status === 'bekliyor' ? `<button class="btn btn-accent btn-sm" onclick="approveDgOrder('${o.id}')">✓ ÖDEME ONAYLA</button><button class="btn btn-danger btn-sm" onclick="cancelDgOrder('${o.id}')">İptal</button>` : ''}
+      ${o.status === 'onaylandı' ? `<button class="btn btn-danger btn-sm" onclick="revokeDgOrder('${o.id}')">Erişimi Kaldır</button>` : ''}
+    </td></tr>`).join('');
+}
+
+// ── DOSYA EKLE / DÜZENLE ──
+function dgBuildFmtBoxes(sel = []) {
+  document.getElementById('dgFmtBox').innerHTML = DG_FORMATS.map(f =>
+    `<label style="display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border:1px solid var(--border);cursor:pointer;font-size:12px;letter-spacing:1px;margin:0;">
+      <input type="checkbox" class="dgFmt" value="${f}" ${sel.includes(f) ? 'checked' : ''} style="width:auto;margin:0;"> ${f}</label>`).join('');
+}
+
+async function openDigModal(id) {
+  const f = id ? dgFiles.find(x => x.id === id) : null;
+  document.getElementById('dgId').value = id || '';
+  document.getElementById('dgModalTitle').textContent = f ? 'DOSYAYI DÜZENLE' : 'YENİ DİJİTAL DOSYA';
+  document.getElementById('dgTitle').value = f?.title || '';
+  document.getElementById('dgCat').value = f?.category || '';
+  document.getElementById('dgActive').value = f ? (f.active ? '1' : '0') : '1';
+  document.getElementById('dgDesc').value = f?.description || '';
+  document.getElementById('dgPrice').value = f?.price ?? '';
+  document.getElementById('dgOld').value = f?.oldPrice || '';
+  document.getElementById('dgW').value = f?.widthMm || '';
+  document.getElementById('dgH').value = f?.heightMm || '';
+  document.getElementById('dgSt').value = f?.stitches || '';
+  document.getElementById('dgCol').value = f?.colors || '';
+  document.getElementById('dgImg').value = f?.image || '';
+  document.getElementById('dgImgFile').value = '';
+  dgPreview(f?.image || '');
+  dgBuildFmtBoxes(f?.formats || ['DST', 'PES']);
+  document.getElementById('dgUrl').value = '';
+  document.getElementById('dgNote').value = '';
+  if (id) {
+    try {
+      const s = await db.collection('digital_secrets').doc(id).get();
+      if (s.exists) {
+        document.getElementById('dgUrl').value = s.data().url || '';
+        document.getElementById('dgNote').value = s.data().note || '';
+      }
+    } catch (e) { console.warn(e); }
+  }
+  openModal('dgModal');
+}
+
+function dgPreview(src) {
+  const im = document.getElementById('dgImgPrev');
+  if (src) { im.src = src; im.style.display = 'block'; } else { im.style.display = 'none'; }
+}
+
+function dgPickImage(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 700, r = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      const data = c.toDataURL('image/jpeg', 0.82);
+      document.getElementById('dgImg').value = data;
+      dgPreview(data);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveDigital() {
+  const id = document.getElementById('dgId').value;
+  const title = document.getElementById('dgTitle').value.trim();
+  const price = parseFloat(document.getElementById('dgPrice').value);
+  const url = document.getElementById('dgUrl').value.trim();
+  if (!title) return toast('Dosya adı gerekli', 'err');
+  if (isNaN(price) || price < 0) return toast('Geçerli bir fiyat girin', 'err');
+  if (!url) return toast('Gizli indirme linki gerekli', 'err');
+  if (!/^https?:\/\//i.test(url)) return toast('Link http(s):// ile başlamalı', 'err');
+  const image = document.getElementById('dgImg').value.trim();
+  if (image.length > 700000) return toast('Görsel çok büyük, daha küçük seçin', 'err');
+  const num = k => { const v = parseFloat(document.getElementById(k).value); return isNaN(v) ? 0 : v; };
+  const data = {
+    title,
+    category: document.getElementById('dgCat').value.trim(),
+    description: document.getElementById('dgDesc').value.trim(),
+    price, oldPrice: num('dgOld'),
+    formats: [...document.querySelectorAll('.dgFmt:checked')].map(c => c.value),
+    widthMm: num('dgW'), heightMm: num('dgH'), stitches: num('dgSt'), colors: num('dgCol'),
+    image, active: document.getElementById('dgActive').value === '1',
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  try {
+    const ref = id ? db.collection('digital_files').doc(id) : db.collection('digital_files').doc();
+    if (!id) { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); data.sold = 0; }
+    const batch = db.batch();
+    batch.set(ref, data, { merge: true });
+    batch.set(db.collection('digital_secrets').doc(ref.id), { url, note: document.getElementById('dgNote').value.trim() }, { merge: true });
+    await batch.commit();
+    toast('✓ Dosya kaydedildi', 'ok');
+    closeModal('dgModal');
+    loadDigital();
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+
+async function deleteDigital(id) {
+  const f = dgFiles.find(x => x.id === id);
+  if (!confirm(`“${f?.title}” silinsin mi?\n(Daha önce satın alanların erişimi etkilenmez, ancak indirme linki silinir.)`)) return;
+  try {
+    const b = db.batch();
+    b.delete(db.collection('digital_files').doc(id));
+    b.delete(db.collection('digital_secrets').doc(id));
+    await b.commit();
+    toast('Silindi', 'ok'); loadDigital();
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+
+// ── SİPARİŞ ONAY / İPTAL ──
+async function approveDgOrder(orderId) {
+  const o = dgOrders.find(x => x.id === orderId); if (!o) return;
+  const calc = (o.items || []).reduce((s, i) => {
+    const live = dgFiles.find(f => f.id === i.id);
+    return s + Number(live ? live.price : i.price || 0);
+  }, 0);
+  if (Math.abs(calc - Number(o.total || 0)) > 0.01 &&
+      !confirm(`Uyarı: sipariş tutarı (${dgMoney(o.total)}) güncel fiyatlarla (${dgMoney(calc)}) uyuşmuyor.\nYine de onaylansın mı?`)) return;
+  if (!confirm(`${o.code} — ${dgMoney(o.total)}\nÖdemeyi aldığınızdan emin misiniz? Dosyalar müşteriye açılacak.`)) return;
+  try {
+    const b = db.batch();
+    (o.items || []).forEach(i => {
+      b.set(db.collection('users').doc(o.userId).collection('downloads').doc(i.id), {
+        title: i.title, orderId, orderCode: o.code,
+        grantedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      b.set(db.collection('digital_files').doc(i.id), { sold: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+    });
+    b.update(db.collection('digital_orders').doc(orderId), {
+      status: 'onaylandı', approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await b.commit();
+    toast('✓ Onaylandı — dosyalar müşteriye açıldı', 'ok');
+    loadDigital();
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+
+async function cancelDgOrder(orderId) {
+  if (!confirm('Sipariş iptal edilsin mi?')) return;
+  try {
+    await db.collection('digital_orders').doc(orderId).update({ status: 'iptal' });
+    toast('İptal edildi', 'ok'); loadDigital();
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+
+async function revokeDgOrder(orderId) {
+  const o = dgOrders.find(x => x.id === orderId); if (!o) return;
+  if (!confirm(`${o.code} siparişinin dosya erişimi kaldırılsın mı? (iade vb.)`)) return;
+  try {
+    const b = db.batch();
+    (o.items || []).forEach(i => {
+      b.delete(db.collection('users').doc(o.userId).collection('downloads').doc(i.id));
+      b.set(db.collection('digital_files').doc(i.id), { sold: firebase.firestore.FieldValue.increment(-1) }, { merge: true });
+    });
+    b.update(db.collection('digital_orders').doc(orderId), { status: 'iptal' });
+    await b.commit();
+    toast('Erişim kaldırıldı', 'ok'); loadDigital();
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+// =============================================
+// / DİJİTAL NAKIŞ DOSYALARI YÖNETİMİ
 // =============================================
 </script>
 
