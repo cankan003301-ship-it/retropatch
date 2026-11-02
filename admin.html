@@ -908,7 +908,6 @@
             <div class="fg"><label>Dikiş Sayısı</label><input type="number" id="dgSt" min="0"></div>
             <div class="fg"><label>Renk Sayısı</label><input type="number" id="dgCol" min="0"></div>
           </div>
-          <div class="fg"><label>❤️ Favori Sayısı</label><input type="number" id="dgFav" min="0"></div>
           <div class="fg"><label>Önizleme Görseli (ImageKit)</label>
             <input type="text" id="dgImg" placeholder="https://ik.imagekit.io/qqsmrt6nv/digital/desen.jpg" oninput="dgPreview(this.value)">
             <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
@@ -1601,7 +1600,6 @@ function initData() {
   loadSiteSettings();
   listenSlides();
   listenPendingReviews();
-  listenDigitalOrders();
 }
 
 // ============ REALTIME LISTENERS ============
@@ -1655,35 +1653,6 @@ function listenMessages() {
 // collectionGroup ile tüm ürünlerin reviews alt koleksiyonunu dinler
 // Firestore Console'da collectionGroup index gerekirse:
 //   Collection: reviews | Alan: approved (Ascending) + createdAt (Descending)
-// Dijital siparişler: ödeme bekleyen sayısı sidebar'da kırmızı rozet olarak görünür
-function listenDigitalOrders() {
-  let first = true;
-  db.collection('digital_orders').where('status', '==', 'bekliyor').onSnapshot(snap => {
-    const pending = snap.size;
-    const badge = document.getElementById('badgeDigital');
-    if (badge) {
-      badge.textContent = pending;
-      badge.style.display = pending > 0 ? 'inline-block' : 'none';
-    }
-    const pb = document.getElementById('dgPendBadge');
-    if (pb) pb.textContent = pending ? '(' + pending + ')' : '';
-
-    // İlk yüklemeden sonra gelen yeni siparişi bildir
-    if (!first) {
-      snap.docChanges().forEach(ch => {
-        if (ch.type === 'added') {
-          const o = ch.doc.data();
-          toast('💾 Yeni dijital sipariş: ' + (o.code || ''));
-          if (typeof addActivity === 'function') addActivity('💾', 'Yeni dijital sipariş: ' + (o.code || '') + ' · ₺' + (o.total || 0));
-        }
-      });
-      // Dijital sayfa açıksa listeyi tazele
-      if (document.getElementById('page-digital')?.classList.contains('active')) loadDigital();
-    }
-    first = false;
-  }, err => console.warn('Dijital sipariş dinleyicisi başarısız:', err.message));
-}
-
 function listenPendingReviews() {
   db.collectionGroup('reviews')
     .where('approved', '==', false)
@@ -3430,7 +3399,7 @@ function saveCargo() {
   const company = document.getElementById('cargoCompany').value;
   const trackingCode = document.getElementById('cargoTrackCode').value.trim();
   const status = document.getElementById('cargoStatus').value;
-  const companyNames = {mng:'MNG Kargo',yurtici:'Yurtiçi Kargo',ptt:'PTT Kargo',surat:'Sürat Kargo'};
+  const companyNames = {mng:'DHL eCommerce',yurtici:'Yurtiçi Kargo',ptt:'PTT Kargo',surat:'Sürat Kargo'};
   const companyName = companyNames[company] || company;
   const isCompleted = status === 'Teslim Edildi';
   db.collection('orders').doc(id).update({
@@ -4653,7 +4622,6 @@ async function openDigModal(id) {
   document.getElementById('dgH').value = f?.heightMm || '';
   document.getElementById('dgSt').value = f?.stitches || '';
   document.getElementById('dgCol').value = f?.colors || '';
-  document.getElementById('dgFav').value = f?.favorites || '';
   document.getElementById('dgImg').value = f?.image || '';
   document.getElementById('dgImgFile').value = '';
   document.getElementById('dgImgStatus').textContent = '';
@@ -4722,7 +4690,6 @@ async function saveDigital() {
     price, oldPrice: num('dgOld'),
     formats: [...document.querySelectorAll('.dgFmt:checked')].map(c => c.value),
     widthMm: num('dgW'), heightMm: num('dgH'), stitches: num('dgSt'), colors: num('dgCol'),
-    favorites: num('dgFav'),
     image, active: document.getElementById('dgActive').value === '1',
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
