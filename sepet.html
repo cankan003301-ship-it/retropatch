@@ -584,11 +584,11 @@
                 <div class="pay-method-desc">Banka hesabına transfer</div>
               </div>
             </label>
-            <label class="pay-method" id="kapidaMethod" onclick="selectPay('kapida',this)">
+            <label class="pay-method" id="kapidaMethod" style="display:none" onclick="selectPay('kapida',this)">
               <input type="radio" name="paymethod" value="kapida">
               <div class="pay-method-info">
                 <div class="pay-method-name">💰 Kapıda Ödeme</div>
-                <div class="pay-method-desc">Nakit veya kart (+₺15 hizmet bedeli)</div>
+                <div class="pay-method-desc" id="kapidaDesc">Nakit veya kart (+₺15 hizmet bedeli)</div>
               </div>
             </label>
           </div>
@@ -611,7 +611,7 @@
           <!-- KAPIDA ÖDEMEf -->
           <div id="kapida-info">
             Kargonuz teslim edilirken ödeme yapabilirsiniz. Nakit veya pos cihazı ile ödeme kabul edilmektedir.<br><br>
-            <strong style="color:var(--accent);">+₺15 kapıda ödeme hizmet bedeli</strong> uygulanır.
+            <strong style="color:var(--accent);" id="kapidaFeeText">+₺15 kapıda ödeme hizmet bedeli</strong> uygulanır.
           </div>
 
           <!-- KUPON -->
@@ -724,6 +724,8 @@ function updateCargoPriceDisplay() {
 let cart = [];
 let currentUser = null;
 let selectedPay = 'havale';
+let KAPIDA_ENABLED = false;   // admin: settings/siparis.kapidaOdeme
+let KAPIDA_FEE = 15;          // admin: settings/siparis.kapidaFiyat
 let selectedCargo = 'mng';
 let discountAmount = 0;
 let appliedCoupon = '';
@@ -758,14 +760,34 @@ function updateSectionsVisibility(){
   const k=document.getElementById('kapidaMethod'), n=document.getElementById('digitalPayNote');
   if(a) a.style.display=phys?'':'none';
   if(c) c.style.display=phys?'':'none';
-  if(k) k.style.display=dig?'none':'';
+  const kapidaOff = dig || !KAPIDA_ENABLED;
+  if(k) k.style.display=kapidaOff?'none':'';
   if(n) n.style.display=dig?'block':'none';
-  if(dig && selectedPay==='kapida'){
+  if(kapidaOff && selectedPay==='kapida'){
     const inp=document.querySelector('.pay-method input[value="havale"]');
     const l=inp && inp.closest('.pay-method');
     if(l){ inp.checked=true; selectPay('havale',l); }
   }
 }
+
+// Admin > Ayarlar > Sipariş ayarları: kapıda ödeme açık/kapalı + ücret
+function applyKapidaSettings(enabled, fee) {
+  KAPIDA_ENABLED = enabled;
+  KAPIDA_FEE = fee;
+  const d = document.getElementById('kapidaDesc');
+  if (d) d.textContent = fee > 0 ? 'Nakit veya kart (+₺' + fee + ' hizmet bedeli)' : 'Nakit veya kart';
+  const f = document.getElementById('kapidaFeeText');
+  if (f) f.textContent = fee > 0 ? '+₺' + fee + ' kapıda ödeme hizmet bedeli' : 'Ek ücret yok';
+  updateSectionsVisibility();
+  updateSummary();
+}
+db.collection('settings').doc('siparis').get().then(doc => {
+  const d = doc.exists ? doc.data() : {};
+  // Kayıt hiç yoksa eski davranış (açık, 15 ₺); kayıt varsa admin değeri geçerli
+  const enabled = doc.exists ? d.kapidaOdeme !== false : true;
+  const fee = (doc.exists && typeof d.kapidaFiyat === 'number') ? d.kapidaFiyat : 15;
+  applyKapidaSettings(enabled, fee);
+}).catch(() => applyKapidaSettings(false, 15));  // okunamazsa güvenli taraf: kapalı
 
 function loadCart() {
   cart = JSON.parse(localStorage.getItem('retropatch_cart') || '[]');
@@ -872,7 +894,7 @@ function updateSummary() {
   const physSub = physSubtotal(), digSub = digSubtotal();
   const subtotal = physSub + digSub;
   const phys = hasPhys();
-  const kapidaExtra = (phys && selectedPay==='kapida') ? 15 : 0;
+  const kapidaExtra = (phys && selectedPay==='kapida') ? KAPIDA_FEE : 0;
   const freeLimit = window.FREE_CARGO_LIMIT || kargoSettings.limit || 500;
   const cargoPrice = !phys ? 0 : ((freeLimit > 0 && physSub >= freeLimit) ? 0 : (CARGO_PRICES[selectedCargo]||49));
   const cargo = phys ? cargoPrice + kapidaExtra : 0;
@@ -938,7 +960,7 @@ function sendToWhatsApp() {
   if (!cart.length) { toast('Sepetiniz boş!', true); return; }
   var subtotal = cart.reduce(function(s,i){return s+(i.price||0)*(i.qty||1);},0);
   var cargoPrice = hasPhys() ? (CARGO_PRICES[selectedCargo]||49) : 0;
-  var kapidaExtra = (hasPhys() && selectedPay==='kapida') ? 15 : 0;
+  var kapidaExtra = (hasPhys() && selectedPay==='kapida') ? KAPIDA_FEE : 0;
   var total = subtotal + cargoPrice + kapidaExtra - discountAmount;
   var msg = '🏷 *RetroPatch Sipariş*\n\n';
   cart.forEach(function(item) {
@@ -977,6 +999,7 @@ async function doCheckout() {
     return;
   }
   if (D.length && selectedPay === 'kapida') { toast('Dijital dosyalar için Havale / EFT seçin.', true); return; }
+  if (selectedPay === 'kapida' && !KAPIDA_ENABLED) { toast('Kapıda ödeme şu anda kullanılamıyor. Lütfen Havale/EFT seçin.', true); updateSectionsVisibility(); return; }
 
   const btn = document.getElementById('checkoutBtn');
   btn.textContent = 'İŞLENİYOR...'; btn.disabled = true;
@@ -1014,7 +1037,7 @@ async function doCheckout() {
 
   // Fiziksel kısım
   const physSub = physSubtotal();
-  const kapidaExtra = (P.length && selectedPay==='kapida') ? 15 : 0;
+  const kapidaExtra = (P.length && selectedPay==='kapida') ? KAPIDA_FEE : 0;
   const freeLimit2 = window.FREE_CARGO_LIMIT !== undefined ? window.FREE_CARGO_LIMIT : (kargoSettings.limit || 500);
   const baseCargoPrice = !P.length ? 0 : ((freeLimit2 > 0 && physSub >= freeLimit2) ? 0 : (CARGO_PRICES[selectedCargo]||49));
   const cargoPrice = baseCargoPrice + kapidaExtra;
