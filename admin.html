@@ -860,6 +860,7 @@
       <div style="display:flex;gap:8px;margin-bottom:16px;">
         <button class="period-btn active" id="dgTabF" onclick="dgTab('files')">DOSYALAR</button>
         <button class="period-btn" id="dgTabO" onclick="dgTab('orders')">SİPARİŞLER <span id="dgPendBadge" style="color:var(--accent2);"></span></button>
+        <button class="period-btn" id="dgTabR" onclick="dgTab('reviews')">YORUMLAR <span id="dgRevBadge" style="color:var(--accent2);"></span></button>
       </div>
 
       <div id="dgPaneFiles">
@@ -880,6 +881,16 @@
         <div class="tbl-wrap"><table>
           <thead><tr><th>Kod</th><th>Müşteri</th><th>Dosyalar</th><th>Tutar</th><th>Tarih</th><th>Durum</th><th style="width:200px">İşlem</th></tr></thead>
           <tbody id="dgOrdBody"></tbody>
+        </table></div>
+      </div>
+
+      <div id="dgPaneReviews" style="display:none;">
+        <div class="fg" style="max-width:240px;"><select id="dgRevFilter" onchange="renderDgReviews()">
+          <option value="bekleyen">Onay Bekleyenler</option><option value="onayli">Onaylananlar</option><option value="all">Tümü</option>
+        </select></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Dosya</th><th>Müşteri</th><th>Puan</th><th>Yorum</th><th>Tarih</th><th>Durum</th><th style="width:170px">İşlem</th></tr></thead>
+          <tbody id="dgRevBody"></tbody>
         </table></div>
       </div>
     </div>
@@ -1605,6 +1616,7 @@ function initData() {
   listenSlides();
   listenPendingReviews();
   listenDigitalOrders();
+  listenDigitalReviews();
 }
 
 // ============ REALTIME LISTENERS ============
@@ -4533,10 +4545,12 @@ const dgEsc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&
 const dgMoney = n => Number(n||0).toLocaleString('tr-TR',{maximumFractionDigits:2}) + ' ₺';
 
 function dgTab(t) {
-  document.getElementById('dgPaneFiles').style.display = t === 'files' ? 'block' : 'none';
-  document.getElementById('dgPaneOrders').style.display = t === 'orders' ? 'block' : 'none';
-  document.getElementById('dgTabF').classList.toggle('active', t === 'files');
-  document.getElementById('dgTabO').classList.toggle('active', t === 'orders');
+  ['files','orders','reviews'].forEach(k => {
+    const K = k[0].toUpperCase() + k.slice(1);
+    document.getElementById('dgPane' + K).style.display = t === k ? 'block' : 'none';
+    document.getElementById('dgTab' + { files: 'F', orders: 'O', reviews: 'R' }[k]).classList.toggle('active', t === k);
+  });
+  if (t === 'reviews') renderDgReviews();
 }
 
 async function loadDigital() {
@@ -4787,11 +4801,7 @@ function listenDigitalOrders() {
     dgOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
     const pending = dgOrders.filter(o => (o.status || 'bekliyor') === 'bekliyor').length;
-    const badge = document.getElementById('badgeDigital');
-    if (badge) {
-      badge.textContent = pending;
-      badge.style.display = pending > 0 ? 'inline-block' : 'none';
-    }
+    updateDgBadge();
     // İlk yükleme sessiz; sonrasında artış olursa uyar
     if (dgListenerReady && pending > dgPrevPending) {
       toast('🔔 Yeni dijital sipariş geldi (' + pending + ' bekliyor)', 'ok');
@@ -4803,6 +4813,82 @@ function listenDigitalOrders() {
       renderDgOrders(); renderDgStats();
     }
   }, err => console.error('Dijital siparişler dinlenemedi:', err.message));
+}
+
+// Menü rozeti: bekleyen sipariş + onay bekleyen yorum
+function updateDgBadge() {
+  const po = dgOrders.filter(o => (o.status || 'bekliyor') === 'bekliyor').length;
+  const pr = dgReviews.filter(r => !r.approved).length;
+  const badge = document.getElementById('badgeDigital');
+  if (badge) {
+    badge.textContent = po + pr;
+    badge.style.display = po + pr > 0 ? 'inline-block' : 'none';
+  }
+  const rb = document.getElementById('dgRevBadge');
+  if (rb) rb.textContent = pr ? '(' + pr + ')' : '';
+}
+
+// ── DİJİTAL DOSYA YORUMLARI ──
+let dgReviews = [], dgRevReady = false, dgPrevRevPending = 0;
+function listenDigitalReviews() {
+  db.collection('digital_reviews').onSnapshot(snap => {
+    dgReviews = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    const pr = dgReviews.filter(r => !r.approved).length;
+    updateDgBadge();
+    if (dgRevReady && pr > dgPrevRevPending) toast('🔔 Yeni dijital dosya yorumu (' + pr + ' onay bekliyor)', 'ok');
+    dgPrevRevPending = pr; dgRevReady = true;
+    if (document.getElementById('page-digital')?.classList.contains('active')) renderDgReviews();
+  }, err => console.error('Dijital yorumlar dinlenemedi:', err.message));
+}
+
+function renderDgReviews() {
+  const flt = document.getElementById('dgRevFilter')?.value || 'bekleyen';
+  const list = dgReviews.filter(r => flt === 'all' ? true : flt === 'bekleyen' ? !r.approved : r.approved);
+  const b = document.getElementById('dgRevBody'); if (!b) return;
+  if (!list.length) { b.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px;">Yorum yok.</td></tr>'; return; }
+  b.innerHTML = list.map(r => `<tr>
+    <td><b>${dgEsc(r.fileTitle || r.fileId)}</b></td>
+    <td>${dgEsc(r.userName || 'Müşteri')}</td>
+    <td style="color:var(--accent);white-space:nowrap;">${'★'.repeat(r.rating || 0)}<span style="color:var(--border);">${'★'.repeat(5 - (r.rating || 0))}</span></td>
+    <td style="max-width:320px;font-size:13px;line-height:1.6;white-space:pre-line;">${dgEsc(r.text)}</td>
+    <td style="font-size:12px;color:var(--muted);">${r.createdAt ? r.createdAt.toDate().toLocaleString('tr-TR') : ''}</td>
+    <td>${r.approved ? '<span class="badge" style="color:#4ade80;border:1px solid #4ade80;">ONAYLI</span>' : '<span class="badge" style="color:var(--accent);border:1px solid var(--accent);">BEKLİYOR</span>'}</td>
+    <td style="display:flex;gap:6px;flex-wrap:wrap;">
+      ${!r.approved ? `<button class="btn btn-accent btn-sm" onclick="approveDgReview('${r.id}')">✓ Onayla</button>` : ''}
+      <button class="btn btn-danger btn-sm" onclick="deleteDgReview('${r.id}')">🗑 Sil</button>
+    </td></tr>`).join('');
+}
+
+async function approveDgReview(id) {
+  const r = dgReviews.find(x => x.id === id); if (!r || r.approved) return;
+  try {
+    const b = db.batch();
+    b.update(db.collection('digital_reviews').doc(id), { approved: true, approvedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    b.set(db.collection('digital_files').doc(r.fileId), {
+      ratingSum: firebase.firestore.FieldValue.increment(r.rating || 0),
+      ratingCount: firebase.firestore.FieldValue.increment(1)
+    }, { merge: true });
+    await b.commit();
+    toast('✓ Yorum onaylandı', 'ok');
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+
+async function deleteDgReview(id) {
+  const r = dgReviews.find(x => x.id === id); if (!r) return;
+  if (!confirm('Bu yorum silinsin mi?' + (r.approved ? '\n(Dosyanın puan ortalaması da güncellenir.)' : ''))) return;
+  try {
+    const b = db.batch();
+    b.delete(db.collection('digital_reviews').doc(id));
+    if (r.approved) {
+      b.set(db.collection('digital_files').doc(r.fileId), {
+        ratingSum: firebase.firestore.FieldValue.increment(-(r.rating || 0)),
+        ratingCount: firebase.firestore.FieldValue.increment(-1)
+      }, { merge: true });
+    }
+    await b.commit();
+    toast('Yorum silindi', 'ok');
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
 }
 
 // İptal edilmiş siparişi kalıcı sil (yalnızca status === 'iptal')
