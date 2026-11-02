@@ -1604,6 +1604,7 @@ function initData() {
   loadSiteSettings();
   listenSlides();
   listenPendingReviews();
+  listenDigitalOrders();
 }
 
 // ============ REALTIME LISTENERS ============
@@ -4779,6 +4780,31 @@ async function revokeDgOrder(orderId) {
     toast('Erişim kaldırıldı', 'ok'); loadDigital();
   } catch (e) { toast('Hata: ' + e.message, 'err'); }
 }
+// Canlı dinleme: bekleyen dijital sipariş sayısı menüde kırmızı rozet olarak görünür
+let dgListenerReady = false, dgPrevPending = 0;
+function listenDigitalOrders() {
+  db.collection('digital_orders').onSnapshot(snap => {
+    dgOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    const pending = dgOrders.filter(o => (o.status || 'bekliyor') === 'bekliyor').length;
+    const badge = document.getElementById('badgeDigital');
+    if (badge) {
+      badge.textContent = pending;
+      badge.style.display = pending > 0 ? 'inline-block' : 'none';
+    }
+    // İlk yükleme sessiz; sonrasında artış olursa uyar
+    if (dgListenerReady && pending > dgPrevPending) {
+      toast('🔔 Yeni dijital sipariş geldi (' + pending + ' bekliyor)', 'ok');
+    }
+    dgPrevPending = pending;
+    dgListenerReady = true;
+    // Dijital sayfa açıksa listeyi ve sayaçları yenile
+    if (document.getElementById('page-digital')?.classList.contains('active')) {
+      renderDgOrders(); renderDgStats();
+    }
+  }, err => console.error('Dijital siparişler dinlenemedi:', err.message));
+}
+
 // İptal edilmiş siparişi kalıcı sil (yalnızca status === 'iptal')
 async function deleteDgOrder(orderId) {
   const o = dgOrders.find(x => x.id === orderId); if (!o) return;
