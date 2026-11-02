@@ -326,7 +326,7 @@ function updateMineCnt(){
 }
 async function loadSettings(){
   try{const s=await db.collection('settings').doc('site').get();if(s.exists)SITE=s.data();}catch(e){}
-  try{const b=await db.collection('settings').doc('bank').get();if(b.exists)BANK=b.data();}catch(e){}
+  // IBAN artık sayfa açılışında çekilmez; sipariş sonrası sepet ekranında gösterilir
 }
 
 /* ── FİLTRE & LİSTE ── */

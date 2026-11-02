@@ -484,6 +484,7 @@
     <div class="success-sub" id="successSub">Siparişiniz başarıyla oluşturuldu. Sipariş kodunuzu not alın, kargo takibi için kullanabilirsiniz.</div>
     <div class="success-code" id="successCode">RP-000000</div>
     <div id="successDigital" style="display:none;max-width:520px;margin:18px auto 0;text-align:left;border:1px solid rgba(200,169,110,.3);background:rgba(200,169,110,.05);padding:18px 20px;font-size:13px;line-height:1.8;"></div>
+    <div id="successBank" style="display:none;max-width:520px;margin:14px auto 0;text-align:left;border:1px solid var(--border);background:var(--bg3);padding:18px 20px;"></div>
     <br>
     <a id="trackOrderBtn" href="takip.html" style="background:var(--accent);color:#000;padding:13px 32px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;text-decoration:none;display:inline-block;">🚚 SİPARİŞİ TAKİP ET →</a>
     &nbsp;
@@ -598,14 +599,13 @@
 
           <!-- HAVALE BİLGİLERİ -->
           <div id="havale-info">
-            <div class="havale-row"><span class="havale-key">Banka</span><span class="havale-val" id="bankAdiVal">—</span></div>
-            <div class="havale-row"><span class="havale-key">Ad Soyad</span><span class="havale-val" id="bankHesapVal">—</span></div>
-            <div class="havale-row"><span class="havale-key">Şube</span><span class="havale-val" id="bankSubeVal">—</span></div>
-            <div class="havale-row">
-              <span class="havale-key">IBAN</span>
-              <span class="havale-val" style="font-size:11px;"><span id="bankIBANVal">—</span> <span class="copy-btn" onclick="copyIBAN()">📋 Kopyala</span></span>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <span style="font-size:22px;line-height:1;">🔒</span>
+              <div style="font-size:12px;color:var(--muted);line-height:1.7;">
+                <b style="color:var(--text);">Banka ve IBAN bilgileri gizlidir.</b><br>
+                Siparişinizi tamamladığınızda hesap bilgileri ve ödeme tutarı ekranda gösterilir. Açıklama kısmına sipariş kodunuzu yazmanız yeterli.
+              </div>
             </div>
-            <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;">Açıklama kısmına ad soyadınızı yazın. Ödeme sonrası siparişiniz onaylanacaktır.</div>
           </div>
 
           <!-- KAPIDA ÖDEMEf -->
@@ -653,20 +653,35 @@ let CARGO_PRICES = { mng:49, yurtici:44, ptt:35, surat:52 };
 const CARGO_NAMES = { mng:'MNG Kargo', yurtici:'Yurtiçi Kargo', ptt:'PTT Kargo', surat:'Sürat Kargo' };
 let kargoSettings = { mng:49, yurtici:44, ptt:35, surat:52, limit: 500, sure: '2-4 iş günü' };
 
-// Firestore'dan kargo ayarlarını yükle
-function loadBankSettings() {
-  db.collection('settings').doc('bank').get().then(doc => {
-    if (doc.exists) {
-      const d = doc.data();
-      if (d.adi) document.getElementById('bankAdiVal').textContent = d.adi;
-      if (d.hesapSahibi) document.getElementById('bankHesapVal').textContent = d.hesapSahibi;
-      if (d.sube) document.getElementById('bankSubeVal').textContent = d.sube;
-      if (d.iban) {
-        document.getElementById('bankIBANVal').textContent = d.iban;
-        window.currentIBAN = d.iban;
-      }
-    }
-  }).catch(e => console.log('Banka bilgileri yüklenemedi:', e));
+// IBAN yalnızca sipariş verildikten sonra çekilir ve gösterilir (sepet sayfasında yüklenmez)
+async function fetchBankInfo() {
+  try {
+    const doc = await db.collection('settings').doc('bank').get();
+    return doc.exists ? doc.data() : null;
+  } catch (e) { console.log('Banka bilgileri yüklenemedi:', e); return null; }
+}
+
+async function showBankBox(opts) {
+  const box = document.getElementById('successBank');
+  if (!box) return;
+  box.style.display = 'block';
+  const title = '<div style="font-family:\'Bebas Neue\',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:10px;">🔒 ÖDEME BİLGİLERİ</div>';
+  box.innerHTML = title + '<div style="font-size:12px;color:var(--muted);">Hesap bilgileri yükleniyor…</div>';
+  const d = await fetchBankInfo();
+  const amount = '<div class="havale-row"><span class="havale-key">Ödenecek Tutar</span><span class="havale-val" style="color:var(--accent);font-weight:700;">₺' + Number(opts.amount||0).toLocaleString('tr-TR') + '</span></div>';
+  const code = '<div class="havale-row"><span class="havale-key">Açıklamaya Yazın</span><span class="havale-val">' + escH(opts.codes) + '</span></div>';
+  if (!d || !d.iban) {
+    box.innerHTML = title + amount + code +
+      '<div style="margin-top:10px;font-size:12px;color:var(--muted);">IBAN bilgisi için lütfen WhatsApp üzerinden bizimle iletişime geçin.</div>';
+    return;
+  }
+  window.currentIBAN = d.iban;
+  box.innerHTML = title + amount + code +
+    (d.adi ? '<div class="havale-row"><span class="havale-key">Banka</span><span class="havale-val">' + escH(d.adi) + '</span></div>' : '') +
+    (d.hesapSahibi ? '<div class="havale-row"><span class="havale-key">Ad Soyad</span><span class="havale-val">' + escH(d.hesapSahibi) + '</span></div>' : '') +
+    (d.sube ? '<div class="havale-row"><span class="havale-key">Şube</span><span class="havale-val">' + escH(d.sube) + '</span></div>' : '') +
+    '<div class="havale-row"><span class="havale-key">IBAN</span><span class="havale-val" style="font-size:12px;word-break:break-all;">' + escH(d.iban) + ' <span class="copy-btn" onclick="copyIBAN()">📋 Kopyala</span></span></div>' +
+    '<div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;">Ödeme sonrası siparişiniz onaylanacaktır.</div>';
 }
 
 function loadKargoSettings() {
@@ -716,7 +731,6 @@ let appliedCoupon = '';
 // Sepeti hemen yükle - auth beklemeden
 loadCart();
 loadKargoSettings();
-loadBankSettings();
 
 auth.onAuthStateChanged(user => {
   currentUser = user;
@@ -915,7 +929,8 @@ function applyCoupon() {
 }
 
 function copyIBAN() {
-  const iban = (window.currentIBAN || document.getElementById('bankIBANVal').textContent).replace(/\s/g,'');
+  const iban = (window.currentIBAN || '').replace(/\s/g,'');
+  if (!iban) return;
   navigator.clipboard.writeText(iban).then(()=>toast('IBAN kopyalandı!'));
 }
 
@@ -1069,8 +1084,6 @@ async function doCheckout() {
   if (D.length) {
     const payTotal = physTotal + digTotal;
     const codes = [orderCode, digCode].filter(Boolean).join(' + ');
-    const txt = id => (document.getElementById(id)?.textContent || '').trim();
-    const bank = txt('bankAdiVal'), holder = txt('bankHesapVal'), iban = txt('bankIBANVal');
     const msg = encodeURIComponent('Merhaba! Sipariş dekontumu gönderiyorum.\nSipariş kodu: ' + codes + '\nTutar: ₺' + payTotal.toLocaleString('tr-TR'));
     const box = document.getElementById('successDigital');
     box.innerHTML =
@@ -1078,14 +1091,19 @@ async function doCheckout() {
       (P.length ? '<b>Dijital sipariş kodu:</b> ' + escH(digCode) + '<br>' : '') +
       '<b>Havale açıklamasına yazın:</b> ' + escH(codes) + '<br>' +
       '<b>Ödenecek toplam:</b> ₺' + payTotal.toLocaleString('tr-TR') + '<br>' +
-      (bank && bank !== '—' ? '<b>Banka:</b> ' + escH(bank) + '<br>' : '') +
-      (holder && holder !== '—' ? '<b>Hesap sahibi:</b> ' + escH(holder) + '<br>' : '') +
-      (iban && iban !== '—' ? '<b>IBAN:</b> ' + escH(iban) + '<br>' : '<b>IBAN bilgisi için WhatsApp ile iletişime geçin.</b><br>') +
+      '<span style="color:var(--muted);font-size:12px;">Banka / IBAN bilgileri aşağıda gösterilir.</span>' +
       '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">' +
       '<a href="https://wa.me/905375295290?text=' + msg + '" target="_blank" rel="noopener" style="background:var(--accent);color:#000;padding:11px 20px;font-family:\'Bebas Neue\',cursive;font-size:16px;letter-spacing:2px;text-decoration:none;">💬 DEKONTU WHATSAPP\'TAN GÖNDER</a>' +
       '<a href="dijital-dosyalar.html" style="border:1px solid rgba(200,169,110,.4);color:var(--accent);padding:11px 20px;font-family:\'Bebas Neue\',cursive;font-size:16px;letter-spacing:2px;text-decoration:none;">DOSYALARIM / SİPARİŞLERİM</a>' +
       '</div>';
     box.style.display = 'block';
+  }
+  // Havale ile ödenen sipariş (fiziksel havale veya dijital): IBAN şimdi gösterilir
+  if (D.length || (P.length && selectedPay === 'havale')) {
+    showBankBox({
+      amount: physTotal + digTotal,
+      codes: [orderCode, digCode].filter(Boolean).join(' + ')
+    });
   }
   window.scrollTo(0,0);
 
