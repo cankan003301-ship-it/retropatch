@@ -873,6 +873,10 @@
         <div class="fg" style="max-width:240px;"><select id="dgOrdFilter" onchange="renderDgOrders()">
           <option value="bekliyor">Bekleyenler</option><option value="onaylandı">Onaylananlar</option><option value="iptal">İptaller</option><option value="all">Tümü</option>
         </select></div>
+        <div id="dgBulkBar" style="display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;margin-bottom:8px;border:1px solid rgba(230,57,70,.3);background:rgba(230,57,70,.06);font-size:13px;">
+          <span id="dgBulkTxt"></span>
+          <button class="btn btn-danger btn-sm" onclick="clearCancelledDg()">🗑 İPTAL EDİLENLERİN HEPSİNİ SİL</button>
+        </div>
         <div class="tbl-wrap"><table>
           <thead><tr><th>Kod</th><th>Müşteri</th><th>Dosyalar</th><th>Tutar</th><th>Tarih</th><th>Durum</th><th style="width:200px">İşlem</th></tr></thead>
           <tbody id="dgOrdBody"></tbody>
@@ -4586,6 +4590,12 @@ function renderDgOrders() {
   const flt = document.getElementById('dgOrdFilter').value;
   const list = flt === 'all' ? dgOrders : dgOrders.filter(o => (o.status || 'bekliyor') === flt);
   const b = document.getElementById('dgOrdBody');
+  const cancelled = dgOrders.filter(o => o.status === 'iptal').length;
+  const bar = document.getElementById('dgBulkBar');
+  if (bar) {
+    bar.style.display = cancelled && (flt === 'iptal' || flt === 'all') ? 'flex' : 'none';
+    document.getElementById('dgBulkTxt').textContent = cancelled + ' iptal edilmiş sipariş var.';
+  }
   if (!list.length) { b.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px;">Sipariş yok.</td></tr>'; return; }
   const col = { 'bekliyor': 'var(--accent)', 'onaylandı': '#4ade80', 'iptal': 'var(--accent2)' };
   b.innerHTML = list.map(o => `<tr>
@@ -4598,6 +4608,7 @@ function renderDgOrders() {
     <td style="display:flex;gap:6px;flex-wrap:wrap;">
       ${o.status === 'bekliyor' ? `<button class="btn btn-accent btn-sm" onclick="approveDgOrder('${o.id}')">✓ ÖDEME ONAYLA</button><button class="btn btn-danger btn-sm" onclick="cancelDgOrder('${o.id}')">İptal</button>` : ''}
       ${o.status === 'onaylandı' ? `<button class="btn btn-danger btn-sm" onclick="revokeDgOrder('${o.id}')">Erişimi Kaldır</button>` : ''}
+      ${o.status === 'iptal' ? `<button class="btn btn-danger btn-sm" onclick="deleteDgOrder('${o.id}')">🗑 Sil</button>` : ''}
     </td></tr>`).join('');
 }
 
@@ -4766,6 +4777,30 @@ async function revokeDgOrder(orderId) {
     b.update(db.collection('digital_orders').doc(orderId), { status: 'iptal' });
     await b.commit();
     toast('Erişim kaldırıldı', 'ok'); loadDigital();
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+// İptal edilmiş siparişi kalıcı sil (yalnızca status === 'iptal')
+async function deleteDgOrder(orderId) {
+  const o = dgOrders.find(x => x.id === orderId); if (!o) return;
+  if (o.status !== 'iptal') return toast('Yalnızca iptal edilen siparişler silinebilir', 'err');
+  if (!confirm(`${o.code} siparişi kalıcı olarak silinsin mi?\nBu işlem geri alınamaz.`)) return;
+  try {
+    await db.collection('digital_orders').doc(orderId).delete();
+    toast('Sipariş silindi', 'ok'); loadDigital();
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+
+async function clearCancelledDg() {
+  const list = dgOrders.filter(o => o.status === 'iptal');
+  if (!list.length) return toast('Silinecek iptal sipariş yok', 'ok');
+  if (!confirm(`${list.length} iptal edilmiş sipariş kalıcı olarak silinsin mi?\nBu işlem geri alınamaz.`)) return;
+  try {
+    for (let i = 0; i < list.length; i += 400) {
+      const b = db.batch();
+      list.slice(i, i + 400).forEach(o => b.delete(db.collection('digital_orders').doc(o.id)));
+      await b.commit();
+    }
+    toast(`✓ ${list.length} sipariş silindi`, 'ok'); loadDigital();
   } catch (e) { toast('Hata: ' + e.message, 'err'); }
 }
 // =============================================
