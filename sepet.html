@@ -987,7 +987,8 @@ async function doCheckout() {
   if (D.length) {
     try {
       const [snaps, dl] = await Promise.all([
-        Promise.all(D.map(i => db.collection('digital_files').doc(i.id).get())),
+        // Pasif/silinmiş dosya için Firestore izin hatası verir; bunu "satışta değil" say
+        Promise.all(D.map(i => db.collection('digital_files').doc(i.id).get().catch(() => ({ exists: false })))),
         db.collection('users').doc(currentUser.uid).collection('downloads').get()
       ]);
       const owned = new Set(dl.docs.map(d => d.id));
