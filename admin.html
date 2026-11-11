@@ -261,6 +261,7 @@
         <div class="nav-item" onclick="showPage('calculator')"><span class="ic">🧮</span> Fiyat Hesaplayıcı</div>
         <div class="nav-item" onclick="showPage('digital')"><span class="ic">💾</span> Dijital Dosyalar <span class="nav-badge" id="badgeDigital" style="display:none">0</span></div>
         <div class="nav-item" onclick="showPage('gallery')"><span class="ic">🖼</span> Galeri</div>
+        <div class="nav-item" onclick="showPage('announcements')"><span class="ic">📢</span> Duyurular</div>
         <div class="nav-item" onclick="showPage('sitemanage')"><span class="ic">🖥</span> Site Yönetimi</div>
         <div class="nav-item" onclick="showPage('settings')"><span class="ic">⚙</span> Ayarlar</div>
         <a class="nav-item" href="https://retropatch.vercel.app" target="_blank" style="text-decoration:none;"><span class="ic">🌐</span> Siteyi Gör</a>
@@ -923,6 +924,7 @@
             <div class="fg"><label>Dikiş Sayısı</label><input type="number" id="dgSt" min="0"></div>
             <div class="fg"><label>Renk Sayısı</label><input type="number" id="dgCol" min="0"></div>
           </div>
+          <div class="fg"><label>❤️ Favori Sayısı (ana sayfa "En Çok Favorilenen" sıralaması)</label><input type="number" id="dgFav" min="0"></div>
           <div class="fg"><label>Önizleme Görseli (ImageKit)</label>
             <input type="text" id="dgImg" placeholder="https://ik.imagekit.io/qqsmrt6nv/digital/desen.jpg" oninput="dgPreview(this.value)">
             <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
@@ -1244,6 +1246,63 @@
       <div id="galleryAdminGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
         <div style="text-align:center;padding:40px;color:var(--muted2);font-size:13px;letter-spacing:1px;grid-column:1/-1;">
           Yükleniyor...
+        </div>
+      </div>
+    </div>
+
+    <!-- DUYURULAR -->
+    <div class="page" id="page-announcements">
+      <div class="section-hdr">
+        <div class="section-ttl">DUYURULAR</div>
+        <button class="btn btn-accent btn-sm" onclick="openAnnModal()">+ Yeni Duyuru</button>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);padding:16px 20px;margin-bottom:20px;font-size:13px;color:var(--muted2);display:flex;align-items:center;gap:10px;line-height:1.6;">
+        <span style="font-size:18px;">💡</span>
+        <span>Duyurular sitenin <strong style="color:var(--accent);">üst çubuğunda</strong> (tüm sayfalar) ve istersen <strong style="color:var(--accent);">açılır pencerede</strong> (yalnızca ana sayfa) görünür. Birden fazla aktif duyuru varsa çubukta sırayla döner. Bir duyuruyu düzenlediğinde ziyaretçilerin daha önce kapattığı duyuru yeniden görünür.</span>
+      </div>
+      <div id="annList">
+        <div style="text-align:center;padding:40px;color:var(--muted2);font-size:13px;letter-spacing:1px;">Yükleniyor...</div>
+      </div>
+    </div>
+
+    <!-- DUYURU MODAL -->
+    <div class="modal-ov" id="annModal">
+      <div class="modal-box" style="max-width:600px;">
+        <div class="modal-hdr"><h3 id="annModalTitle">YENİ DUYURU</h3><button class="modal-x" onclick="closeModal('annModal')">✕</button></div>
+        <div class="modal-body">
+          <input type="hidden" id="annId">
+          <div id="annPreview" style="margin-bottom:18px;padding:11px 16px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:1.2px;"></div>
+          <div class="fg-row">
+            <div class="fg"><label>Tür (renk)</label>
+              <select id="annType" onchange="annPreview()">
+                <option value="info">📢 Duyuru (altın)</option>
+                <option value="kampanya">🔥 Kampanya (kırmızı)</option>
+                <option value="yeni">✨ Yeni (yeşil)</option>
+                <option value="uyari">⚠️ Dikkat (turuncu)</option>
+              </select></div>
+            <div class="fg"><label>Nerede görünsün</label>
+              <select id="annPlace">
+                <option value="bar">Üst çubuk (tüm sayfalar)</option>
+                <option value="popup">Açılır pencere (ana sayfa)</option>
+                <option value="both">Çubuk + pencere</option>
+              </select></div>
+          </div>
+          <div class="fg"><label>Başlık (ops.)</label><input type="text" id="annTitle" maxlength="60" placeholder="Boşsa türün adı yazılır (örn. KAMPANYA)" oninput="annPreview()"></div>
+          <div class="fg"><label>Metin *</label><textarea id="annText" maxlength="300" placeholder="Tüm yamalarda %20 indirim! Kod: RETRO20" oninput="annPreview()" style="min-height:70px;"></textarea></div>
+          <div class="fg-row">
+            <div class="fg"><label>Buton Yazısı (ops.)</label><input type="text" id="annLinkText" maxlength="24" placeholder="İNCELE" oninput="annPreview()"></div>
+            <div class="fg"><label>Buton Linki (ops.)</label><input type="text" id="annLinkUrl" placeholder="urunler.html veya https://…"></div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>Başlangıç Tarihi (ops.)</label><input type="date" id="annStart"></div>
+            <div class="fg"><label>Bitiş Tarihi (ops.)</label><input type="date" id="annEnd"></div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>Sıra (küçük önce)</label><input type="number" id="annOrder" step="1"></div>
+            <div class="fg"><label>Durum</label><select id="annActive"><option value="1">Aktif (yayında)</option><option value="0">Pasif (gizli)</option></select></div>
+          </div>
+          <div class="fg"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;cursor:pointer;"><input type="checkbox" id="annDismiss" checked style="width:auto;"> Ziyaretçi kapatabilsin (✕ butonu)</label></div>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveAnnouncement()">💾 KAYDET</button>
         </div>
       </div>
     </div>
@@ -2911,7 +2970,7 @@ function showPage(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   event.currentTarget?.classList.add('active');
-  const titles = {dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ',categories:'KATEGORİLER',digital:'DİJİTAL DOSYALAR'};
+  const titles = {dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ',categories:'KATEGORİLER',digital:'DİJİTAL DOSYALAR',announcements:'DUYURULAR'};
   document.getElementById('pageTitle').textContent = titles[name] || name.toUpperCase();
   if (name === 'orders') renderOrders('cart', document.getElementById('orderFilter')?.value || 'all');
   if (name === 'products') renderProducts();
@@ -2921,6 +2980,7 @@ function showPage(name) {
   if (name === 'coupons') loadCoupons();
   if (name === 'sitemanage') { renderBannerList(); loadSiteSettings(); if (allProducts.length) renderStats(); }
   if (name === 'gallery') loadGallery();
+  if (name === 'announcements') loadAnnouncements();
   if (name === 'stats') renderStatsPage();
   if (name === 'reviews') loadAllReviews();
   if (name === 'settings') { loadSiteSettings(); loadBackPrices(); }
@@ -4648,6 +4708,7 @@ async function openDigModal(id) {
   document.getElementById('dgH').value = f?.heightMm || '';
   document.getElementById('dgSt').value = f?.stitches || '';
   document.getElementById('dgCol').value = f?.colors || '';
+  document.getElementById('dgFav').value = f?.favorites || '';
   document.getElementById('dgImg').value = f?.image || '';
   document.getElementById('dgImgFile').value = '';
   document.getElementById('dgImgStatus').textContent = '';
@@ -4698,6 +4759,163 @@ async function dgPickImage(input) {
   input.value = '';
 }
 
+
+// ============ DUYURULAR (duyuru.js ile aynı alanlar) ============
+const ANN_TYPES = {
+  info:     { bg:'#c8a96e', fg:'#000', icon:'📢', label:'DUYURU' },
+  kampanya: { bg:'#e63946', fg:'#fff', icon:'🔥', label:'KAMPANYA' },
+  yeni:     { bg:'#4ade80', fg:'#000', icon:'✨', label:'YENİ' },
+  uyari:    { bg:'#fb923c', fg:'#000', icon:'⚠️', label:'DİKKAT' }
+};
+const ANN_PLACE = { bar:'Üst çubuk', popup:'Açılır pencere', both:'Çubuk + pencere' };
+let annItems = [];
+const annEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function annSafeUrl(u) {
+  u = String(u || '').trim();
+  if (!u) return '';
+  if (/^(https?:\/\/|mailto:|tel:|\/|#)/i.test(u)) return u;
+  if (/^[\w\-./]+\.html?(#.*|\?.*)?$/i.test(u)) return u;
+  return '';
+}
+function annState(a) {
+  if (a.active === false) return ['Pasif', 'var(--muted2)'];
+  const now = new Date();
+  if (a.startAt && new Date(a.startAt + 'T00:00:00') > now) return ['Planlı (' + a.startAt + ')', '#fb923c'];
+  if (a.endAt && new Date(a.endAt + 'T23:59:59') < now) return ['Süresi doldu', 'var(--accent2)'];
+  return ['Yayında', '#4ade80'];
+}
+
+function loadAnnouncements() {
+  const box = document.getElementById('annList');
+  db.collection('announcements').get().then(snap => {
+    annItems = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (a.order || 0) - (b.order || 0) || (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    renderAnnouncements();
+  }).catch(e => {
+    box.innerHTML = '<div style="text-align:center;padding:40px;color:var(--accent2);font-size:13px;line-height:1.7;">Duyurular yüklenemedi: ' + annEsc(e.message) +
+      (/permission/i.test(e.message) ? '<br><span style="color:var(--muted2)">Firestore Rules\'a <b>announcements</b> koleksiyonu için kural eklenmemiş olabilir.</span>' : '') + '</div>';
+  });
+}
+
+function renderAnnouncements() {
+  const box = document.getElementById('annList');
+  if (!annItems.length) {
+    box.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted2);font-family:\'Barlow Condensed\',sans-serif;font-size:13px;letter-spacing:2px;">HENÜZ DUYURU YOK — "+ YENİ DUYURU" İLE EKLEYİN</div>';
+    return;
+  }
+  box.innerHTML = annItems.map(a => {
+    const t = ANN_TYPES[a.type] || ANN_TYPES.info;
+    const [st, col] = annState(a);
+    const range = (a.startAt || a.endAt) ? (a.startAt || '…') + ' → ' + (a.endAt || '…') : 'Süresiz';
+    return `<div style="display:flex;gap:14px;align-items:stretch;background:var(--bg2);border:1px solid var(--border);margin-bottom:8px;${a.active===false?'opacity:.6;':''}">
+      <div style="width:6px;background:${t.bg};flex-shrink:0;"></div>
+      <div style="flex:1;padding:14px 0;min-width:0;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;letter-spacing:1px;">${t.icon} ${annEsc(a.title || t.label)}</div>
+        <div style="font-size:13px;color:var(--muted2);margin:4px 0 8px;line-height:1.5;">${annEsc(a.text)}</div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted2);">
+          <span style="color:${col};font-weight:700;">● ${annEsc(st)}</span>
+          <span>📍 ${annEsc(ANN_PLACE[a.place || 'bar'] || a.place)}</span>
+          <span>📅 ${annEsc(range)}</span>
+          <span># Sıra ${a.order || 0}</span>
+          ${a.linkUrl ? '<span>🔗 ' + annEsc(a.linkText || 'İNCELE') + '</span>' : ''}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:12px;justify-content:center;">
+        <button class="btn btn-outline btn-sm" onclick="toggleAnn('${annEsc(a.id)}')">${a.active===false?'▶ Yayınla':'⏸ Durdur'}</button>
+        <button class="btn btn-outline btn-sm" onclick="openAnnModal('${annEsc(a.id)}')">✎ Düzenle</button>
+        <button class="btn btn-outline btn-sm" style="color:var(--accent2);" onclick="deleteAnn('${annEsc(a.id)}')">🗑 Sil</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function annPreview() {
+  const t = ANN_TYPES[document.getElementById('annType').value] || ANN_TYPES.info;
+  const title = document.getElementById('annTitle').value.trim() || t.label;
+  const text = document.getElementById('annText').value.trim() || 'Duyuru metniniz burada görünür';
+  const lt = document.getElementById('annLinkText').value.trim() || 'İNCELE';
+  const hasLink = document.getElementById('annLinkUrl').value.trim() !== '';
+  const p = document.getElementById('annPreview');
+  p.style.background = t.bg; p.style.color = t.fg;
+  p.innerHTML = '<b style="letter-spacing:2px;margin-right:6px;">' + t.icon + ' ' + annEsc(title) + '</b>' + annEsc(text) +
+    (hasLink ? ' <span style="display:inline-block;margin-left:8px;padding:2px 10px;border:1.5px solid currentColor;font-size:11px;font-weight:800;letter-spacing:2px;">' + annEsc(lt) + ' →</span>' : '');
+}
+
+function openAnnModal(id) {
+  const a = id ? annItems.find(x => x.id === id) : null;
+  document.getElementById('annId').value = id || '';
+  document.getElementById('annModalTitle').textContent = a ? 'DUYURUYU DÜZENLE' : 'YENİ DUYURU';
+  document.getElementById('annType').value = a?.type || 'info';
+  document.getElementById('annPlace').value = a?.place || 'bar';
+  document.getElementById('annTitle').value = a?.title || '';
+  document.getElementById('annText').value = a?.text || '';
+  document.getElementById('annLinkText').value = a?.linkText || '';
+  document.getElementById('annLinkUrl').value = a?.linkUrl || '';
+  document.getElementById('annStart').value = a?.startAt || '';
+  document.getElementById('annEnd').value = a?.endAt || '';
+  const nextOrder = annItems.length ? Math.max(...annItems.map(x => Number(x.order) || 0)) + 1 : 1;
+  document.getElementById('annOrder').value = a ? (a.order || 0) : nextOrder;
+  document.getElementById('annActive').value = a ? (a.active === false ? '0' : '1') : '1';
+  document.getElementById('annDismiss').checked = a ? a.dismissible !== false : true;
+  annPreview();
+  openModal('annModal');
+}
+
+async function saveAnnouncement() {
+  const id = document.getElementById('annId').value;
+  const text = document.getElementById('annText').value.trim();
+  const linkUrl = document.getElementById('annLinkUrl').value.trim();
+  const startAt = document.getElementById('annStart').value;
+  const endAt = document.getElementById('annEnd').value;
+  if (!text) return toast('Duyuru metni gerekli', 'err');
+  if (linkUrl && !annSafeUrl(linkUrl)) return toast('Link geçersiz. Örnek: urunler.html veya https://…', 'err');
+  if (startAt && endAt && endAt < startAt) return toast('Bitiş tarihi başlangıçtan önce olamaz', 'err');
+  const data = {
+    type: document.getElementById('annType').value,
+    place: document.getElementById('annPlace').value,
+    title: document.getElementById('annTitle').value.trim(),
+    text,
+    linkText: document.getElementById('annLinkText').value.trim(),
+    linkUrl,
+    startAt, endAt,
+    order: parseInt(document.getElementById('annOrder').value, 10) || 0,
+    active: document.getElementById('annActive').value === '1',
+    dismissible: document.getElementById('annDismiss').checked,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  try {
+    const ref = id ? db.collection('announcements').doc(id) : db.collection('announcements').doc();
+    if (!id) data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    await ref.set(data, { merge: true });
+    toast('✓ Duyuru kaydedildi', 'ok');
+    closeModal('annModal');
+    loadAnnouncements();
+  } catch (e) {
+    toast('Kaydedilemedi: ' + e.message, 'err');
+  }
+}
+
+async function toggleAnn(id) {
+  const a = annItems.find(x => x.id === id); if (!a) return;
+  try {
+    await db.collection('announcements').doc(id).update({
+      active: a.active === false,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    loadAnnouncements();
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+
+async function deleteAnn(id) {
+  const a = annItems.find(x => x.id === id); if (!a) return;
+  if (!confirm('"' + (a.title || a.text).slice(0, 40) + '" duyurusu silinsin mi?')) return;
+  try {
+    await db.collection('announcements').doc(id).delete();
+    toast('Duyuru silindi', 'ok');
+    loadAnnouncements();
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+
 async function saveDigital() {
   const id = document.getElementById('dgId').value;
   const title = document.getElementById('dgTitle').value.trim();
@@ -4715,7 +4933,7 @@ async function saveDigital() {
     description: document.getElementById('dgDesc').value.trim(),
     price, oldPrice: num('dgOld'),
     formats: [...document.querySelectorAll('.dgFmt:checked')].map(c => c.value),
-    widthMm: num('dgW'), heightMm: num('dgH'), stitches: num('dgSt'), colors: num('dgCol'),
+    widthMm: num('dgW'), heightMm: num('dgH'), stitches: num('dgSt'), colors: num('dgCol'), favorites: num('dgFav'),
     image, active: document.getElementById('dgActive').value === '1',
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };

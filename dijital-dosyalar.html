@@ -227,10 +227,10 @@
 
 <!-- SEPET ÇUBUĞU -->
 <div class="basket-bar" id="bar">
-  <div class="bi"><b id="barCnt">0</b> dosya seçildi</div>
+  <div class="bi"><b id="barCnt">0</b> dosya sepette</div>
   <div style="display:flex;align-items:center;gap:18px;">
     <div class="bt" id="barTotal">0 ₺</div>
-    <button class="btn" onclick="openCheckout()">SİPARİŞİ TAMAMLA →</button>
+    <button class="btn" onclick="openCheckout()">SEPETE GİT →</button>
   </div>
 </div>
 
@@ -305,7 +305,7 @@ async function loadFiles(){
     FILES = snap.docs.map(d=>({id:d.id,...d.data()}))
       .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
   }catch(e){console.error(e);FILES=[];toast('Dosyalar yüklenemedi','err');}
-  buildChips(); render();
+  syncBasket(); buildChips(); render(); updateBar();
   const h = location.hash.match(/^#f-(.+)$/);
   if (h && FILES.some(x => x.id === h[1])) openDetail(h[1]);
 }
@@ -368,7 +368,7 @@ function render(){
         <div class="card-foot">
           <div class="price">${f.oldPrice>f.price?`<s>${money(f.oldPrice)}</s>`:''}${money(f.price)}</div>
           ${own?`<button class="btn dl" onclick="showTab('mine')">İNDİR</button>`
-               :`<button class="btn ${inB?'in':''}" onclick="toggleBasket('${f.id}')">${inB?'✓ SEÇİLDİ':'+ EKLE'}</button>`}
+               :`<button class="btn ${inB?'in':''}" onclick="toggleBasket('${f.id}')">${inB?'✓ SEPETTE':'+ SEPETE EKLE'}</button>`}
         </div>
       </div>
     </div>`;
@@ -395,7 +395,7 @@ function openDetail(id){
       </div>
       <div class="price" style="margin:14px 0">${f.oldPrice>f.price?`<s>${money(f.oldPrice)}</s>`:''}${money(f.price)}</div>
       ${own?`<button class="btn dl" style="width:100%" onclick="closeOv('detailOv');showTab('mine')">DOSYALARIMA GİT</button>`
-           :`<button class="btn ${inB?'in':''}" style="width:100%;padding:13px" onclick="toggleBasket('${id}');openDetail('${id}')">${inB?'✓ SEÇİLDİ — ÇIKAR':'+ SİPARİŞE EKLE'}</button>`}
+           :`<button class="btn ${inB?'in':''}" style="width:100%;padding:13px" onclick="toggleBasket('${id}');openDetail('${id}')">${inB?'✓ SEPETTE — ÇIKAR':'+ SEPETE EKLE'}</button>`}
       <div id="revBox" style="margin-top:22px;border-top:1px solid var(--border);padding-top:16px;"></div>
     </div>`;
   openOv('detailOv');
@@ -403,9 +403,21 @@ function openDetail(id){
 }
 
 /* ── SEPET ── */
+const CART_KEY='retropatch_cart';
+function cartRead(){ try{ return JSON.parse(localStorage.getItem(CART_KEY)||'[]'); }catch(e){ return []; } }
+function syncBasket(){ BASKET=new Set(cartRead().filter(i=>i.digital).map(i=>i.id)); }
 function toggleBasket(id){
-  if(BASKET.has(id))BASKET.delete(id);else BASKET.add(id);
-  render(); updateBar();
+  const f=FILES.find(x=>x.id===id); if(!f) return;
+  if(OWNED.has(id)){ toast('Bu dosyaya zaten sahipsiniz'); return; }
+  const cart=cartRead();
+  const idx=cart.findIndex(i=>i.id===id && i.digital);
+  if(idx>=0){ cart.splice(idx,1); toast('Sepetten çıkarıldı'); }
+  else{
+    cart.push({id:f.id,name:f.title,price:Number(f.price||0),image:f.image||'',cat:'Dijital Dosya',qty:1,digital:true});
+    toast('✓ Sepete eklendi');
+  }
+  try{ localStorage.setItem(CART_KEY,JSON.stringify(cart)); }catch(e){ toast('Sepet kaydedilemedi','err'); }
+  syncBasket(); render(); updateBar();
 }
 function basketItems(){return FILES.filter(f=>BASKET.has(f.id));}
 function updateBar(){
@@ -476,6 +488,7 @@ async function submitReview(fileId){
 
 /* ── ÖDEME ── */
 function openCheckout(){
+  location.href='sepet.html'; return;
   if(!USER){
     toast('Sipariş için giriş yapmalısınız','err');
     setTimeout(()=>location.href='uye.html?redirect=dijital-dosyalar.html',900);
@@ -602,5 +615,6 @@ auth.onAuthStateChanged(async u=>{
 loadSettings();
 loadFiles();
 </script>
+<script src="duyuru.js"></script>
 </body>
 </html>

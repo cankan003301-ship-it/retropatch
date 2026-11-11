@@ -901,7 +901,7 @@ function updateSummary() {
   const disc = phys ? Math.min(discountAmount, physSub) : 0;
   const total = subtotal + cargo - disc;
   document.getElementById('sumSubtotal').textContent = '₺'+subtotal.toLocaleString('tr-TR');
-  document.getElementById('sumCargo').textContent = !phys ? 'Yok (dijital)' : (cargoPrice === 0 ? '₺0 (Ücretsiz)' : '₺'+cargo);
+  document.getElementById('sumCargo').textContent = !phys ? 'Yok (dijital)' : (cargo === 0 ? '₺0 (Ücretsiz)' : '₺'+cargo);
   document.getElementById('sumDiscount').textContent = '-₺'+disc;
   document.getElementById('sumTotal').textContent = '₺'+Math.max(0,total).toLocaleString('tr-TR');
   updateCargoPriceDisplay();
@@ -2059,5 +2059,6 @@ function rpFaqToggle(el) {
 }
 </script>
 
+<script src="duyuru.js"></script>
 </body>
 </html>

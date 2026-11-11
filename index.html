@@ -2539,13 +2539,9 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
   db.collection('digital_files').where('active','==',true).get().then(snap=>{
     files=snap.docs.map(d=>({id:d.id,...d.data()}));
     render();
-    // Yorum sayıları: digital_reviews koleksiyonundan hesaplanır
-    db.collection('digital_reviews').get().then(rs=>{
-      const cnt={};
-      rs.forEach(r=>{const d=r.data(); if(d.approved!==false && d.fileId) cnt[d.fileId]=(cnt[d.fileId]||0)+1;});
-      files.forEach(f=>{f.reviews=cnt[f.id]||0;});
-      render();
-    }).catch(e=>console.warn('Yorum sayıları okunamadı:',e.message));
+    // Yorum sayısı: admin yorumu onaylayınca digital_files.ratingCount güncellenir
+    files.forEach(f=>{ f.reviews=Number(f.ratingCount)||0; });
+    render();
   }).catch(e=>{ console.warn('Dijital vitrin yüklenemedi:',e.message); showEmpty(); });
 
   function showEmpty(){
@@ -2913,5 +2909,6 @@ function rpFaqToggle(el) {
 }
 </script>
 
+<script src="duyuru.js"></script>
 </body>
 </html>
