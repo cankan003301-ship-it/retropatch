@@ -259,10 +259,45 @@
   .mq-prev span{font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:4px;color:#000;padding:0 24px;}
   @keyframes mqscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
   @media(max-width:700px){.cp-grid,.an-grid{grid-template-columns:1fr;}.cp-card{grid-template-columns:90px 1fr;}.cp-side{grid-column:1/-1;padding:0 12px 12px;align-items:stretch;}.cp-card::before,.cp-card::after{left:78px;}}
-  </style>
+  
+/* === RP ICONS (solid SVG) === */
+.ic{width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-.14em;flex-shrink:0;pointer-events:none}
+.ic[data-n=heart]{color:#e63946}.ic[data-n=fire]{color:#ff7a1a}.ic[data-n=star]{color:#f4c542}
+button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color:inherit}
+</style>
 
 </head>
 <body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></symbol><symbol id="i-heart-o" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol><symbol id="i-cart" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol><symbol id="i-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol><symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></symbol><symbol id="i-arrow-u" viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/></symbol><symbol id="i-arrow-d" viewBox="0 0 24 24"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></symbol><symbol id="i-swap" viewBox="0 0 24 24"><path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3z"/></symbol><symbol id="i-refresh" viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></symbol><symbol id="i-save" viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zm-5 16a3 3 0 110-6 3 3 0 010 6zm3-10H5V5h10v4z"/></symbol><symbol id="i-fire" viewBox="0 0 24 24"><path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></symbol><symbol id="i-tag" viewBox="0 0 24 24"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></symbol><symbol id="i-trash" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></symbol><symbol id="i-clipboard" viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></symbol><symbol id="i-face" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM8.5 8a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm7 0a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM8 14.5h8V16H8z" fill-rule="evenodd"/></symbol><symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/></symbol><symbol id="i-edit" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol><symbol id="i-warn" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></symbol><symbol id="i-bolt" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></symbol><symbol id="i-spool" viewBox="0 0 24 24"><path d="M5 2h14v3H5zM5 19h14v3H5zM7 6h10v12H7zM9 8h6v2H9zm0 3h6v2H9zm0 3h6v2H9z" fill-rule="evenodd"/></symbol><symbol id="i-shirt" viewBox="0 0 24 24"><path d="M16 3c0 1.1-.9 2-2 2h-4c-1.1 0-2-.9-2-2L2 6l2.5 5L7 10v11h10V10l2.5 1L22 6l-6-3z"/></symbol><symbol id="i-cap" viewBox="0 0 24 24"><path d="M4 14a8 8 0 0116 0zM2 16h13a3 3 0 003 0h4v2H2z"/></symbol><symbol id="i-bag" viewBox="0 0 24 24"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-8 4c0 .55-.45 1-1 1s-1-.45-1-1V8h2v2zm2-6c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm4 6c0 .55-.45 1-1 1s-1-.45-1-1V8h2v2z"/></symbol><symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 000 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></symbol><symbol id="i-phone-m" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></symbol><symbol id="i-mail" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></symbol><symbol id="i-folder" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95a15.65 15.65 0 00-1.38-3.56A8.03 8.03 0 0118.92 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.987 7.987 0 015.08 16zm2.95-8H5.08a7.987 7.987 0 014.33-3.56A15.65 15.65 0 008.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 01-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></symbol><symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></symbol><symbol id="i-box" viewBox="0 0 24 24"><path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2zm5-7H4V4h16v3z"/></symbol><symbol id="i-money" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></symbol><symbol id="i-card" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></symbol><symbol id="i-bank" viewBox="0 0 24 24"><path d="M4 10v7h3v-7H4zm6 0v7h3v-7h-3zM2 22h19v-3H2v3zm14-12v7h3v-7h-3zm-4.5-9L2 6v2h19V6l-9.5-5z"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></symbol><symbol id="i-user" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol><symbol id="i-trend" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></symbol><symbol id="i-bars" viewBox="0 0 24 24"><path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.2z"/></symbol><symbol id="i-monitor" viewBox="0 0 24 24"><path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"/></symbol><symbol id="i-rocket" viewBox="0 0 24 24"><path d="M12 2c3 2 5 5.5 5 9 0 1.5-.4 3-1 4.2l1.8 3.3-3.3-.9c-.5.9-1.5 1.8-2.5 2.4-1-.6-2-1.5-2.5-2.4l-3.3.9L8 15.2C7.4 14 7 12.5 7 11c0-3.5 2-7 5-9zm0 6a2 2 0 100 4 2 2 0 000-4z" fill-rule="evenodd"/></symbol><symbol id="i-gift" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></symbol><symbol id="i-ruler" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h2v4h2V8h2v4h2V8h2v4h2V8h2v4h2V8h2v8z"/></symbol><symbol id="i-dice" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z"/></symbol><symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></symbol><symbol id="i-upload" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></symbol><symbol id="i-wrench" viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></symbol><symbol id="i-megaphone" viewBox="0 0 24 24"><path d="M18 11v2h4v-2h-4zm-2 6.61c.96.71 2.21 1.65 3.2 2.39.4-.53.8-1.07 1.2-1.6-.99-.74-2.24-1.68-3.2-2.4-.4.54-.8 1.08-1.2 1.61zM20.4 5.6c-.4-.53-.8-1.07-1.2-1.6-.99.74-2.24 1.68-3.2 2.4.4.53.8 1.07 1.2 1.6.96-.72 2.21-1.65 3.2-2.4zM4 9c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h1v4h2v-4h1l5 3V6L8 9H4zm11.5 3c0-1.33-.58-2.53-1.5-3.35v6.69c.92-.81 1.5-2.01 1.5-3.34z"/></symbol><symbol id="i-image" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M12 8.8a3.2 3.2 0 100 6.4 3.2 3.2 0 000-6.4zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></symbol><symbol id="i-clip" viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></symbol><symbol id="i-ticket" viewBox="0 0 24 24"><path d="M22 10V6c0-1.11-.9-2-2-2H4c-1.1 0-1.99.89-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2s.9-2 2-2zm-9 7.5h-2v-2h2v2zm0-4.5h-2v-2h2v2zm0-4.5h-2v-2h2v2z"/></symbol><symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></symbol><symbol id="i-new" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zM8.5 15H7.3l-2.55-3.5V15H3.5V9h1.25l2.5 3.5V9H8.5v6zm5-4.74H11v1.12h2.5v1.26H11v1.11h2.5V15h-4V9h4v1.26zm7 3.74c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1V9h1.25v4.51h1.13V9.99h1.25v3.51h1.12V9h1.25v5z"/></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol><symbol id="i-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></symbol><symbol id="i-chev-d" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></symbol><symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></symbol><symbol id="i-thumb" viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></symbol><symbol id="i-factory" viewBox="0 0 24 24"><path d="M22 22H2V10l7-3v2l5-2v3h3l1-8h3v20z"/></symbol><symbol id="i-diamond" viewBox="0 0 24 24"><path d="M12 2L2 12l10 10 10-10z"/></symbol><symbol id="i-check-c" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></symbol><symbol id="i-cancel" viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></symbol><symbol id="i-settings" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></symbol><symbol id="i-square" viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/></symbol><symbol id="i-calc" viewBox="0 0 24 24"><path d="M5 2h14a2 2 0 012 2v16a2 2 0 01-2 2H5a2 2 0 01-2-2V4a2 2 0 012-2zm1 2v4h12V4H6zm1 6v2h2v-2H7zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2zM7 14v2h2v-2H7zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2zM7 18v2h2v-2H7zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2z" fill-rule="evenodd"/></symbol></svg>
+<script>
+(function(){
+var MAP={"❤️": "heart", "❤": "heart", "♥": "heart", "♡": "heart-o", "🔍": "search", "🛒": "cart", "🛍": "bag", "👜": "bag", "✓": "check", "✅": "check-c", "✕": "close", "❌": "cancel", "→": "arrow-r", "↑": "arrow-u", "↓": "arrow-d", "↑↓": "swap", "↻": "refresh", "🔄": "refresh", "💾": "save", "🔥": "fire", "🏷": "tag", "🗑": "trash", "🚚": "truck", "⭐": "star", "📋": "clipboard", "😶": "face", "⏳": "hourglass", "✏️": "edit", "✏": "edit", "✎": "edit", "🖊": "edit", "⚠": "warn", "⚠️": "warn", "⚡": "bolt", "🧵": "spool", "🪡": "spool", "👕": "shirt", "🧥": "shirt", "🥼": "shirt", "🧢": "cap", "🎨": "palette", "📱": "phone-m", "📞": "phone", "✉": "mail", "📁": "folder", "🗂": "folder", "🌐": "globe", "💬": "chat", "📍": "pin", "📦": "box", "💰": "money", "💳": "card", "🏦": "bank", "📅": "calendar", "👤": "user", "👥": "users", "📈": "trend", "📊": "bars", "🖥": "monitor", "🚀": "rocket", "🎁": "gift", "📏": "ruler", "🎲": "dice", "💡": "bulb", "📤": "upload", "🔧": "wrench", "🔒": "lock", "🔐": "lock", "🔔": "bell", "📣": "megaphone", "📢": "megaphone", "🖼": "image", "📷": "camera", "📎": "clip", "🔗": "link", "👁": "eye", "🎟": "ticket", "✨": "sparkle", "🆕": "new", "▶": "play", "⏸": "pause", "▾": "chev-d", "☰": "menu", "👍": "thumb", "🏭": "factory", "⚙": "settings", "🧮": "calc", "◈": "diamond", "♦": "diamond", "⬜": "square", "◻": "square", "🔲": "square"};
+var keys=Object.keys(MAP).sort(function(a,b){return b.length-a.length}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')});
+var RE=new RegExp('('+keys.join('|')+')\\uFE0F?','g');
+var SK={SCRIPT:1,STYLE:1,TEXTAREA:1,OPTION:1,TITLE:1,NOSCRIPT:1};
+var NS='http://www.w3.org/2000/svg';
+function mk(n){var s=document.createElementNS(NS,'svg');s.setAttribute('class','ic');s.setAttribute('data-n',n);var u=document.createElementNS(NS,'use');u.setAttribute('href','#i-'+n);s.appendChild(u);return s;}
+function fix(t){
+  var p=t.parentNode;if(!p||SK[p.nodeName])return;
+  var v=t.nodeValue;RE.lastIndex=0;if(!RE.test(v))return;
+  var f=document.createDocumentFragment(),last=0,m;RE.lastIndex=0;
+  while((m=RE.exec(v))){if(m.index>last)f.appendChild(document.createTextNode(v.slice(last,m.index)));f.appendChild(mk(MAP[m[1]]));last=RE.lastIndex;}
+  if(last<v.length)f.appendChild(document.createTextNode(v.slice(last)));
+  p.replaceChild(f,t);
+}
+function scan(n){
+  if(n.nodeType===3){fix(n);return;}
+  if(n.nodeType!==1||SK[n.nodeName])return;
+  var w=document.createTreeWalker(n,NodeFilter.SHOW_TEXT,null),a=[],x;
+  while((x=w.nextNode()))a.push(x);
+  a.forEach(fix);
+}
+window.rpIco=function(s){RE.lastIndex=0;return String(s).replace(RE,function(m,e){var n=MAP[e];return '<svg class=ic data-n='+n+'><use href=#i-'+n+'></use></svg>';});};
+new MutationObserver(function(ms){ms.forEach(function(m){if(m.type==='characterData')fix(m.target);else m.addedNodes.forEach(scan);});}).observe(document.documentElement,{childList:true,subtree:true,characterData:true});
+function init(){scan(document.body);}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 
 <!-- LOGIN -->
 <div id="loginScreen">
@@ -288,32 +323,32 @@
     <nav>
       <div class="nav-sec">
         <div class="nav-lbl">Genel</div>
-        <div class="nav-item active" onclick="showPage('dashboard')"><span class="ic">📊</span> Dashboard</div>
-        <div class="nav-item" onclick="showPage('orders')"><span class="ic">🛒</span> Siparişler <span class="nav-badge" id="badgeOrders" style="display:none">0</span></div>
-        <div class="nav-item" onclick="showPage('cargo')"><span class="ic">🚚</span> Kargo Yönetimi</div>
-        <div class="nav-item" onclick="showPage('messages')"><span class="ic">✉</span> Mesajlar <span class="nav-badge" id="badgeMsg" style="display:none">0</span></div>
-        <div class="nav-item" onclick="showPage('reviews')"><span class="ic">💬</span> Yorumlar <span class="nav-badge" id="badgeReviews" style="display:none">0</span></div>
-        <div class="nav-item" onclick="showPage('members')"><span class="ic">👥</span> Üyeler</div>
-        <div class="nav-item" onclick="showPage('coupons')"><span class="ic">🎟</span> Kuponlar</div>
-        <div class="nav-item" onclick="showPage('announcements')"><span class="ic">📣</span> Duyurular</div>
+        <div class="nav-item active" onclick="showPage('dashboard')"><span class="ic"><svg class=ic data-n=bars><use href=#i-bars></use></svg></span> Dashboard</div>
+        <div class="nav-item" onclick="showPage('orders')"><span class="ic"><svg class=ic data-n=cart><use href=#i-cart></use></svg></span> Siparişler <span class="nav-badge" id="badgeOrders" style="display:none">0</span></div>
+        <div class="nav-item" onclick="showPage('cargo')"><span class="ic"><svg class=ic data-n=truck><use href=#i-truck></use></svg></span> Kargo Yönetimi</div>
+        <div class="nav-item" onclick="showPage('messages')"><span class="ic"><svg class=ic data-n=mail><use href=#i-mail></use></svg></span> Mesajlar <span class="nav-badge" id="badgeMsg" style="display:none">0</span></div>
+        <div class="nav-item" onclick="showPage('reviews')"><span class="ic"><svg class=ic data-n=chat><use href=#i-chat></use></svg></span> Yorumlar <span class="nav-badge" id="badgeReviews" style="display:none">0</span></div>
+        <div class="nav-item" onclick="showPage('members')"><span class="ic"><svg class=ic data-n=users><use href=#i-users></use></svg></span> Üyeler</div>
+        <div class="nav-item" onclick="showPage('coupons')"><span class="ic"><svg class=ic data-n=ticket><use href=#i-ticket></use></svg></span> Kuponlar</div>
+        <div class="nav-item" onclick="showPage('announcements')"><span class="ic"><svg class=ic data-n=megaphone><use href=#i-megaphone></use></svg></span> Duyurular</div>
       </div>
       <div class="nav-sec">
         <div class="nav-lbl">Katalog</div>
-        <div class="nav-item" onclick="showPage('products')"><span class="ic">🏷</span> Ürünler</div>
-        <div class="nav-item" onclick="showPage('categories')"><span class="ic">🗂</span> Kategoriler</div>
+        <div class="nav-item" onclick="showPage('products')"><span class="ic"><svg class=ic data-n=tag><use href=#i-tag></use></svg></span> Ürünler</div>
+        <div class="nav-item" onclick="showPage('categories')"><span class="ic"><svg class=ic data-n=folder><use href=#i-folder></use></svg></span> Kategoriler</div>
       </div>
       <div class="nav-sec">
         <div class="nav-lbl">İstatistikler</div>
-        <div class="nav-item" onclick="showPage('stats')"><span class="ic">📈</span> İstatistikler</div>
+        <div class="nav-item" onclick="showPage('stats')"><span class="ic"><svg class=ic data-n=trend><use href=#i-trend></use></svg></span> İstatistikler</div>
       </div>
       <div class="nav-sec">
         <div class="nav-lbl">Sistem</div>
-        <div class="nav-item" onclick="showPage('calculator')"><span class="ic">🧮</span> Fiyat Hesaplayıcı</div>
-        <div class="nav-item" onclick="showPage('digital')"><span class="ic">💾</span> Dijital Dosyalar <span class="nav-badge" id="badgeDigital" style="display:none">0</span></div>
-        <div class="nav-item" onclick="showPage('media')"><span class="ic">🖼</span> Medya</div>
-        <div class="nav-item" onclick="showPage('sitemanage')"><span class="ic">🖥</span> Site Yönetimi</div>
-        <div class="nav-item" onclick="showPage('settings')"><span class="ic">⚙</span> Ayarlar</div>
-        <a class="nav-item" href="https://retropatch.vercel.app" target="_blank" style="text-decoration:none;"><span class="ic">🌐</span> Siteyi Gör</a>
+        <div class="nav-item" onclick="showPage('calculator')"><span class="ic"><svg class=ic data-n=calc><use href=#i-calc></use></svg></span> Fiyat Hesaplayıcı</div>
+        <div class="nav-item" onclick="showPage('digital')"><span class="ic"><svg class=ic data-n=save><use href=#i-save></use></svg></span> Dijital Dosyalar <span class="nav-badge" id="badgeDigital" style="display:none">0</span></div>
+        <div class="nav-item" onclick="showPage('media')"><span class="ic"><svg class=ic data-n=image><use href=#i-image></use></svg></span> Medya</div>
+        <div class="nav-item" onclick="showPage('sitemanage')"><span class="ic"><svg class=ic data-n=monitor><use href=#i-monitor></use></svg></span> Site Yönetimi</div>
+        <div class="nav-item" onclick="showPage('settings')"><span class="ic"><svg class=ic data-n=settings><use href=#i-settings></use></svg></span> Ayarlar</div>
+        <a class="nav-item" href="https://retropatch.vercel.app" target="_blank" style="text-decoration:none;"><span class="ic"><svg class=ic data-n=globe><use href=#i-globe></use></svg></span> Siteyi Gör</a>
       </div>
     </nav>
     <div class="sidebar-bottom">
@@ -371,19 +406,19 @@
         <div>
           <div class="section-hdr">
             <div class="section-ttl">SON SİPARİŞLER</div>
-            <button class="btn btn-outline btn-sm" onclick="showPage('orders')">Tümü →</button>
+            <button class="btn btn-outline btn-sm" onclick="showPage('orders')">Tümü <svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></button>
           </div>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Müşteri</th><th>Ürün</th><th>Tutar</th><th>Durum</th></tr></thead>
-              <tbody id="recentOrdTbody"><tr><td colspan="4" class="empty"><div class="empty-icon">🛒</div><div class="empty-text">Sipariş yok</div></td></tr></tbody>
+              <tbody id="recentOrdTbody"><tr><td colspan="4" class="empty"><div class="empty-icon"><svg class=ic data-n=cart><use href=#i-cart></use></svg></div><div class="empty-text">Sipariş yok</div></td></tr></tbody>
             </table>
           </div>
         </div>
         <div>
           <div class="section-hdr"><div class="section-ttl">AKTİVİTE</div></div>
           <div class="act-list" id="actFeed">
-            <div class="act-item"><div class="act-icon">🚀</div><div class="act-text"><div class="at">Panel başlatıldı</div><div class="act-time">Şimdi</div></div></div>
+            <div class="act-item"><div class="act-icon"><svg class=ic data-n=rocket><use href=#i-rocket></use></svg></div><div class="act-text"><div class="at">Panel başlatıldı</div><div class="act-time">Şimdi</div></div></div>
           </div>
         </div>
       </div>
@@ -405,11 +440,11 @@
       <div style="display:flex;gap:4px;margin-bottom:16px;">
         <button class="ord-tab active" data-src="cart" onclick="switchOrderTab('cart',this)"
           style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:9px 20px;border:1px solid var(--accent);background:rgba(200,169,110,.1);color:var(--accent);cursor:pointer;">
-          🛒 SEPET SİPARİŞLERİ <span id="cartOrderCount" style="margin-left:6px;background:var(--accent);color:#000;padding:1px 7px;font-size:10px;border-radius:2px;">0</span>
+          <svg class=ic data-n=cart><use href=#i-cart></use></svg> SEPET SİPARİŞLERİ <span id="cartOrderCount" style="margin-left:6px;background:var(--accent);color:#000;padding:1px 7px;font-size:10px;border-radius:2px;">0</span>
         </button>
         <button class="ord-tab" data-src="form" onclick="switchOrderTab('form',this)"
           style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:9px 20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;">
-          📋 ÖZEL SİPARİŞLER <span id="formOrderCount" style="margin-left:6px;background:var(--border);color:var(--text);padding:1px 7px;font-size:10px;border-radius:2px;">0</span>
+          <svg class=ic data-n=clipboard><use href=#i-clipboard></use></svg> ÖZEL SİPARİŞLER <span id="formOrderCount" style="margin-left:6px;background:var(--border);color:var(--text);padding:1px 7px;font-size:10px;border-radius:2px;">0</span>
         </button>
       </div>
       <!-- SEPET SİPARİŞ TABLOSU -->
@@ -451,17 +486,17 @@
         <div class="section-ttl">ÜRÜNLER <span id="prodPageCount" style="font-size:16px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;"></span></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm" onclick="toggleProdView('grid')" id="viewGrid" title="Grid görünüm">⊞ Grid</button>
-          <button class="btn btn-outline btn-sm" onclick="toggleProdView('table')" id="viewTable" title="Tablo görünüm">☰ Tablo</button>
-          <button class="btn btn-outline btn-sm" onclick="openBulkPriceModal()">💰 Toplu Fiyat</button>
-          <button class="btn btn-outline btn-sm" onclick="openBulkStatusModal()">🔄 Toplu Durum</button>
-          <button class="btn btn-outline btn-sm" onclick="openBulkAddModal()">📋 Toplu Ekle</button>
+          <button class="btn btn-outline btn-sm" onclick="toggleProdView('table')" id="viewTable" title="Tablo görünüm"><svg class=ic data-n=menu><use href=#i-menu></use></svg> Tablo</button>
+          <button class="btn btn-outline btn-sm" onclick="openBulkPriceModal()"><svg class=ic data-n=money><use href=#i-money></use></svg> Toplu Fiyat</button>
+          <button class="btn btn-outline btn-sm" onclick="openBulkStatusModal()"><svg class=ic data-n=refresh><use href=#i-refresh></use></svg> Toplu Durum</button>
+          <button class="btn btn-outline btn-sm" onclick="openBulkAddModal()"><svg class=ic data-n=clipboard><use href=#i-clipboard></use></svg> Toplu Ekle</button>
           <button class="btn btn-accent" onclick="openProdModal()">+ YENİ ÜRÜN</button>
         </div>
       </div>
 
       <!-- FİLTRE + ARAMA -->
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
-        <input type="text" id="prodSearch" placeholder="🔍 Ürün ara..." oninput="applyProdFilters()"
+        <input type="text" id="prodSearch" placeholder=" Ürün ara..." oninput="applyProdFilters()"
           style="flex:1;min-width:160px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
         <select id="prodCatFilter" onchange="applyProdFilters()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
           <option value="all">Tüm Kategoriler</option>
@@ -475,8 +510,8 @@
         <select id="prodSort" onchange="applyProdFilters()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
           <option value="newest">En Yeni</option>
           <option value="oldest">En Eski</option>
-          <option value="price_asc">Fiyat ↑</option>
-          <option value="price_desc">Fiyat ↓</option>
+          <option value="price_asc">Fiyat </option>
+          <option value="price_desc">Fiyat </option>
           <option value="name">A-Z</option>
           <option value="sales">En Çok Satan</option>
         </select>
@@ -488,8 +523,8 @@
           <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" style="accent-color:var(--accent);width:14px;height:14px;"> TÜMÜNÜ SEÇ
         </label>
         <span id="selectedInfo" style="font-size:12px;color:var(--muted2);flex:1;"></span>
-        <button class="btn btn-danger btn-sm" onclick="bulkDeleteSelected()">🗑 Seçilenleri Sil</button>
-        <button class="btn btn-outline btn-sm" onclick="clearSelection()">✕ Temizle</button>
+        <button class="btn btn-danger btn-sm" onclick="bulkDeleteSelected()"><svg class=ic data-n=trash><use href=#i-trash></use></svg> Seçilenleri Sil</button>
+        <button class="btn btn-outline btn-sm" onclick="clearSelection()"><svg class=ic data-n=close><use href=#i-close></use></svg> Temizle</button>
       </div>
 
       <!-- GRID GÖRÜNÜM -->
@@ -501,7 +536,7 @@
           <table>
             <thead><tr>
               <th style="width:32px;"><input type="checkbox" id="selectAllTable" onchange="toggleSelectAll(this)" style="accent-color:var(--accent);"></th>
-              <th>Görsel</th><th>Ürün Adı</th><th>Kategori</th><th>Fiyat</th><th>Durum</th><th>Boyut</th><th>🔥 Satış</th><th>İşlem</th>
+              <th>Görsel</th><th>Ürün Adı</th><th>Kategori</th><th>Fiyat</th><th>Durum</th><th>Boyut</th><th><svg class=ic data-n=fire><use href=#i-fire></use></svg> Satış</th><th>İşlem</th>
             </tr></thead>
             <tbody id="prodTbody"></tbody>
           </table>
@@ -512,7 +547,7 @@
     <!-- TOPLU FİYAT MODAL -->
     <div class="modal-ov" id="bulkPriceModal">
       <div class="modal-box" style="max-width:500px;">
-        <div class="modal-hdr"><h3>💰 TOPLU FİYAT GÜNCELLEME</h3><button class="modal-x" onclick="closeModal('bulkPriceModal')">✕</button></div>
+        <div class="modal-hdr"><h3><svg class=ic data-n=money><use href=#i-money></use></svg> TOPLU FİYAT GÜNCELLEME</h3><button class="modal-x" onclick="closeModal('bulkPriceModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
           <div style="background:var(--bg3);border:1px solid var(--border);padding:12px 16px;margin-bottom:18px;font-size:12px;color:var(--muted2);">
             Seçilen kategorideki tüm ürünlere uygulanır. <strong style="color:var(--accent);">Geri alınamaz.</strong>
@@ -536,7 +571,7 @@
               style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;">
           </div>
           <div id="bpPreview" style="background:var(--bg3);border:1px solid rgba(200,169,110,.2);padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--accent);display:none;"></div>
-          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="applyBulkPrice()">💾 UYGULA</button>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="applyBulkPrice()"><svg class=ic data-n=save><use href=#i-save></use></svg> UYGULA</button>
         </div>
       </div>
     </div>
@@ -544,7 +579,7 @@
     <!-- TOPLU DURUM MODAL -->
     <div class="modal-ov" id="bulkStatusModal">
       <div class="modal-box" style="max-width:400px;">
-        <div class="modal-hdr"><h3>🔄 TOPLU DURUM GÜNCELLEME</h3><button class="modal-x" onclick="closeModal('bulkStatusModal')">✕</button></div>
+        <div class="modal-hdr"><h3><svg class=ic data-n=refresh><use href=#i-refresh></use></svg> TOPLU DURUM GÜNCELLEME</h3><button class="modal-x" onclick="closeModal('bulkStatusModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
           <div class="fg"><label>Kategori (boş = tümü)</label>
             <select id="bsCat" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;">
@@ -556,7 +591,7 @@
               <option>Stokta</option><option>Son 3</option><option>Tükendi</option>
             </select>
           </div>
-          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="applyBulkStatus()">✓ UYGULA</button>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="applyBulkStatus()"><svg class=ic data-n=check><use href=#i-check></use></svg> UYGULA</button>
         </div>
       </div>
     </div>
@@ -564,7 +599,7 @@
     <!-- TOPLU EKLEME MODAL -->
     <div class="modal-ov" id="bulkAddModal">
       <div class="modal-box" style="max-width:700px;">
-        <div class="modal-hdr"><h3>📋 TOPLU ÜRÜN EKLE</h3><button class="modal-x" onclick="closeModal('bulkAddModal')">✕</button></div>
+        <div class="modal-hdr"><h3><svg class=ic data-n=clipboard><use href=#i-clipboard></use></svg> TOPLU ÜRÜN EKLE</h3><button class="modal-x" onclick="closeModal('bulkAddModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
           <div style="background:var(--bg3);border:1px solid var(--border);padding:12px 18px;margin-bottom:18px;font-size:12px;color:var(--muted2);line-height:1.8;">
             Her satır 1 ürün. Sütunlar <code style="color:var(--accent);">|</code> ile ayrılır.<br>
@@ -589,8 +624,8 @@
           </div>
           <div id="bulkAddPreview" style="display:none;background:var(--bg3);border:1px solid rgba(200,169,110,.2);padding:12px 16px;margin-bottom:16px;max-height:160px;overflow-y:auto;font-size:12px;"></div>
           <div style="display:flex;gap:8px;">
-            <button class="btn btn-outline" style="flex:1;justify-content:center;padding:12px;" onclick="previewBulkAdd()">👁 Önizle</button>
-            <button class="btn btn-accent" style="flex:2;padding:14px;font-size:17px;justify-content:center;" onclick="applyBulkAdd()" id="bulkAddBtn">💾 TOPLU EKLE</button>
+            <button class="btn btn-outline" style="flex:1;justify-content:center;padding:12px;" onclick="previewBulkAdd()"><svg class=ic data-n=eye><use href=#i-eye></use></svg> Önizle</button>
+            <button class="btn btn-accent" style="flex:2;padding:14px;font-size:17px;justify-content:center;" onclick="applyBulkAdd()" id="bulkAddBtn"><svg class=ic data-n=save><use href=#i-save></use></svg> TOPLU EKLE</button>
           </div>
         </div>
       </div>
@@ -599,7 +634,7 @@
     <!-- HIZLI DÜZENLE MODAL -->
     <div class="modal-ov" id="quickEditModal">
       <div class="modal-box" style="max-width:660px;">
-        <div class="modal-hdr"><h3 id="quickEditTitle">⚡ HIZLI DÜZENLE</h3><button class="modal-x" onclick="closeModal('quickEditModal')">✕</button></div>
+        <div class="modal-hdr"><h3 id="quickEditTitle"><svg class=ic data-n=bolt><use href=#i-bolt></use></svg> HIZLI DÜZENLE</h3><button class="modal-x" onclick="closeModal('quickEditModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
           <input type="hidden" id="qeId">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -624,13 +659,13 @@
               <div class="fg"><label>Görsel URL</label><input type="text" id="qeImage" oninput="qePreviewImg(this.value)"></div>
               <div id="qeImgPreview" style="margin-top:6px;display:none;"><img id="qeImgPreviewImg" style="width:100%;max-height:120px;object-fit:cover;border:1px solid var(--border);"></div>
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;">
-                <div class="fg" style="margin:0;"><label style="font-size:9px;">🔥 Satış</label><input type="number" id="qeSales" min="0" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:13px;outline:none;"></div>
-                <div class="fg" style="margin:0;"><label style="font-size:9px;">❤️ Favori</label><input type="number" id="qeFavs" min="0" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:13px;outline:none;"></div>
-                <div class="fg" style="margin:0;"><label style="font-size:9px;">⭐ Yorum</label><input type="number" id="qeReviews" min="0" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:13px;outline:none;"></div>
+                <div class="fg" style="margin:0;"><label style="font-size:9px;"><svg class=ic data-n=fire><use href=#i-fire></use></svg> Satış</label><input type="number" id="qeSales" min="0" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:13px;outline:none;"></div>
+                <div class="fg" style="margin:0;"><label style="font-size:9px;"><svg class=ic data-n=heart><use href=#i-heart></use></svg> Favori</label><input type="number" id="qeFavs" min="0" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:13px;outline:none;"></div>
+                <div class="fg" style="margin:0;"><label style="font-size:9px;"><svg class=ic data-n=star><use href=#i-star></use></svg> Yorum</label><input type="number" id="qeReviews" min="0" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:13px;outline:none;"></div>
               </div>
             </div>
           </div>
-          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;margin-top:12px;" onclick="saveQuickEdit()">💾 KAYDET</button>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;margin-top:12px;" onclick="saveQuickEdit()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
       </div>
     </div>
@@ -644,7 +679,7 @@
 
       <!-- Kategori kartları grid -->
       <div id="catAdminGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2px;margin-bottom:32px;">
-        <div class="empty"><div class="empty-icon">🗂</div><div class="empty-text">Yükleniyor...</div></div>
+        <div class="empty"><div class="empty-icon"><svg class=ic data-n=folder><use href=#i-folder></use></svg></div><div class="empty-text">Yükleniyor...</div></div>
       </div>
     </div>
 
@@ -653,7 +688,7 @@
       <div class="modal-box" style="max-width:480px;">
         <div class="modal-hdr">
           <h3 id="catModalTitle">YENİ KATEGORİ</h3>
-          <button class="modal-x" onclick="closeCatModal()">✕</button>
+          <button class="modal-x" onclick="closeCatModal()"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="catEditId">
@@ -661,7 +696,7 @@
           <!-- Resim önizleme -->
           <div id="catImgPreviewWrap" style="display:none;margin-bottom:14px;position:relative;">
             <img id="catImgPreview" src="" alt="" style="width:100%;max-height:200px;object-fit:cover;border:1px solid var(--border);display:block;">
-            <button onclick="clearCatImg()" style="position:absolute;top:6px;right:6px;background:rgba(230,57,70,.8);border:none;color:#fff;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;">✕</button>
+            <button onclick="clearCatImg()" style="position:absolute;top:6px;right:6px;background:rgba(230,57,70,.8);border:none;color:#fff;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
           </div>
 
           <div class="fg">
@@ -696,7 +731,7 @@
             <div style="display:flex;gap:8px;">
               <input type="text" id="catImage" placeholder="https://..." oninput="catImgPreview(this.value)" style="flex:1;">
               <label style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);padding:0 14px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;color:var(--accent);white-space:nowrap;margin:0;">
-                📁 Yükle
+                <svg class=ic data-n=folder><use href=#i-folder></use></svg> Yükle
                 <input type="file" accept="image/*" style="display:none;" onchange="catUploadFile(this)">
               </label>
             </div>
@@ -723,15 +758,15 @@
   <div class="section-hdr">
     <div class="section-ttl">FİYAT HESAPLAYICI</div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <a class="btn btn-outline btn-sm" href="https://retropatch.vercel.app/#hesaplayici" target="_blank" style="text-decoration:none;">🌐 Ana Sayfadaki Hesaplayıcıyı Gör</a>
-      <button class="btn btn-accent" onclick="saveCalcConfig()">💾 KAYDET</button>
+      <a class="btn btn-outline btn-sm" href="https://retropatch.vercel.app/#hesaplayici" target="_blank" style="text-decoration:none;"><svg class=ic data-n=globe><use href=#i-globe></use></svg> Ana Sayfadaki Hesaplayıcıyı Gör</a>
+      <button class="btn btn-accent" onclick="saveCalcConfig()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
     </div>
   </div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:16px;">
     <!-- SOL: GENEL AYARLAR -->
     <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;">
-      <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:20px;">⚙ GENEL AYARLAR</div>
+      <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:20px;"><svg class=ic data-n=settings><use href=#i-settings></use></svg> GENEL AYARLAR</div>
 
       <div class="fg">
         <label>Her Ek Renk İçin Ek Ücret (₺)</label>
@@ -757,7 +792,7 @@
 
     <!-- SAĞ: TOPLU İNDİRİM KADEMELERİ -->
     <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;">
-      <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;">🎁 TOPLU İNDİRİM KADEMELERİ</div>
+      <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;"><svg class=ic data-n=gift><use href=#i-gift></use></svg> TOPLU İNDİRİM KADEMELERİ</div>
       <div style="font-size:12px;color:var(--muted2);margin-bottom:16px;">Belirli adetten sonra uygulanacak indirim yüzdeleri</div>
 
       <div id="discountTiers" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
@@ -772,7 +807,7 @@
   <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:2px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <div>
-        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);">🏷 ÜRÜN TİPLERİ & FİYATLAR</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);"><svg class=ic data-n=tag><use href=#i-tag></use></svg> ÜRÜN TİPLERİ & FİYATLAR</div>
         <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Her ürün için boyut başına temel fiyat belirleyin</div>
       </div>
       <button class="btn btn-outline btn-sm" onclick="addProductRow()">+ Ürün Ekle</button>
@@ -801,7 +836,7 @@
   <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:2px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <div>
-        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);">⬜ ARKA YÜZEY TİPLERİ</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);"><svg class=ic data-n=square><use href=#i-square></use></svg> ARKA YÜZEY TİPLERİ</div>
         <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Her arka yüzey tipi için ek ücret</div>
       </div>
       <button class="btn btn-outline btn-sm" onclick="addBackRow()">+ Tip Ekle</button>
@@ -815,7 +850,7 @@
   <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:2px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <div>
-        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);">🎨 TASARIM TİPLERİ</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);"><svg class=ic data-n=palette><use href=#i-palette></use></svg> TASARIM TİPLERİ</div>
         <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Tasarım seçenekleri ve ek ücretleri</div>
       </div>
       <button class="btn btn-outline btn-sm" onclick="addDesignRow()">+ Tip Ekle</button>
@@ -829,7 +864,7 @@
   <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:2px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <div>
-        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);">📏 BOYUT TANIMLAMALARI</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);"><svg class=ic data-n=ruler><use href=#i-ruler></use></svg> BOYUT TANIMLAMALARI</div>
         <div style="font-size:12px;color:var(--muted2);margin-top:4px;">Boyut isim ve açıklamalarını özelleştirin</div>
       </div>
     </div>
@@ -840,7 +875,7 @@
 
   <!-- ÖNIZLEME -->
   <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:32px;">
-    <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:16px;">👁 HESAPLAYICI ÖNİZLEME</div>
+    <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:16px;"><svg class=ic data-n=eye><use href=#i-eye></use></svg> HESAPLAYICI ÖNİZLEME</div>
     <div style="font-size:12px;color:var(--muted2);margin-bottom:20px;">Şu anki ayarlarla örnek fiyat hesapla</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:16px;" id="previewSelectors">
       <div class="fg" style="margin:0;">
@@ -895,7 +930,7 @@
       <div class="section-hdr">
         <div class="section-ttl">DİJİTAL NAKIŞ DOSYALARI</div>
         <div style="display:flex;gap:8px;">
-          <a class="btn btn-outline btn-sm" href="https://retropatch.vercel.app/dijital-dosyalar.html" target="_blank" style="text-decoration:none;">🌐 Sayfayı Gör</a>
+          <a class="btn btn-outline btn-sm" href="https://retropatch.vercel.app/dijital-dosyalar.html" target="_blank" style="text-decoration:none;"><svg class=ic data-n=globe><use href=#i-globe></use></svg> Sayfayı Gör</a>
           <button class="btn btn-accent" onclick="openDigModal()">＋ YENİ DOSYA</button>
         </div>
       </div>
@@ -925,7 +960,7 @@
         </select></div>
         <div id="dgBulkBar" style="display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;margin-bottom:8px;border:1px solid rgba(230,57,70,.3);background:rgba(230,57,70,.06);font-size:13px;">
           <span id="dgBulkTxt"></span>
-          <button class="btn btn-danger btn-sm" onclick="clearCancelledDg()">🗑 İPTAL EDİLENLERİN HEPSİNİ SİL</button>
+          <button class="btn btn-danger btn-sm" onclick="clearCancelledDg()"><svg class=ic data-n=trash><use href=#i-trash></use></svg> İPTAL EDİLENLERİN HEPSİNİ SİL</button>
         </div>
         <div class="tbl-wrap"><table>
           <thead><tr><th>Kod</th><th>Müşteri</th><th>Dosyalar</th><th>Tutar</th><th>Tarih</th><th>Durum</th><th style="width:200px">İşlem</th></tr></thead>
@@ -937,7 +972,7 @@
     <!-- DİJİTAL DOSYA MODAL -->
     <div class="modal-ov" id="dgModal">
       <div class="modal-box" style="max-width:640px;">
-        <div class="modal-hdr"><h3 id="dgModalTitle">YENİ DİJİTAL DOSYA</h3><button class="modal-x" onclick="closeModal('dgModal')">✕</button></div>
+        <div class="modal-hdr"><h3 id="dgModalTitle">YENİ DİJİTAL DOSYA</h3><button class="modal-x" onclick="closeModal('dgModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
           <input type="hidden" id="dgId">
           <div class="fg"><label>Dosya Adı *</label><input type="text" id="dgTitle" placeholder="Retro Kartal Nakış Deseni"></div>
@@ -971,12 +1006,12 @@
             <img id="dgImgPrev" style="display:none;max-width:140px;margin-top:8px;border:1px solid var(--border);">
           </div>
           <div class="fg" style="background:rgba(200,169,110,.05);border:1px solid rgba(200,169,110,.2);padding:14px;">
-            <label style="color:var(--accent);">🔒 Gizli İndirme Linki * (yalnızca satın alanlar görür)</label>
+            <label style="color:var(--accent);"><svg class=ic data-n=lock><use href=#i-lock></use></svg> Gizli İndirme Linki * (yalnızca satın alanlar görür)</label>
             <input type="text" id="dgUrl" placeholder="https://drive.google.com/… (ZIP: tüm formatlar)">
             <input type="text" id="dgNote" placeholder="Müşteriye not (ops.) — örn. ZIP içinde DST, PES, JEF var" style="margin-top:8px;">
             <div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.6;">Drive'da "Bağlantıya sahip olan herkes" ile paylaşın. Bu link herkese açık sayfada değil, güvenli bir kayıtta tutulur.</div>
           </div>
-          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveDigital()">💾 KAYDET</button>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveDigital()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
       </div>
     </div>
@@ -992,13 +1027,13 @@
       <div class="section-hdr">
         <div class="section-ttl">DUYURULAR</div>
         <div style="display:flex;gap:8px;">
-          <a class="btn btn-outline" href="index.html" target="_blank" style="text-decoration:none;">🌐 Siteyi Gör</a>
+          <a class="btn btn-outline" href="index.html" target="_blank" style="text-decoration:none;"><svg class=ic data-n=globe><use href=#i-globe></use></svg> Siteyi Gör</a>
           <button class="btn btn-accent" onclick="openAnnModal()">+ YENİ DUYURU</button>
         </div>
       </div>
       <!-- MARQUEE TEXT -->
       <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:24px;">
-        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;">📢 KAYAN ŞERİT (MARQUEE)</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;"><svg class=ic data-n=megaphone><use href=#i-megaphone></use></svg> KAYAN ŞERİT (MARQUEE)</div>
         <div style="font-size:12px;color:var(--muted2);margin-bottom:16px;">Anasayfadaki altın şeritte kayan yazılar. Maddeleri <b>•</b> (nokta) ile ayırın. Tarihli kampanyaları aşağıdan “Kayan şerit” yerleşimiyle duyuru olarak da ekleyebilirsiniz; ikisi birlikte şeritte kayar.</div>
         <div class="fg"><input type="text" id="marqueeText" placeholder="PROFESYONEL NAKIŞ • ÖZEL SİPARİŞ • HIZLI TESLİMAT" oninput="marqueePreview()"></div>
         <div class="fg-row">
@@ -1008,10 +1043,10 @@
             <select id="marqueeActive"><option value="1" selected>Görünsün</option><option value="0">Gizle</option></select></div>
         </div>
         <div class="mq-prev"><div class="in" id="mqPrevIn"></div></div>
-        <button class="btn btn-accent" style="margin-top:14px;" onclick="saveMarquee()">💾 Kaydet</button>
+        <button class="btn btn-accent" style="margin-top:14px;" onclick="saveMarquee()"><svg class=ic data-n=save><use href=#i-save></use></svg> Kaydet</button>
       </div>
 
-      <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin:8px 0 6px;">📣 DUYURU LİSTESİ</div>
+      <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin:8px 0 6px;"><svg class=ic data-n=megaphone><use href=#i-megaphone></use></svg> DUYURU LİSTESİ</div>
       <div style="font-size:12px;color:var(--muted2);margin-bottom:14px;line-height:1.7;">Üst çubuk tüm sayfaların en üstünde görünür. Birden fazla duyuru varsa sırayla döner. Açılır pencere ise anasayfada oturum başına bir kez gösterilir.</div>
       <div class="an-grid" id="annGrid"></div>
     </div>
@@ -1019,17 +1054,17 @@
     <!-- DUYURU MODAL -->
     <div class="modal-ov" id="annModal">
       <div class="modal-box" style="max-width:560px;">
-        <div class="modal-hdr"><h3 id="annModalTitle">YENİ DUYURU</h3><button class="modal-x" onclick="closeModal('annModal')">✕</button></div>
+        <div class="modal-hdr"><h3 id="annModalTitle">YENİ DUYURU</h3><button class="modal-x" onclick="closeModal('annModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
           <input type="hidden" id="anEditId">
           <div id="anPreview" class="an-pv" style="margin-bottom:16px;"></div>
           <div class="fg-row">
             <div class="fg"><label>Tür</label>
               <select id="anType" onchange="annPreviewUpdate()">
-                <option value="info">📢 Duyuru (altın)</option>
-                <option value="kampanya">🔥 Kampanya (kırmızı)</option>
-                <option value="yeni">✨ Yeni (yeşil)</option>
-                <option value="uyari">⚠️ Dikkat (turuncu)</option>
+                <option value="info">Duyuru (altın)</option>
+                <option value="kampanya">Kampanya (kırmızı)</option>
+                <option value="yeni">Yeni (yeşil)</option>
+                <option value="uyari">Dikkat (turuncu)</option>
               </select></div>
             <div class="fg"><label>Gösterim Yeri</label>
               <select id="anPlace">
@@ -1056,7 +1091,7 @@
           </div>
           <div class="fg"><label>Durum</label>
             <select id="anActive"><option value="1">Aktif</option><option value="0">Pasif (yayınlama)</option></select></div>
-          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveAnnouncement()">💾 KAYDET</button>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveAnnouncement()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
       </div>
     </div>
@@ -1067,24 +1102,24 @@
 
       <!-- FEATURED TAB DEFAULT -->
       <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:24px;">
-        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;">⭐ VARSAYILAN SEKME</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;"><svg class=ic data-n=star><use href=#i-star></use></svg> VARSAYILAN SEKME</div>
         <div style="font-size:12px;color:var(--muted2);margin-bottom:16px;">Anasayfada "Öne Çıkanlar" bölümünde hangi sekme varsayılan açılsın?</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-sm" id="tabBtnSales" onclick="setDefaultTab('sales')" style="background:rgba(200,169,110,0.1);border:1px solid var(--accent);color:var(--accent);">🔥 En Çok Satan</button>
-          <button class="btn btn-outline btn-sm" id="tabBtnFavorites" onclick="setDefaultTab('favorites')">❤️ En Çok Favorilenen</button>
-          <button class="btn btn-outline btn-sm" id="tabBtnReviews" onclick="setDefaultTab('reviews')">⭐ En Çok Yorum Alan</button>
-          <button class="btn btn-outline btn-sm" id="tabBtnNew" onclick="setDefaultTab('new')">🆕 Yeni Gelenler</button>
+          <button class="btn btn-sm" id="tabBtnSales" onclick="setDefaultTab('sales')" style="background:rgba(200,169,110,0.1);border:1px solid var(--accent);color:var(--accent);"><svg class=ic data-n=fire><use href=#i-fire></use></svg> En Çok Satan</button>
+          <button class="btn btn-outline btn-sm" id="tabBtnFavorites" onclick="setDefaultTab('favorites')"><svg class=ic data-n=heart><use href=#i-heart></use></svg> En Çok Favorilenen</button>
+          <button class="btn btn-outline btn-sm" id="tabBtnReviews" onclick="setDefaultTab('reviews')"><svg class=ic data-n=star><use href=#i-star></use></svg> En Çok Yorum Alan</button>
+          <button class="btn btn-outline btn-sm" id="tabBtnNew" onclick="setDefaultTab('new')"><svg class=ic data-n=new><use href=#i-new></use></svg> Yeni Gelenler</button>
         </div>
       </div>
 
       <!-- ILETISIM BİLGİLERİ -->
       <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:24px;">
-        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:16px;">📞 İLETİŞİM BİLGİLERİ</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:16px;"><svg class=ic data-n=phone><use href=#i-phone></use></svg> İLETİŞİM BİLGİLERİ</div>
         <div class="fg"><label>WhatsApp Numarası</label><input type="text" id="smWA" placeholder="+90 5XX XXX XX XX"></div>
         <div class="fg"><label>E-posta</label><input type="text" id="smEmail" placeholder="info@retropatch.com"></div>
         <div class="fg"><label>Instagram</label><input type="text" id="smIG" placeholder="@retropatch"></div>
         <div class="fg"><label>Dolap</label><input type="text" id="smDolap" placeholder="@retropatch"></div>
-        <button class="btn btn-accent" onclick="saveContact()">💾 Kaydet</button>
+        <button class="btn btn-accent" onclick="saveContact()"><svg class=ic data-n=save><use href=#i-save></use></svg> Kaydet</button>
       </div>
     </div>
 
@@ -1102,8 +1137,8 @@
       </div>
       <!-- Kargo sekmeleri -->
       <div style="display:flex;gap:8px;margin-bottom:16px;">
-        <button class="period-btn active" id="cargoTabShip" onclick="cargoTab('ship')">📦 GÖNDERİLER</button>
-        <button class="period-btn" id="cargoTabCo" onclick="cargoTab('co')">🚚 FİRMALAR & FİYATLAR</button>
+        <button class="period-btn active" id="cargoTabShip" onclick="cargoTab('ship')"><svg class=ic data-n=box><use href=#i-box></use></svg> GÖNDERİLER</button>
+        <button class="period-btn" id="cargoTabCo" onclick="cargoTab('co')"><svg class=ic data-n=truck><use href=#i-truck></use></svg> FİRMALAR & FİYATLAR</button>
       </div>
       <div id="cargoPaneShip">
       <div class="tbl-wrap">
@@ -1116,7 +1151,7 @@
 
       <div id="cargoPaneCo" style="display:none;">
         <div style="background:var(--bg2);border:1px solid var(--border);padding:24px;margin-bottom:2px;">
-          <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:4px;">🚚 KARGO FİRMALARI & FİYATLARI</div>
+          <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:4px;"><svg class=ic data-n=truck><use href=#i-truck></use></svg> KARGO FİRMALARI & FİYATLARI</div>
           <div style="font-size:12px;color:var(--muted2);margin-bottom:16px;line-height:1.7;">Firmaları elle ekleyin. Müşteri sepette <b>aktif</b> firmalardan birini seçer.
             Takip bağlantısına <b>{kod}</b> yazarsanız takip numarası otomatik eklenir (örn. <span style="color:var(--muted);">https://firma.com/takip?no={kod}</span>).</div>
           <div class="tbl-wrap"><table>
@@ -1130,7 +1165,7 @@
             <div class="fg"><label>Ücretsiz Kargo Alt Limiti (₺) <span style="color:var(--muted);font-size:10px;">(0 = kapalı)</span></label><input type="number" id="cargoLimit" min="0" placeholder="500"></div>
             <div class="fg"><label>Tahmini Teslimat (sepette görünür)</label><input type="text" id="cargoSure" placeholder="2-4 iş günü"></div>
           </div>
-          <button class="btn btn-accent" style="margin-top:6px;" onclick="saveCargoSettings()">💾 KAYDET</button>
+          <button class="btn btn-accent" style="margin-top:6px;" onclick="saveCargoSettings()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
       </div>
     </div>
@@ -1138,7 +1173,7 @@
     <!-- KARGO GÜNCELLE MODAL -->
     <div class="modal-ov" id="cargoModal">
       <div class="modal-box" style="max-width:500px;">
-        <div class="modal-hdr"><h3>KARGO GÜNCELLE</h3><button class="modal-x" onclick="closeModal('cargoModal')">✕</button></div>
+        <div class="modal-hdr"><h3>KARGO GÜNCELLE</h3><button class="modal-x" onclick="closeModal('cargoModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
           <input type="hidden" id="cargoOrderId">
           <div class="fg"><label>Kargo Firması *</label>
@@ -1154,7 +1189,7 @@
               <option>Teslim Edildi</option>
             </select>
           </div>
-          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveCargo()">💾 KAYDET</button>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveCargo()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
       </div>
     </div>
@@ -1182,7 +1217,7 @@
             <option value="1">★☆☆☆☆</option>
           </select>
           <button class="btn btn-danger btn-sm" onclick="confirmResetAllReviews()" title="Tüm yorumları sil" style="display:flex;align-items:center;gap:6px;">
-            🗑 Ürün Yorumlarını Sıfırla
+            <svg class=ic data-n=trash><use href=#i-trash></use></svg> Ürün Yorumlarını Sıfırla
           </button>
         </div>
       </div>
@@ -1216,7 +1251,7 @@
             <div style="font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;" id="memberAddrName"></div>
             <div style="font-size:11px;color:var(--muted2);margin-top:2px;">KAYITLI ADRESLER</div>
           </div>
-          <button onclick="closeMemberAddresses()" style="background:none;border:1px solid var(--border);color:var(--muted2);width:30px;height:30px;cursor:pointer;font-size:14px;transition:all .2s;" onmouseover="this.style.borderColor='#e63946';this.style.color='#e63946'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'">✕</button>
+          <button onclick="closeMemberAddresses()" style="background:none;border:1px solid var(--border);color:var(--muted2);width:30px;height:30px;cursor:pointer;font-size:14px;transition:all .2s;" onmouseover="this.style.borderColor='#e63946';this.style.color='#e63946'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
         </div>
         <div id="memberAddrList" style="padding:16px 24px;"></div>
       </div>
@@ -1244,7 +1279,7 @@
             <option value="depleted">Tükenen</option>
             <option value="expired">Süresi Dolan</option>
           </select>
-          <button class="btn btn-outline" onclick="syncCouponUsage()" title="Kullanım sayılarını siparişlerden yeniden hesapla">↻ Kullanımı Senkronla</button>
+          <button class="btn btn-outline" onclick="syncCouponUsage()" title="Kullanım sayılarını siparişlerden yeniden hesapla"><svg class=ic data-n=refresh><use href=#i-refresh></use></svg> Kullanımı Senkronla</button>
           <button class="btn btn-accent" onclick="openCouponModal()">+ YENİ KUPON</button>
         </div>
       </div>
@@ -1254,7 +1289,7 @@
     <!-- KUPON MODAL -->
     <div class="modal-ov" id="couponModal">
       <div class="modal-box" style="max-width:520px;">
-        <div class="modal-hdr"><h3 id="couponModalTitle">YENİ KUPON</h3><button class="modal-x" onclick="closeModal('couponModal')">✕</button></div>
+        <div class="modal-hdr"><h3 id="couponModalTitle">YENİ KUPON</h3><button class="modal-x" onclick="closeModal('couponModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
           <input type="hidden" id="cpEditId">
           <div class="cp-prev"><div class="l" id="cpPrevVal">%20</div><div class="r"><div style="font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:3px;" id="cpPrevCode">RETRO20</div><div style="font-size:12px;color:var(--muted);" id="cpPrevDesc">Kupon önizlemesi</div></div></div>
@@ -1271,7 +1306,7 @@
             <label>Kupon Kodu *</label>
             <div style="display:flex;gap:8px;">
               <input type="text" id="cpCode" placeholder="RETRO20" oninput="cpPreviewUpdate()" style="text-transform:uppercase;flex:1;">
-              <button class="btn btn-outline" onclick="generateCouponCode()" style="white-space:nowrap;padding:8px 12px;">🎲 Üret</button>
+              <button class="btn btn-outline" onclick="generateCouponCode()" style="white-space:nowrap;padding:8px 12px;"><svg class=ic data-n=dice><use href=#i-dice></use></svg> Üret</button>
             </div>
           </div>
           <div class="fg-row">
@@ -1303,7 +1338,7 @@
             </select>
           </div>
           <div class="fg"><label>Açıklama (müşteri görür)</label><input type="text" id="cpDesc" placeholder="Yeni üye indirimi, 500₺ üzeri alışverişte…" oninput="cpPreviewUpdate()"></div>
-          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveCoupon()">💾 KAYDET</button>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveCoupon()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
       </div>
     </div>
@@ -1311,7 +1346,7 @@
     <!-- KUPON KULLANIM GEÇMİŞİ MODAL -->
     <div class="modal-ov" id="couponHistoryModal">
       <div class="modal-box" style="max-width:540px;">
-        <div class="modal-hdr"><h3 id="historyModalTitle">KULLANIM GEÇMİŞİ</h3><button class="modal-x" onclick="closeModal('couponHistoryModal')">✕</button></div>
+        <div class="modal-hdr"><h3 id="historyModalTitle">KULLANIM GEÇMİŞİ</h3><button class="modal-x" onclick="closeModal('couponHistoryModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
           <div class="tbl-wrap" style="margin-bottom:0;">
             <table>
@@ -1330,13 +1365,13 @@
     <div class="page" id="page-media">
       <div class="section-hdr"><div class="section-ttl">MEDYA</div></div>
       <div style="display:flex;gap:8px;margin-bottom:16px;">
-        <button class="period-btn active" id="mediaTabSlides" onclick="mediaTab('slides')">🖼 ANASAYFA SLAYTLARI</button>
-        <button class="period-btn" id="mediaTabGallery" onclick="mediaTab('gallery')">📷 GALERİ</button>
+        <button class="period-btn active" id="mediaTabSlides" onclick="mediaTab('slides')"><svg class=ic data-n=image><use href=#i-image></use></svg> ANASAYFA SLAYTLARI</button>
+        <button class="period-btn" id="mediaTabGallery" onclick="mediaTab('gallery')"><svg class=ic data-n=camera><use href=#i-camera></use></svg> GALERİ</button>
       </div>
       <div id="mediaPaneSlides">
       <!-- SLIDER -->
       <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:24px;">
-        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;">🖼 ANASAYFA SLAYT YÖNETİMİ</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;"><svg class=ic data-n=image><use href=#i-image></use></svg> ANASAYFA SLAYT YÖNETİMİ</div>
         <div style="font-size:12px;color:var(--muted2);margin-bottom:20px;">Slaytları ekle, sil veya sırasını değiştir.</div>
 
         <!-- Mevcut slaytlar -->
@@ -1350,7 +1385,7 @@
             <div style="display:flex;gap:8px;align-items:center;">
               <input type="text" id="slideImg" placeholder="URL otomatik dolacak..." style="flex:1;">
               <label style="background:var(--accent);color:#000;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;white-space:nowrap;flex-shrink:0;">
-                📁 PC'den Seç
+                <svg class=ic data-n=folder><use href=#i-folder></use></svg> PC'den Seç
                 <input type="file" accept="image/*" onchange="slideUploadFile(this)" style="display:none;">
               </label>
             </div>
@@ -1369,7 +1404,7 @@
             <div class="fg" style="margin:0;"><label>2. Buton Linki</label><input type="text" id="slideBtn2Link" placeholder="ör: #siparis"></div>
           </div>
           <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn btn-accent" onclick="addSlide()">💾 Slayt Ekle</button>
+            <button class="btn btn-accent" onclick="addSlide()"><svg class=ic data-n=save><use href=#i-save></use></svg> Slayt Ekle</button>
             <button class="btn btn-outline" onclick="clearSlideForm()">Temizle</button>
           </div>
         </div>
@@ -1384,7 +1419,7 @@
       </div>
 
       <div style="background:var(--bg3);border:1px solid var(--border);padding:16px 20px;margin-bottom:20px;font-size:13px;color:var(--muted2);display:flex;align-items:center;gap:10px;">
-        <span style="font-size:18px;">💡</span>
+        <span style="font-size:18px;"><svg class=ic data-n=bulb><use href=#i-bulb></use></svg></span>
         <span>Fotoğraflar <strong style="color:var(--accent);">index.html</strong>'de "Galeri" bölümünde görünür. Sürükle-bırak ile sırayı değiştirebilirsin.</span>
       </div>
 
@@ -1400,7 +1435,7 @@
       <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
           <div style="font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--accent);" id="galleryModalTitle">FOTOĞRAF EKLE</div>
-          <button onclick="closeGalleryModal()" style="background:none;border:none;color:var(--muted2);font-size:20px;cursor:pointer;">✕</button>
+          <button onclick="closeGalleryModal()" style="background:none;border:none;color:var(--muted2);font-size:20px;cursor:pointer;"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
         </div>
 
         <input type="hidden" id="gEditId">
@@ -1412,7 +1447,7 @@
               oninput="gPreview(this.value)"
               style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 12px;font-size:13px;font-family:'Barlow',sans-serif;outline:none;">
             <label style="background:var(--bg3);border:1px solid var(--border);padding:10px 14px;cursor:pointer;font-size:12px;color:var(--accent);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;white-space:nowrap;display:flex;align-items:center;gap:6px;">
-              📤 Yükle
+              <svg class=ic data-n=upload><use href=#i-upload></use></svg> Yükle
               <input type="file" accept="image/*" onchange="gUploadFile(this)" style="display:none;">
             </label>
           </div>
@@ -1446,8 +1481,8 @@
     <div class="page" id="page-stats">
       <!-- İstatistik sekmeleri -->
       <div style="display:flex;gap:8px;margin-bottom:16px;">
-        <button class="period-btn active" id="statsTabSales" onclick="statsTab('sales')">📈 SATIŞ & SİPARİŞ</button>
-        <button class="period-btn" id="statsTabProducts" onclick="statsTab('products')">🏷 ÜRÜN & KATALOG</button>
+        <button class="period-btn active" id="statsTabSales" onclick="statsTab('sales')"><svg class=ic data-n=trend><use href=#i-trend></use></svg> SATIŞ & SİPARİŞ</button>
+        <button class="period-btn" id="statsTabProducts" onclick="statsTab('products')"><svg class=ic data-n=tag><use href=#i-tag></use></svg> ÜRÜN & KATALOG</button>
       </div>
       <div id="statsPaneSales">
       <!-- Dönem Seçici -->
@@ -1535,18 +1570,18 @@
         <div id="statsCatKpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:2px;margin-bottom:16px;"></div>
 
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
-          <input type="text" id="statsProdSearch" placeholder="🔍 Ürün veya kategori ara…" oninput="renderStats()" style="flex:1;min-width:180px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
+          <input type="text" id="statsProdSearch" placeholder=" Ürün veya kategori ara…" oninput="renderStats()" style="flex:1;min-width:180px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
           <select id="statsProdSort" onchange="renderStats()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;outline:none;">
             <option value="sales">Satışa göre</option><option value="favorites">Favoriye göre</option>
             <option value="reviews">Yoruma göre</option><option value="views">Görüntülenmeye göre</option><option value="name">İsme göre (A-Z)</option>
           </select>
-          <button class="btn btn-outline btn-sm" onclick="recalcSalesFromOrders()" title="Satış sayısını siparişlerden yeniden hesapla">↻ Satışı Siparişlerden Hesapla</button>
-          <button class="btn btn-outline btn-sm" onclick="initMissingStats()" title="Eksik alanlara 0 yaz">🔧 Eksik Alanları Düzelt</button>
+          <button class="btn btn-outline btn-sm" onclick="recalcSalesFromOrders()" title="Satış sayısını siparişlerden yeniden hesapla"><svg class=ic data-n=refresh><use href=#i-refresh></use></svg> Satışı Siparişlerden Hesapla</button>
+          <button class="btn btn-outline btn-sm" onclick="initMissingStats()" title="Eksik alanlara 0 yaz"><svg class=ic data-n=wrench><use href=#i-wrench></use></svg> Eksik Alanları Düzelt</button>
         </div>
         <div style="font-size:12px;color:var(--muted2);margin-bottom:12px;">Satış, favori ve yorum sayılarını düzenleyebilirsiniz (anasayfada “Öne Çıkanlar” sıralamasını etkiler). Görüntülenme otomatik sayılır.</div>
 
         <div class="tbl-wrap"><table>
-          <thead><tr><th>Ürün</th><th>Kategori</th><th>Stok</th><th>🔥 Satış</th><th>❤️ Favori</th><th>⭐ Yorum</th><th>👁 Görüntülenme</th><th>İşlem</th></tr></thead>
+          <thead><tr><th>Ürün</th><th>Kategori</th><th>Stok</th><th><svg class=ic data-n=fire><use href=#i-fire></use></svg> Satış</th><th><svg class=ic data-n=heart><use href=#i-heart></use></svg> Favori</th><th><svg class=ic data-n=star><use href=#i-star></use></svg> Yorum</th><th><svg class=ic data-n=eye><use href=#i-eye></use></svg> Görüntülenme</th><th>İşlem</th></tr></thead>
           <tbody id="statsTbody"></tbody>
         </table></div>
 
@@ -1565,57 +1600,57 @@
       <div class="section-hdr"><div class="section-ttl">AYARLAR</div></div>
       <div class="settings-grid">
         <div class="settings-card" style="grid-column:1/-1;">
-          <h4>🔥 FİREBASE DURUMU</h4>
+          <h4><svg class=ic data-n=fire><use href=#i-fire></use></svg> FİREBASE DURUMU</h4>
           <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:rgba(46,204,113,.06);border:1px solid rgba(46,204,113,.2);">
             <div style="width:10px;height:10px;border-radius:50%;background:var(--green);"></div>
             <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;">Firebase bağlantısı aktif — retropatch-fd08e</span>
           </div>
         </div>
         <div class="settings-card">
-          <h4>🌐 SİTE BİLGİLERİ</h4>
+          <h4><svg class=ic data-n=globe><use href=#i-globe></use></svg> SİTE BİLGİLERİ</h4>
           <div class="fg"><label>Site Adı</label><input type="text" id="cfgName" value="RetroPatch"></div>
           <div class="fg"><label>WhatsApp</label><input type="text" id="cfgWA" placeholder="+90 5xx xxx xx xx"></div>
           <div class="fg"><label>E-posta</label><input type="text" id="cfgEmail" placeholder="info@retropatch.com"></div>
           <div class="fg"><label>Instagram</label><input type="text" id="cfgIG" placeholder="@retropatch"></div>
-          <button class="btn btn-accent" onclick="saveSettings()">💾 KAYDET</button>
+          <button class="btn btn-accent" onclick="saveSettings()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
         <div class="settings-card">
-          <h4>🧵 ARKA YÜZEY EK FİYATLARI</h4>
+          <h4><svg class=ic data-n=spool><use href=#i-spool></use></svg> ARKA YÜZEY EK FİYATLARI</h4>
           <div class="fg"><label>Düz (₺)</label><input type="number" id="backPriceDuz" placeholder="0"></div>
           <div class="fg"><label>Ütüyle Yapışan (₺)</label><input type="number" id="backPriceUtu" placeholder="20"></div>
           <div class="fg"><label>Cırt Cırt (₺)</label><input type="number" id="backPriceCirt" placeholder="30"></div>
-          <button class="btn btn-accent" onclick="saveBackPrices()">💾 KAYDET</button>
+          <button class="btn btn-accent" onclick="saveBackPrices()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
 
 
         <div class="settings-card">
-          <h4>🏦 HAVALE / EFT BİLGİLERİ</h4>
+          <h4><svg class=ic data-n=bank><use href=#i-bank></use></svg> HAVALE / EFT BİLGİLERİ</h4>
           <div class="fg"><label>Banka Adı</label><input type="text" id="bankAdi" placeholder="Ziraat Bankası"></div>
           <div class="fg"><label>Hesap Sahibi</label><input type="text" id="bankHesapSahibi" placeholder="RetroPatch Tic."></div>
           <div class="fg"><label>IBAN</label><input type="text" id="bankIBAN" placeholder="TR00 0000 0000 0000 0000 0000 00"></div>
           <div class="fg"><label>Şube / Hesap No</label><input type="text" id="bankSube" placeholder="0000 / 0000000"></div>
-          <button class="btn btn-accent" onclick="saveBank()">💾 KAYDET</button>
+          <button class="btn btn-accent" onclick="saveBank()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
 
         <div class="settings-card">
-          <h4>💳 KREDİ KARTI (STRIPE)</h4>
+          <h4><svg class=ic data-n=card><use href=#i-card></use></svg> KREDİ KARTI (STRIPE)</h4>
           <div class="fg"><label>Stripe Public Key</label><input type="text" id="stripeKey" placeholder="pk_live_..."></div>
           <div class="fg"><label>Taksit Seçenekleri</label><input type="text" id="taksitSecenekler" placeholder="1,2,3,6,9,12"></div>
-          <button class="btn btn-accent" onclick="saveStripe()">💾 KAYDET</button>
+          <button class="btn btn-accent" onclick="saveStripe()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
 
         <div class="settings-card">
-          <h4>🛒 SİPARİŞ AYARLARI</h4>
+          <h4><svg class=ic data-n=cart><use href=#i-cart></use></svg> SİPARİŞ AYARLARI</h4>
           <div class="fg"><label>Min. Sipariş Tutarı (₺)</label><input type="number" id="minSiparis" placeholder="0"></div>
           <div class="fg"><label>Kapıda Ödeme Aktif</label>
             <select id="kapidaOdeme"><option value="1">Evet</option><option value="0">Hayır</option></select>
           </div>
           <div class="fg"><label>Kapıda Ödeme Fiyatı (₺)</label><input type="number" id="kapidaFiyat" placeholder="20"></div>
-          <button class="btn btn-accent" onclick="saveSiparis()">💾 KAYDET</button>
+          <button class="btn btn-accent" onclick="saveSiparis()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
 
         <div class="settings-card">
-          <h4>🔐 ŞİFRE DEĞİŞTİR</h4>
+          <h4><svg class=ic data-n=lock><use href=#i-lock></use></svg> ŞİFRE DEĞİŞTİR</h4>
           <div class="fg"><label>Yeni Şifre</label><input type="password" id="newPw" placeholder="••••••••"></div>
           <div class="fg"><label>Tekrar</label><input type="password" id="newPw2" placeholder="••••••••"></div>
           <button class="btn btn-accent" onclick="changePass()">ŞİFRE GÜNCELLE</button>
@@ -1628,7 +1663,7 @@
   <div class="modal-box">
     <div class="modal-hdr">
       <h3 id="prodModalTitle">YENİ ÜRÜN</h3>
-      <button class="modal-x" onclick="closeModal('prodModal')">✕</button>
+      <button class="modal-x" onclick="closeModal('prodModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="editProdId">
@@ -1663,7 +1698,7 @@
         <div class="fg">
           <label>Ürün Görseli</label>
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
-            <label for="pImageFile" style="cursor:pointer;background:var(--accent);color:#000;padding:8px 14px;font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:2px;white-space:nowrap;">📁 PC'DEN YÜKLE</label>
+            <label for="pImageFile" style="cursor:pointer;background:var(--accent);color:#000;padding:8px 14px;font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:2px;white-space:nowrap;"><svg class=ic data-n=folder><use href=#i-folder></use></svg> PC'DEN YÜKLE</label>
             <input type="file" id="pImageFile" accept="image/*" style="display:none;" onchange="uploadProductImage(this)">
             <span id="pImageUploadStatus" style="font-size:11px;color:var(--muted2);"></span>
           </div>
@@ -1683,7 +1718,7 @@
           <small id="pBackPriceNote" style="color:var(--muted2);font-size:11px;">+20₺ eklendi</small>
         </div>
       </div>
-      <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveProd()">💾 KAYDET</button>
+      <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveProd()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
     </div>
   </div>
 </div>
@@ -1693,7 +1728,7 @@
   <div class="modal-box" style="max-width:480px;">
     <div class="modal-hdr">
       <h3>SİPARİŞ DETAYI</h3>
-      <button class="modal-x" onclick="closeModal('ordModal')">✕</button>
+      <button class="modal-x" onclick="closeModal('ordModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
     </div>
     <div class="modal-body" id="ordDetail"></div>
   </div>
@@ -1934,7 +1969,7 @@ function renderRecentOrders() {
   const tbody = document.getElementById('recentOrdTbody');
   const recent = allOrders.slice(0, 5);
   if (!recent.length) {
-    tbody.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="empty-icon">🛒</div><div class="empty-text">Sipariş yok</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="empty-icon"><svg class=ic data-n=cart><use href=#i-cart></use></svg></div><div class="empty-text">Sipariş yok</div></div></td></tr>';
     return;
   }
   tbody.innerHTML = recent.map(o => {
@@ -2032,7 +2067,7 @@ function renderOrders(src = 'cart', filter = 'all') {
     const tbody = document.getElementById('ordTbody');
     let list = filter === 'all' ? cartOrders : cartOrders.filter(o => (o.status||'yeni') === filter);
     if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon">🛒</div><div class="empty-text">Sepet siparişi bulunamadı</div></div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon"><svg class=ic data-n=cart><use href=#i-cart></use></svg></div><div class="empty-text">Sepet siparişi bulunamadı</div></div></td></tr>';
       return;
     }
     tbody.innerHTML = list.map(o => {
@@ -2059,7 +2094,7 @@ function renderOrders(src = 'cart', filter = 'all') {
     const tbody = document.getElementById('ordTbodyForm');
     let list = filter === 'all' ? formOrders : formOrders.filter(o => (o.status||'yeni') === filter);
     if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Özel sipariş bulunamadı</div></div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-icon"><svg class=ic data-n=clipboard><use href=#i-clipboard></use></svg></div><div class="empty-text">Özel sipariş bulunamadı</div></div></td></tr>';
       return;
     }
     tbody.innerHTML = list.map(o => {
@@ -2126,11 +2161,11 @@ function showOrderDetail(id) {
       ${row('Toplam', tutar)}
       ${row('Tarih', formatDate(o.createdAt))}
       ${row('Durum', statusBadge(o.status || 'yeni'))}
-      ${o.designFileUrl ? `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted2);font-family:sans-serif;letter-spacing:1px;font-size:11px;">Tasarım Dosyası</span><a href="${o.designFileUrl}" target="_blank" style="color:var(--accent);">📎 Görüntüle →</a></div>` : ''}
+      ${o.designFileUrl ? `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted2);font-family:sans-serif;letter-spacing:1px;font-size:11px;">Tasarım Dosyası</span><a href="${o.designFileUrl}" target="_blank" style="color:var(--accent);"><svg class=ic data-n=clip><use href=#i-clip></use></svg> Görüntüle <svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></a></div>` : ''}
     </div>
     <div style="margin-top:20px;display:flex;gap:8px;">
-      <a href="https://wa.me/${telefon.replace(/\D/g,'')}" target="_blank" class="btn btn-accent" style="text-decoration:none;flex:1;justify-content:center;">📱 WhatsApp</a>
-      <a href="mailto:${email}" class="btn btn-outline" style="text-decoration:none;flex:1;justify-content:center;">✉ Mail</a>
+      <a href="https://wa.me/${telefon.replace(/\D/g,'')}" target="_blank" class="btn btn-accent" style="text-decoration:none;flex:1;justify-content:center;"><svg class=ic data-n=phone-m><use href=#i-phone-m></use></svg> WhatsApp</a>
+      <a href="mailto:${email}" class="btn btn-outline" style="text-decoration:none;flex:1;justify-content:center;"><svg class=ic data-n=mail><use href=#i-mail></use></svg> Mail</a>
     </div>`;
   openModal('ordModal');
 }
@@ -2147,7 +2182,7 @@ function row(k, v) {
 function renderMessages() {
   const tbody = document.getElementById('msgTbody');
   if (!allMessages.length) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">✉</div><div class="empty-text">Mesaj yok</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon"><svg class=ic data-n=mail><use href=#i-mail></use></svg></div><div class="empty-text">Mesaj yok</div></div></td></tr>';
     return;
   }
   tbody.innerHTML = allMessages.map(m => `
@@ -2303,7 +2338,7 @@ function applyProdFilters() {
 function renderProdGrid() {
   const grid = document.getElementById('prodGrid');
   if (!filteredProds.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;" class="empty"><div class="empty-icon">🏷</div><div class="empty-text">Ürün bulunamadı</div></div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;" class="empty"><div class="empty-icon"><svg class=ic data-n=tag><use href=#i-tag></use></svg></div><div class="empty-text">Ürün bulunamadı</div></div>';
     return;
   }
   const statusColor = {Stokta:'var(--green)',Son3:'var(--accent)','Son 3':'var(--accent)',Tükendi:'var(--accent2)'};
@@ -2323,12 +2358,12 @@ function renderProdGrid() {
         <div class="prod-name" title="${p.name}">${p.name}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <div class="prod-price">₺${p.price||'—'}</div>
-          <div style="font-size:10px;color:var(--muted2);">🔥${p.sales||0} ❤️${p.favorites||0}</div>
+          <div style="font-size:10px;color:var(--muted2);"><svg class=ic data-n=fire><use href=#i-fire></use></svg>${p.sales||0} <svg class=ic data-n=heart><use href=#i-heart></use></svg>${p.favorites||0}</div>
         </div>
         <div class="prod-actions">
-          <button class="btn btn-blue btn-sm" onclick="openQuickEdit('${p.id}')">⚡ Hızlı</button>
-          <button class="btn btn-outline btn-sm" onclick="editProd('${p.id}')">✏️</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteProd('${p.id}')">🗑</button>
+          <button class="btn btn-blue btn-sm" onclick="openQuickEdit('${p.id}')"><svg class=ic data-n=bolt><use href=#i-bolt></use></svg> Hızlı</button>
+          <button class="btn btn-outline btn-sm" onclick="editProd('${p.id}')"><svg class=ic data-n=edit><use href=#i-edit></use></svg></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProd('${p.id}')"><svg class=ic data-n=trash><use href=#i-trash></use></svg></button>
         </div>
       </div>
     </div>`;
@@ -2367,9 +2402,9 @@ function renderProdTable() {
       <td style="font-size:12px;color:var(--muted2);">${p.size||'—'}</td>
       <td style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);">${p.sales||0}</td>
       <td style="white-space:nowrap;display:flex;gap:4px;padding:10px 8px;">
-        <button class="btn btn-blue btn-sm" onclick="openQuickEdit('${p.id}')">⚡</button>
-        <button class="btn btn-outline btn-sm" onclick="editProd('${p.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteProd('${p.id}')">🗑</button>
+        <button class="btn btn-blue btn-sm" onclick="openQuickEdit('${p.id}')"><svg class=ic data-n=bolt><use href=#i-bolt></use></svg></button>
+        <button class="btn btn-outline btn-sm" onclick="editProd('${p.id}')"><svg class=ic data-n=edit><use href=#i-edit></use></svg></button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProd('${p.id}')"><svg class=ic data-n=trash><use href=#i-trash></use></svg></button>
       </td>
     </tr>`;
   }).join('');
@@ -2479,7 +2514,7 @@ function updateBulkPricePreview() {
   });
   preview.style.display = 'block';
   preview.innerHTML = `<strong style="color:var(--accent);">${targets.length} ürün etkilenecek</strong><br>` +
-    newPrices.map(x => `<span style="color:var(--muted2);">${x.name}:</span> ₺${x.old} → <strong style="color:var(--accent);">₺${x.new}</strong>`).join('<br>') +
+    newPrices.map(x => `<span style="color:var(--muted2);">${x.name}:</span> ₺${x.old} <svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg> <strong style="color:var(--accent);">₺${x.new}</strong>`).join('<br>') +
     (targets.length > 4 ? `<br><span style="opacity:.6;">...ve ${targets.length-4} ürün daha</span>` : '');
 }
 
@@ -2881,8 +2916,8 @@ function renderSlides() {
         <div style="font-size:11px;color:var(--muted2);">${s.subtitle||s.name||''}</div>
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0;">
-        ${i > 0 ? `<button class="btn btn-outline btn-sm" onclick="moveSlide('${s.id}', -1)">↑</button>` : ''}
-        ${i < allSlides.length-1 ? `<button class="btn btn-outline btn-sm" onclick="moveSlide('${s.id}', 1)">↓</button>` : ''}
+        ${i > 0 ? `<button class="btn btn-outline btn-sm" onclick="moveSlide('${s.id}', -1)"><svg class=ic data-n=arrow-u><use href=#i-arrow-u></use></svg></button>` : ''}
+        ${i < allSlides.length-1 ? `<button class="btn btn-outline btn-sm" onclick="moveSlide('${s.id}', 1)"><svg class=ic data-n=arrow-d><use href=#i-arrow-d></use></svg></button>` : ''}
         <button class="btn btn-danger btn-sm" onclick="deleteSlide('${s.id}')">Sil</button>
       </div>
     </div>`).join('');
@@ -3391,7 +3426,7 @@ let allReviews = [];
 async function loadAllReviews() {
   const tbody = document.getElementById('reviewsTbody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">💬</div><div class="empty-text">Yükleniyor...</div></td></tr>';
+  tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon"><svg class=ic data-n=chat><use href=#i-chat></use></svg></div><div class="empty-text">Yükleniyor...</div></td></tr>';
   allReviews = [];
 
   const filterEl = document.getElementById('reviewProductFilter');
@@ -3403,7 +3438,7 @@ async function loadAllReviews() {
 
     // Ürün filtre dropdown'ını doldur (bir kez)
     if (filterEl && filterEl.options.length <= 1 && products.length) {
-      const dOpt = document.createElement('option'); dOpt.value = 'digital'; dOpt.textContent = '💾 Dijital Dosyalar'; filterEl.appendChild(dOpt);
+      const dOpt = document.createElement('option'); dOpt.value = 'digital'; dOpt.textContent = 'Dijital Dosyalar'; filterEl.appendChild(dOpt);
       products.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p.id; opt.textContent = p.name || p.id;
@@ -3446,7 +3481,7 @@ async function loadAllReviews() {
     renderReviewTable();
   } catch(e) {
     console.error('Yorumlar yüklenemedi:', e);
-    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-text">❌ Yüklenemedi: ' + e.message + '</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-text"><svg class=ic data-n=cancel><use href=#i-cancel></use></svg> Yüklenemedi: ' + e.message + '</div></td></tr>';
     toast('Yorumlar yüklenemedi: ' + e.message, 'err');
   }
 }
@@ -3458,7 +3493,7 @@ function renderReviewTable() {
   const approvalFilter = document.getElementById('reviewApprovalFilter')?.value || 'all';
 
   const pf = document.getElementById('reviewProductFilter')?.value || 'all';
-  const dig = (typeof dgReviews !== 'undefined' ? dgReviews : []).map(r => ({ ...r, kind: 'digital', reviewId: r.id, productId: '', productName: '💾 ' + (r.fileTitle || r.fileId), userEmail: '' }));
+  const dig = (typeof dgReviews !== 'undefined' ? dgReviews : []).map(r => ({ ...r, kind: 'digital', reviewId: r.id, productId: '', productName: '<svg class=ic data-n=save><use href=#i-save></use></svg> ' + (r.fileTitle || r.fileId), userEmail: '' }));
   const merged = [...allReviews.filter(() => pf !== 'digital'), ...((pf === 'all' || pf === 'digital') ? dig : [])]
     .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
   let list = starFilter === 'all' ? merged : merged.filter(r => String(r.rating) === starFilter);
@@ -3466,7 +3501,7 @@ function renderReviewTable() {
   if (approvalFilter === 'approved') list = list.filter(r => r.approved === true);
 
   if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">💬</div><div class="empty-text">Yorum bulunamadı</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon"><svg class=ic data-n=chat><use href=#i-chat></use></svg></div><div class="empty-text">Yorum bulunamadı</div></td></tr>';
     return;
   }
 
@@ -3487,9 +3522,9 @@ function renderReviewTable() {
       <td>${statusBadge}</td>
       <td style="white-space:nowrap;display:flex;gap:4px;">
         ${isPending
-          ? `<button class="btn btn-green btn-sm" onclick="${r.kind==='digital' ? `approveDgReview('${r.reviewId}')` : `approveReview('${r.productId}','${r.reviewId}')`}">✓ Onayla</button>`
-          : `<button class="btn btn-outline btn-sm" style="opacity:.5;cursor:default;" disabled>✓ Onaylı</button>`}
-        <button class="btn btn-danger btn-sm" onclick="${r.kind==='digital' ? `deleteDgReview('${r.reviewId}')` : `deleteReview('${r.productId}','${r.reviewId}')`}">🗑</button>
+          ? `<button class="btn btn-green btn-sm" onclick="${r.kind==='digital' ? `approveDgReview('${r.reviewId}')` : `approveReview('${r.productId}','${r.reviewId}')`}"><svg class=ic data-n=check><use href=#i-check></use></svg> Onayla</button>`
+          : `<button class="btn btn-outline btn-sm" style="opacity:.5;cursor:default;" disabled><svg class=ic data-n=check><use href=#i-check></use></svg> Onaylı</button>`}
+        <button class="btn btn-danger btn-sm" onclick="${r.kind==='digital' ? `deleteDgReview('${r.reviewId}')` : `deleteReview('${r.productId}','${r.reviewId}')`}"><svg class=ic data-n=trash><use href=#i-trash></use></svg></button>
       </td>
     </tr>`;
   }).join('');
@@ -3539,7 +3574,7 @@ function deleteReview(productId, reviewId) {
 // ============ TÜM YORUMLARI SIFIRLA ============
 function confirmResetAllReviews() {
   // İki adımlı onay — geri dönüşü yok
-  if (!confirm('⚠️ DİKKAT: Tüm ürünlerdeki TÜM yorumlar silinecek!\n\nBu işlem geri alınamaz. Devam etmek istiyor musunuz?')) return;
+  if (!confirm('DİKKAT: Tüm ürünlerdeki TÜM yorumlar silinecek!\n\nBu işlem geri alınamaz. Devam etmek istiyor musunuz?')) return;
   if (!confirm('Son onay: Gerçekten tüm yorumları silmek istiyor musunuz?')) return;
   resetAllReviews();
 }
@@ -3603,7 +3638,7 @@ function renderCargo(filter) {
   const tbody = document.getElementById('cargoTbody');
   if (!tbody) return;
   if (!allOrders.length) {
-    tbody.innerHTML='<tr><td colspan="6" class="empty"><div class="empty-icon">🚚</div><div class="empty-text">Sipariş bulunamadı</div></td></tr>';
+    tbody.innerHTML='<tr><td colspan="6" class="empty"><div class="empty-icon"><svg class=ic data-n=truck><use href=#i-truck></use></svg></div><div class="empty-text">Sipariş bulunamadı</div></td></tr>';
     return;
   }
   const orders = filter==='all' ? allOrders : allOrders.filter(o=>(o.cargo?.status||'Hazırlanıyor')===filter);
@@ -3621,7 +3656,7 @@ function renderCargo(filter) {
       </td>
       <td>${cargoBadge(o.cargo?.status||'Hazırlanıyor')}</td>
       <td>
-        <button class="btn btn-blue btn-sm" onclick="openCargoModal('${o.id}')">🚚 Güncelle</button>
+        <button class="btn btn-blue btn-sm" onclick="openCargoModal('${o.id}')"><svg class=ic data-n=truck><use href=#i-truck></use></svg> Güncelle</button>
       </td>
     </tr>`).join('');
 }
@@ -3742,7 +3777,7 @@ function loadMembers() {
         .catch(err => {
           console.error('Üyeler yüklenemedi:', err.message);
           document.getElementById('membersTbody').innerHTML =
-            '<tr><td colspan="6" class="empty"><div class="empty-text">❌ Üyeler yüklenemedi: ' + err.message + '</div></td></tr>';
+            '<tr><td colspan="6" class="empty"><div class="empty-text"><svg class=ic data-n=cancel><use href=#i-cancel></use></svg> Üyeler yüklenemedi: ' + err.message + '</div></td></tr>';
         });
     });
 }
@@ -3761,8 +3796,8 @@ function renderMembers() {
       <td><span style="font-family:'Bebas Neue',cursive;font-size:18px;">${userOrders.length}</span></td>
       <td style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);">₺${spent.toLocaleString('tr-TR')}</td>
       <td style="display:flex;gap:6px;align-items:center;">
-        <button onclick="showMemberAddresses('${u.id}','${(u.name||'').replace(/'/g,'')}')" style="font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'">📍 Adresler</button>
-        <button onclick="deleteMember('${u.id}','${(u.name||u.email||'bu üyeyi').replace(/'/g,'')}')" style="font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid rgba(230,57,70,.3);background:transparent;color:#e63946;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(230,57,70,.1)';this.style.borderColor='#e63946'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(230,57,70,.3)'">🗑 Sil</button>
+        <button onclick="showMemberAddresses('${u.id}','${(u.name||'').replace(/'/g,'')}')" style="font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'"><svg class=ic data-n=pin><use href=#i-pin></use></svg> Adresler</button>
+        <button onclick="deleteMember('${u.id}','${(u.name||u.email||'bu üyeyi').replace(/'/g,'')}')" style="font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid rgba(230,57,70,.3);background:transparent;color:#e63946;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(230,57,70,.1)';this.style.borderColor='#e63946'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(230,57,70,.3)'"><svg class=ic data-n=trash><use href=#i-trash></use></svg> Sil</button>
       </td>
     </tr>`;
   }).join('');
@@ -3780,7 +3815,7 @@ function showMemberAddresses(uid, name) {
   db.collection('users').doc(uid).collection('addresses').get()
     .then(snap => {
       if (snap.empty) {
-        list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted2);font-family:sans-serif;letter-spacing:2px;font-size:12px;">📍 KAYITLI ADRES YOK</div>';
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted2);font-family:sans-serif;letter-spacing:2px;font-size:12px;"><svg class=ic data-n=pin><use href=#i-pin></use></svg> KAYITLI ADRES YOK</div>';
         return;
       }
       const addresses = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -3810,7 +3845,7 @@ function closeMemberAddresses() {
 }
 
 function deleteMember(uid, name) {
-  if (!confirm('⚠️ "' + name + '" adlı üyeyi silmek istediğinize emin misiniz? Bu işlem kullanıcı verisini Firestore\'dan siler. Firebase Auth kaydı Manuel silinmelidir.')) return;
+  if (!confirm('"'+ name + '"adlı üyeyi silmek istediğinize emin misiniz? Bu işlem kullanıcı verisini Firestore\'dan siler. Firebase Auth kaydı Manuel silinmelidir.')) return;
   // Önce alt koleksiyonları sil
   const userRef = db.collection('users').doc(uid);
   const deleteSubcollection = (colName) => {
@@ -3883,7 +3918,7 @@ function renderCoupons() {
   if (filter === 'depleted') list = list.filter(c => cpState(c) === 'depleted');
   if (filter === 'expired') list = list.filter(c => cpState(c) === 'expired');
   if (!list.length) {
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;padding:50px 0;"><div class="empty-icon">🎟</div><div class="empty-text">Kupon bulunamadı</div></div>';
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;padding:50px 0;"><div class="empty-icon"><svg class=ic data-n=ticket><use href=#i-ticket></use></svg></div><div class="empty-text">Kupon bulunamadı</div></div>';
     return;
   }
   const now = new Date();
@@ -3896,7 +3931,7 @@ function renderCoupons() {
     else if (st === 'depleted') chips.push('<span class="cp-chip bad">Tükendi</span>');
     else if (st === 'expired') chips.push('<span class="cp-chip bad">Süresi Doldu</span>');
     else chips.push('<span class="cp-chip pub">Aktif</span>');
-    if (c.public) chips.push('<span class="cp-chip pub">🌐 Sitede</span>');
+    if (c.public) chips.push('<span class="cp-chip pub"><svg class=ic data-n=globe><use href=#i-globe></use></svg> Sitede</span>');
     if (c.minCart) chips.push('<span class="cp-chip">Min ₺' + c.minCart + '</span>');
     if (end) {
       const days = Math.ceil((end - now) / 86400000);
@@ -3913,11 +3948,11 @@ function renderCoupons() {
         <div class="cp-use"><span>Kullanım: <b>${used}</b> / ${c.limit || '∞'}</span><span>${c.limit ? '%' + pct : ''}</span></div>
       </div>
       <div class="cp-side"><div class="cp-acts">
-        <button class="btn btn-blue btn-sm" onclick="editCoupon('${c.id}')" title="Düzenle">✏️</button>
+        <button class="btn btn-blue btn-sm" onclick="editCoupon('${c.id}')" title="Düzenle"><svg class=ic data-n=edit><use href=#i-edit></use></svg></button>
         <button class="btn btn-outline btn-sm" onclick="dupCoupon('${c.id}')" title="Çoğalt">⧉</button>
-        <button class="btn btn-outline btn-sm" onclick="viewCouponHistory('${c.id}')" title="Kullanım geçmişi">📋</button>
-        <button class="btn ${c.active === false ? 'btn-accent' : 'btn-outline'} btn-sm" onclick="toggleCoupon('${c.id}',${c.active !== false})" title="${c.active === false ? 'Aktif et' : 'Pasif yap'}">${c.active === false ? '▶' : '⏸'}</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteCoupon('${c.id}')" title="Sil">🗑</button>
+        <button class="btn btn-outline btn-sm" onclick="viewCouponHistory('${c.id}')" title="Kullanım geçmişi"><svg class=ic data-n=clipboard><use href=#i-clipboard></use></svg></button>
+        <button class="btn ${c.active === false ? 'btn-accent' : 'btn-outline'} btn-sm" onclick="toggleCoupon('${c.id}',${c.active !== false})" title="${c.active === false ? 'Aktif et' : 'Pasif yap'}">${c.active === false ? '<svg class=ic data-n=play><use href=#i-play></use></svg>' : '<svg class=ic data-n=pause><use href=#i-pause></use></svg>'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCoupon('${c.id}')" title="Sil"><svg class=ic data-n=trash><use href=#i-trash></use></svg></button>
       </div></div>
     </div>`;
   }).join('');
@@ -4180,8 +4215,8 @@ function renderGalleryAdmin(snap) {
       <div style="padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px;">
         <span style="font-size:11px;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${item.caption || '—'}</span>
         <div style="display:flex;gap:4px;flex-shrink:0;">
-          <button onclick="editGalleryItem('${item.id}')" style="background:var(--bg4);border:1px solid var(--border);color:var(--muted2);width:28px;height:28px;cursor:pointer;font-size:12px;">✏</button>
-          <button onclick="deleteGalleryItem('${item.id}')" style="background:var(--bg4);border:1px solid var(--border);color:var(--accent2);width:28px;height:28px;cursor:pointer;font-size:12px;">🗑</button>
+          <button onclick="editGalleryItem('${item.id}')" style="background:var(--bg4);border:1px solid var(--border);color:var(--muted2);width:28px;height:28px;cursor:pointer;font-size:12px;"><svg class=ic data-n=edit><use href=#i-edit></use></svg></button>
+          <button onclick="deleteGalleryItem('${item.id}')" style="background:var(--bg4);border:1px solid var(--border);color:var(--accent2);width:28px;height:28px;cursor:pointer;font-size:12px;"><svg class=ic data-n=trash><use href=#i-trash></use></svg></button>
         </div>
       </div>
     </div>
@@ -4324,7 +4359,7 @@ let categoryItems = [];
 
 function loadCategories() {
   const grid = document.getElementById('catAdminGrid');
-  grid.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div><div class="empty-text">Yükleniyor...</div></div>';
+  grid.innerHTML = '<div class="empty"><div class="empty-icon"><svg class=ic data-n=hourglass><use href=#i-hourglass></use></svg></div><div class="empty-text">Yükleniyor...</div></div>';
   db.collection('categories').orderBy('order').get()
     .catch(() => db.collection('categories').get())
     .then(snap => {
@@ -4332,14 +4367,14 @@ function loadCategories() {
       renderCatGrid();
     })
     .catch(e => {
-      grid.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">' + e.message + '</div></div>';
+      grid.innerHTML = '<div class="empty"><div class="empty-icon"><svg class=ic data-n=warn><use href=#i-warn></use></svg></div><div class="empty-text">' + e.message + '</div></div>';
     });
 }
 
 function renderCatGrid() {
   const grid = document.getElementById('catAdminGrid');
   if (!categoryItems.length) {
-    grid.innerHTML = '<div class="empty"><div class="empty-icon">🗂</div><div class="empty-text">Henüz kategori yok</div></div>';
+    grid.innerHTML = '<div class="empty"><div class="empty-icon"><svg class=ic data-n=folder><use href=#i-folder></use></svg></div><div class="empty-text">Henüz kategori yok</div></div>';
     return;
   }
   grid.innerHTML = categoryItems.map(c => `
@@ -4356,10 +4391,10 @@ function renderCatGrid() {
       <div class="prod-info">
         <div class="prod-name" style="font-size:15px;">${c.name || '—'}</div>
         <div class="prod-cat">/${c.slug || c.id} · Sıra: ${c.order ?? '—'}</div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">→ ${c.page || 'urunler.html'}</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;"><svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg> ${c.page || 'urunler.html'}</div>
         <div class="prod-actions">
-          <button class="btn btn-blue btn-sm" onclick="editCat('${c.id}')">✏ Düzenle</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteCat('${c.id}')">🗑 Sil</button>
+          <button class="btn btn-blue btn-sm" onclick="editCat('${c.id}')"><svg class=ic data-n=edit><use href=#i-edit></use></svg> Düzenle</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCat('${c.id}')"><svg class=ic data-n=trash><use href=#i-trash></use></svg> Sil</button>
         </div>
       </div>
     </div>
@@ -4591,13 +4626,13 @@ function renderDiscountTiers() {
         <input type="number" value="${d.minQty}" min="1" placeholder="Min Adet"
           onchange="calcAdminData.discounts[${i}].minQty=parseInt(this.value)||1"
           style="width:90px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:13px;outline:none;">
-        <span style="font-size:11px;color:var(--muted);">+ adet →</span>
+        <span style="font-size:11px;color:var(--muted);">+ adet <svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></span>
         <input type="number" value="${d.pct}" min="1" max="100" placeholder="%"
           onchange="calcAdminData.discounts[${i}].pct=parseInt(this.value)||0"
           style="width:70px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:13px;outline:none;">
         <span style="font-size:11px;color:var(--green);">% indirim</span>
       </div>
-      <button onclick="removeDiscountTier(${i})" style="background:none;border:1px solid rgba(230,57,70,.3);color:var(--accent2);width:28px;height:28px;cursor:pointer;font-size:12px;flex-shrink:0;">✕</button>
+      <button onclick="removeDiscountTier(${i})" style="background:none;border:1px solid rgba(230,57,70,.3);color:var(--accent2);width:28px;height:28px;cursor:pointer;font-size:12px;flex-shrink:0;"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
     </div>`).join('');
 }
 
@@ -4647,7 +4682,7 @@ function renderProductTable() {
           style="width:80px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 10px;font-size:13px;outline:none;">
       </td>
       <td style="padding:10px 12px;">
-        <button onclick="removeProductRow(${i})" class="btn btn-danger btn-sm">🗑</button>
+        <button onclick="removeProductRow(${i})" class="btn btn-danger btn-sm"><svg class=ic data-n=trash><use href=#i-trash></use></svg></button>
       </td>
     </tr>`).join('');
 }
@@ -4680,7 +4715,7 @@ function renderBackTypesList() {
       <input type="number" value="${b.extra||0}" min="0"
         onchange="calcAdminData.backTypes[${i}].extra=parseFloat(this.value)||0;updatePreview()"
         style="width:80px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:13px;outline:none;">
-      <button onclick="removeBackRow(${i})" style="background:none;border:1px solid rgba(230,57,70,.3);color:var(--accent2);width:28px;height:28px;cursor:pointer;font-size:12px;">✕</button>
+      <button onclick="removeBackRow(${i})" style="background:none;border:1px solid rgba(230,57,70,.3);color:var(--accent2);width:28px;height:28px;cursor:pointer;font-size:12px;"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
     </div>`).join('');
 }
 
@@ -4713,7 +4748,7 @@ function renderDesignTypesList() {
       <input type="number" value="${d.extra||0}" min="0"
         onchange="calcAdminData.designTypes[${i}].extra=parseFloat(this.value)||0;updatePreview()"
         style="width:80px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:13px;outline:none;">
-      <button onclick="removeDesignRow(${i})" style="background:none;border:1px solid rgba(230,57,70,.3);color:var(--accent2);width:28px;height:28px;cursor:pointer;font-size:12px;">✕</button>
+      <button onclick="removeDesignRow(${i})" style="background:none;border:1px solid rgba(230,57,70,.3);color:var(--accent2);width:28px;height:28px;cursor:pointer;font-size:12px;"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
     </div>`).join('');
 }
 
@@ -4900,15 +4935,15 @@ function renderDgFiles() {
     return;
   }
   b.innerHTML = dgFiles.map(f => `<tr>
-    <td>${f.image ? `<img src="${dgEsc(f.image)}" style="width:48px;height:48px;object-fit:cover;border:1px solid var(--border);">` : '🧵'}</td>
+    <td>${f.image ? `<img src="${dgEsc(f.image)}" style="width:48px;height:48px;object-fit:cover;border:1px solid var(--border);">` : '<svg class=ic data-n=spool><use href=#i-spool></use></svg>'}</td>
     <td><b>${dgEsc(f.title)}</b><div style="font-size:11px;color:var(--muted)">${dgEsc(f.category || '')}</div></td>
     <td>${(f.formats || []).map(x => `<span class="badge" style="background:var(--bg3);color:var(--muted2);margin-right:3px;">${dgEsc(x)}</span>`).join('')}</td>
     <td>${f.oldPrice > f.price ? `<s style="color:var(--muted);font-size:11px;">${dgMoney(f.oldPrice)}</s> ` : ''}${dgMoney(f.price)}</td>
     <td>${f.sold || 0}</td>
     <td>${f.active ? '<span class="badge" style="background:rgba(74,222,128,.1);color:#4ade80;">AKTİF</span>' : '<span class="badge" style="background:rgba(230,57,70,.1);color:var(--accent2);">PASİF</span>'}</td>
     <td style="display:flex;gap:6px;">
-      <button class="btn btn-outline btn-sm" onclick="openDigModal('${f.id}')">✎ Düzenle</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteDigital('${f.id}')">🗑</button>
+      <button class="btn btn-outline btn-sm" onclick="openDigModal('${f.id}')"><svg class=ic data-n=edit><use href=#i-edit></use></svg> Düzenle</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteDigital('${f.id}')"><svg class=ic data-n=trash><use href=#i-trash></use></svg></button>
     </td></tr>`).join('');
   const cats = [...new Set(dgFiles.map(f => f.category).filter(Boolean))];
   document.getElementById('dgCatList').innerHTML = cats.map(c => `<option value="${dgEsc(c)}">`).join('');
@@ -4934,9 +4969,9 @@ function renderDgOrders() {
     <td style="font-size:12px;color:var(--muted);">${o.createdAt ? o.createdAt.toDate().toLocaleString('tr-TR') : ''}</td>
     <td><span class="badge" style="color:${col[o.status] || 'var(--muted)'};border:1px solid ${col[o.status] || 'var(--border)'};">${dgEsc(o.status)}</span></td>
     <td style="display:flex;gap:6px;flex-wrap:wrap;">
-      ${o.status === 'bekliyor' ? `<button class="btn btn-accent btn-sm" onclick="approveDgOrder('${o.id}')">✓ ÖDEME ONAYLA</button><button class="btn btn-danger btn-sm" onclick="cancelDgOrder('${o.id}')">İptal</button>` : ''}
+      ${o.status === 'bekliyor' ? `<button class="btn btn-accent btn-sm" onclick="approveDgOrder('${o.id}')"><svg class=ic data-n=check><use href=#i-check></use></svg> ÖDEME ONAYLA</button><button class="btn btn-danger btn-sm" onclick="cancelDgOrder('${o.id}')">İptal</button>` : ''}
       ${o.status === 'onaylandı' ? `<button class="btn btn-danger btn-sm" onclick="revokeDgOrder('${o.id}')">Erişimi Kaldır</button>` : ''}
-      ${o.status === 'iptal' ? `<button class="btn btn-danger btn-sm" onclick="deleteDgOrder('${o.id}')">🗑 Sil</button>` : ''}
+      ${o.status === 'iptal' ? `<button class="btn btn-danger btn-sm" onclick="deleteDgOrder('${o.id}')"><svg class=ic data-n=trash><use href=#i-trash></use></svg> Sil</button>` : ''}
     </td></tr>`).join('');
 }
 
@@ -5265,7 +5300,7 @@ function renderCargoCompanies() {
     <td><input type="number" class="cc-price" value="${c.price ?? ''}" min="0" step="1" style="${inp}"></td>
     <td><input type="text" class="cc-url" value="${dgEsc(c.trackUrl || '')}" placeholder="https://…?no={kod}" style="${inp}"></td>
     <td style="text-align:center;"><input type="checkbox" class="cc-active" ${c.active !== false ? 'checked' : ''} style="width:18px;height:18px;accent-color:var(--accent);"></td>
-    <td><button class="btn btn-danger btn-sm" onclick="removeCargoCompany(${i})" title="Sil">🗑</button></td></tr>`).join('');
+    <td><button class="btn btn-danger btn-sm" onclick="removeCargoCompany(${i})" title="Sil"><svg class=ic data-n=trash><use href=#i-trash></use></svg></button></td></tr>`).join('');
 }
 
 function readCargoRows() {
@@ -5333,7 +5368,7 @@ function anState(a) {
 function anPreviewHtml(a) {
   const t = AN_TYPES[a.type] || AN_TYPES.info;
   return `<b>${t.icon} ${dgEsc(a.title || t.label)}</b>${dgEsc(a.text || 'Duyuru metni burada görünecek')}` +
-    (a.linkUrl ? `<u>${dgEsc(a.linkText || 'İNCELE')} →</u>` : '');
+    (a.linkUrl ? `<u>${dgEsc(a.linkText || 'İNCELE')} <svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></u>` : '');
 }
 
 function loadAnnouncements() {
@@ -5353,7 +5388,7 @@ function renderAnnouncements() {
   document.getElementById('anStEnd').textContent = cnt.end;
   document.getElementById('anStOff').textContent = cnt.off;
   if (!allAnnouncements.length) {
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;padding:50px 0;"><div class="empty-icon">📣</div><div class="empty-text">Henüz duyuru yok. “+ YENİ DUYURU” ile ekleyin.</div></div>';
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;padding:50px 0;"><div class="empty-icon"><svg class=ic data-n=megaphone><use href=#i-megaphone></use></svg></div><div class="empty-text">Henüz duyuru yok. “+ YENİ DUYURU” ile ekleyin.</div></div>';
     return;
   }
   const lbl = { live: ['YAYINDA', '#4ade80'], plan: ['PLANLI', '#60a5fa'], end: ['SÜRESİ DOLDU', 'var(--accent2)'], off: ['PASİF', 'var(--muted)'] };
@@ -5370,13 +5405,13 @@ function renderAnnouncements() {
           <span class="cp-chip">Sıra ${a.order || 0}</span>
           ${a.dismissible === false ? '<span class="cp-chip">Kapatılamaz</span>' : ''}
         </div>
-        <div style="font-size:12px;color:var(--muted);">${a.startAt || a.endAt ? '📅 ' + (a.startAt ? fmt(a.startAt) : 'Hemen') + ' → ' + (a.endAt ? fmt(a.endAt) : 'Süresiz') : '📅 Süresiz'}</div>
+        <div style="font-size:12px;color:var(--muted);">${a.startAt || a.endAt ? '<svg class=ic data-n=calendar><use href=#i-calendar></use></svg> ' + (a.startAt ? fmt(a.startAt) : 'Hemen') + ' <svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg> ' + (a.endAt ? fmt(a.endAt) : 'Süresiz') : '<svg class=ic data-n=calendar><use href=#i-calendar></use></svg> Süresiz'}</div>
       </div>
       <div class="an-acts">
-        <button class="btn btn-blue btn-sm" onclick="openAnnModal('${a.id}')">✏️ Düzenle</button>
-        <button class="btn ${a.active === false ? 'btn-accent' : 'btn-outline'} btn-sm" onclick="toggleAnn('${a.id}',${a.active !== false})">${a.active === false ? '▶ Yayınla' : '⏸ Durdur'}</button>
+        <button class="btn btn-blue btn-sm" onclick="openAnnModal('${a.id}')"><svg class=ic data-n=edit><use href=#i-edit></use></svg> Düzenle</button>
+        <button class="btn ${a.active === false ? 'btn-accent' : 'btn-outline'} btn-sm" onclick="toggleAnn('${a.id}',${a.active !== false})">${a.active === false ? '<svg class=ic data-n=play><use href=#i-play></use></svg> Yayınla' : '<svg class=ic data-n=pause><use href=#i-pause></use></svg> Durdur'}</button>
         <button class="btn btn-outline btn-sm" onclick="dupAnn('${a.id}')">⧉ Çoğalt</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteAnn('${a.id}')">🗑</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteAnn('${a.id}')"><svg class=ic data-n=trash><use href=#i-trash></use></svg></button>
       </div>
     </div>`;
   }).join('');

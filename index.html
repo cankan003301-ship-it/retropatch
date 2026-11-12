@@ -431,9 +431,44 @@
     .search-highlight{color:var(--accent);}
     @media(max-width:768px){.search-inner{margin-top:60px;}.search-input-main{font-size:18px;}}
 
+
+/* === RP ICONS (solid SVG) === */
+.ic{width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-.14em;flex-shrink:0;pointer-events:none}
+.ic[data-n=heart]{color:#e63946}.ic[data-n=fire]{color:#ff7a1a}.ic[data-n=star]{color:#f4c542}
+button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color:inherit}
 </style>
 </head>
 <body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></symbol><symbol id="i-heart-o" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol><symbol id="i-cart" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol><symbol id="i-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol><symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></symbol><symbol id="i-arrow-u" viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/></symbol><symbol id="i-arrow-d" viewBox="0 0 24 24"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></symbol><symbol id="i-swap" viewBox="0 0 24 24"><path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3z"/></symbol><symbol id="i-refresh" viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></symbol><symbol id="i-save" viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zm-5 16a3 3 0 110-6 3 3 0 010 6zm3-10H5V5h10v4z"/></symbol><symbol id="i-fire" viewBox="0 0 24 24"><path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></symbol><symbol id="i-tag" viewBox="0 0 24 24"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></symbol><symbol id="i-trash" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></symbol><symbol id="i-clipboard" viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></symbol><symbol id="i-face" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM8.5 8a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm7 0a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM8 14.5h8V16H8z" fill-rule="evenodd"/></symbol><symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/></symbol><symbol id="i-edit" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol><symbol id="i-warn" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></symbol><symbol id="i-bolt" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></symbol><symbol id="i-spool" viewBox="0 0 24 24"><path d="M5 2h14v3H5zM5 19h14v3H5zM7 6h10v12H7zM9 8h6v2H9zm0 3h6v2H9zm0 3h6v2H9z" fill-rule="evenodd"/></symbol><symbol id="i-shirt" viewBox="0 0 24 24"><path d="M16 3c0 1.1-.9 2-2 2h-4c-1.1 0-2-.9-2-2L2 6l2.5 5L7 10v11h10V10l2.5 1L22 6l-6-3z"/></symbol><symbol id="i-cap" viewBox="0 0 24 24"><path d="M4 14a8 8 0 0116 0zM2 16h13a3 3 0 003 0h4v2H2z"/></symbol><symbol id="i-bag" viewBox="0 0 24 24"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-8 4c0 .55-.45 1-1 1s-1-.45-1-1V8h2v2zm2-6c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm4 6c0 .55-.45 1-1 1s-1-.45-1-1V8h2v2z"/></symbol><symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 000 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></symbol><symbol id="i-phone-m" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></symbol><symbol id="i-mail" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></symbol><symbol id="i-folder" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95a15.65 15.65 0 00-1.38-3.56A8.03 8.03 0 0118.92 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.987 7.987 0 015.08 16zm2.95-8H5.08a7.987 7.987 0 014.33-3.56A15.65 15.65 0 008.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 01-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></symbol><symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></symbol><symbol id="i-box" viewBox="0 0 24 24"><path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2zm5-7H4V4h16v3z"/></symbol><symbol id="i-money" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></symbol><symbol id="i-card" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></symbol><symbol id="i-bank" viewBox="0 0 24 24"><path d="M4 10v7h3v-7H4zm6 0v7h3v-7h-3zM2 22h19v-3H2v3zm14-12v7h3v-7h-3zm-4.5-9L2 6v2h19V6l-9.5-5z"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></symbol><symbol id="i-user" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol><symbol id="i-trend" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></symbol><symbol id="i-bars" viewBox="0 0 24 24"><path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.2z"/></symbol><symbol id="i-monitor" viewBox="0 0 24 24"><path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"/></symbol><symbol id="i-rocket" viewBox="0 0 24 24"><path d="M12 2c3 2 5 5.5 5 9 0 1.5-.4 3-1 4.2l1.8 3.3-3.3-.9c-.5.9-1.5 1.8-2.5 2.4-1-.6-2-1.5-2.5-2.4l-3.3.9L8 15.2C7.4 14 7 12.5 7 11c0-3.5 2-7 5-9zm0 6a2 2 0 100 4 2 2 0 000-4z" fill-rule="evenodd"/></symbol><symbol id="i-gift" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></symbol><symbol id="i-ruler" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h2v4h2V8h2v4h2V8h2v4h2V8h2v4h2V8h2v8z"/></symbol><symbol id="i-dice" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z"/></symbol><symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></symbol><symbol id="i-upload" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></symbol><symbol id="i-wrench" viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></symbol><symbol id="i-megaphone" viewBox="0 0 24 24"><path d="M18 11v2h4v-2h-4zm-2 6.61c.96.71 2.21 1.65 3.2 2.39.4-.53.8-1.07 1.2-1.6-.99-.74-2.24-1.68-3.2-2.4-.4.54-.8 1.08-1.2 1.61zM20.4 5.6c-.4-.53-.8-1.07-1.2-1.6-.99.74-2.24 1.68-3.2 2.4.4.53.8 1.07 1.2 1.6.96-.72 2.21-1.65 3.2-2.4zM4 9c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h1v4h2v-4h1l5 3V6L8 9H4zm11.5 3c0-1.33-.58-2.53-1.5-3.35v6.69c.92-.81 1.5-2.01 1.5-3.34z"/></symbol><symbol id="i-image" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M12 8.8a3.2 3.2 0 100 6.4 3.2 3.2 0 000-6.4zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></symbol><symbol id="i-clip" viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></symbol><symbol id="i-ticket" viewBox="0 0 24 24"><path d="M22 10V6c0-1.11-.9-2-2-2H4c-1.1 0-1.99.89-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2s.9-2 2-2zm-9 7.5h-2v-2h2v2zm0-4.5h-2v-2h2v2zm0-4.5h-2v-2h2v2z"/></symbol><symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></symbol><symbol id="i-new" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zM8.5 15H7.3l-2.55-3.5V15H3.5V9h1.25l2.5 3.5V9H8.5v6zm5-4.74H11v1.12h2.5v1.26H11v1.11h2.5V15h-4V9h4v1.26zm7 3.74c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1V9h1.25v4.51h1.13V9.99h1.25v3.51h1.12V9h1.25v5z"/></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol><symbol id="i-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></symbol><symbol id="i-chev-d" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></symbol><symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></symbol><symbol id="i-thumb" viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></symbol><symbol id="i-factory" viewBox="0 0 24 24"><path d="M22 22H2V10l7-3v2l5-2v3h3l1-8h3v20z"/></symbol><symbol id="i-diamond" viewBox="0 0 24 24"><path d="M12 2L2 12l10 10 10-10z"/></symbol><symbol id="i-check-c" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></symbol><symbol id="i-cancel" viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></symbol><symbol id="i-settings" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></symbol><symbol id="i-square" viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/></symbol><symbol id="i-calc" viewBox="0 0 24 24"><path d="M5 2h14a2 2 0 012 2v16a2 2 0 01-2 2H5a2 2 0 01-2-2V4a2 2 0 012-2zm1 2v4h12V4H6zm1 6v2h2v-2H7zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2zM7 14v2h2v-2H7zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2zM7 18v2h2v-2H7zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2z" fill-rule="evenodd"/></symbol></svg>
+<script>
+(function(){
+var MAP={"❤️": "heart", "❤": "heart", "♥": "heart", "♡": "heart-o", "🔍": "search", "🛒": "cart", "🛍": "bag", "👜": "bag", "✓": "check", "✅": "check-c", "✕": "close", "❌": "cancel", "→": "arrow-r", "↑": "arrow-u", "↓": "arrow-d", "↑↓": "swap", "↻": "refresh", "🔄": "refresh", "💾": "save", "🔥": "fire", "🏷": "tag", "🗑": "trash", "🚚": "truck", "⭐": "star", "📋": "clipboard", "😶": "face", "⏳": "hourglass", "✏️": "edit", "✏": "edit", "✎": "edit", "🖊": "edit", "⚠": "warn", "⚠️": "warn", "⚡": "bolt", "🧵": "spool", "🪡": "spool", "👕": "shirt", "🧥": "shirt", "🥼": "shirt", "🧢": "cap", "🎨": "palette", "📱": "phone-m", "📞": "phone", "✉": "mail", "📁": "folder", "🗂": "folder", "🌐": "globe", "💬": "chat", "📍": "pin", "📦": "box", "💰": "money", "💳": "card", "🏦": "bank", "📅": "calendar", "👤": "user", "👥": "users", "📈": "trend", "📊": "bars", "🖥": "monitor", "🚀": "rocket", "🎁": "gift", "📏": "ruler", "🎲": "dice", "💡": "bulb", "📤": "upload", "🔧": "wrench", "🔒": "lock", "🔐": "lock", "🔔": "bell", "📣": "megaphone", "📢": "megaphone", "🖼": "image", "📷": "camera", "📎": "clip", "🔗": "link", "👁": "eye", "🎟": "ticket", "✨": "sparkle", "🆕": "new", "▶": "play", "⏸": "pause", "▾": "chev-d", "☰": "menu", "👍": "thumb", "🏭": "factory", "⚙": "settings", "🧮": "calc", "◈": "diamond", "♦": "diamond", "⬜": "square", "◻": "square", "🔲": "square"};
+var keys=Object.keys(MAP).sort(function(a,b){return b.length-a.length}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')});
+var RE=new RegExp('('+keys.join('|')+')\\uFE0F?','g');
+var SK={SCRIPT:1,STYLE:1,TEXTAREA:1,OPTION:1,TITLE:1,NOSCRIPT:1};
+var NS='http://www.w3.org/2000/svg';
+function mk(n){var s=document.createElementNS(NS,'svg');s.setAttribute('class','ic');s.setAttribute('data-n',n);var u=document.createElementNS(NS,'use');u.setAttribute('href','#i-'+n);s.appendChild(u);return s;}
+function fix(t){
+  var p=t.parentNode;if(!p||SK[p.nodeName])return;
+  var v=t.nodeValue;RE.lastIndex=0;if(!RE.test(v))return;
+  var f=document.createDocumentFragment(),last=0,m;RE.lastIndex=0;
+  while((m=RE.exec(v))){if(m.index>last)f.appendChild(document.createTextNode(v.slice(last,m.index)));f.appendChild(mk(MAP[m[1]]));last=RE.lastIndex;}
+  if(last<v.length)f.appendChild(document.createTextNode(v.slice(last)));
+  p.replaceChild(f,t);
+}
+function scan(n){
+  if(n.nodeType===3){fix(n);return;}
+  if(n.nodeType!==1||SK[n.nodeName])return;
+  var w=document.createTreeWalker(n,NodeFilter.SHOW_TEXT,null),a=[],x;
+  while((x=w.nextNode()))a.push(x);
+  a.forEach(fix);
+}
+window.rpIco=function(s){RE.lastIndex=0;return String(s).replace(RE,function(m,e){var n=MAP[e];return '<svg class=ic data-n='+n+'><use href=#i-'+n+'></use></svg>';});};
+new MutationObserver(function(ms){ms.forEach(function(m){if(m.type==='characterData')fix(m.target);else m.addedNodes.forEach(scan);});}).observe(document.documentElement,{childList:true,subtree:true,characterData:true});
+function init(){scan(document.body);}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 
 <nav>
   <a href="index.html" class="logo"><img src="retro_logo.png" alt="RetroPatch"></a>
@@ -445,7 +480,7 @@
     <li><a href="#siparis">Sipariş</a></li>
     <li><a href="#iletisim">İletişim</a></li>
     <li id="navHesapLi"><a href="uye.html" id="navHesap">Giriş Yap</a></li>
-    <li id="navSepetLi" style="display:none"><a href="sepet.html" id="navSepet">🛒 <span id="cartCount">0</span></a></li>
+    <li id="navSepetLi" style="display:none"><a href="sepet.html" id="navSepet"><svg class=ic data-n=cart><use href=#i-cart></use></svg> <span id="cartCount">0</span></a></li>
     <li><a href="urunler.html" class="nav-cta">Sipariş Ver</a></li>
   
     <li><button class="search-btn" onclick="openSearch()" title="Ara (Ctrl+K / /)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></li>
@@ -465,10 +500,10 @@
       <li><a href="urunler.html" class="" onclick="closeMobileMenu()">TÜM ÜRÜNLER</a></li>
       <li><a href="dijital-dosyalar.html" onclick="closeMobileMenu()">DİJİTAL DOSYALAR</a></li>
       <li><a href="#siparis" class="" onclick="closeMobileMenu()">SİPARİŞ</a></li>
-      <li><a href="#hesaplayici" class="" onclick="closeMobileMenu()">🧮 FİYAT HESAPLA</a></li>
+      <li><a href="#hesaplayici" class="" onclick="closeMobileMenu()"><svg class=ic data-n=calc><use href=#i-calc></use></svg> FİYAT HESAPLA</a></li>
       <li><a href="#iletisim" class="" onclick="closeMobileMenu()">İLETİŞİM</a></li>
       <li><a href="uye.html" class="mm-hesap" onclick="closeMobileMenu()">GİRİŞ YAP / HESABIM</a></li>
-      <li><a href="sepet.html" class="mm-sepet" onclick="closeMobileMenu()">🛒 SEPET</a></li>
+      <li><a href="sepet.html" class="mm-sepet" onclick="closeMobileMenu()"><svg class=ic data-n=cart><use href=#i-cart></use></svg> SEPET</a></li>
       <li><a href="urunler.html" class="mm-cta" onclick="closeMobileMenu()">SİPARİŞ VER</a></li>
       
   </ul>
@@ -519,38 +554,38 @@
     <!-- JS ile doldurulur, fallback statik kartlar aşağıda -->
     <a href="urunler.html" class="kat-card">
       <div class="kat-img-wrap">
-        <div class="kat-img-placeholder">🧵</div>
+        <div class="kat-img-placeholder"><svg class=ic data-n=spool><use href=#i-spool></use></svg></div>
       </div>
       <div class="kat-label">
         <span class="kat-name">Nakış Yama</span>
-        <span class="kat-arrow">→</span>
+        <span class="kat-arrow"><svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></span>
       </div>
     </a>
     <a href="tisort-sweatshirt.html" class="kat-card">
       <div class="kat-img-wrap">
-        <div class="kat-img-placeholder">👕</div>
+        <div class="kat-img-placeholder"><svg class=ic data-n=shirt><use href=#i-shirt></use></svg></div>
       </div>
       <div class="kat-label">
         <span class="kat-name">Tişört / Sweatshirt</span>
-        <span class="kat-arrow">→</span>
+        <span class="kat-arrow"><svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></span>
       </div>
     </a>
     <a href="sapka.html" class="kat-card">
       <div class="kat-img-wrap">
-        <div class="kat-img-placeholder">🧢</div>
+        <div class="kat-img-placeholder"><svg class=ic data-n=cap><use href=#i-cap></use></svg></div>
       </div>
       <div class="kat-label">
         <span class="kat-name">Şapka</span>
-        <span class="kat-arrow">→</span>
+        <span class="kat-arrow"><svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></span>
       </div>
     </a>
     <a href="canta-anahtarlik.html" class="kat-card">
       <div class="kat-img-wrap">
-        <div class="kat-img-placeholder">👜</div>
+        <div class="kat-img-placeholder"><svg class=ic data-n=bag><use href=#i-bag></use></svg></div>
       </div>
       <div class="kat-label">
         <span class="kat-name">Çanta / Anahtarlık</span>
-        <span class="kat-arrow">→</span>
+        <span class="kat-arrow"><svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></span>
       </div>
     </a>
   </div>
@@ -717,7 +752,7 @@
         ${c.count ? `<div class="kat-count">${c.count} ürün</div>` : ''}
         <div class="kat-label">
           <span class="kat-name">${c.name}</span>
-          <span class="kat-arrow">→</span>
+          <span class="kat-arrow"><svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></span>
         </div>
       </a>
     `}).join('');
@@ -757,16 +792,16 @@
   <div class="section-label">Koleksiyon</div>
   <div class="section-title">ÖNE ÇIKANLAR</div>
   <div class="feat-tabs">
-    <button class="feat-tab active" onclick="switchTab('sales',this)">🔥 En Çok Satan</button>
-    <button class="feat-tab" onclick="switchTab('favorites',this)">❤️ En Çok Favorilenen</button>
-    <button class="feat-tab" onclick="switchTab('reviews',this)">⭐ En Çok Yorum Alan</button>
-    <button class="feat-tab" onclick="switchTab('new',this)">🆕 Yeni Gelenler</button>
+    <button class="feat-tab active" onclick="switchTab('sales',this)"><svg class=ic data-n=fire><use href=#i-fire></use></svg> En Çok Satan</button>
+    <button class="feat-tab" onclick="switchTab('favorites',this)"><svg class=ic data-n=heart><use href=#i-heart></use></svg> En Çok Favorilenen</button>
+    <button class="feat-tab" onclick="switchTab('reviews',this)"><svg class=ic data-n=star><use href=#i-star></use></svg> En Çok Yorum Alan</button>
+    <button class="feat-tab" onclick="switchTab('new',this)"><svg class=ic data-n=new><use href=#i-new></use></svg> Yeni Gelenler</button>
   </div>
   <div class="prod-grid" id="featGrid">
     <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">YÜKLENİYOR...</div>
   </div>
   <div class="view-all-wrap">
-    <a href="urunler.html" class="btn-primary">TÜM ÜRÜNLERİ GÖR →</a>
+    <a href="urunler.html" class="btn-primary">TÜM ÜRÜNLERİ GÖR <svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></a>
   </div>
 </div>
 
@@ -828,13 +863,13 @@
   <div class="section-label">Koleksiyon</div>
   <div class="section-title">DİJİTAL NAKIŞ DOSYALARI</div>
   <div class="feat-tabs" id="dghTabs">
-    <button class="dgh-tab active" data-f="sold" onclick="dghSwitch('sold',this)">🔥 En Çok Satan</button>
-    <button class="dgh-tab" data-f="favorites" onclick="dghSwitch('favorites',this)">❤️ En Çok Favorilenen</button>
-    <button class="dgh-tab" data-f="reviews" onclick="dghSwitch('reviews',this)">⭐ En Çok Yorum Alan</button>
+    <button class="dgh-tab active" data-f="sold" onclick="dghSwitch('sold',this)"><svg class=ic data-n=fire><use href=#i-fire></use></svg> En Çok Satan</button>
+    <button class="dgh-tab" data-f="favorites" onclick="dghSwitch('favorites',this)"><svg class=ic data-n=heart><use href=#i-heart></use></svg> En Çok Favorilenen</button>
+    <button class="dgh-tab" data-f="reviews" onclick="dghSwitch('reviews',this)"><svg class=ic data-n=star><use href=#i-star></use></svg> En Çok Yorum Alan</button>
   </div>
   <div class="dgh-grid" id="dghGrid"><div style="grid-column:1/-1;text-align:center;padding:50px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">YÜKLENİYOR...</div></div>
   <div class="view-all-wrap">
-    <a href="dijital-dosyalar.html" class="btn-primary">TÜM DİJİTAL DOSYALARI GÖR →</a>
+    <a href="dijital-dosyalar.html" class="btn-primary">TÜM DİJİTAL DOSYALARI GÖR <svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></a>
   </div>
 </div>
 
@@ -877,7 +912,7 @@
             <span id="cw-design-req" style="font-size:9px;letter-spacing:1.5px;color:#e63946;border:1px solid rgba(230,57,70,.5);padding:1px 7px;">ZORUNLU</span>
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;" id="cw-designs"></div>
-          <div id="cw-design-err" role="alert" style="display:none;margin-top:10px;font-size:12px;color:#e63946;">⚠ Fiyat hesaplamak ve sipariş vermek için bir tasarım tipi seçmelisiniz.</div>
+          <div id="cw-design-err" role="alert" style="display:none;margin-top:10px;font-size:12px;color:#e63946;"><svg class=ic data-n=warn><use href=#i-warn></use></svg> Fiyat hesaplamak ve sipariş vermek için bir tasarım tipi seçmelisiniz.</div>
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -919,7 +954,7 @@
         </div>
 
         <div style="margin-top:24px;display:flex;flex-direction:column;gap:8px;">
-          <a id="cw-wa-btn" href="#hesaplayici" target="_blank" onclick="return cwWaClick(event)" style="display:block;background:var(--accent);color:#000;text-align:center;padding:13px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:3px;text-decoration:none;transition:background .2s;" onmouseover="this.style.background='#d4b77a'" onmouseout="this.style.background='var(--accent)'">📱 WHATSAPP'TAN SİPARİŞ</a>
+          <a id="cw-wa-btn" href="#hesaplayici" target="_blank" onclick="return cwWaClick(event)" style="display:block;background:var(--accent);color:#000;text-align:center;padding:13px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:3px;text-decoration:none;transition:background .2s;" onmouseover="this.style.background='#d4b77a'" onmouseout="this.style.background='var(--accent)'"><svg class=ic data-n=phone-m><use href=#i-phone-m></use></svg> WHATSAPP'TAN SİPARİŞ</a>
         </div>
       </div>
     </div>
@@ -1124,10 +1159,10 @@
       <div class="section-title" style="margin-bottom:18px;">YAMANIN<br>TASARIMI<br>SENİN</div>
       <p>Profesyonel makine nakışı ile her tasarımı yamaya dönüştürüyoruz. Bireysel siparişten toplu üretime kadar.</p>
       <div class="features">
-        <div class="feature"><div class="feature-icon">⚙</div><div class="feature-text"><h4>Makine Nakışı</h4><p>Profesyonel ekipmanla yüksek kalite.</p></div></div>
-        <div class="feature"><div class="feature-icon">⚡</div><div class="feature-text"><h4>Hızlı Üretim</h4><p>Onaydan sonra 5–10 iş günü teslimat.</p></div></div>
-        <div class="feature"><div class="feature-icon">◈</div><div class="feature-text"><h4>Toplu Sipariş</h4><p>5+ adet siparişlerde özel fiyat.</p></div></div>
-        <div class="feature"><div class="feature-icon">♦</div><div class="feature-text"><h4>Ütüyle / Cırt Cırt</h4><p>Uygulama şekline göre arka yüzey.</p></div></div>
+        <div class="feature"><div class="feature-icon"><svg class=ic data-n=settings><use href=#i-settings></use></svg></div><div class="feature-text"><h4>Makine Nakışı</h4><p>Profesyonel ekipmanla yüksek kalite.</p></div></div>
+        <div class="feature"><div class="feature-icon"><svg class=ic data-n=bolt><use href=#i-bolt></use></svg></div><div class="feature-text"><h4>Hızlı Üretim</h4><p>Onaydan sonra 5–10 iş günü teslimat.</p></div></div>
+        <div class="feature"><div class="feature-icon"><svg class=ic data-n=diamond><use href=#i-diamond></use></svg></div><div class="feature-text"><h4>Toplu Sipariş</h4><p>5+ adet siparişlerde özel fiyat.</p></div></div>
+        <div class="feature"><div class="feature-icon"><svg class=ic data-n=diamond><use href=#i-diamond></use></svg></div><div class="feature-text"><h4>Ütüyle / Cırt Cırt</h4><p>Uygulama şekline göre arka yüzey.</p></div></div>
       </div>
     </div>
     <div class="order-form">
@@ -1151,12 +1186,12 @@
           <label>Tasarım Dosyası <span style="color:var(--muted);font-size:9px;letter-spacing:1px;">(OPSİYONEL)</span></label>
           <div class="file-upload-area" id="fileUploadArea">
             <input type="file" id="designFile" accept=".png,.jpg,.jpeg,.pdf,.ai,.svg,.eps" onchange="handleFileSelect(this)">
-            <div class="file-upload-icon">📎</div>
+            <div class="file-upload-icon"><svg class=ic data-n=clip><use href=#i-clip></use></svg></div>
             <div class="file-upload-txt">Tasarım dosyasını buraya sürükle veya tıkla</div>
             <div class="file-upload-sub">PNG, JPG, PDF, AI, SVG · Maks 10MB</div>
           </div>
           <div class="file-preview" id="filePreview">
-            <button class="file-remove" onclick="removeFile()" type="button">✕</button>
+            <button class="file-remove" onclick="removeFile()" type="button"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
             <img id="filePreviewImg" src="" alt="">
             <div class="file-preview-name" id="filePreviewName"></div>
           </div>
@@ -1174,10 +1209,10 @@
       <h3>BİZE ULAŞIN</h3>
       <p>Sorularınız veya hızlı sipariş için aşağıdan ulaşabilirsiniz.</p>
       <div class="contact-links">
-        <a href="https://wa.me/905XXXXXXXXX" class="contact-link" target="_blank" id="ctaWA"><div class="contact-link-icon">📱</div><span id="ctaWAText">WhatsApp: +90 5XX XXX XX XX</span></a>
-        <a href="mailto:retropatchyama@gmail.com" class="contact-link" id="ctaEmail"><div class="contact-link-icon">✉</div><span id="ctaEmailText">retropatchyama@gmail.com</span></a>
-        <a href="https://dolap.com/profil/retropatch" class="contact-link" target="_blank" id="ctaDolap"><div class="contact-link-icon">🛍</div><span id="ctaDolapText">Dolap: @retropatch</span></a>
-        <a href="https://instagram.com/retropatch" class="contact-link" target="_blank" id="ctaIG"><div class="contact-link-icon">📷</div><span id="ctaIGText">Instagram: @retropatch</span></a>
+        <a href="https://wa.me/905XXXXXXXXX" class="contact-link" target="_blank" id="ctaWA"><div class="contact-link-icon"><svg class=ic data-n=phone-m><use href=#i-phone-m></use></svg></div><span id="ctaWAText">WhatsApp: +90 5XX XXX XX XX</span></a>
+        <a href="mailto:retropatchyama@gmail.com" class="contact-link" id="ctaEmail"><div class="contact-link-icon"><svg class=ic data-n=mail><use href=#i-mail></use></svg></div><span id="ctaEmailText">retropatchyama@gmail.com</span></a>
+        <a href="https://dolap.com/profil/retropatch" class="contact-link" target="_blank" id="ctaDolap"><div class="contact-link-icon"><svg class=ic data-n=bag><use href=#i-bag></use></svg></div><span id="ctaDolapText">Dolap: @retropatch</span></a>
+        <a href="https://instagram.com/retropatch" class="contact-link" target="_blank" id="ctaIG"><div class="contact-link-icon"><svg class=ic data-n=camera><use href=#i-camera></use></svg></div><span id="ctaIGText">Instagram: @retropatch</span></a>
       </div>
     </div>
     <div class="contact-form">
@@ -1225,7 +1260,7 @@
   </div>
 
   <div class="rp-gallery-empty" id="rpGalleryEmpty" style="display:none;">
-    <div class="rp-gallery-empty-icon">📷</div>
+    <div class="rp-gallery-empty-icon"><svg class=ic data-n=camera><use href=#i-camera></use></svg></div>
     <p>Henüz fotoğraf eklenmemiş.</p>
     <span>Admin panelinden Galeri bölümünü kullanarak fotoğraf ekleyebilirsiniz.</span>
   </div>
@@ -1234,7 +1269,7 @@
 
 <!-- GALERİ LİGHTBOX -->
 <div class="rp-glb" id="rpGalleryLightbox" onclick="rpGlbClose(event)">
-  <button class="rp-glb-close" onclick="rpGlbClose()">✕</button>
+  <button class="rp-glb-close" onclick="rpGlbClose()"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
   <button class="rp-glb-nav rp-glb-prev" onclick="rpGlbNav(-1,event)">‹</button>
   <button class="rp-glb-nav rp-glb-next" onclick="rpGlbNav(1,event)">›</button>
   <div class="rp-glb-inner">
@@ -1488,7 +1523,7 @@
         <img src="${item.url}" alt="${item.caption || ''}" loading="lazy"
           onerror="this.closest('.rp-gallery-cell').style.display='none'">
         <div class="rp-gallery-cell-overlay">
-          <div class="rp-gallery-cell-overlay-icon">🔍</div>
+          <div class="rp-gallery-cell-overlay-icon"><svg class=ic data-n=search><use href=#i-search></use></svg></div>
           ${item.caption ? `<div class="rp-gallery-cell-overlay-caption">${item.caption}</div>` : ''}
         </div>
       </div>
@@ -1644,7 +1679,7 @@
   </div>
   <div class="rp-faq-cta">
     <span class="rp-faq-cta-text">Başka sorunuz mu var?</span>
-    <a class="rp-faq-cta-link" id="rpFaqWa" href="https://wa.me/905375295290" target="_blank" rel="noopener">WhatsApp'tan Sor →</a>
+    <a class="rp-faq-cta-link" id="rpFaqWa" href="https://wa.me/905375295290" target="_blank" rel="noopener">WhatsApp'tan Sor <svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></a>
   </div>
 </section>
 </div>
@@ -1658,7 +1693,7 @@
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
   <div class="lb-inner">
-    <button class="lb-close" onclick="document.getElementById('lightbox').classList.remove('open')">✕</button>
+    <button class="lb-close" onclick="document.getElementById('lightbox').classList.remove('open')"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
     <div class="lb-img-wrap"><img id="lbImg" src="" alt=""></div>
     <div class="lb-info">
       <div class="lb-name" id="lbName"></div>
@@ -1671,10 +1706,10 @@
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalBg(event)">
   <div class="modal">
     <div class="modal-img" id="modalImg" onclick="openLightbox()">
-      <div class="modal-zoom-hint">🔍 Büyütmek için tıkla</div>
+      <div class="modal-zoom-hint"><svg class=ic data-n=search><use href=#i-search></use></svg> Büyütmek için tıkla</div>
     </div>
     <div class="modal-body">
-      <button class="modal-close" onclick="closeModal()">✕</button>
+      <button class="modal-close" onclick="closeModal()"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
       <div class="modal-cat" id="modalCat"></div>
       <div class="modal-name" id="modalName"></div>
       <div class="modal-desc" id="modalDesc"></div>
@@ -1689,10 +1724,10 @@
       </div>
       <div class="modal-price" id="modalPrice"></div>
       <div class="modal-action-row">
-        <button class="modal-order-btn-main" onclick="addToCartFromModal()">🛒 SEPETE EKLE</button>
-        <button class="modal-fav-btn" id="modalFavBtn" onclick="toggleFavFromModal(this)" title="Favorilere ekle">♡</button>
+        <button class="modal-order-btn-main" onclick="addToCartFromModal()"><svg class=ic data-n=cart><use href=#i-cart></use></svg> SEPETE EKLE</button>
+        <button class="modal-fav-btn" id="modalFavBtn" onclick="toggleFavFromModal(this)" title="Favorilere ekle"><svg class=ic data-n=heart-o><use href=#i-heart-o></use></svg></button>
       </div>
-      <button class="modal-zoom-btn" onclick="openLightbox()">🔍 Resmi Tam Ekran Gör</button>
+      <button class="modal-zoom-btn" onclick="openLightbox()"><svg class=ic data-n=search><use href=#i-search></use></svg> Resmi Tam Ekran Gör</button>
     </div>
   </div>
 </div>
@@ -1924,7 +1959,7 @@ function renderFeatured(field) {
         <div class="product-overlay">
           <button class="quick-btn" onclick="event.stopPropagation();openModal(this.closest('.product-card').dataset.id)">İNCELE</button>
         </div>
-        <button class="fav-btn" onclick="event.stopPropagation();toggleFavById(this.closest('.product-card').dataset.id,this)" title="Favorilere ekle">♡</button>
+        <button class="fav-btn" onclick="event.stopPropagation();toggleFavById(this.closest('.product-card').dataset.id,this)" title="Favorilere ekle"><svg class=ic data-n=heart-o><use href=#i-heart-o></use></svg></button>
       </div>
       <div class="product-info">
         <div class="product-cat">${p.cat||''}</div>
@@ -1937,9 +1972,9 @@ function renderFeatured(field) {
           </button>
         </div>
         <div class="product-stats">
-          <span class="pstat">🔥 ${p.sales||0} ${labels.sales}</span>
-          <span class="pstat">❤️ ${p.favorites||0}</span>
-          <span class="pstat">⭐ ${p.reviews||0}</span>
+          <span class="pstat"><svg class=ic data-n=fire><use href=#i-fire></use></svg> ${p.sales||0} ${labels.sales}</span>
+          <span class="pstat"><svg class=ic data-n=heart><use href=#i-heart></use></svg> ${p.favorites||0}</span>
+          <span class="pstat"><svg class=ic data-n=star><use href=#i-star></use></svg> ${p.reviews||0}</span>
         </div>
       </div>
     </div>`).join('');
@@ -1977,11 +2012,11 @@ function openModal(id) {
     <div class="modal-spec"><span class="modal-spec-key">Boyut</span><span class="modal-spec-val">${p.size||'—'}</span></div>
     <div class="modal-spec"><span class="modal-spec-key">Arka</span><span class="modal-spec-val">${p.back||'—'}</span></div>
     <div class="modal-spec"><span class="modal-spec-key">Durum</span><span class="modal-spec-val">${p.status||'Stokta'}</span></div>
-    <div class="modal-spec"><span class="modal-spec-key">Satış</span><span class="modal-spec-val">🔥 ${p.sales||0}</span></div>
-    <div class="modal-spec"><span class="modal-spec-key">Favori</span><span class="modal-spec-val" id="modalSpecFav">❤️ ${p.favorites||0}</span></div>`;
+    <div class="modal-spec"><span class="modal-spec-key">Satış</span><span class="modal-spec-val"><svg class=ic data-n=fire><use href=#i-fire></use></svg> ${p.sales||0}</span></div>
+    <div class="modal-spec"><span class="modal-spec-key">Favori</span><span class="modal-spec-val" id="modalSpecFav"><svg class=ic data-n=heart><use href=#i-heart></use></svg> ${p.favorites||0}</span></div>`;
   const mi = document.getElementById('modalImg');
   mi.innerHTML = p.image
-    ? `<img src="${p.image}" alt="${p.name}"><div class="modal-zoom-hint">🔍 Büyütmek için tıkla</div>`
+    ? `<img src="${p.image}" alt="${p.name}"><div class="modal-zoom-hint"><svg class=ic data-n=search><use href=#i-search></use></svg> Büyütmek için tıkla</div>`
     : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#444;font-size:13px;">Görsel Yok</div>`;
   document.getElementById('modalOverlay').classList.add('active');
   document.body.style.overflow='hidden';
@@ -2286,7 +2321,7 @@ function _updateFavUI(id, isFav, count) {
   });
   // Kart istatistik satırı
   document.querySelectorAll(`.product-card[data-id="${id}"] .pstat`).forEach(s => {
-    if (s.textContent.includes('❤️')) s.textContent = '❤️ ' + count;
+    if (s.querySelector('.ic[data-n=heart]') || s.textContent.includes('❤')) s.innerHTML = rpIco('❤️') + ' ' + count;
   });
   // Modal butonu
   const mBtn = document.getElementById('modalFavBtn');
@@ -2425,7 +2460,7 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
     document.body.style.overflow = '';
     document.getElementById('searchInputMain').value = '';
     document.getElementById('searchResultsBox').innerHTML =
-      '<div class="search-empty"><div class="search-empty-icon">🔍</div><div class="search-empty-txt">Aramaya başlayın</div><div class="search-empty-sub">Ürün adı veya kategori yazın</div></div>';
+      '<div class="search-empty"><div class="search-empty-icon"><svg class=ic data-n=search><use href=#i-search></use></svg></div><div class="search-empty-txt">Aramaya başlayın</div><div class="search-empty-sub">Ürün adı veya kategori yazın</div></div>';
     document.querySelectorAll('.search-cat-chip').forEach(b => b.classList.remove('active'));
     _srIdx = -1;
   };
@@ -2447,7 +2482,7 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
     q = (q || '').trim().toLowerCase();
 
     if (!q) {
-      box.innerHTML = '<div class="search-empty"><div class="search-empty-icon">🔍</div><div class="search-empty-txt">Aramaya başlayın</div><div class="search-empty-sub">Ürün adı veya kategori yazın</div></div>';
+      box.innerHTML = '<div class="search-empty"><div class="search-empty-icon"><svg class=ic data-n=search><use href=#i-search></use></svg></div><div class="search-empty-txt">Aramaya başlayın</div><div class="search-empty-sub">Ürün adı veya kategori yazın</div></div>';
       return;
     }
 
@@ -2469,7 +2504,7 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
 
     if (!matches.length) {
       box.innerHTML = `<div class="search-empty">
-        <div class="search-empty-icon">😶</div>
+        <div class="search-empty-icon"><svg class=ic data-n=face><use href=#i-face></use></svg></div>
         <div class="search-empty-txt">"${q}" için sonuç bulunamadı</div>
         <div class="search-empty-sub">Farklı bir kelime deneyin veya<br>özel sipariş için bize yazın.</div>
       </div>`;
@@ -2491,7 +2526,7 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
         const nameHl = highlight(p.name || '', q);
         const imgHtml = p.image
           ? `<img class="sri-img" src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">`
-          : `<div class="sri-img-empty">🏷</div>`;
+          : `<div class="sri-img-empty"><svg class=ic data-n=tag><use href=#i-tag></use></svg></div>`;
         const stockBadge = p.status && p.status !== 'Stokta'
           ? `<span class="sri-badge">${p.status}</span>` : '';
         html += `<div class="search-result-item" data-pid="${p.id}" onclick="searchGoProduct('${p.id}')">
@@ -2561,23 +2596,23 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
   <div class="search-backdrop" onclick="closeSearch()"></div>
   <div class="search-inner">
     <div class="search-bar">
-      <span class="search-icon-big">🔍</span>
+      <span class="search-icon-big"><svg class=ic data-n=search><use href=#i-search></use></svg></span>
       <input class="search-input-main" id="searchInputMain" type="text"
         placeholder="Yama ara... (ör: müzik, taktik, futbol)"
         oninput="doGlobalSearch(this.value)"
         onkeydown="searchKeyNav(event)">
-      <button class="search-close" onclick="closeSearch()">✕</button>
+      <button class="search-close" onclick="closeSearch()"><svg class=ic data-n=close><use href=#i-close></use></svg></button>
     </div>
     <div class="search-cats" id="searchCats"></div>
     <div class="search-results" id="searchResultsBox">
       <div class="search-empty">
-        <div class="search-empty-icon">🔍</div>
+        <div class="search-empty-icon"><svg class=ic data-n=search><use href=#i-search></use></svg></div>
         <div class="search-empty-txt">Aramaya başlayın</div>
         <div class="search-empty-sub">Ürün adı veya kategori yazın</div>
       </div>
     </div>
     <div class="search-footer">
-      <span class="search-footer-hint"><kbd>↑↓</kbd> Gezin</span>
+      <span class="search-footer-hint"><kbd><svg class=ic data-n=swap><use href=#i-swap></use></svg></kbd> Gezin</span>
       <span class="search-footer-hint"><kbd>Enter</kbd> Seç</span>
       <span class="search-footer-hint"><kbd>Esc</kbd> Kapat</span>
     </div>
@@ -2628,16 +2663,16 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
     grid.innerHTML=list.map(f=>`
       <a class="dgh-card" href="dijital-dosyalar.html#f-${esc(f.id)}">
         <div class="dgh-img">
-          ${f.image?`<img src="${esc(thumb(f.image))}" alt="${esc(f.title)}" loading="lazy">`:'<div class="ph">🧵</div>'}
+          ${f.image?`<img src="${esc(thumb(f.image))}" alt="${esc(f.title)}" loading="lazy">`:'<div class="ph"><svg class=ic data-n=spool><use href=#i-spool></use></svg></div>'}
           ${f.oldPrice>f.price?`<span class="dgh-tag">%${Math.round((1-f.price/f.oldPrice)*100)} İNDİRİM</span>`:''}
         </div>
         <div class="dgh-body">
           <div class="dgh-title">${esc(f.title)}</div>
           <div class="dgh-fmts">${(f.formats||[]).map(x=>`<span>${esc(x)}</span>`).join('')}</div>
           <div class="dgh-stats">
-            <span>🔥 ${Number(f.sold)||0} satış</span>
-            <span>❤️ ${Number(f.favorites)||0}</span>
-            <span>⭐ ${Number(f.reviews)||0} yorum</span>
+            <span><svg class=ic data-n=fire><use href=#i-fire></use></svg> ${Number(f.sold)||0} satış</span>
+            <span><svg class=ic data-n=heart><use href=#i-heart></use></svg> ${Number(f.favorites)||0}</span>
+            <span><svg class=ic data-n=star><use href=#i-star></use></svg> ${Number(f.reviews)||0} yorum</span>
           </div>
           <div class="dgh-price">${f.oldPrice>f.price?`<s>${money(f.oldPrice)}</s>`:''}${money(f.price)}</div>
           <button type="button" class="dgh-add${inCart(f.id)?' added':''}" onclick="event.preventDefault();event.stopPropagation();dghAdd('${esc(f.id)}')">
@@ -2664,10 +2699,10 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
   function showEmpty(){
     document.getElementById('dghGrid').innerHTML=`
       <a href="dijital-dosyalar.html" class="dgh-card" style="grid-column:1/-1;flex-direction:row;align-items:center;gap:24px;padding:32px;">
-        <div style="font-size:48px;">🧵</div>
+        <div style="font-size:48px;"><svg class=ic data-n=spool><use href=#i-spool></use></svg></div>
         <div>
           <div class="dgh-title" style="font-size:22px;">DST · PES · JEF · EXP formatlarında hazır nakış dosyaları</div>
-          <div style="font-size:13px;color:var(--muted);margin-top:6px;">Yeni desenler çok yakında. Mağazayı inceleyin →</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:6px;">Yeni desenler çok yakında. Mağazayı inceleyin <svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></div>
         </div>
       </a>`;
   }
