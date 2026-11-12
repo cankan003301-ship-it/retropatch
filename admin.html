@@ -723,7 +723,7 @@
   <div class="section-hdr">
     <div class="section-ttl">FİYAT HESAPLAYICI</div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <a class="btn btn-outline btn-sm" href="https://retropatch.vercel.app/nakis-hesaplayici.html" target="_blank" style="text-decoration:none;">🌐 Hesaplayıcıyı Gör</a>
+      <a class="btn btn-outline btn-sm" href="https://retropatch.vercel.app/#hesaplayici" target="_blank" style="text-decoration:none;">🌐 Ana Sayfadaki Hesaplayıcıyı Gör</a>
       <button class="btn btn-accent" onclick="saveCalcConfig()">💾 KAYDET</button>
     </div>
   </div>
@@ -4822,6 +4822,10 @@ function saveCalcConfig() {
   calcAdminData.products   = calcAdminData.products.map((p,i) => ({ ...p, id: p.id || 'product_'+i }));
   calcAdminData.backTypes  = calcAdminData.backTypes.map((b,i) => ({ ...b, id: b.id || 'back_'+i }));
   calcAdminData.designTypes = (calcAdminData.designTypes||[]).map((d,i) => ({ ...d, id: d.id || 'design_'+i }));
+  if (!calcAdminData.designTypes.length || calcAdminData.designTypes.some(d => !String(d.name || '').trim())) {
+    toast('Tasarım tipi zorunlu: en az bir tip olmalı ve adı boş olmamalı', 'err');
+    return;
+  }
   calcAdminData.discounts  = calcAdminData.discounts.sort((a,b) => a.minQty - b.minQty);
 
   db.collection('settings').doc('calculator').set(calcAdminData, { merge: true })

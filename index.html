@@ -846,9 +846,8 @@
       <div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Anlık Fiyat</div>
         <div style="font-family:'Bebas Neue',cursive;font-size:clamp(36px,5vw,58px);letter-spacing:2px;line-height:1;">FİYAT HESAPLAYICI</div>
-        <div style="font-size:13px;color:var(--muted);margin-top:10px;">Ürün tipi, boyut, renk ve adet seçin — anında tahmini fiyatınızı öğrenin.</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:10px;">Ürün tipi, boyut, <b style="color:var(--accent);">tasarım tipi (zorunlu)</b>, renk ve adet seçin — anında tahmini fiyatınızı öğrenin.</div>
       </div>
-      <a href="nakis-hesaplayici.html" target="_blank" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:10px 24px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:3px;text-decoration:none;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='var(--accent)';this.style.color='#000'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">TAM EKRAN AÇ →</a>
     </div>
 
     <!-- Hesaplayıcı Widget -->
@@ -872,9 +871,13 @@
           <div style="display:flex;flex-wrap:wrap;gap:6px;" id="cw-backs"></div>
         </div>
 
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Tasarım</div>
+        <div id="cw-design-box">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+            Tasarım Tipi <span style="color:#e63946;font-size:13px;line-height:1;">*</span>
+            <span id="cw-design-req" style="font-size:9px;letter-spacing:1.5px;color:#e63946;border:1px solid rgba(230,57,70,.5);padding:1px 7px;">ZORUNLU</span>
+          </div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;" id="cw-designs"></div>
+          <div id="cw-design-err" role="alert" style="display:none;margin-top:10px;font-size:12px;color:#e63946;">⚠ Fiyat hesaplamak ve sipariş vermek için bir tasarım tipi seçmelisiniz.</div>
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -916,8 +919,7 @@
         </div>
 
         <div style="margin-top:24px;display:flex;flex-direction:column;gap:8px;">
-          <a id="cw-wa-btn" href="#" target="_blank" style="display:block;background:var(--accent);color:#000;text-align:center;padding:13px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:3px;text-decoration:none;transition:background .2s;" onmouseover="this.style.background='#d4b77a'" onmouseout="this.style.background='var(--accent)'">📱 WHATSAPP'TAN SİPARİŞ</a>
-          <a href="nakis-hesaplayici.html" target="_blank" style="display:block;background:transparent;border:1px solid var(--border);color:var(--muted);text-align:center;padding:10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Detaylı Hesaplayıcıyı Aç →</a>
+          <a id="cw-wa-btn" href="#hesaplayici" target="_blank" onclick="return cwWaClick(event)" style="display:block;background:var(--accent);color:#000;text-align:center;padding:13px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:3px;text-decoration:none;transition:background .2s;" onmouseover="this.style.background='#d4b77a'" onmouseout="this.style.background='var(--accent)'">📱 WHATSAPP'TAN SİPARİŞ</a>
         </div>
       </div>
     </div>
@@ -940,6 +942,11 @@
   }
   .cw-chip:hover { border-color: var(--accent); color: var(--accent); }
   .cw-chip.active { background: var(--accent); border-color: var(--accent); color: #000; }
+  #cw-design-box { padding: 12px; margin: -12px; border: 1px solid transparent; transition: border-color .2s, background .2s; }
+  #cw-design-box.cw-invalid { border-color: #e63946; background: rgba(230,57,70,.06); animation: cwShake .4s; }
+  #cw-design-box.cw-invalid .cw-chip { border-color: rgba(230,57,70,.55); }
+  .cw-wa-locked { opacity: .6; }
+  @keyframes cwShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
   @media(max-width:768px) {
     #hesaplayici { padding: 60px 20px; }
     #calcWidget { grid-template-columns: 1fr !important; }
@@ -983,7 +990,7 @@
       ],
       waNumber: '905375295290',
     },
-    sel: { product: 'patch', size: 'kucuk', back: 'duz', design: 'yok' },
+    sel: { product: 'patch', size: 'kucuk', back: 'duz', design: null },   // tasarım tipi zorunlu: müşteri kendisi seçer
   };
 
   function chip(id, label, group, active) {
@@ -992,6 +999,8 @@
 
   function render() {
     const d = CW.data;
+    // Yönetici tasarım tiplerini değiştirdiyse eski seçim geçersiz olabilir
+    if (CW.sel.design && !d.designTypes.some(dg => dg.id === CW.sel.design)) CW.sel.design = null;
     document.getElementById('cw-products').innerHTML = d.products.map(p => chip(p.id, p.icon+' '+p.name, 'product', CW.sel.product===p.id)).join('');
     document.getElementById('cw-sizes').innerHTML    = d.sizes.map(s => chip(s.id, s.name+' <span style="font-size:10px;opacity:.6;">'+s.desc+'</span>', 'size', CW.sel.size===s.id)).join('');
     document.getElementById('cw-backs').innerHTML    = d.backs.map(b => chip(b.id, b.icon+' '+b.name+(b.extra?` +₺${b.extra}`:''), 'back', CW.sel.back===b.id)).join('');
@@ -1003,8 +1012,25 @@
     if (group==='product') CW.sel.product = id;
     else if (group==='size') CW.sel.size = id;
     else if (group==='back') CW.sel.back = id;
-    else if (group==='design') CW.sel.design = id;
+    else if (group==='design') { CW.sel.design = id; cwShowDesignError(false); }
     render();
+  };
+
+  // Tasarım seçilmediyse hata göster (butona basınca ya da eksik seçimle)
+  function cwShowDesignError(show) {
+    const box = document.getElementById('cw-design-box'), err = document.getElementById('cw-design-err');
+    if (!box || !err) return;
+    err.style.display = show ? 'block' : 'none';
+    box.classList.remove('cw-invalid');
+    if (show) {
+      void box.offsetWidth;                       // animasyonu yeniden başlat
+      box.classList.add('cw-invalid');
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+  window.cwWaClick = function(e) {
+    if (!CW.sel.design) { e.preventDefault(); cwShowDesignError(true); return false; }
+    return true;
   };
 
   window.cwCalc = function() {
@@ -1015,6 +1041,23 @@
     const colors = parseInt(document.getElementById('cw-color')?.value)||1;
     const qty    = parseInt(document.getElementById('cw-qty')?.value)||1;
     if (!prod || !back) return;
+
+    const waBtn = document.getElementById('cw-wa-btn');
+    const req = document.getElementById('cw-design-req');
+    if (!design) {
+      // Tasarım tipi seçilmeden fiyat verilmez
+      document.getElementById('cw-unit').textContent  = '₺—';
+      document.getElementById('cw-total').textContent = '₺—';
+      document.getElementById('cw-discount-row').style.display = 'none';
+      const sz = d.sizes.find(s=>s.id===CW.sel.size);
+      document.getElementById('cw-breakdown').innerHTML =
+        `<span>${prod.icon} ${prod.name}${sz ? ' · ' + sz.name : ''}</span><span style="color:#e63946;">⚠ Fiyatı görmek için tasarım tipi seçin</span>`;
+      if (waBtn) { waBtn.href = '#hesaplayici'; waBtn.classList.add('cw-wa-locked'); waBtn.textContent = '🎨 ÖNCE TASARIM TİPİ SEÇİN'; }
+      if (req) req.style.display = '';
+      return;
+    }
+    if (req) req.style.display = 'none';
+    if (waBtn) { waBtn.classList.remove('cw-wa-locked'); waBtn.textContent = "📱 WHATSAPP'TAN SİPARİŞ"; }
 
     let unit = prod.basePrice[CW.sel.size] || 0;
     unit += (colors-1) * d.colorExtra;
@@ -1045,9 +1088,8 @@
       pct ? `<span style="color:#2ecc71;">Toplu indirim: -%${pct}</span>` : '',
     ].filter(Boolean).join('');
 
-    const waBtn = document.getElementById('cw-wa-btn');
     if (waBtn) {
-      const msg = `Merhaba! Fiyat hesaplayıcıdan seçimlerim:\n- Ürün: ${prod.icon} ${prod.name}\n- Boyut: ${size.name} (${size.desc})\n- Arka Yüzey: ${back.name}\n- Tasarım: ${design ? design.name : '—'}\n- Renk: ${colors}\n- Adet: ${qty}\n- Tahmini Fiyat: ₺${total.toLocaleString('tr-TR',{minimumFractionDigits:2})}\n\nSipariş vermek istiyorum.`;
+      const msg = `Merhaba! Fiyat hesaplayıcıdan seçimlerim:\n- Ürün: ${prod.icon} ${prod.name}\n- Boyut: ${size.name} (${size.desc})\n- Arka Yüzey: ${back.name}\n- Tasarım: ${design.name}\n- Renk: ${colors}\n- Adet: ${qty}\n- Tahmini Fiyat: ₺${total.toLocaleString('tr-TR',{minimumFractionDigits:2})}\n\nSipariş vermek istiyorum.`;
       waBtn.href = `https://wa.me/${d.waNumber}?text=${encodeURIComponent(msg)}`;
     }
   };
