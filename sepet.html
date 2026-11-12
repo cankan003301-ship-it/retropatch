@@ -620,6 +620,11 @@
             <button onclick="applyCoupon()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">UYGULA</button>
           </div>
 
+          <div id="couponChips" style="display:none;margin-top:10px;">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:6px;">KULLANILABİLİR KUPONLAR</div>
+            <div id="couponChipList" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+          </div>
+
           <button class="checkout-btn" id="checkoutBtn" onclick="doCheckout()">SİPARİŞİ TAMAMLA</button>
           <div class="secure-badge">🔒 256-bit SSL şifreleme ile güvenli ödeme</div>
           <button onclick="sendToWhatsApp()" style="width:100%;margin-top:8px;background:#25D366;color:#fff;border:none;padding:13px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s;" onmouseover="this.style.background='#1ebe59'" onmouseout="this.style.background='#25D366'">
@@ -650,7 +655,8 @@ const db = firebase.firestore();
 
 // Kargo fiyatları - Firestore'dan yüklenecek, varsayılan değerler
 let CARGO_PRICES = { mng:49, yurtici:44, ptt:35, surat:52 };
-const CARGO_NAMES = { mng:'DHL eCommerce', yurtici:'Yurtiçi Kargo', ptt:'PTT Kargo', surat:'Sürat Kargo' };
+let CARGO_NAMES = { mng:'DHL eCommerce', yurtici:'Yurtiçi Kargo', ptt:'PTT Kargo', surat:'Sürat Kargo' };
+let CARGO_LIST = [];   // Admin → Kargo Yönetimi → Firmalar & Fiyatlar (elle girilen firmalar)
 let kargoSettings = { mng:49, yurtici:44, ptt:35, surat:52, limit: 500, sure: '2-4 iş günü' };
 
 // IBAN yalnızca sipariş verildikten sonra çekilir ve gösterilir (sepet sayfasında yüklenmez)
@@ -684,42 +690,51 @@ async function showBankBox(opts) {
     '<div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;">Ödeme sonrası siparişiniz onaylanacaktır.</div>';
 }
 
+const CARGO_FALLBACK = [
+  { key:'mng', name:'DHL eCommerce', price:49 }, { key:'yurtici', name:'Yurtiçi Kargo', price:44 },
+  { key:'ptt', name:'PTT Kargo', price:35 },     { key:'surat', name:'Sürat Kargo', price:52 }
+];
+// Fiyat 0 (ücretsiz firma) geçerli bir değerdir; yalnızca tanımsızsa 49 ₺ varsayılır
+function cargoPriceOf(k) { const p = CARGO_PRICES[k]; return (typeof p === 'number' && !isNaN(p)) ? p : 49; }
+const escCargo = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
 function loadKargoSettings() {
   db.collection('settings').doc('kargo').get().then(doc => {
-    if (doc.exists) {
-      const d = doc.data();
-      kargoSettings = d;
-      // Her firma için ayrı fiyat
-      if (d.mng !== undefined) CARGO_PRICES.mng = d.mng;
-      if (d.yurtici !== undefined) CARGO_PRICES.yurtici = d.yurtici;
-      if (d.ptt !== undefined) CARGO_PRICES.ptt = d.ptt;
-      if (d.surat !== undefined) CARGO_PRICES.surat = d.surat;
-      // Ücretsiz kargo limitini güncelle
-      if (d.limit !== undefined) window.FREE_CARGO_LIMIT = d.limit;
-      // Fiyatları ve teslimat süresini HTML'de güncelle
-      updateCargoPriceDisplay();
-      updateSummary();
-    }
+    const d = doc.exists ? doc.data() : {};
+    kargoSettings = Object.assign({ limit: 500, sure: '2-4 iş günü' }, d);
+    // Yeni sistem: admin'in elle girdiği firmalar. Yoksa eski 4 firma + eski fiyat alanları.
+    let list = (Array.isArray(d.companies) && d.companies.length)
+      ? d.companies.filter(c => c && c.key && c.name && c.active !== false)
+      : CARGO_FALLBACK.map(c => ({ ...c, price: d[c.key] !== undefined ? d[c.key] : c.price }));
+    if (!list.length) list = CARGO_FALLBACK;          // hepsi pasif olsa bile sipariş verilebilsin
+    CARGO_LIST = list;
+    CARGO_PRICES = {}; CARGO_NAMES = {};
+    list.forEach(c => { CARGO_PRICES[c.key] = Number(c.price) || 0; CARGO_NAMES[c.key] = c.name; });
+    if (d.limit !== undefined) window.FREE_CARGO_LIMIT = d.limit;
+    if (!CARGO_PRICES.hasOwnProperty(selectedCargo)) selectedCargo = list[0].key;
+    renderCargoOptions();
+    updateSummary();
   }).catch(e => console.log('Kargo ayarları yüklenemedi:', e));
 }
 
-function updateCargoPriceDisplay() {
-  const opts = document.querySelectorAll('.cargo-opt');
-  const keys = ['mng','yurtici','ptt','surat'];
+function renderCargoOptions() {
+  const box = document.getElementById('cargoOptions');
+  if (!box || !CARGO_LIST.length) return;
   const limit = window.FREE_CARGO_LIMIT !== undefined ? window.FREE_CARGO_LIMIT : (kargoSettings.limit || 500);
-  const subtotal = physSubtotal();
-  const isFree = limit > 0 && subtotal >= limit;
-  opts.forEach((opt, i) => {
-    const priceEl = opt.querySelector('.cargo-opt-price');
-    const sureEl = opt.querySelector('.cargo-opt-info [style*="muted"]');
-    if (priceEl && keys[i]) {
-      priceEl.textContent = isFree ? 'ÜCRETSİZ' : '₺' + CARGO_PRICES[keys[i]];
-    }
-    if (sureEl && kargoSettings.sure) {
-      sureEl.textContent = kargoSettings.sure;
-    }
-  });
+  const isFree = limit > 0 && physSubtotal() >= limit;
+  const sure = kargoSettings.sure || '';
+  box.innerHTML = CARGO_LIST.map(c => `
+    <label class="cargo-opt ${c.key === selectedCargo ? 'active' : ''}">
+      <input type="radio" name="cargo" value="${escCargo(c.key)}" ${c.key === selectedCargo ? 'checked' : ''} onchange="updateCargo(this)">
+      <div class="cargo-opt-info">
+        <div class="cargo-opt-name">${escCargo(c.name)}</div>
+        <div style="font-size:11px;color:var(--muted);">${escCargo(sure)}</div>
+      </div>
+      <div class="cargo-opt-price">${isFree ? 'ÜCRETSİZ' : '₺' + (Number(c.price) || 0)}</div>
+    </label>`).join('');
 }
+
+function updateCargoPriceDisplay() { renderCargoOptions(); }
 
 let cart = [];
 let currentUser = null;
@@ -896,12 +911,12 @@ function updateSummary() {
   const phys = hasPhys();
   const kapidaExtra = (phys && selectedPay==='kapida') ? KAPIDA_FEE : 0;
   const freeLimit = window.FREE_CARGO_LIMIT || kargoSettings.limit || 500;
-  const cargoPrice = !phys ? 0 : ((freeLimit > 0 && physSub >= freeLimit) ? 0 : (CARGO_PRICES[selectedCargo]||49));
+  const cargoPrice = !phys ? 0 : ((freeLimit > 0 && physSub >= freeLimit) ? 0 : cargoPriceOf(selectedCargo));
   const cargo = phys ? cargoPrice + kapidaExtra : 0;
   const disc = phys ? Math.min(discountAmount, physSub) : 0;
   const total = subtotal + cargo - disc;
   document.getElementById('sumSubtotal').textContent = '₺'+subtotal.toLocaleString('tr-TR');
-  document.getElementById('sumCargo').textContent = !phys ? 'Yok (dijital)' : (cargo === 0 ? '₺0 (Ücretsiz)' : '₺'+cargo);
+  document.getElementById('sumCargo').textContent = !phys ? 'Yok (dijital)' : (cargoPrice === 0 ? '₺0 (Ücretsiz)' : '₺'+cargo);
   document.getElementById('sumDiscount').textContent = '-₺'+disc;
   document.getElementById('sumTotal').textContent = '₺'+Math.max(0,total).toLocaleString('tr-TR');
   updateCargoPriceDisplay();
@@ -937,7 +952,7 @@ function applyCoupon() {
     // Aktif/pasif kontrolü
     if (c.active === false) { toast('Bu kupon aktif değil!', true); return; }
     // Son kullanma tarihi kontrolü
-    if (c.expiry && new Date(c.expiry) < now) { toast('Bu kuponun süresi dolmuş!', true); return; }
+    if (c.expiry && new Date(c.expiry + 'T23:59:59') < now) { toast('Bu kuponun süresi dolmuş!', true); return; }
     // Kullanım limiti kontrolü
     if (c.limit && c.used >= c.limit) { toast('Bu kupon tükenmiş!', true); return; }
     // Minimum sepet tutarı kontrolü
@@ -950,6 +965,25 @@ function applyCoupon() {
   }).catch(()=>toast('Kupon kontrol edilemedi.', true));
 }
 
+// Herkese açık kuponları öneri olarak göster (admin → Kuponlar → "Sitede göster")
+function loadCouponChips() {
+  db.collection('coupons').where('public','==',true).get().then(snap => {
+    const now = new Date();
+    const list = snap.docs.map(d => ({id:d.id, ...d.data()})).filter(c =>
+      c.active !== false && !(c.expiry && new Date(c.expiry+'T23:59:59') < now) && !(c.limit && (c.used||0) >= c.limit));
+    if (!list.length) return;
+    const e = v => String(v).replace(/[^A-Za-z0-9_-]/g,'');
+    document.getElementById('couponChipList').innerHTML = list.map(c =>
+      `<button type="button" onclick="useCouponChip('${e(c.id)}')" title="${c.minCart?'Min. sepet ₺'+Number(c.minCart):''}" style="background:transparent;border:1px dashed var(--accent);color:var(--accent);padding:6px 12px;font-family:'Bebas Neue',cursive;font-size:15px;letter-spacing:2px;cursor:pointer;">${e(c.id)} · ${c.type==='percent'?'%'+Number(c.value):'₺'+Number(c.value)}</button>`).join('');
+    document.getElementById('couponChips').style.display = 'block';
+  }).catch(() => {});
+}
+function useCouponChip(code) {
+  document.getElementById('couponInput').value = code;
+  applyCoupon();
+}
+loadCouponChips();
+
 function copyIBAN() {
   const iban = (window.currentIBAN || '').replace(/\s/g,'');
   if (!iban) return;
@@ -959,7 +993,7 @@ function copyIBAN() {
 function sendToWhatsApp() {
   if (!cart.length) { toast('Sepetiniz boş!', true); return; }
   var subtotal = cart.reduce(function(s,i){return s+(i.price||0)*(i.qty||1);},0);
-  var cargoPrice = hasPhys() ? (CARGO_PRICES[selectedCargo]||49) : 0;
+  var cargoPrice = hasPhys() ? cargoPriceOf(selectedCargo) : 0;
   var kapidaExtra = (hasPhys() && selectedPay==='kapida') ? KAPIDA_FEE : 0;
   var total = subtotal + cargoPrice + kapidaExtra - discountAmount;
   var msg = '🏷 *RetroPatch Sipariş*\n\n';
@@ -1039,7 +1073,7 @@ async function doCheckout() {
   const physSub = physSubtotal();
   const kapidaExtra = (P.length && selectedPay==='kapida') ? KAPIDA_FEE : 0;
   const freeLimit2 = window.FREE_CARGO_LIMIT !== undefined ? window.FREE_CARGO_LIMIT : (kargoSettings.limit || 500);
-  const baseCargoPrice = !P.length ? 0 : ((freeLimit2 > 0 && physSub >= freeLimit2) ? 0 : (CARGO_PRICES[selectedCargo]||49));
+  const baseCargoPrice = !P.length ? 0 : ((freeLimit2 > 0 && physSub >= freeLimit2) ? 0 : cargoPriceOf(selectedCargo));
   const cargoPrice = baseCargoPrice + kapidaExtra;
   const disc = P.length ? Math.min(discountAmount, physSub) : 0;
   const physTotal = P.length ? physSub + cargoPrice - disc : 0;
@@ -1086,6 +1120,11 @@ async function doCheckout() {
       if (item.id) b2.update(db.collection('products').doc(item.id), { sales: firebase.firestore.FieldValue.increment(item.qty || 1) });
     });
     b2.commit().catch(() => {});
+    // Kupon kullanım sayacı (kurallar yalnızca +1 artırmaya izin verir; hata siparişi etkilemez)
+    if (appliedCoupon) {
+      db.collection('coupons').doc(appliedCoupon)
+        .update({ used: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
+    }
   }
 
   localStorage.removeItem('retropatch_cart');

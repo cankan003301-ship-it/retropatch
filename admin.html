@@ -213,6 +213,52 @@
     .empty-text{font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;}
 
     @media(max-width:1024px){.stat-grid{grid-template-columns:repeat(2,1fr);}.charts-row{grid-template-columns:1fr;}.settings-grid{grid-template-columns:1fr;}}
+  /* ===== KUPON KARTLARI ===== */
+  .cp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;}
+  .cp-card{display:grid;grid-template-columns:116px 1fr auto;background:var(--bg2);border:1px solid var(--border);position:relative;transition:border-color .2s,transform .2s;}
+  .cp-card:hover{border-color:rgba(200,169,110,.5);transform:translateY(-1px);}
+  .cp-card::before,.cp-card::after{content:'';position:absolute;left:104px;width:16px;height:16px;border-radius:50%;background:var(--bg);border:1px solid var(--border);z-index:2;}
+  .cp-card::before{top:-9px;}.cp-card::after{bottom:-9px;}
+  .cp-val{background:linear-gradient(160deg,rgba(200,169,110,.18),rgba(200,169,110,.04));border-right:2px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 8px;text-align:center;}
+  .cp-big{font-family:'Bebas Neue',cursive;font-size:38px;color:var(--accent);line-height:1;letter-spacing:1px;}
+  .cp-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;color:var(--muted);margin-top:4px;}
+  .cp-body{padding:14px 16px;min-width:0;}
+  .cp-code{font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:3px;color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+  .cp-code span{font-size:13px;color:var(--muted);font-family:sans-serif;letter-spacing:0;}
+  .cp-code:hover{color:var(--accent);}
+  .cp-desc{font-size:12px;color:var(--muted);margin:2px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cp-chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;}
+  .cp-chip{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;border:1px solid var(--border);color:var(--muted);text-transform:uppercase;}
+  .cp-chip.pub{border-color:rgba(74,222,128,.4);color:#4ade80;}
+  .cp-chip.warn{border-color:rgba(251,146,60,.4);color:#fb923c;}
+  .cp-chip.bad{border-color:rgba(230,57,70,.4);color:var(--accent2);}
+  .cp-bar{height:4px;background:var(--bg3);margin-top:6px;}
+  .cp-bar>div{height:100%;background:var(--accent);}
+  .cp-use{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;margin-top:4px;}
+  .cp-side{padding:12px 12px 12px 0;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:8px;}
+  .cp-acts{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
+  .cp-card.off{opacity:.55;}.cp-card.off .cp-big{color:var(--muted);}
+  .cp-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .cp-presets button{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 12px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:1px;cursor:pointer;}
+  .cp-presets button:hover{border-color:var(--accent);color:var(--accent);}
+  .cp-prev{display:grid;grid-template-columns:90px 1fr;border:1px solid var(--border);background:var(--bg3);margin-bottom:14px;}
+  .cp-prev .l{border-right:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:30px;color:var(--accent);padding:10px;}
+  .cp-prev .r{padding:10px 14px;}
+  /* ===== DUYURU KARTLARI ===== */
+  .an-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px;}
+  .an-card{background:var(--bg2);border:1px solid var(--border);display:flex;flex-direction:column;}
+  .an-card.off{opacity:.55;}
+  .an-pv{padding:12px 16px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:1px;text-align:center;line-height:1.4;}
+  .an-pv b{font-weight:800;letter-spacing:2px;margin-right:6px;}
+  .an-pv u{margin-left:10px;border:1.5px solid currentColor;padding:2px 10px;font-size:11px;text-decoration:none;letter-spacing:2px;white-space:nowrap;}
+  .an-meta{padding:12px 16px;display:flex;flex-direction:column;gap:8px;flex:1;}
+  .an-acts{padding:0 16px 14px;display:flex;gap:6px;flex-wrap:wrap;}
+  /* ===== MARQUEE ÖNİZLEME ===== */
+  .mq-prev{background:var(--accent);overflow:hidden;white-space:nowrap;padding:9px 0;margin-top:14px;}
+  .mq-prev .in{display:inline-block;animation:mqscroll 20s linear infinite;}
+  .mq-prev span{font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:4px;color:#000;padding:0 24px;}
+  @keyframes mqscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+  @media(max-width:700px){.cp-grid,.an-grid{grid-template-columns:1fr;}.cp-card{grid-template-columns:90px 1fr;}.cp-side{grid-column:1/-1;padding:0 12px 12px;align-items:stretch;}.cp-card::before,.cp-card::after{left:78px;}}
   </style>
 
 </head>
@@ -249,19 +295,22 @@
         <div class="nav-item" onclick="showPage('reviews')"><span class="ic">💬</span> Yorumlar <span class="nav-badge" id="badgeReviews" style="display:none">0</span></div>
         <div class="nav-item" onclick="showPage('members')"><span class="ic">👥</span> Üyeler</div>
         <div class="nav-item" onclick="showPage('coupons')"><span class="ic">🎟</span> Kuponlar</div>
+        <div class="nav-item" onclick="showPage('announcements')"><span class="ic">📣</span> Duyurular</div>
       </div>
       <div class="nav-sec">
         <div class="nav-lbl">Katalog</div>
-        <div class="nav-item" onclick="showPage('stats')"><span class="ic">📈</span> İstatistikler</div>
         <div class="nav-item" onclick="showPage('products')"><span class="ic">🏷</span> Ürünler</div>
         <div class="nav-item" onclick="showPage('categories')"><span class="ic">🗂</span> Kategoriler</div>
+      </div>
+      <div class="nav-sec">
+        <div class="nav-lbl">İstatistikler</div>
+        <div class="nav-item" onclick="showPage('stats')"><span class="ic">📈</span> İstatistikler</div>
       </div>
       <div class="nav-sec">
         <div class="nav-lbl">Sistem</div>
         <div class="nav-item" onclick="showPage('calculator')"><span class="ic">🧮</span> Fiyat Hesaplayıcı</div>
         <div class="nav-item" onclick="showPage('digital')"><span class="ic">💾</span> Dijital Dosyalar <span class="nav-badge" id="badgeDigital" style="display:none">0</span></div>
-        <div class="nav-item" onclick="showPage('gallery')"><span class="ic">🖼</span> Galeri</div>
-        <div class="nav-item" onclick="showPage('announcements')"><span class="ic">📢</span> Duyurular</div>
+        <div class="nav-item" onclick="showPage('media')"><span class="ic">🖼</span> Medya</div>
         <div class="nav-item" onclick="showPage('sitemanage')"><span class="ic">🖥</span> Site Yönetimi</div>
         <div class="nav-item" onclick="showPage('settings')"><span class="ic">⚙</span> Ayarlar</div>
         <a class="nav-item" href="https://retropatch.vercel.app" target="_blank" style="text-decoration:none;"><span class="ic">🌐</span> Siteyi Gör</a>
@@ -861,7 +910,6 @@
       <div style="display:flex;gap:8px;margin-bottom:16px;">
         <button class="period-btn active" id="dgTabF" onclick="dgTab('files')">DOSYALAR</button>
         <button class="period-btn" id="dgTabO" onclick="dgTab('orders')">SİPARİŞLER <span id="dgPendBadge" style="color:var(--accent2);"></span></button>
-        <button class="period-btn" id="dgTabR" onclick="dgTab('reviews')">YORUMLAR <span id="dgRevBadge" style="color:var(--accent2);"></span></button>
       </div>
 
       <div id="dgPaneFiles">
@@ -882,16 +930,6 @@
         <div class="tbl-wrap"><table>
           <thead><tr><th>Kod</th><th>Müşteri</th><th>Dosyalar</th><th>Tutar</th><th>Tarih</th><th>Durum</th><th style="width:200px">İşlem</th></tr></thead>
           <tbody id="dgOrdBody"></tbody>
-        </table></div>
-      </div>
-
-      <div id="dgPaneReviews" style="display:none;">
-        <div class="fg" style="max-width:240px;"><select id="dgRevFilter" onchange="renderDgReviews()">
-          <option value="bekleyen">Onay Bekleyenler</option><option value="onayli">Onaylananlar</option><option value="all">Tümü</option>
-        </select></div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>Dosya</th><th>Müşteri</th><th>Puan</th><th>Yorum</th><th>Tarih</th><th>Durum</th><th style="width:170px">İşlem</th></tr></thead>
-          <tbody id="dgRevBody"></tbody>
         </table></div>
       </div>
     </div>
@@ -924,7 +962,6 @@
             <div class="fg"><label>Dikiş Sayısı</label><input type="number" id="dgSt" min="0"></div>
             <div class="fg"><label>Renk Sayısı</label><input type="number" id="dgCol" min="0"></div>
           </div>
-          <div class="fg"><label>❤️ Favori Sayısı (ana sayfa "En Çok Favorilenen" sıralaması)</label><input type="number" id="dgFav" min="0"></div>
           <div class="fg"><label>Önizleme Görseli (ImageKit)</label>
             <input type="text" id="dgImg" placeholder="https://ik.imagekit.io/qqsmrt6nv/digital/desen.jpg" oninput="dgPreview(this.value)">
             <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
@@ -944,68 +981,100 @@
       </div>
     </div>
 
+    <!-- DUYURULAR -->
+    <div class="page" id="page-announcements">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:20px;">
+        <div class="stat-card green"><div class="stat-label">Şu An Yayında</div><div class="stat-value" id="anStLive">0</div></div>
+        <div class="stat-card blue"><div class="stat-label">Planlı</div><div class="stat-value" id="anStPlan">0</div></div>
+        <div class="stat-card red"><div class="stat-label">Süresi Dolan</div><div class="stat-value" id="anStEnd">0</div></div>
+        <div class="stat-card gold"><div class="stat-label">Pasif</div><div class="stat-value" id="anStOff">0</div></div>
+      </div>
+      <div class="section-hdr">
+        <div class="section-ttl">DUYURULAR</div>
+        <div style="display:flex;gap:8px;">
+          <a class="btn btn-outline" href="index.html" target="_blank" style="text-decoration:none;">🌐 Siteyi Gör</a>
+          <button class="btn btn-accent" onclick="openAnnModal()">+ YENİ DUYURU</button>
+        </div>
+      </div>
+      <!-- MARQUEE TEXT -->
+      <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:24px;">
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;">📢 KAYAN ŞERİT (MARQUEE)</div>
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:16px;">Anasayfadaki altın şeritte kayan yazılar. Maddeleri <b>•</b> (nokta) ile ayırın. Tarihli kampanyaları aşağıdan “Kayan şerit” yerleşimiyle duyuru olarak da ekleyebilirsiniz; ikisi birlikte şeritte kayar.</div>
+        <div class="fg"><input type="text" id="marqueeText" placeholder="PROFESYONEL NAKIŞ • ÖZEL SİPARİŞ • HIZLI TESLİMAT" oninput="marqueePreview()"></div>
+        <div class="fg-row">
+          <div class="fg"><label>Kayma Hızı</label>
+            <select id="marqueeSpeed" onchange="marqueePreview()"><option value="slow">Yavaş</option><option value="normal" selected>Normal</option><option value="fast">Hızlı</option></select></div>
+          <div class="fg"><label>Şerit</label>
+            <select id="marqueeActive"><option value="1" selected>Görünsün</option><option value="0">Gizle</option></select></div>
+        </div>
+        <div class="mq-prev"><div class="in" id="mqPrevIn"></div></div>
+        <button class="btn btn-accent" style="margin-top:14px;" onclick="saveMarquee()">💾 Kaydet</button>
+      </div>
+
+      <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin:8px 0 6px;">📣 DUYURU LİSTESİ</div>
+      <div style="font-size:12px;color:var(--muted2);margin-bottom:14px;line-height:1.7;">Üst çubuk tüm sayfaların en üstünde görünür. Birden fazla duyuru varsa sırayla döner. Açılır pencere ise anasayfada oturum başına bir kez gösterilir.</div>
+      <div class="an-grid" id="annGrid"></div>
+    </div>
+
+    <!-- DUYURU MODAL -->
+    <div class="modal-ov" id="annModal">
+      <div class="modal-box" style="max-width:560px;">
+        <div class="modal-hdr"><h3 id="annModalTitle">YENİ DUYURU</h3><button class="modal-x" onclick="closeModal('annModal')">✕</button></div>
+        <div class="modal-body">
+          <input type="hidden" id="anEditId">
+          <div id="anPreview" class="an-pv" style="margin-bottom:16px;"></div>
+          <div class="fg-row">
+            <div class="fg"><label>Tür</label>
+              <select id="anType" onchange="annPreviewUpdate()">
+                <option value="info">📢 Duyuru (altın)</option>
+                <option value="kampanya">🔥 Kampanya (kırmızı)</option>
+                <option value="yeni">✨ Yeni (yeşil)</option>
+                <option value="uyari">⚠️ Dikkat (turuncu)</option>
+              </select></div>
+            <div class="fg"><label>Gösterim Yeri</label>
+              <select id="anPlace">
+                <option value="bar">Üst çubuk</option>
+                <option value="popup">Açılır pencere (anasayfa)</option>
+                <option value="both">Çubuk + pencere</option>
+                <option value="marquee">Kayan şerit (marquee)</option>
+              </select></div>
+          </div>
+          <div class="fg"><label>Başlık (opsiyonel, kısa)</label><input type="text" id="anTitle" maxlength="60" placeholder="Hafta Sonu İndirimi" oninput="annPreviewUpdate()"></div>
+          <div class="fg"><label>Mesaj *</label><textarea id="anText" maxlength="300" placeholder="Tüm nakış yamalarında %20 indirim! Kod: RETRO20" oninput="annPreviewUpdate()" style="min-height:70px;"></textarea></div>
+          <div class="fg-row">
+            <div class="fg"><label>Buton Bağlantısı (opsiyonel)</label><input type="text" id="anLink" placeholder="urunler.html" oninput="annPreviewUpdate()"></div>
+            <div class="fg"><label>Buton Yazısı</label><input type="text" id="anLinkText" maxlength="20" placeholder="İNCELE" oninput="annPreviewUpdate()"></div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>Başlangıç Tarihi</label><input type="date" id="anStart"></div>
+            <div class="fg"><label>Bitiş Tarihi</label><input type="date" id="anEnd"></div>
+          </div>
+          <div class="fg-row">
+            <div class="fg"><label>Sıra (küçük önce)</label><input type="number" id="anOrder" value="1" min="0"></div>
+            <div class="fg"><label>Ziyaretçi Kapatabilsin</label>
+              <select id="anDismiss"><option value="1">Evet</option><option value="0">Hayır</option></select></div>
+          </div>
+          <div class="fg"><label>Durum</label>
+            <select id="anActive"><option value="1">Aktif</option><option value="0">Pasif (yayınlama)</option></select></div>
+          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveAnnouncement()">💾 KAYDET</button>
+        </div>
+      </div>
+    </div>
+
     <!-- SITE MANAGEMENT -->
     <div class="page" id="page-sitemanage">
       <div class="section-hdr"><div class="section-ttl">SİTE YÖNETİMİ</div></div>
-
-      <!-- SLIDER -->
-      <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:24px;">
-        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;">🖼 ANASAYFA SLAYT YÖNETİMİ</div>
-        <div style="font-size:12px;color:var(--muted2);margin-bottom:20px;">Slaytları ekle, sil veya sırasını değiştir.</div>
-
-        <!-- Mevcut slaytlar -->
-        <div id="slidesList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;"></div>
-
-        <!-- Yeni slayt ekle formu -->
-        <div style="border:1px solid var(--border);padding:20px;background:var(--bg3);">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">+ YENİ SLAYT EKLE</div>
-          <div class="fg">
-            <label>Resim *</label>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <input type="text" id="slideImg" placeholder="URL otomatik dolacak..." style="flex:1;">
-              <label style="background:var(--accent);color:#000;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;white-space:nowrap;flex-shrink:0;">
-                📁 PC'den Seç
-                <input type="file" accept="image/*" onchange="slideUploadFile(this)" style="display:none;">
-              </label>
-            </div>
-            <div id="slideImgPreviewWrap" style="display:none;margin-top:8px;">
-              <img id="slideImgPreview" style="max-height:120px;max-width:100%;border:1px solid var(--border);object-fit:cover;">
-            </div>
-            <div id="slideUploadStatus" style="font-size:11px;color:var(--muted2);margin-top:4px;"></div>
-          </div>
-          <div class="fg"><label>Başlık *</label><input type="text" id="slideTitle" placeholder="ör: YENİ KOLEKSİYON"></div>
-          <div class="fg"><label>Alt Yazı</label><input type="text" id="slideSubtitle" placeholder="ör: 2025 Bahar Serisi — bu slayt altında çıkar"></div>
-          <div class="fg"><label>Etiket (küçük yazı)</label><input type="text" id="slideTag" placeholder="ör: YENİ ÜRÜN"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div class="fg" style="margin:0;"><label>1. Buton Yazısı</label><input type="text" id="slideBtn1Text" placeholder="ör: Ürünleri Gör"></div>
-            <div class="fg" style="margin:0;"><label>1. Buton Linki</label><input type="text" id="slideBtn1Link" placeholder="ör: urunler.html"></div>
-            <div class="fg" style="margin:0;"><label>2. Buton Yazısı</label><input type="text" id="slideBtn2Text" placeholder="ör: Sipariş Ver"></div>
-            <div class="fg" style="margin:0;"><label>2. Buton Linki</label><input type="text" id="slideBtn2Link" placeholder="ör: #siparis"></div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn btn-accent" onclick="addSlide()">💾 Slayt Ekle</button>
-            <button class="btn btn-outline" onclick="clearSlideForm()">Temizle</button>
-          </div>
-        </div>
-      </div>
 
       <!-- FEATURED TAB DEFAULT -->
       <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:24px;">
         <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;">⭐ VARSAYILAN SEKME</div>
         <div style="font-size:12px;color:var(--muted2);margin-bottom:16px;">Anasayfada "Öne Çıkanlar" bölümünde hangi sekme varsayılan açılsın?</div>
-        <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn btn-sm" id="tabBtnSales" onclick="setDefaultTab('sales')" style="background:rgba(200,169,110,0.1);border:1px solid var(--accent);color:var(--accent);">🔥 En Çok Satan</button>
           <button class="btn btn-outline btn-sm" id="tabBtnFavorites" onclick="setDefaultTab('favorites')">❤️ En Çok Favorilenen</button>
           <button class="btn btn-outline btn-sm" id="tabBtnReviews" onclick="setDefaultTab('reviews')">⭐ En Çok Yorum Alan</button>
+          <button class="btn btn-outline btn-sm" id="tabBtnNew" onclick="setDefaultTab('new')">🆕 Yeni Gelenler</button>
         </div>
-      </div>
-
-      <!-- MARQUEE TEXT -->
-      <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:24px;">
-        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;">📢 MARQUEE YAZISI</div>
-        <div style="font-size:12px;color:var(--muted2);margin-bottom:16px;">Altın şeritteki kayan yazıları düzenle (nokta ile ayır)</div>
-        <div class="fg"><input type="text" id="marqueeText" placeholder="PROFESYONEL NAKIŞ • ÖZEL SİPARİŞ • ..."></div>
-        <button class="btn btn-accent" onclick="saveMarquee()">💾 Kaydet</button>
       </div>
 
       <!-- ILETISIM BİLGİLERİ -->
@@ -1016,21 +1085,6 @@
         <div class="fg"><label>Instagram</label><input type="text" id="smIG" placeholder="@retropatch"></div>
         <div class="fg"><label>Dolap</label><input type="text" id="smDolap" placeholder="@retropatch"></div>
         <button class="btn btn-accent" onclick="saveContact()">💾 Kaydet</button>
-      </div>
-
-      <!-- ÜRÜN İSTATİSTİKLERİ DÜZENLE -->
-      <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px;">
-          <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);">📊 ÜRÜN İSTATİSTİKLERİ</div>
-          <button class="btn btn-outline btn-sm" onclick="initMissingStats()" title="Eksik alanlara 0 yaz">🔧 Eksik Alanları Düzelt</button>
-        </div>
-        <div style="font-size:12px;color:var(--muted2);margin-bottom:20px;">Satış, favori ve yorum sayılarını düzenle (öne çıkanlarda sıralamayı etkiler)</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Ürün</th><th>🔥 Satış</th><th>❤️ Favori</th><th>⭐ Yorum</th><th>İşlem</th></tr></thead>
-            <tbody id="statsTbody"></tbody>
-          </table>
-        </div>
       </div>
     </div>
 
@@ -1046,11 +1100,38 @@
           <option value="Teslim Edildi">Teslim Edildi</option>
         </select>
       </div>
+      <!-- Kargo sekmeleri -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="period-btn active" id="cargoTabShip" onclick="cargoTab('ship')">📦 GÖNDERİLER</button>
+        <button class="period-btn" id="cargoTabCo" onclick="cargoTab('co')">🚚 FİRMALAR & FİYATLAR</button>
+      </div>
+      <div id="cargoPaneShip">
       <div class="tbl-wrap">
         <table>
           <thead><tr><th>Sipariş</th><th>Müşteri</th><th>Kargo Firması</th><th>Takip No</th><th>Durum</th><th>İşlem</th></tr></thead>
           <tbody id="cargoTbody"></tbody>
         </table>
+      </div>
+      </div><!-- /cargoPaneShip -->
+
+      <div id="cargoPaneCo" style="display:none;">
+        <div style="background:var(--bg2);border:1px solid var(--border);padding:24px;margin-bottom:2px;">
+          <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:4px;">🚚 KARGO FİRMALARI & FİYATLARI</div>
+          <div style="font-size:12px;color:var(--muted2);margin-bottom:16px;line-height:1.7;">Firmaları elle ekleyin. Müşteri sepette <b>aktif</b> firmalardan birini seçer.
+            Takip bağlantısına <b>{kod}</b> yazarsanız takip numarası otomatik eklenir (örn. <span style="color:var(--muted);">https://firma.com/takip?no={kod}</span>).</div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>Firma Adı *</th><th style="width:110px">Fiyat (₺)</th><th>Takip Bağlantısı (opsiyonel)</th><th style="width:70px">Aktif</th><th style="width:50px"></th></tr></thead>
+            <tbody id="cargoCoBody"></tbody>
+          </table></div>
+          <button class="btn btn-outline" style="margin-top:12px;" onclick="addCargoCompany()">+ FİRMA EKLE</button>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);padding:24px;">
+          <div class="fg-row">
+            <div class="fg"><label>Ücretsiz Kargo Alt Limiti (₺) <span style="color:var(--muted);font-size:10px;">(0 = kapalı)</span></label><input type="number" id="cargoLimit" min="0" placeholder="500"></div>
+            <div class="fg"><label>Tahmini Teslimat (sepette görünür)</label><input type="text" id="cargoSure" placeholder="2-4 iş günü"></div>
+          </div>
+          <button class="btn btn-accent" style="margin-top:6px;" onclick="saveCargoSettings()">💾 KAYDET</button>
+        </div>
       </div>
     </div>
 
@@ -1060,13 +1141,9 @@
         <div class="modal-hdr"><h3>KARGO GÜNCELLE</h3><button class="modal-x" onclick="closeModal('cargoModal')">✕</button></div>
         <div class="modal-body">
           <input type="hidden" id="cargoOrderId">
-          <div class="fg"><label>Kargo Firması</label>
-            <select id="cargoCompany">
-              <option value="mng">DHL eCommerce</option>
-              <option value="yurtici">Yurtiçi Kargo</option>
-              <option value="ptt">PTT Kargo</option>
-              <option value="surat">Sürat Kargo</option>
-            </select>
+          <div class="fg"><label>Kargo Firması *</label>
+            <input type="text" id="cargoCompany" list="cargoCompanyList" placeholder="Firma adını yazın veya listeden seçin" autocomplete="off">
+            <datalist id="cargoCompanyList"></datalist>
           </div>
           <div class="fg"><label>Takip Numarası</label><input type="text" id="cargoTrackCode" placeholder="Kargo takip numarası"></div>
           <div class="fg"><label>Kargo Durumu</label>
@@ -1105,7 +1182,7 @@
             <option value="1">★☆☆☆☆</option>
           </select>
           <button class="btn btn-danger btn-sm" onclick="confirmResetAllReviews()" title="Tüm yorumları sil" style="display:flex;align-items:center;gap:6px;">
-            🗑 Tüm Yorumları Sıfırla
+            🗑 Ürün Yorumlarını Sıfırla
           </button>
         </div>
       </div>
@@ -1148,54 +1225,63 @@
     <!-- KUPONLAR -->
     <div class="page" id="page-coupons">
       <!-- İstatistik Kartları -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:20px;">
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-bottom:20px;">
         <div class="stat-card gold"><div class="stat-label">Toplam Kupon</div><div class="stat-value" id="cpStatTotal">0</div></div>
         <div class="stat-card green"><div class="stat-label">Aktif Kupon</div><div class="stat-value" id="cpStatActive">0</div></div>
         <div class="stat-card blue"><div class="stat-label">Toplam Kullanım</div><div class="stat-value" id="cpStatUsed">0</div></div>
         <div class="stat-card red"><div class="stat-label">Tükenen Kupon</div><div class="stat-value" id="cpStatDepleted">0</div></div>
+        <div class="stat-card gold"><div class="stat-label">Verilen İndirim</div><div class="stat-value" id="cpStatSaved">0 ₺</div></div>
       </div>
       <div class="section-hdr">
         <div class="section-ttl">KUPON KODLARI</div>
-        <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input type="text" id="cpSearch" placeholder="Kupon ara…" oninput="renderCoupons()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:13px;outline:none;letter-spacing:1px;width:160px;">
           <select id="cpFilterStatus" onchange="renderCoupons()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
             <option value="all">Tümü</option>
             <option value="active">Aktif</option>
+            <option value="public">Sitede Gösterilen</option>
             <option value="passive">Pasif</option>
             <option value="depleted">Tükenen</option>
             <option value="expired">Süresi Dolan</option>
           </select>
+          <button class="btn btn-outline" onclick="syncCouponUsage()" title="Kullanım sayılarını siparişlerden yeniden hesapla">↻ Kullanımı Senkronla</button>
           <button class="btn btn-accent" onclick="openCouponModal()">+ YENİ KUPON</button>
         </div>
       </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Kod</th><th>Tür</th><th>İndirim</th><th>Min. Tutar</th><th>Kullanım</th><th>Son Tarih</th><th>Durum</th><th>İşlem</th></tr></thead>
-          <tbody id="couponsTbody"></tbody>
-        </table>
-      </div>
+      <div class="cp-grid" id="couponsGrid"></div>
     </div>
 
     <!-- KUPON MODAL -->
     <div class="modal-ov" id="couponModal">
-      <div class="modal-box" style="max-width:480px;">
+      <div class="modal-box" style="max-width:520px;">
         <div class="modal-hdr"><h3 id="couponModalTitle">YENİ KUPON</h3><button class="modal-x" onclick="closeModal('couponModal')">✕</button></div>
         <div class="modal-body">
           <input type="hidden" id="cpEditId">
+          <div class="cp-prev"><div class="l" id="cpPrevVal">%20</div><div class="r"><div style="font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:3px;" id="cpPrevCode">RETRO20</div><div style="font-size:12px;color:var(--muted);" id="cpPrevDesc">Kupon önizlemesi</div></div></div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:6px;">HIZLI ŞABLON</div>
+          <div class="cp-presets">
+            <button type="button" onclick="cpPreset('percent',10)">%10</button>
+            <button type="button" onclick="cpPreset('percent',15)">%15</button>
+            <button type="button" onclick="cpPreset('percent',20)">%20</button>
+            <button type="button" onclick="cpPreset('percent',25)">%25</button>
+            <button type="button" onclick="cpPreset('fixed',50)">₺50</button>
+            <button type="button" onclick="cpPreset('fixed',100)">₺100</button>
+          </div>
           <div class="fg">
             <label>Kupon Kodu *</label>
             <div style="display:flex;gap:8px;">
-              <input type="text" id="cpCode" placeholder="RETRO20" style="text-transform:uppercase;flex:1;">
+              <input type="text" id="cpCode" placeholder="RETRO20" oninput="cpPreviewUpdate()" style="text-transform:uppercase;flex:1;">
               <button class="btn btn-outline" onclick="generateCouponCode()" style="white-space:nowrap;padding:8px 12px;">🎲 Üret</button>
             </div>
           </div>
           <div class="fg-row">
             <div class="fg"><label>Tür</label>
-              <select id="cpType">
+              <select id="cpType" onchange="cpPreviewUpdate()">
                 <option value="percent">Yüzde (%)</option>
                 <option value="fixed">Sabit (₺)</option>
               </select>
             </div>
-            <div class="fg"><label>İndirim Değeri *</label><input type="number" id="cpValue" placeholder="20"></div>
+            <div class="fg"><label>İndirim Değeri *</label><input type="number" id="cpValue" placeholder="20" oninput="cpPreviewUpdate()"></div>
           </div>
           <div class="fg-row">
             <div class="fg"><label>Kullanım Limiti</label><input type="number" id="cpLimit" placeholder="Sınırsız"></div>
@@ -1210,7 +1296,13 @@
               </select>
             </div>
           </div>
-          <div class="fg"><label>Açıklama (opsiyonel)</label><input type="text" id="cpDesc" placeholder="Yeni üye indirimi vb."></div>
+          <div class="fg"><label>Sitede Göster</label>
+            <select id="cpPublic">
+              <option value="0">Hayır — gizli kod (yalnızca bilenler kullanır)</option>
+              <option value="1">Evet — anasayfada ve sepette herkese göster</option>
+            </select>
+          </div>
+          <div class="fg"><label>Açıklama (müşteri görür)</label><input type="text" id="cpDesc" placeholder="Yeni üye indirimi, 500₺ üzeri alışverişte…" oninput="cpPreviewUpdate()"></div>
           <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveCoupon()">💾 KAYDET</button>
         </div>
       </div>
@@ -1232,7 +1324,60 @@
     </div>
 
     <!-- GALERİ YÖNETİMİ -->
-    <div class="page" id="page-gallery">
+
+
+    <!-- MEDYA (Slaytlar + Galeri) -->
+    <div class="page" id="page-media">
+      <div class="section-hdr"><div class="section-ttl">MEDYA</div></div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="period-btn active" id="mediaTabSlides" onclick="mediaTab('slides')">🖼 ANASAYFA SLAYTLARI</button>
+        <button class="period-btn" id="mediaTabGallery" onclick="mediaTab('gallery')">📷 GALERİ</button>
+      </div>
+      <div id="mediaPaneSlides">
+      <!-- SLIDER -->
+      <div style="background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:24px;">
+        <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;">🖼 ANASAYFA SLAYT YÖNETİMİ</div>
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:20px;">Slaytları ekle, sil veya sırasını değiştir.</div>
+
+        <!-- Mevcut slaytlar -->
+        <div id="slidesList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;"></div>
+
+        <!-- Yeni slayt ekle formu -->
+        <div style="border:1px solid var(--border);padding:20px;background:var(--bg3);">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">+ YENİ SLAYT EKLE</div>
+          <div class="fg">
+            <label>Resim *</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" id="slideImg" placeholder="URL otomatik dolacak..." style="flex:1;">
+              <label style="background:var(--accent);color:#000;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                📁 PC'den Seç
+                <input type="file" accept="image/*" onchange="slideUploadFile(this)" style="display:none;">
+              </label>
+            </div>
+            <div id="slideImgPreviewWrap" style="display:none;margin-top:8px;">
+              <img id="slideImgPreview" style="max-height:120px;max-width:100%;border:1px solid var(--border);object-fit:cover;">
+            </div>
+            <div id="slideUploadStatus" style="font-size:11px;color:var(--muted2);margin-top:4px;"></div>
+          </div>
+          <div class="fg"><label>Başlık *</label><input type="text" id="slideTitle" placeholder="ör: YENİ KOLEKSİYON"></div>
+          <div class="fg"><label>Alt Yazı</label><input type="text" id="slideSubtitle" placeholder="ör: 2025 Bahar Serisi — bu slayt altında çıkar"></div>
+          <div class="fg"><label>Etiket (küçük yazı)</label><input type="text" id="slideTag" placeholder="ör: YENİ ÜRÜN"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="fg" style="margin:0;"><label>1. Buton Yazısı</label><input type="text" id="slideBtn1Text" placeholder="ör: Ürünleri Gör"></div>
+            <div class="fg" style="margin:0;"><label>1. Buton Linki</label><input type="text" id="slideBtn1Link" placeholder="ör: urunler.html"></div>
+            <div class="fg" style="margin:0;"><label>2. Buton Yazısı</label><input type="text" id="slideBtn2Text" placeholder="ör: Sipariş Ver"></div>
+            <div class="fg" style="margin:0;"><label>2. Buton Linki</label><input type="text" id="slideBtn2Link" placeholder="ör: #siparis"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn btn-accent" onclick="addSlide()">💾 Slayt Ekle</button>
+            <button class="btn btn-outline" onclick="clearSlideForm()">Temizle</button>
+          </div>
+        </div>
+      </div>
+
+
+      </div>
+      <div id="mediaPaneGallery" style="display:none;">
       <div class="section-hdr">
         <div class="section-ttl">GALERİ YÖNETİMİ</div>
         <button class="btn btn-accent btn-sm" onclick="openGalleryModal()">+ Fotoğraf Ekle</button>
@@ -1246,63 +1391,6 @@
       <div id="galleryAdminGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
         <div style="text-align:center;padding:40px;color:var(--muted2);font-size:13px;letter-spacing:1px;grid-column:1/-1;">
           Yükleniyor...
-        </div>
-      </div>
-    </div>
-
-    <!-- DUYURULAR -->
-    <div class="page" id="page-announcements">
-      <div class="section-hdr">
-        <div class="section-ttl">DUYURULAR</div>
-        <button class="btn btn-accent btn-sm" onclick="openAnnModal()">+ Yeni Duyuru</button>
-      </div>
-      <div style="background:var(--bg3);border:1px solid var(--border);padding:16px 20px;margin-bottom:20px;font-size:13px;color:var(--muted2);display:flex;align-items:center;gap:10px;line-height:1.6;">
-        <span style="font-size:18px;">💡</span>
-        <span>Duyurular sitenin <strong style="color:var(--accent);">üst çubuğunda</strong> (tüm sayfalar) ve istersen <strong style="color:var(--accent);">açılır pencerede</strong> (yalnızca ana sayfa) görünür. Birden fazla aktif duyuru varsa çubukta sırayla döner. Bir duyuruyu düzenlediğinde ziyaretçilerin daha önce kapattığı duyuru yeniden görünür.</span>
-      </div>
-      <div id="annList">
-        <div style="text-align:center;padding:40px;color:var(--muted2);font-size:13px;letter-spacing:1px;">Yükleniyor...</div>
-      </div>
-    </div>
-
-    <!-- DUYURU MODAL -->
-    <div class="modal-ov" id="annModal">
-      <div class="modal-box" style="max-width:600px;">
-        <div class="modal-hdr"><h3 id="annModalTitle">YENİ DUYURU</h3><button class="modal-x" onclick="closeModal('annModal')">✕</button></div>
-        <div class="modal-body">
-          <input type="hidden" id="annId">
-          <div id="annPreview" style="margin-bottom:18px;padding:11px 16px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:1.2px;"></div>
-          <div class="fg-row">
-            <div class="fg"><label>Tür (renk)</label>
-              <select id="annType" onchange="annPreview()">
-                <option value="info">📢 Duyuru (altın)</option>
-                <option value="kampanya">🔥 Kampanya (kırmızı)</option>
-                <option value="yeni">✨ Yeni (yeşil)</option>
-                <option value="uyari">⚠️ Dikkat (turuncu)</option>
-              </select></div>
-            <div class="fg"><label>Nerede görünsün</label>
-              <select id="annPlace">
-                <option value="bar">Üst çubuk (tüm sayfalar)</option>
-                <option value="popup">Açılır pencere (ana sayfa)</option>
-                <option value="both">Çubuk + pencere</option>
-              </select></div>
-          </div>
-          <div class="fg"><label>Başlık (ops.)</label><input type="text" id="annTitle" maxlength="60" placeholder="Boşsa türün adı yazılır (örn. KAMPANYA)" oninput="annPreview()"></div>
-          <div class="fg"><label>Metin *</label><textarea id="annText" maxlength="300" placeholder="Tüm yamalarda %20 indirim! Kod: RETRO20" oninput="annPreview()" style="min-height:70px;"></textarea></div>
-          <div class="fg-row">
-            <div class="fg"><label>Buton Yazısı (ops.)</label><input type="text" id="annLinkText" maxlength="24" placeholder="İNCELE" oninput="annPreview()"></div>
-            <div class="fg"><label>Buton Linki (ops.)</label><input type="text" id="annLinkUrl" placeholder="urunler.html veya https://…"></div>
-          </div>
-          <div class="fg-row">
-            <div class="fg"><label>Başlangıç Tarihi (ops.)</label><input type="date" id="annStart"></div>
-            <div class="fg"><label>Bitiş Tarihi (ops.)</label><input type="date" id="annEnd"></div>
-          </div>
-          <div class="fg-row">
-            <div class="fg"><label>Sıra (küçük önce)</label><input type="number" id="annOrder" step="1"></div>
-            <div class="fg"><label>Durum</label><select id="annActive"><option value="1">Aktif (yayında)</option><option value="0">Pasif (gizli)</option></select></div>
-          </div>
-          <div class="fg"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;cursor:pointer;"><input type="checkbox" id="annDismiss" checked style="width:auto;"> Ziyaretçi kapatabilsin (✕ butonu)</label></div>
-          <button class="btn btn-accent" style="width:100%;padding:14px;font-size:17px;justify-content:center;" onclick="saveAnnouncement()">💾 KAYDET</button>
         </div>
       </div>
     </div>
@@ -1351,11 +1439,17 @@
           <button onclick="closeGalleryModal()" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted2);padding:13px 20px;font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:1px;cursor:pointer;">İPTAL</button>
         </div>
       </div>
+      </div>
     </div>
-
 
     <!-- İSTATİSTİKLER -->
     <div class="page" id="page-stats">
+      <!-- İstatistik sekmeleri -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="period-btn active" id="statsTabSales" onclick="statsTab('sales')">📈 SATIŞ & SİPARİŞ</button>
+        <button class="period-btn" id="statsTabProducts" onclick="statsTab('products')">🏷 ÜRÜN & KATALOG</button>
+      </div>
+      <div id="statsPaneSales">
       <!-- Dönem Seçici -->
       <div class="stats-period">
         <button class="period-btn active" onclick="setStatsPeriod(7,this)">Son 7 Gün</button>
@@ -1366,7 +1460,7 @@
       </div>
 
       <!-- KPI Kartları -->
-      <div class="kpi-row">
+      <div class="kpi-row" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
         <div class="kpi-card">
           <div class="kpi-label">Toplam Gelir</div>
           <div class="kpi-val gold" id="kpiRevenue">₺0</div>
@@ -1381,6 +1475,11 @@
           <div class="kpi-label">Ort. Sepet Tutarı</div>
           <div class="kpi-val blue" id="kpiAvg">₺0</div>
           <div class="kpi-sub" id="kpiAvgSub">sipariş başına</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Dijital Satış</div>
+          <div class="kpi-val gold" id="kpiDigital">₺0</div>
+          <div class="kpi-sub" id="kpiDigSub">—</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Tamamlanma Oranı</div>
@@ -1430,6 +1529,35 @@
         </div>
         <div class="heatmap" id="activityHeatmap"></div>
       </div>
+      </div><!-- /statsPaneSales -->
+
+      <div id="statsPaneProducts" style="display:none;">
+        <div id="statsCatKpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:2px;margin-bottom:16px;"></div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+          <input type="text" id="statsProdSearch" placeholder="🔍 Ürün veya kategori ara…" oninput="renderStats()" style="flex:1;min-width:180px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
+          <select id="statsProdSort" onchange="renderStats()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;outline:none;">
+            <option value="sales">Satışa göre</option><option value="favorites">Favoriye göre</option>
+            <option value="reviews">Yoruma göre</option><option value="views">Görüntülenmeye göre</option><option value="name">İsme göre (A-Z)</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="recalcSalesFromOrders()" title="Satış sayısını siparişlerden yeniden hesapla">↻ Satışı Siparişlerden Hesapla</button>
+          <button class="btn btn-outline btn-sm" onclick="initMissingStats()" title="Eksik alanlara 0 yaz">🔧 Eksik Alanları Düzelt</button>
+        </div>
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:12px;">Satış, favori ve yorum sayılarını düzenleyebilirsiniz (anasayfada “Öne Çıkanlar” sıralamasını etkiler). Görüntülenme otomatik sayılır.</div>
+
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Ürün</th><th>Kategori</th><th>Stok</th><th>🔥 Satış</th><th>❤️ Favori</th><th>⭐ Yorum</th><th>👁 Görüntülenme</th><th>İşlem</th></tr></thead>
+          <tbody id="statsTbody"></tbody>
+        </table></div>
+
+        <div class="stat-box" style="margin-top:16px;">
+          <div class="stat-box-hdr">KATEGORİ ÖZETİ</div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>Kategori</th><th>Ürün</th><th>Toplam Satış</th><th>Favori</th><th>Yorum</th></tr></thead>
+            <tbody id="statsCatTbody"></tbody>
+          </table></div>
+        </div>
+      </div>
     </div>
 
     <!-- SETTINGS -->
@@ -1451,17 +1579,6 @@
           <div class="fg"><label>Instagram</label><input type="text" id="cfgIG" placeholder="@retropatch"></div>
           <button class="btn btn-accent" onclick="saveSettings()">💾 KAYDET</button>
         </div>
-        <div class="settings-card">
-          <h4>🚚 KARGO FİYATLARI</h4>
-          <div class="fg"><label>DHL eCommerce (₺)</label><input type="number" id="kargoMNG" placeholder="49"></div>
-          <div class="fg"><label>Yurtiçi Kargo (₺)</label><input type="number" id="kargoYurtici" placeholder="44"></div>
-          <div class="fg"><label>PTT Kargo (₺)</label><input type="number" id="kargoPTT" placeholder="35"></div>
-          <div class="fg"><label>Sürat Kargo (₺)</label><input type="number" id="kargoSurat" placeholder="52"></div>
-          <div class="fg"><label>Ücretsiz Kargo Alt Limiti (₺) <span style="color:var(--muted);font-size:10px;">(0 = kapalı)</span></label><input type="number" id="kargoLimit" placeholder="500"></div>
-          <div class="fg"><label>Tahmini Teslimat</label><input type="text" id="kargoSure" placeholder="2-4 iş günü"></div>
-          <button class="btn btn-accent" onclick="saveKargo()">💾 KAYDET</button>
-        </div>
-
         <div class="settings-card">
           <h4>🧵 ARKA YÜZEY EK FİYATLARI</h4>
           <div class="fg"><label>Düz (₺)</label><input type="number" id="backPriceDuz" placeholder="0"></div>
@@ -1676,6 +1793,7 @@ function initData() {
   listenPendingReviews();
   listenDigitalOrders();
   listenDigitalReviews();
+  loadCargoSettings();
 }
 
 // ============ REALTIME LISTENERS ============
@@ -1734,10 +1852,11 @@ function listenPendingReviews() {
     .where('approved', '==', false)
     .onSnapshot(snap => {
       const pending = snap.docs.length;
+      window._prodPend = pending;
       const badge = document.getElementById('badgeReviews');
       if (badge) {
-        badge.textContent = pending;
-        badge.style.display = pending > 0 ? 'inline-block' : 'none';
+        badge.textContent = pending + dgRevPendingCount();
+        badge.style.display = (pending + dgRevPendingCount()) > 0 ? 'inline-block' : 'none';
       }
       // Dashboard'daki bekleyen yorum sayısını güncelle
       const el = document.getElementById('sPendingReviews');
@@ -1785,13 +1904,15 @@ async function listenPendingReviewsFallback() {
 }
 
 function loadProducts() {
-  db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snap => {
-    allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  // NOT: orderBy('createdAt') kullanılmaz — createdAt alanı olmayan ürünleri listeden düşürür
+  db.collection('products').onSnapshot(snap => {
+    allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
     document.getElementById('sProducts').textContent = allProducts.length;
     renderProducts();
     buildCatChart();
     // Eğer site yönetimi sayfası açıksa istatistikleri güncelle
-    if (document.getElementById('page-sitemanage')?.classList.contains('active')) {
+    if (document.getElementById('page-stats')?.classList.contains('active')) {
       renderStats();
     }
   });
@@ -1799,7 +1920,7 @@ function loadProducts() {
 
 // ============ DASHBOARD ============
 function updateDashboard() {
-  const total = allOrders.reduce((s, o) => s + (parseFloat(o.price) || 0), 0);
+  const total = allOrders.filter(o => !isCancelled(o)).reduce((s, o) => s + orderAmount(o), 0);
   document.getElementById('sRevenue').textContent = '₺' + total.toLocaleString('tr-TR');
   document.getElementById('sOrders').textContent = allOrders.length;
   const pending = allOrders.filter(o => o.status === 'yeni' || !o.status).length;
@@ -2665,22 +2786,14 @@ function loadSiteSettings() {
     if (doc.exists) {
       siteSettings = doc.data();
       setEl('marqueeText', siteSettings.marquee);
+      setEl('marqueeSpeed', siteSettings.marqueeSpeed || 'normal');
+      setEl('marqueeActive', siteSettings.marqueeActive === false ? '0' : '1');
+      if (typeof marqueePreview === 'function') marqueePreview();
       setEl('smWA', siteSettings.whatsapp);       setEl('cfgWA', siteSettings.whatsapp);
       setEl('smEmail', siteSettings.email);        setEl('cfgEmail', siteSettings.email);
       setEl('smIG', siteSettings.instagram);       setEl('cfgIG', siteSettings.instagram);
       setEl('smDolap', siteSettings.dolap);        setEl('cfgName', siteSettings.siteName);
       updateTabButtons(siteSettings.defaultTab || 'sales');
-    }
-  });
-  db.collection('settings').doc('kargo').get().then(doc => {
-    if (doc.exists) {
-      const d = doc.data();
-      if (d.mng !== undefined) document.getElementById('kargoMNG').value = d.mng;
-      if (d.yurtici !== undefined) document.getElementById('kargoYurtici').value = d.yurtici;
-      if (d.ptt !== undefined) document.getElementById('kargoPTT').value = d.ptt;
-      if (d.surat !== undefined) document.getElementById('kargoSurat').value = d.surat;
-      if (d.limit !== undefined) document.getElementById('kargoLimit').value = d.limit;
-      if (d.sure) document.getElementById('kargoSure').value = d.sure;
     }
   });
   db.collection('settings').doc('bank').get().then(doc => {
@@ -2715,7 +2828,7 @@ function setDefaultTab(tab) {
 }
 
 function updateTabButtons(tab) {
-  ['sales','favorites','reviews'].forEach(t => {
+  ['sales','favorites','reviews','new'].forEach(t => {
     const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
     if (!btn) return;
     if (t === tab) {
@@ -2724,13 +2837,6 @@ function updateTabButtons(tab) {
       btn.className = 'btn btn-outline btn-sm'; btn.style.background=''; btn.style.border=''; btn.style.color='';
     }
   });
-}
-
-function saveMarquee() {
-  const val = document.getElementById('marqueeText').value.trim();
-  if (!val) return;
-  db.collection('settings').doc('site').set({ marquee: val }, { merge: true })
-    .then(() => toast('Marquee kaydedildi', 'ok'));
 }
 
 function saveContact() {
@@ -2837,27 +2943,91 @@ function buildSliderPreview() {
 }
 
 
+// ===== İSTATİSTİKLER (satış + ürün/katalog tek yerde) =====
+function orderAmount(o) {
+  const v = parseFloat(o.total != null ? o.total : o.price);
+  return isNaN(v) ? 0 : v;
+}
+const isCancelled = o => /iptal/i.test(o.status || '');
+
+function statsTab(t) {
+  document.getElementById('statsPaneSales').style.display = t === 'sales' ? 'block' : 'none';
+  document.getElementById('statsPaneProducts').style.display = t === 'products' ? 'block' : 'none';
+  document.getElementById('statsTabSales').classList.toggle('active', t === 'sales');
+  document.getElementById('statsTabProducts').classList.toggle('active', t === 'products');
+  if (t === 'products') renderStats(); else renderStatsPage();
+}
+
 function renderStats() {
   const tbody = document.getElementById('statsTbody');
   if (!tbody) return;
-  if (!allProducts.length) { tbody.innerHTML='<tr><td colspan="5" class="empty"><div class="empty-text">Ürün yok</div></td></tr>'; return; }
-  tbody.innerHTML = allProducts.map(p => `
-    <tr>
-      <td style="font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</td>
-      <td><input type="number" value="${p.sales||0}" min="0" style="width:70px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-size:13px;outline:none;" id="stat_sales_${p.id}"></td>
-      <td><input type="number" value="${p.favorites||0}" min="0" style="width:70px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-size:13px;outline:none;" id="stat_fav_${p.id}"></td>
-      <td><input type="number" value="${p.reviews||0}" min="0" style="width:70px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-size:13px;outline:none;" id="stat_rev_${p.id}"></td>
-      <td><button class="btn btn-blue btn-sm" onclick="saveStats('${p.id}')">Kaydet</button></td>
-    </tr>`).join('');
+  const sum = k => allProducts.reduce((s, p) => s + (Number(p[k]) || 0), 0);
+  const cnt = st => allProducts.filter(p => p.status === st).length;
+  const kpi = (l, v, c) => `<div class="kpi-card" style="padding:14px 16px;"><div class="kpi-label">${l}</div><div class="kpi-val ${c || ''}" style="font-size:26px;">${v}</div></div>`;
+  document.getElementById('statsCatKpi').innerHTML =
+    kpi('Toplam Ürün', allProducts.length, 'gold') + kpi('Stokta', cnt('Stokta'), 'green') +
+    kpi('Son 3', cnt('Son 3')) + kpi('Tükendi', cnt('Tükendi')) +
+    kpi('Toplam Satış', sum('sales')) + kpi('Toplam Favori', sum('favorites')) +
+    kpi('Toplam Yorum', sum('reviews')) + kpi('Görüntülenme', sum('views'));
+
+  const q = (document.getElementById('statsProdSearch')?.value || '').trim().toLowerCase();
+  const sort = document.getElementById('statsProdSort')?.value || 'sales';
+  let list = allProducts.filter(p => !q || (p.name || '').toLowerCase().includes(q) || (p.cat || '').toLowerCase().includes(q));
+  list.sort((a, b) => sort === 'name' ? (a.name || '').localeCompare(b.name || '', 'tr') : (Number(b[sort]) || 0) - (Number(a[sort]) || 0));
+
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px;">' + (allProducts.length ? 'Aramanıza uygun ürün yok' : 'Ürün yok') + '</td></tr>';
+  } else {
+    const inp = (id, v) => `<input type="number" value="${v || 0}" min="0" id="${id}" style="width:70px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-size:13px;outline:none;">`;
+    const stc = { 'Stokta': '#4ade80', 'Son 3': '#fb923c', 'Tükendi': 'var(--accent2)' };
+    tbody.innerHTML = list.map(p => `<tr>
+      <td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${dgEsc(p.name)}</td>
+      <td style="font-size:12px;color:var(--muted2);">${dgEsc(p.cat || '—')}</td>
+      <td style="font-size:11px;color:${stc[p.status] || 'var(--muted2)'};">${dgEsc(p.status || '—')}</td>
+      <td>${inp('stat_sales_' + p.id, p.sales)}</td>
+      <td>${inp('stat_fav_' + p.id, p.favorites)}</td>
+      <td>${inp('stat_rev_' + p.id, p.reviews)}</td>
+      <td style="color:var(--muted2);">${Number(p.views) || 0}</td>
+      <td><button class="btn btn-blue btn-sm" onclick="saveStats('${p.id}')">Kaydet</button></td></tr>`).join('');
+  }
+
+  const cats = {};
+  allProducts.forEach(p => {
+    const c = p.cat || 'Diğer';
+    cats[c] = cats[c] || { n: 0, s: 0, f: 0, r: 0 };
+    cats[c].n++; cats[c].s += Number(p.sales) || 0; cats[c].f += Number(p.favorites) || 0; cats[c].r += Number(p.reviews) || 0;
+  });
+  const ct = document.getElementById('statsCatTbody');
+  if (ct) ct.innerHTML = Object.entries(cats).sort((a, b) => b[1].s - a[1].s).map(([c, v]) =>
+    `<tr><td>${dgEsc(c)}</td><td>${v.n}</td><td>${v.s}</td><td>${v.f}</td><td>${v.r}</td></tr>`).join('') ||
+    '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">Veri yok</td></tr>';
 }
 
 function saveStats(id) {
-  const sales = parseInt(document.getElementById('stat_sales_'+id)?.value)||0;
-  const favorites = parseInt(document.getElementById('stat_fav_'+id)?.value)||0;
-  const reviews = parseInt(document.getElementById('stat_rev_'+id)?.value)||0;
+  const g = k => parseInt(document.getElementById(k + id)?.value) || 0;
+  const sales = g('stat_sales_'), favorites = g('stat_fav_'), reviews = g('stat_rev_');
   db.collection('products').doc(id).update({ sales, favorites, reviews })
-    .then(() => toast('İstatistik güncellendi', 'ok'))
-    .catch(() => toast('Hata!', 'err'));
+    .then(() => toast('İstatistik güncellendi ✓', 'ok'))
+    .catch(e => toast('Hata: ' + e.message, 'err'));
+}
+
+// Satış sayılarını siparişlerden yeniden hesapla (iptal edilenler sayılmaz)
+async function recalcSalesFromOrders() {
+  const counts = {};
+  allOrders.filter(o => !isCancelled(o)).forEach(o => (o.items || []).forEach(i => {
+    if (i.id) counts[i.id] = (counts[i.id] || 0) + (Number(i.qty) || 1);
+  }));
+  const diff = allProducts.filter(p => (Number(p.sales) || 0) !== (counts[p.id] || 0));
+  if (!diff.length) return toast('Satış sayıları zaten siparişlerle uyumlu ✓', 'ok');
+  if (!confirm(diff.length + ' ürünün satış sayısı siparişlere göre değiştirilecek.\nElle girdiğiniz değerlerin üzerine yazılır. Devam edilsin mi?')) return;
+  try {
+    for (let i = 0; i < diff.length; i += 400) {
+      const b = db.batch();
+      diff.slice(i, i + 400).forEach(p => b.update(db.collection('products').doc(p.id), { sales: counts[p.id] || 0 }));
+      await b.commit();
+    }
+    toast('✓ ' + diff.length + ' ürün güncellendi', 'ok');
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
 }
 
 async function initMissingStats() {
@@ -2892,23 +3062,6 @@ function saveSettings() {
     email: document.getElementById('cfgEmail').value,
     instagram: document.getElementById('cfgIG').value,
   }, { merge: true }).then(() => toast('Site bilgileri kaydedildi', 'ok'));
-}
-
-function saveKargo() {
-  const mng     = parseFloat(document.getElementById('kargoMNG').value);
-  const yurtici = parseFloat(document.getElementById('kargoYurtici').value);
-  const ptt     = parseFloat(document.getElementById('kargoPTT').value);
-  const surat   = parseFloat(document.getElementById('kargoSurat').value);
-  const limit   = parseFloat(document.getElementById('kargoLimit').value);
-  const sure    = document.getElementById('kargoSure').value.trim();
-
-  if ([mng, yurtici, ptt, surat].some(isNaN)) {
-    toast('Lütfen tüm kargo fiyatlarını girin', 'err'); return;
-  }
-
-  db.collection('settings').doc('kargo').set({ mng, yurtici, ptt, surat, limit: isNaN(limit) ? 0 : limit, sure })
-    .then(() => toast('Kargo ayarları kaydedildi ✓', 'ok'))
-    .catch(e => toast('Kaydedilemedi: ' + e.message, 'err'));
 }
 
 function saveBackPrices() {
@@ -2966,26 +3119,27 @@ function changePass() {
 
 // ============ UTILS ============
 function showPage(name) {
+  if (name === 'gallery' || name === 'slides') name = 'media';
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   event.currentTarget?.classList.add('active');
-  const titles = {dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ',categories:'KATEGORİLER',digital:'DİJİTAL DOSYALAR',announcements:'DUYURULAR'};
+  const titles = {dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ',categories:'KATEGORİLER',media:'MEDYA',digital:'DİJİTAL DOSYALAR',announcements:'DUYURULAR'};
   document.getElementById('pageTitle').textContent = titles[name] || name.toUpperCase();
   if (name === 'orders') renderOrders('cart', document.getElementById('orderFilter')?.value || 'all');
   if (name === 'products') renderProducts();
   if (name === 'messages') renderMessages();
-  if (name === 'cargo') renderCargo('all');
+  if (name === 'cargo') { renderCargo('all'); loadCargoSettings(); }
   if (name === 'members') loadMembers();
   if (name === 'coupons') loadCoupons();
-  if (name === 'sitemanage') { renderBannerList(); loadSiteSettings(); if (allProducts.length) renderStats(); }
-  if (name === 'gallery') loadGallery();
-  if (name === 'announcements') loadAnnouncements();
-  if (name === 'stats') renderStatsPage();
+  if (name === 'sitemanage') { loadSiteSettings(); }
+  if (name === 'media') { renderSlides(); loadGallery(); }
+  if (name === 'stats') { renderStatsPage(); renderStats(); }
   if (name === 'reviews') loadAllReviews();
   if (name === 'settings') { loadSiteSettings(); loadBackPrices(); }
   if (name === 'categories') loadCategories();
   if (name === 'digital') loadDigital();
+  if (name === 'announcements') { loadAnnouncements(); loadMarqueeSettings(); }
 }
 
 // ============ İSTATİSTİKLER ============
@@ -3010,12 +3164,12 @@ function filterByPeriod(orders, days) {
 }
 
 function renderStatsPage() {
-  const filtered = filterByPeriod(allOrders, statsPeriod);
+  const filtered = filterByPeriod(allOrders, statsPeriod).filter(o => !isCancelled(o));
   const periodLabel = {7:'Son 7 gün',30:'Son 30 gün',90:'Son 90 gün',365:'Bu yıl',0:'Tüm zamanlar'}[statsPeriod] || '';
   document.getElementById('chartPeriodLabel').textContent = periodLabel;
 
   // KPI'lar
-  const revenue = filtered.reduce((s,o) => s + (parseFloat(o.price)||0), 0);
+  const revenue = filtered.reduce((s,o) => s + orderAmount(o), 0);
   const avgBasket = filtered.length ? revenue / filtered.length : 0;
   const completed = filtered.filter(o => o.status === 'tamamlandı').length;
   const compRate = filtered.length ? Math.round(completed / filtered.length * 100) : 0;
@@ -3027,6 +3181,14 @@ function renderStatsPage() {
   document.getElementById('kpiAvg').textContent = '₺' + avgBasket.toLocaleString('tr-TR', {maximumFractionDigits:0});
   document.getElementById('kpiComplete').textContent = '%' + compRate;
   document.getElementById('kpiCompSub').textContent = completed + ' tamamlandı / ' + filtered.length + ' toplam';
+
+  // Dijital dosya satışları (onaylanan siparişler)
+  const digOk = filterByPeriod((typeof dgOrders !== 'undefined' ? dgOrders : []).filter(o => o.status === 'onaylandı'), statsPeriod);
+  const kd = document.getElementById('kpiDigital');
+  if (kd) {
+    kd.textContent = '₺' + digOk.reduce((s, o) => s + (parseFloat(o.total) || 0), 0).toLocaleString('tr-TR', {maximumFractionDigits:0});
+    document.getElementById('kpiDigSub').textContent = digOk.length + ' onaylı sipariş';
+  }
 
   buildRevenueChart(filtered);
   buildStatusDonut(filtered);
@@ -3054,7 +3216,7 @@ function buildRevenueChart(orders) {
         if (!o.createdAt) return false;
         const d = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
         return d.getMonth() === b.month && d.getFullYear() === b.year;
-      }).reduce((s,o) => s + (parseFloat(o.price)||0), 0)
+      }).reduce((s,o) => s + orderAmount(o), 0)
     }));
   } else if (isWeeks) {
     for (let i = 11; i >= 0; i--) {
@@ -3068,7 +3230,7 @@ function buildRevenueChart(orders) {
         if (!o.createdAt) return false;
         const d = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
         return d >= b.start && d <= b.end;
-      }).reduce((s,o) => s + (parseFloat(o.price)||0), 0)
+      }).reduce((s,o) => s + orderAmount(o), 0)
     }));
   } else {
     const cnt = statsPeriod || 28;
@@ -3082,7 +3244,7 @@ function buildRevenueChart(orders) {
         if (!o.createdAt) return false;
         const d = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
         return d.toDateString() === b.date;
-      }).reduce((s,o) => s + (parseFloat(o.price)||0), 0)
+      }).reduce((s,o) => s + orderAmount(o), 0)
     }));
   }
 
@@ -3144,8 +3306,11 @@ function buildStatusDonut(orders) {
 function buildTopProducts(orders) {
   const prods = {};
   orders.forEach(o => {
-    const name = o.product || o.notes || 'Bilinmiyor';
-    prods[name] = (prods[name]||0) + 1;
+    if (Array.isArray(o.items) && o.items.length) {
+      o.items.forEach(i => { const n = i.name || 'Bilinmiyor'; prods[n] = (prods[n] || 0) + (Number(i.qty) || 1); });
+    } else {
+      const n = o.product || o.notes || 'Bilinmiyor'; prods[n] = (prods[n] || 0) + 1;
+    }
   });
   const sorted = Object.entries(prods).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const max = sorted[0]?.[1] || 1;
@@ -3153,7 +3318,7 @@ function buildTopProducts(orders) {
     <div class="top-item">
       <div class="top-rank">${i+1}</div>
       <div class="top-info">
-        <div class="top-name">${name}</div>
+        <div class="top-name">${dgEsc(name)}</div>
         <div class="top-bar-wrap"><div class="top-bar-fill" style="width:${Math.round(cnt/max*100)}%;"></div></div>
       </div>
       <div class="top-val">${cnt}</div>
@@ -3163,7 +3328,7 @@ function buildTopProducts(orders) {
 function buildTopCargo(orders) {
   const cargo = {};
   orders.forEach(o => {
-    const c = cargoCompanyName(o.cargo?.company) || 'Belirtilmedi';
+    const c = (o.cargo && (o.cargo.companyName || o.cargo.company)) ? cargoLabel(o) : 'Belirtilmedi';
     cargo[c] = (cargo[c]||0) + 1;
   });
   const sorted = Object.entries(cargo).sort((a,b)=>b[1]-a[1]);
@@ -3238,6 +3403,7 @@ async function loadAllReviews() {
 
     // Ürün filtre dropdown'ını doldur (bir kez)
     if (filterEl && filterEl.options.length <= 1 && products.length) {
+      const dOpt = document.createElement('option'); dOpt.value = 'digital'; dOpt.textContent = '💾 Dijital Dosyalar'; filterEl.appendChild(dOpt);
       products.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p.id; opt.textContent = p.name || p.id;
@@ -3273,14 +3439,9 @@ async function loadAllReviews() {
       return tb - ta;
     });
 
-    const pendingCount = allReviews.filter(r => r.approved === false).length;
+    const pendingCount = allReviews.filter(r => r.approved === false).length; window._prodPend = pendingCount;
     const badge = document.getElementById('badgeReviews');
-    if (badge) { badge.textContent = pendingCount; badge.style.display = pendingCount > 0 ? 'inline-block' : 'none'; }
-
-    if (!allReviews.length) {
-      tbody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">💬</div><div class="empty-text">Henüz yorum yok</div></td></tr>';
-      return;
-    }
+    if (badge) { badge.textContent = pendingCount + dgRevPendingCount(); badge.style.display = (pendingCount + dgRevPendingCount()) > 0 ? 'inline-block' : 'none'; }
 
     renderReviewTable();
   } catch(e) {
@@ -3296,7 +3457,11 @@ function renderReviewTable() {
   const starFilter = document.getElementById('reviewStarFilter')?.value || 'all';
   const approvalFilter = document.getElementById('reviewApprovalFilter')?.value || 'all';
 
-  let list = starFilter === 'all' ? allReviews : allReviews.filter(r => String(r.rating) === starFilter);
+  const pf = document.getElementById('reviewProductFilter')?.value || 'all';
+  const dig = (typeof dgReviews !== 'undefined' ? dgReviews : []).map(r => ({ ...r, kind: 'digital', reviewId: r.id, productId: '', productName: '💾 ' + (r.fileTitle || r.fileId), userEmail: '' }));
+  const merged = [...allReviews.filter(() => pf !== 'digital'), ...((pf === 'all' || pf === 'digital') ? dig : [])]
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+  let list = starFilter === 'all' ? merged : merged.filter(r => String(r.rating) === starFilter);
   if (approvalFilter === 'pending')  list = list.filter(r => r.approved === false);
   if (approvalFilter === 'approved') list = list.filter(r => r.approved === true);
 
@@ -3314,17 +3479,17 @@ function renderReviewTable() {
       ? `<span style="font-size:10px;padding:3px 8px;background:rgba(251,146,60,.15);color:#fb923c;border:1px solid rgba(251,146,60,.3);font-family:sans-serif;letter-spacing:1px;">BEKLEMEDE</span>`
       : `<span style="font-size:10px;padding:3px 8px;background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3);font-family:sans-serif;letter-spacing:1px;">ONAYLANDI</span>`;
     return `<tr style="${isPending ? 'border-left:2px solid #fb923c;' : ''}">
-      <td style="font-family:sans-serif;font-weight:700;letter-spacing:1px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.productName}</td>
-      <td style="font-size:12px;">${r.userName||'Anonim'}<br><span style="font-size:10px;color:var(--muted);">${r.userEmail||''}</span></td>
+      <td style="font-family:sans-serif;font-weight:700;letter-spacing:1px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${dgEsc(r.productName)}</td>
+      <td style="font-size:12px;">${dgEsc(r.userName||'Anonim')}<br><span style="font-size:10px;color:var(--muted);">${dgEsc(r.userEmail||'')}</span></td>
       <td style="color:${starColor};font-size:13px;letter-spacing:1px;white-space:nowrap;">${stars}</td>
-      <td style="font-size:12px;color:var(--muted);max-width:220px;">${r.text||'—'}</td>
+      <td style="font-size:12px;color:var(--muted);max-width:220px;">${dgEsc(r.text||'—')}</td>
       <td style="font-size:11px;color:var(--muted);white-space:nowrap;">${date}</td>
       <td>${statusBadge}</td>
       <td style="white-space:nowrap;display:flex;gap:4px;">
         ${isPending
-          ? `<button class="btn btn-green btn-sm" onclick="approveReview('${r.productId}','${r.reviewId}')">✓ Onayla</button>`
+          ? `<button class="btn btn-green btn-sm" onclick="${r.kind==='digital' ? `approveDgReview('${r.reviewId}')` : `approveReview('${r.productId}','${r.reviewId}')`}">✓ Onayla</button>`
           : `<button class="btn btn-outline btn-sm" style="opacity:.5;cursor:default;" disabled>✓ Onaylı</button>`}
-        <button class="btn btn-danger btn-sm" onclick="deleteReview('${r.productId}','${r.reviewId}')">🗑</button>
+        <button class="btn btn-danger btn-sm" onclick="${r.kind==='digital' ? `deleteDgReview('${r.reviewId}')` : `deleteReview('${r.productId}','${r.reviewId}')`}">🗑</button>
       </td>
     </tr>`;
   }).join('');
@@ -3341,9 +3506,9 @@ function approveReview(productId, reviewId) {
       // Lokal veriyi güncelle
       const r = allReviews.find(x => x.productId === productId && x.reviewId === reviewId);
       if (r) r.approved = true;
-      const pendingCount = allReviews.filter(x => x.approved === false).length;
+      const pendingCount = allReviews.filter(x => x.approved === false).length; window._prodPend = pendingCount;
       const badge = document.getElementById('badgeReviews');
-      if (badge) { badge.textContent = pendingCount; badge.style.display = pendingCount > 0 ? 'inline-block' : 'none'; }
+      if (badge) { badge.textContent = pendingCount + dgRevPendingCount(); badge.style.display = (pendingCount + dgRevPendingCount()) > 0 ? 'inline-block' : 'none'; }
       renderReviewTable();
       toast('Yorum onaylandı ve yayınlandı ✓', 'ok');
     })
@@ -3362,9 +3527,9 @@ function deleteReview(productId, reviewId) {
         }).catch(()=>{});
       }
       allReviews = allReviews.filter(x => !(x.productId === productId && x.reviewId === reviewId));
-      const pendingCount = allReviews.filter(x => x.approved === false).length;
+      const pendingCount = allReviews.filter(x => x.approved === false).length; window._prodPend = pendingCount;
       const badge = document.getElementById('badgeReviews');
-      if (badge) { badge.textContent = pendingCount; badge.style.display = pendingCount > 0 ? 'inline-block' : 'none'; }
+      if (badge) { badge.textContent = pendingCount + dgRevPendingCount(); badge.style.display = (pendingCount + dgRevPendingCount()) > 0 ? 'inline-block' : 'none'; }
       renderReviewTable();
       toast('Yorum silindi', 'ok');
     })
@@ -3428,7 +3593,7 @@ async function resetAllReviews() {
     toast('Hata: ' + e.message, 'err');
     console.error(e);
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '🗑 Tüm Yorumları Sıfırla'; }
+    if (btn) { btn.disabled = false; btn.textContent = '🗑 Ürün Yorumlarını Sıfırla'; }
   }
 }
 
@@ -3447,7 +3612,7 @@ function renderCargo(filter) {
     <tr>
       <td><span style="font-family:'Bebas Neue',cursive;font-size:15px;color:var(--accent);">${o.orderCode||o.id.slice(-6).toUpperCase()}</span><br><span style="font-size:10px;color:var(--muted2);">${formatDate(o.createdAt)}</span></td>
       <td>${o.userName||o.name||'—'}<br><span style="font-size:10px;color:var(--muted2);">${o.address?.phone||''}</span></td>
-      <td>${cargoCompanyName(o.cargo?.company)}</td>
+      <td>${dgEsc(cargoLabel(o))}</td>
       <td>
         ${o.cargo?.trackingCode
           ? `<span style="font-family:sans-serif;font-weight:700;">${o.cargo.trackingCode}</span>
@@ -3465,7 +3630,7 @@ function openCargoModal(orderId) {
   const o = allOrders.find(x=>x.id===orderId);
   if (!o) return;
   document.getElementById('cargoOrderId').value = orderId;
-  document.getElementById('cargoCompany').value = o.cargo?.company || 'mng';
+  document.getElementById('cargoCompany').value = o.cargo?.companyName || (o.cargo?.company ? cargoCompanyName(o.cargo.company) : '');
   document.getElementById('cargoTrackCode').value = o.cargo?.trackingCode || '';
   document.getElementById('cargoStatus').value = o.cargo?.status || 'Hazırlanıyor';
   openModal('cargoModal');
@@ -3473,11 +3638,13 @@ function openCargoModal(orderId) {
 
 function saveCargo() {
   const id = document.getElementById('cargoOrderId').value;
-  const company = document.getElementById('cargoCompany').value;
+  const typedCompany = document.getElementById('cargoCompany').value.trim();
+  if (!typedCompany) { toast('Kargo firmasını girin', 'err'); return; }
+  const foundCo = cargoCompanies.find(c => c.name.toLowerCase() === typedCompany.toLowerCase());
+  const company = foundCo ? foundCo.key : slugCargo(typedCompany);
   const trackingCode = document.getElementById('cargoTrackCode').value.trim();
   const status = document.getElementById('cargoStatus').value;
-  const companyNames = {mng:'DHL eCommerce',yurtici:'Yurtiçi Kargo',ptt:'PTT Kargo',surat:'Sürat Kargo'};
-  const companyName = companyNames[company] || company;
+  const companyName = foundCo ? foundCo.name : typedCompany;
   const isCompleted = status === 'Teslim Edildi';
   db.collection('orders').doc(id).update({
     'cargo.company': company,
@@ -3515,10 +3682,14 @@ function saveCargo() {
 }
 
 function cargoCompanyName(c) {
+  const f = cargoCompanies.find(x => x.key === c);
+  if (f) return f.name;
   return {mng:'DHL eCommerce',yurtici:'Yurtiçi Kargo',ptt:'PTT Kargo',surat:'Sürat Kargo'}[c]||c||'—';
 }
 
 function cargoTrackUrl(company, code) {
+  const cc = cargoCompanies.find(x => x.key === company);
+  if (cc && cc.trackUrl) return cc.trackUrl.replace(/\{(kod|code)\}/gi, encodeURIComponent(code));
   const urls = {
     mng:`https://www.dhlecommerce.com.tr/gonderitakip?barkod=${code}`,
     yurtici:`https://www.yurticikargo.com/`,
@@ -3531,7 +3702,7 @@ function cargoTrackUrl(company, code) {
 function openTracking(company, code) {
   const url = cargoTrackUrl(company, code);
   const names = {mng:'DHL eCommerce',yurtici:'Yurtiçi Kargo',ptt:'PTT Kargo',surat:'Sürat Kargo'};
-  const label = names[company] || 'Kargo';
+  const label = (cargoCompanies.find(x => x.key === company)?.name) || names[company] || 'Kargo';
   navigator.clipboard.writeText(code).then(() => {
     const t = document.createElement('div');
     t.innerHTML = `📋 <b>${code}</b> kopyalandı!<br><span style="font-size:11px;opacity:.8;">${label} sayfası açılıyor, numarayı yapıştırın.</span>`;
@@ -3675,112 +3846,191 @@ function loadCoupons() {
   });
 }
 
+// ===== KUPONLAR (kart tasarımı) =====
+function cpEnd(c) { return c.expiry ? new Date(c.expiry + 'T23:59:59') : null; }
+function cpState(c) {
+  const now = new Date(), end = cpEnd(c);
+  if (c.active === false) return 'passive';
+  if (c.limit && (c.used || 0) >= c.limit) return 'depleted';
+  if (end && end < now) return 'expired';
+  return 'active';
+}
+
 function updateCouponStats() {
-  const now = new Date();
   const total = allCoupons.length;
-  const active = allCoupons.filter(c => {
-    if (c.active === false) return false;
-    if (c.expiry && new Date(c.expiry) < now) return false;
-    if (c.limit && c.used >= c.limit) return false;
-    return true;
-  }).length;
-  const used = allCoupons.reduce((s,c) => s+(c.used||0), 0);
-  const depleted = allCoupons.filter(c => c.limit && c.used >= c.limit).length;
+  const active = allCoupons.filter(c => cpState(c) === 'active').length;
+  const used = allCoupons.reduce((s, c) => s + (c.used || 0), 0);
+  const depleted = allCoupons.filter(c => cpState(c) === 'depleted').length;
+  const saved = (typeof allOrders !== 'undefined' ? allOrders : [])
+    .filter(o => o.coupon && !/iptal/i.test(o.status || ''))
+    .reduce((s, o) => s + (Number(o.discount) || 0), 0);
   document.getElementById('cpStatTotal').textContent = total;
   document.getElementById('cpStatActive').textContent = active;
   document.getElementById('cpStatUsed').textContent = used;
   document.getElementById('cpStatDepleted').textContent = depleted;
+  document.getElementById('cpStatSaved').textContent = saved.toLocaleString('tr-TR') + ' ₺';
 }
 
 function renderCoupons() {
-  const tbody = document.getElementById('couponsTbody');
-  if (!tbody) return;
+  const grid = document.getElementById('couponsGrid');
+  if (!grid) return;
   const filter = document.getElementById('cpFilterStatus')?.value || 'all';
-  const now = new Date();
-  let list = allCoupons;
-  if (filter === 'active') list = list.filter(c => c.active !== false && (!c.expiry || new Date(c.expiry) >= now) && (!c.limit || c.used < c.limit));
-  if (filter === 'passive') list = list.filter(c => c.active === false);
-  if (filter === 'depleted') list = list.filter(c => c.limit && c.used >= c.limit);
-  if (filter === 'expired') list = list.filter(c => c.expiry && new Date(c.expiry) < now);
+  const q = (document.getElementById('cpSearch')?.value || '').trim().toUpperCase();
+  let list = allCoupons.filter(c => !q || c.id.includes(q) || (c.desc || '').toUpperCase().includes(q));
+  if (filter === 'active') list = list.filter(c => cpState(c) === 'active');
+  if (filter === 'public') list = list.filter(c => c.public === true);
+  if (filter === 'passive') list = list.filter(c => cpState(c) === 'passive');
+  if (filter === 'depleted') list = list.filter(c => cpState(c) === 'depleted');
+  if (filter === 'expired') list = list.filter(c => cpState(c) === 'expired');
   if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="8" class="empty"><div class="empty-icon">🎟</div><div class="empty-text">Kupon bulunamadı</div></td></tr>';
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;padding:50px 0;"><div class="empty-icon">🎟</div><div class="empty-text">Kupon bulunamadı</div></div>';
     return;
   }
-  tbody.innerHTML = list.map(c => {
-    const isExpired = c.expiry && new Date(c.expiry) < now;
-    const isDepleted = c.limit && c.used >= c.limit;
-    const isPassive = c.active === false;
-    let sb;
-    if (isPassive)       sb = '<span class="badge b-red">Pasif</span>';
-    else if (isDepleted) sb = '<span class="badge b-red">Tükendi</span>';
-    else if (isExpired)  sb = '<span class="badge" style="background:rgba(136,136,136,.1);color:var(--muted);border:1px solid var(--border);">Süresi Doldu</span>';
-    else                 sb = '<span class="badge b-green">Aktif</span>';
-    const usageBar = c.limit
-      ? `<div style="font-size:12px;">${c.used||0}/${c.limit}<div style="height:2px;background:var(--bg3);margin-top:3px;"><div style="height:100%;width:${Math.min(100,Math.round((c.used||0)/c.limit*100))}%;background:${isDepleted?'var(--accent2)':'var(--accent)'};"></div></div></div>`
-      : `<span style="font-size:12px;">${c.used||0} / ∞</span>`;
-    const expiryStr = c.expiry
-      ? `<span style="color:${isExpired?'var(--accent2)':'var(--muted)'};font-size:12px;">${new Date(c.expiry).toLocaleDateString('tr-TR')}</span>`
-      : '<span style="color:var(--muted);font-size:11px;">Süresiz</span>';
-    return `<tr>
-      <td><div style="font-family:'Bebas Neue',cursive;font-size:17px;color:var(--accent);letter-spacing:2px;">${c.id}</div>${c.desc?`<div style="font-size:10px;color:var(--muted);">${c.desc}</div>`:''}</td>
-      <td style="font-size:12px;">${c.type==='percent'?'Yüzde (%)':'Sabit (₺)'}</td>
-      <td style="font-family:'Bebas Neue',cursive;font-size:20px;">${c.type==='percent'?'%'+c.value:'₺'+c.value}</td>
-      <td style="font-size:12px;color:var(--muted);">${c.minCart?'₺'+c.minCart:'—'}</td>
-      <td>${usageBar}</td>
-      <td>${expiryStr}</td>
-      <td>${sb}</td>
-      <td><div style="display:flex;gap:4px;">
-        <button class="btn btn-blue btn-sm" onclick="editCoupon('${c.id}')">✏️</button>
-        <button class="btn btn-outline btn-sm" onclick="viewCouponHistory('${c.id}')">📋</button>
-        <button class="btn ${c.active===false?'btn-accent':'btn-outline'} btn-sm" onclick="toggleCoupon('${c.id}',${c.active!==false})">${c.active===false?'▶':'⏸'}</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteCoupon('${c.id}')">🗑</button>
-      </div></td>
-    </tr>`;
+  const now = new Date();
+  grid.innerHTML = list.map(c => {
+    const st = cpState(c), end = cpEnd(c);
+    const used = c.used || 0;
+    const pct = c.limit ? Math.min(100, Math.round(used / c.limit * 100)) : 0;
+    const chips = [];
+    if (st === 'passive') chips.push('<span class="cp-chip bad">Pasif</span>');
+    else if (st === 'depleted') chips.push('<span class="cp-chip bad">Tükendi</span>');
+    else if (st === 'expired') chips.push('<span class="cp-chip bad">Süresi Doldu</span>');
+    else chips.push('<span class="cp-chip pub">Aktif</span>');
+    if (c.public) chips.push('<span class="cp-chip pub">🌐 Sitede</span>');
+    if (c.minCart) chips.push('<span class="cp-chip">Min ₺' + c.minCart + '</span>');
+    if (end) {
+      const days = Math.ceil((end - now) / 86400000);
+      chips.push('<span class="cp-chip ' + (days <= 3 && days >= 0 ? 'warn' : '') + '">' +
+        (days < 0 ? 'Bitti ' : (days === 0 ? 'Bugün bitiyor · ' : days + ' gün · ')) + end.toLocaleDateString('tr-TR') + '</span>');
+    } else chips.push('<span class="cp-chip">Süresiz</span>');
+    return `<div class="cp-card ${st === 'active' ? '' : 'off'}">
+      <div class="cp-val"><div class="cp-big">${c.type === 'percent' ? '%' + c.value : '₺' + c.value}</div><div class="cp-lbl">İNDİRİM</div></div>
+      <div class="cp-body">
+        <div class="cp-code" onclick="copyCoupon('${c.id}')" title="Kodu kopyala">${dgEsc(c.id)} <span>⧉</span></div>
+        <div class="cp-desc">${c.desc ? dgEsc(c.desc) : '&nbsp;'}</div>
+        <div class="cp-chips">${chips.join('')}</div>
+        <div class="cp-bar"><div style="width:${c.limit ? pct : 0}%;${pct >= 100 ? 'background:var(--accent2)' : ''}"></div></div>
+        <div class="cp-use"><span>Kullanım: <b>${used}</b> / ${c.limit || '∞'}</span><span>${c.limit ? '%' + pct : ''}</span></div>
+      </div>
+      <div class="cp-side"><div class="cp-acts">
+        <button class="btn btn-blue btn-sm" onclick="editCoupon('${c.id}')" title="Düzenle">✏️</button>
+        <button class="btn btn-outline btn-sm" onclick="dupCoupon('${c.id}')" title="Çoğalt">⧉</button>
+        <button class="btn btn-outline btn-sm" onclick="viewCouponHistory('${c.id}')" title="Kullanım geçmişi">📋</button>
+        <button class="btn ${c.active === false ? 'btn-accent' : 'btn-outline'} btn-sm" onclick="toggleCoupon('${c.id}',${c.active !== false})" title="${c.active === false ? 'Aktif et' : 'Pasif yap'}">${c.active === false ? '▶' : '⏸'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCoupon('${c.id}')" title="Sil">🗑</button>
+      </div></div>
+    </div>`;
   }).join('');
 }
 
+function copyCoupon(id) {
+  (navigator.clipboard ? navigator.clipboard.writeText(id) : Promise.reject())
+    .then(() => toast('Kopyalandı: ' + id, 'ok'))
+    .catch(() => toast('Kopyalanamadı', 'err'));
+}
+
+function cpFillForm(c, code) {
+  document.getElementById('cpCode').value = code || '';
+  document.getElementById('cpType').value = c.type || 'percent';
+  document.getElementById('cpValue').value = c.value || '';
+  document.getElementById('cpLimit').value = c.limit || '';
+  document.getElementById('cpMinCart').value = c.minCart || '';
+  document.getElementById('cpExpiry').value = c.expiry || '';
+  document.getElementById('cpActive').value = c.active === false ? '0' : '1';
+  document.getElementById('cpPublic').value = c.public ? '1' : '0';
+  document.getElementById('cpDesc').value = c.desc || '';
+  cpPreviewUpdate();
+}
+
 function openCouponModal() {
-  document.getElementById('cpEditId').value=''; document.getElementById('cpCode').value=''; document.getElementById('cpCode').disabled=false;
-  document.getElementById('cpType').value='percent'; document.getElementById('cpValue').value=''; document.getElementById('cpLimit').value='';
-  document.getElementById('cpMinCart').value=''; document.getElementById('cpExpiry').value=''; document.getElementById('cpActive').value='1';
-  document.getElementById('cpDesc').value=''; document.getElementById('couponModalTitle').textContent='YENİ KUPON';
+  document.getElementById('cpEditId').value = '';
+  document.getElementById('cpCode').disabled = false;
+  cpFillForm({}, '');
+  document.getElementById('couponModalTitle').textContent = 'YENİ KUPON';
   openModal('couponModal');
 }
 
 function editCoupon(id) {
-  const c = allCoupons.find(x=>x.id===id); if(!c) return;
-  document.getElementById('cpEditId').value=id; document.getElementById('cpCode').value=id; document.getElementById('cpCode').disabled=true;
-  document.getElementById('cpType').value=c.type||'percent'; document.getElementById('cpValue').value=c.value||'';
-  document.getElementById('cpLimit').value=c.limit||''; document.getElementById('cpMinCart').value=c.minCart||'';
-  document.getElementById('cpExpiry').value=c.expiry||''; document.getElementById('cpActive').value=c.active===false?'0':'1';
-  document.getElementById('cpDesc').value=c.desc||''; document.getElementById('couponModalTitle').textContent='KUPONU DÜZENLE';
+  const c = allCoupons.find(x => x.id === id); if (!c) return;
+  document.getElementById('cpEditId').value = id;
+  document.getElementById('cpCode').disabled = true;
+  cpFillForm(c, id);
+  document.getElementById('couponModalTitle').textContent = 'KUPONU DÜZENLE';
   openModal('couponModal');
 }
 
+function dupCoupon(id) {
+  const c = allCoupons.find(x => x.id === id); if (!c) return;
+  document.getElementById('cpEditId').value = '';
+  document.getElementById('cpCode').disabled = false;
+  cpFillForm(c, '');
+  generateCouponCode();
+  document.getElementById('couponModalTitle').textContent = 'KUPONU ÇOĞALT';
+  openModal('couponModal');
+}
+
+function cpPreset(type, value) {
+  document.getElementById('cpType').value = type;
+  document.getElementById('cpValue').value = value;
+  cpPreviewUpdate();
+}
+
+function cpPreviewUpdate() {
+  const type = document.getElementById('cpType').value;
+  const v = document.getElementById('cpValue').value || '0';
+  document.getElementById('cpPrevVal').textContent = type === 'percent' ? '%' + v : '₺' + v;
+  document.getElementById('cpPrevCode').textContent = document.getElementById('cpCode').value.toUpperCase() || 'KUPON KODU';
+  document.getElementById('cpPrevDesc').textContent = document.getElementById('cpDesc').value || 'Kupon önizlemesi';
+}
+
 function generateCouponCode() {
-  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  document.getElementById('cpCode').value='RP'+Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  document.getElementById('cpCode').value = 'RP' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  cpPreviewUpdate();
 }
 
 function saveCoupon() {
-  const editId=document.getElementById('cpEditId').value;
-  const code=document.getElementById('cpCode').value.trim().toUpperCase();
-  const type=document.getElementById('cpType').value;
-  const value=parseFloat(document.getElementById('cpValue').value)||0;
-  const limit=parseInt(document.getElementById('cpLimit').value)||null;
-  const minCart=parseFloat(document.getElementById('cpMinCart').value)||0;
-  const expiry=document.getElementById('cpExpiry').value||null;
-  const active=document.getElementById('cpActive').value==='1';
-  const desc=document.getElementById('cpDesc').value.trim();
-  if(!code){toast('Kupon kodu zorunlu!','err');return;}
-  if(!value){toast('İndirim değeri zorunlu!','err');return;}
-  if(type==='percent'&&value>100){toast('Yüzde 100\'den fazla olamaz!','err');return;}
-  const data={type,value,active,desc,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-  if(limit)data.limit=limit; if(minCart)data.minCart=minCart; if(expiry)data.expiry=expiry;
-  if(!editId){data.used=0;data.createdAt=firebase.firestore.FieldValue.serverTimestamp();}
-  db.collection('coupons').doc(code).set(data,{merge:true})
-    .then(()=>{toast(!editId?'Kupon oluşturuldu ✓':'Kupon güncellendi ✓','ok');closeModal('couponModal');loadCoupons();})
-    .catch(()=>toast('Hata oluştu!','err'));
+  const editId = document.getElementById('cpEditId').value;
+  const code = document.getElementById('cpCode').value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+  const type = document.getElementById('cpType').value;
+  const value = parseFloat(document.getElementById('cpValue').value) || 0;
+  const limit = parseInt(document.getElementById('cpLimit').value) || null;
+  const minCart = parseFloat(document.getElementById('cpMinCart').value) || 0;
+  const expiry = document.getElementById('cpExpiry').value || null;
+  const active = document.getElementById('cpActive').value === '1';
+  const isPublic = document.getElementById('cpPublic').value === '1';
+  const desc = document.getElementById('cpDesc').value.trim();
+  if (!code) { toast('Kupon kodu zorunlu! (harf, rakam, - _)', 'err'); return; }
+  if (!value || value < 0) { toast('İndirim değeri zorunlu!', 'err'); return; }
+  if (type === 'percent' && value > 100) { toast('Yüzde 100\'den fazla olamaz!', 'err'); return; }
+  if (!editId && allCoupons.some(c => c.id === code)) { toast('Bu kod zaten var!', 'err'); return; }
+  const DEL = firebase.firestore.FieldValue.delete();
+  const data = { type, value, active, public: isPublic, desc, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+  // Düzenlemede boşaltılan alanlar gerçekten silinsin
+  data.limit = limit || (editId ? DEL : undefined);
+  data.minCart = minCart || (editId ? DEL : undefined);
+  data.expiry = expiry || (editId ? DEL : undefined);
+  Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);
+  if (!editId) { data.used = 0; data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); }
+  db.collection('coupons').doc(code).set(data, { merge: true })
+    .then(() => { toast(!editId ? 'Kupon oluşturuldu ✓' : 'Kupon güncellendi ✓', 'ok'); closeModal('couponModal'); loadCoupons(); })
+    .catch(e => toast('Hata: ' + e.message, 'err'));
+}
+
+// Kullanım sayacını siparişlerden yeniden hesapla (iptal edilenler sayılmaz)
+async function syncCouponUsage() {
+  const orders = typeof allOrders !== 'undefined' ? allOrders : [];
+  const counts = {};
+  orders.forEach(o => { if (o.coupon && !/iptal/i.test(o.status || '')) counts[o.coupon] = (counts[o.coupon] || 0) + 1; });
+  const diff = allCoupons.filter(c => (c.used || 0) !== (counts[c.id] || 0));
+  if (!diff.length) return toast('Tüm kullanım sayıları zaten güncel ✓', 'ok');
+  if (!confirm(diff.length + ' kuponun kullanım sayısı siparişlere göre düzeltilecek. Devam edilsin mi?')) return;
+  try {
+    const b = db.batch();
+    diff.forEach(c => b.update(db.collection('coupons').doc(c.id), { used: counts[c.id] || 0 }));
+    await b.commit();
+    toast('✓ ' + diff.length + ' kupon güncellendi', 'ok'); loadCoupons();
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
 }
 
 function toggleCoupon(id,currentlyActive) {
@@ -4475,6 +4725,7 @@ function addDesignRow() {
 }
 
 function removeDesignRow(i) {
+  if ((calcAdminData.designTypes || []).length <= 1) { toast('En az bir tasarım tipi kalmalı (müşteri için seçim zorunludur)', 'err'); return; }
   calcAdminData.designTypes.splice(i, 1);
   renderDesignTypesList();
   buildPreviewSelectors();
@@ -4605,12 +4856,10 @@ const dgEsc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&
 const dgMoney = n => Number(n||0).toLocaleString('tr-TR',{maximumFractionDigits:2}) + ' ₺';
 
 function dgTab(t) {
-  ['files','orders','reviews'].forEach(k => {
-    const K = k[0].toUpperCase() + k.slice(1);
-    document.getElementById('dgPane' + K).style.display = t === k ? 'block' : 'none';
-    document.getElementById('dgTab' + { files: 'F', orders: 'O', reviews: 'R' }[k]).classList.toggle('active', t === k);
-  });
-  if (t === 'reviews') renderDgReviews();
+  document.getElementById('dgPaneFiles').style.display = t === 'files' ? 'block' : 'none';
+  document.getElementById('dgPaneOrders').style.display = t === 'orders' ? 'block' : 'none';
+  document.getElementById('dgTabF').classList.toggle('active', t === 'files');
+  document.getElementById('dgTabO').classList.toggle('active', t === 'orders');
 }
 
 async function loadDigital() {
@@ -4708,7 +4957,6 @@ async function openDigModal(id) {
   document.getElementById('dgH').value = f?.heightMm || '';
   document.getElementById('dgSt').value = f?.stitches || '';
   document.getElementById('dgCol').value = f?.colors || '';
-  document.getElementById('dgFav').value = f?.favorites || '';
   document.getElementById('dgImg').value = f?.image || '';
   document.getElementById('dgImgFile').value = '';
   document.getElementById('dgImgStatus').textContent = '';
@@ -4759,163 +5007,6 @@ async function dgPickImage(input) {
   input.value = '';
 }
 
-
-// ============ DUYURULAR (duyuru.js ile aynı alanlar) ============
-const ANN_TYPES = {
-  info:     { bg:'#c8a96e', fg:'#000', icon:'📢', label:'DUYURU' },
-  kampanya: { bg:'#e63946', fg:'#fff', icon:'🔥', label:'KAMPANYA' },
-  yeni:     { bg:'#4ade80', fg:'#000', icon:'✨', label:'YENİ' },
-  uyari:    { bg:'#fb923c', fg:'#000', icon:'⚠️', label:'DİKKAT' }
-};
-const ANN_PLACE = { bar:'Üst çubuk', popup:'Açılır pencere', both:'Çubuk + pencere' };
-let annItems = [];
-const annEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function annSafeUrl(u) {
-  u = String(u || '').trim();
-  if (!u) return '';
-  if (/^(https?:\/\/|mailto:|tel:|\/|#)/i.test(u)) return u;
-  if (/^[\w\-./]+\.html?(#.*|\?.*)?$/i.test(u)) return u;
-  return '';
-}
-function annState(a) {
-  if (a.active === false) return ['Pasif', 'var(--muted2)'];
-  const now = new Date();
-  if (a.startAt && new Date(a.startAt + 'T00:00:00') > now) return ['Planlı (' + a.startAt + ')', '#fb923c'];
-  if (a.endAt && new Date(a.endAt + 'T23:59:59') < now) return ['Süresi doldu', 'var(--accent2)'];
-  return ['Yayında', '#4ade80'];
-}
-
-function loadAnnouncements() {
-  const box = document.getElementById('annList');
-  db.collection('announcements').get().then(snap => {
-    annItems = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-      .sort((a, b) => (a.order || 0) - (b.order || 0) || (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-    renderAnnouncements();
-  }).catch(e => {
-    box.innerHTML = '<div style="text-align:center;padding:40px;color:var(--accent2);font-size:13px;line-height:1.7;">Duyurular yüklenemedi: ' + annEsc(e.message) +
-      (/permission/i.test(e.message) ? '<br><span style="color:var(--muted2)">Firestore Rules\'a <b>announcements</b> koleksiyonu için kural eklenmemiş olabilir.</span>' : '') + '</div>';
-  });
-}
-
-function renderAnnouncements() {
-  const box = document.getElementById('annList');
-  if (!annItems.length) {
-    box.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted2);font-family:\'Barlow Condensed\',sans-serif;font-size:13px;letter-spacing:2px;">HENÜZ DUYURU YOK — "+ YENİ DUYURU" İLE EKLEYİN</div>';
-    return;
-  }
-  box.innerHTML = annItems.map(a => {
-    const t = ANN_TYPES[a.type] || ANN_TYPES.info;
-    const [st, col] = annState(a);
-    const range = (a.startAt || a.endAt) ? (a.startAt || '…') + ' → ' + (a.endAt || '…') : 'Süresiz';
-    return `<div style="display:flex;gap:14px;align-items:stretch;background:var(--bg2);border:1px solid var(--border);margin-bottom:8px;${a.active===false?'opacity:.6;':''}">
-      <div style="width:6px;background:${t.bg};flex-shrink:0;"></div>
-      <div style="flex:1;padding:14px 0;min-width:0;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;letter-spacing:1px;">${t.icon} ${annEsc(a.title || t.label)}</div>
-        <div style="font-size:13px;color:var(--muted2);margin:4px 0 8px;line-height:1.5;">${annEsc(a.text)}</div>
-        <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted2);">
-          <span style="color:${col};font-weight:700;">● ${annEsc(st)}</span>
-          <span>📍 ${annEsc(ANN_PLACE[a.place || 'bar'] || a.place)}</span>
-          <span>📅 ${annEsc(range)}</span>
-          <span># Sıra ${a.order || 0}</span>
-          ${a.linkUrl ? '<span>🔗 ' + annEsc(a.linkText || 'İNCELE') + '</span>' : ''}
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;padding:12px;justify-content:center;">
-        <button class="btn btn-outline btn-sm" onclick="toggleAnn('${annEsc(a.id)}')">${a.active===false?'▶ Yayınla':'⏸ Durdur'}</button>
-        <button class="btn btn-outline btn-sm" onclick="openAnnModal('${annEsc(a.id)}')">✎ Düzenle</button>
-        <button class="btn btn-outline btn-sm" style="color:var(--accent2);" onclick="deleteAnn('${annEsc(a.id)}')">🗑 Sil</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function annPreview() {
-  const t = ANN_TYPES[document.getElementById('annType').value] || ANN_TYPES.info;
-  const title = document.getElementById('annTitle').value.trim() || t.label;
-  const text = document.getElementById('annText').value.trim() || 'Duyuru metniniz burada görünür';
-  const lt = document.getElementById('annLinkText').value.trim() || 'İNCELE';
-  const hasLink = document.getElementById('annLinkUrl').value.trim() !== '';
-  const p = document.getElementById('annPreview');
-  p.style.background = t.bg; p.style.color = t.fg;
-  p.innerHTML = '<b style="letter-spacing:2px;margin-right:6px;">' + t.icon + ' ' + annEsc(title) + '</b>' + annEsc(text) +
-    (hasLink ? ' <span style="display:inline-block;margin-left:8px;padding:2px 10px;border:1.5px solid currentColor;font-size:11px;font-weight:800;letter-spacing:2px;">' + annEsc(lt) + ' →</span>' : '');
-}
-
-function openAnnModal(id) {
-  const a = id ? annItems.find(x => x.id === id) : null;
-  document.getElementById('annId').value = id || '';
-  document.getElementById('annModalTitle').textContent = a ? 'DUYURUYU DÜZENLE' : 'YENİ DUYURU';
-  document.getElementById('annType').value = a?.type || 'info';
-  document.getElementById('annPlace').value = a?.place || 'bar';
-  document.getElementById('annTitle').value = a?.title || '';
-  document.getElementById('annText').value = a?.text || '';
-  document.getElementById('annLinkText').value = a?.linkText || '';
-  document.getElementById('annLinkUrl').value = a?.linkUrl || '';
-  document.getElementById('annStart').value = a?.startAt || '';
-  document.getElementById('annEnd').value = a?.endAt || '';
-  const nextOrder = annItems.length ? Math.max(...annItems.map(x => Number(x.order) || 0)) + 1 : 1;
-  document.getElementById('annOrder').value = a ? (a.order || 0) : nextOrder;
-  document.getElementById('annActive').value = a ? (a.active === false ? '0' : '1') : '1';
-  document.getElementById('annDismiss').checked = a ? a.dismissible !== false : true;
-  annPreview();
-  openModal('annModal');
-}
-
-async function saveAnnouncement() {
-  const id = document.getElementById('annId').value;
-  const text = document.getElementById('annText').value.trim();
-  const linkUrl = document.getElementById('annLinkUrl').value.trim();
-  const startAt = document.getElementById('annStart').value;
-  const endAt = document.getElementById('annEnd').value;
-  if (!text) return toast('Duyuru metni gerekli', 'err');
-  if (linkUrl && !annSafeUrl(linkUrl)) return toast('Link geçersiz. Örnek: urunler.html veya https://…', 'err');
-  if (startAt && endAt && endAt < startAt) return toast('Bitiş tarihi başlangıçtan önce olamaz', 'err');
-  const data = {
-    type: document.getElementById('annType').value,
-    place: document.getElementById('annPlace').value,
-    title: document.getElementById('annTitle').value.trim(),
-    text,
-    linkText: document.getElementById('annLinkText').value.trim(),
-    linkUrl,
-    startAt, endAt,
-    order: parseInt(document.getElementById('annOrder').value, 10) || 0,
-    active: document.getElementById('annActive').value === '1',
-    dismissible: document.getElementById('annDismiss').checked,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  try {
-    const ref = id ? db.collection('announcements').doc(id) : db.collection('announcements').doc();
-    if (!id) data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-    await ref.set(data, { merge: true });
-    toast('✓ Duyuru kaydedildi', 'ok');
-    closeModal('annModal');
-    loadAnnouncements();
-  } catch (e) {
-    toast('Kaydedilemedi: ' + e.message, 'err');
-  }
-}
-
-async function toggleAnn(id) {
-  const a = annItems.find(x => x.id === id); if (!a) return;
-  try {
-    await db.collection('announcements').doc(id).update({
-      active: a.active === false,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    loadAnnouncements();
-  } catch (e) { toast('Hata: ' + e.message, 'err'); }
-}
-
-async function deleteAnn(id) {
-  const a = annItems.find(x => x.id === id); if (!a) return;
-  if (!confirm('"' + (a.title || a.text).slice(0, 40) + '" duyurusu silinsin mi?')) return;
-  try {
-    await db.collection('announcements').doc(id).delete();
-    toast('Duyuru silindi', 'ok');
-    loadAnnouncements();
-  } catch (e) { toast('Hata: ' + e.message, 'err'); }
-}
-
 async function saveDigital() {
   const id = document.getElementById('dgId').value;
   const title = document.getElementById('dgTitle').value.trim();
@@ -4933,7 +5024,7 @@ async function saveDigital() {
     description: document.getElementById('dgDesc').value.trim(),
     price, oldPrice: num('dgOld'),
     formats: [...document.querySelectorAll('.dgFmt:checked')].map(c => c.value),
-    widthMm: num('dgW'), heightMm: num('dgH'), stitches: num('dgSt'), colors: num('dgCol'), favorites: num('dgFav'),
+    widthMm: num('dgW'), heightMm: num('dgH'), stitches: num('dgSt'), colors: num('dgCol'),
     image, active: document.getElementById('dgActive').value === '1',
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
@@ -5030,20 +5121,20 @@ function listenDigitalOrders() {
     if (document.getElementById('page-digital')?.classList.contains('active')) {
       renderDgOrders(); renderDgStats();
     }
-  }, err => console.error('Dijital siparişler dinlenemedi:', err.message));
+  }, err => { console.error('Dijital siparişler dinlenemedi:', err.message); toast('Dijital siparişler yüklenemedi: ' + err.message, 'err'); });
 }
 
 // Menü rozeti: bekleyen sipariş + onay bekleyen yorum
 function updateDgBadge() {
   const po = dgOrders.filter(o => (o.status || 'bekliyor') === 'bekliyor').length;
-  const pr = dgReviews.filter(r => !r.approved).length;
   const badge = document.getElementById('badgeDigital');
-  if (badge) {
-    badge.textContent = po + pr;
-    badge.style.display = po + pr > 0 ? 'inline-block' : 'none';
-  }
-  const rb = document.getElementById('dgRevBadge');
-  if (rb) rb.textContent = pr ? '(' + pr + ')' : '';
+  if (badge) { badge.textContent = po; badge.style.display = po > 0 ? 'inline-block' : 'none'; }
+}
+function dgRevPendingCount() { return (typeof dgReviews !== 'undefined' ? dgReviews : []).filter(r => !r.approved).length; }
+function refreshReviewsBadge() {
+  const badge = document.getElementById('badgeReviews'); if (!badge) return;
+  const n = (window._prodPend || 0) + dgRevPendingCount();
+  badge.textContent = n; badge.style.display = n > 0 ? 'inline-block' : 'none';
 }
 
 // ── DİJİTAL DOSYA YORUMLARI ──
@@ -5053,29 +5144,11 @@ function listenDigitalReviews() {
     dgReviews = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
     const pr = dgReviews.filter(r => !r.approved).length;
-    updateDgBadge();
+    refreshReviewsBadge();
     if (dgRevReady && pr > dgPrevRevPending) toast('🔔 Yeni dijital dosya yorumu (' + pr + ' onay bekliyor)', 'ok');
     dgPrevRevPending = pr; dgRevReady = true;
-    if (document.getElementById('page-digital')?.classList.contains('active')) renderDgReviews();
-  }, err => console.error('Dijital yorumlar dinlenemedi:', err.message));
-}
-
-function renderDgReviews() {
-  const flt = document.getElementById('dgRevFilter')?.value || 'bekleyen';
-  const list = dgReviews.filter(r => flt === 'all' ? true : flt === 'bekleyen' ? !r.approved : r.approved);
-  const b = document.getElementById('dgRevBody'); if (!b) return;
-  if (!list.length) { b.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px;">Yorum yok.</td></tr>'; return; }
-  b.innerHTML = list.map(r => `<tr>
-    <td><b>${dgEsc(r.fileTitle || r.fileId)}</b></td>
-    <td>${dgEsc(r.userName || 'Müşteri')}</td>
-    <td style="color:var(--accent);white-space:nowrap;">${'★'.repeat(r.rating || 0)}<span style="color:var(--border);">${'★'.repeat(5 - (r.rating || 0))}</span></td>
-    <td style="max-width:320px;font-size:13px;line-height:1.6;white-space:pre-line;">${dgEsc(r.text)}</td>
-    <td style="font-size:12px;color:var(--muted);">${r.createdAt ? r.createdAt.toDate().toLocaleString('tr-TR') : ''}</td>
-    <td>${r.approved ? '<span class="badge" style="color:#4ade80;border:1px solid #4ade80;">ONAYLI</span>' : '<span class="badge" style="color:var(--accent);border:1px solid var(--accent);">BEKLİYOR</span>'}</td>
-    <td style="display:flex;gap:6px;flex-wrap:wrap;">
-      ${!r.approved ? `<button class="btn btn-accent btn-sm" onclick="approveDgReview('${r.id}')">✓ Onayla</button>` : ''}
-      <button class="btn btn-danger btn-sm" onclick="deleteDgReview('${r.id}')">🗑 Sil</button>
-    </td></tr>`).join('');
+    if (document.getElementById('page-reviews')?.classList.contains('active')) renderReviewTable();
+  }, err => { console.error('Dijital yorumlar dinlenemedi:', err.message); toast('Dijital yorumlar yüklenemedi: ' + err.message, 'err'); });
 }
 
 async function approveDgReview(id) {
@@ -5135,6 +5208,296 @@ async function clearCancelledDg() {
 }
 // =============================================
 // / DİJİTAL NAKIŞ DOSYALARI YÖNETİMİ
+// =============================================
+
+
+// ===== KARGO FİRMALARI (elle girilir) & FİYATLAR =====
+const CARGO_DEFAULTS = [
+  { key: 'mng',     name: 'DHL eCommerce', price: 49, trackUrl: 'https://www.dhlecommerce.com.tr/gonderitakip?barkod={kod}', active: true },
+  { key: 'yurtici', name: 'Yurtiçi Kargo', price: 44, trackUrl: 'https://www.yurticikargo.com/tr/online-islemler/gonderi-sorgula?code={kod}', active: true },
+  { key: 'ptt',     name: 'PTT Kargo',     price: 35, trackUrl: 'https://www.ptt.gov.tr/', active: true },
+  { key: 'surat',   name: 'Sürat Kargo',   price: 52, trackUrl: 'https://www.suratkargo.com.tr/KargoTakip/?kargotakipno={kod}', active: true }
+];
+let cargoCompanies = CARGO_DEFAULTS.map(c => ({ ...c }));
+let cargoLoaded = false;
+
+function slugCargo(name) {
+  const map = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u' };
+  return String(name).toLowerCase().replace(/[çğıöşü]/g, c => map[c]).replace(/[^a-z0-9]+/g, '').slice(0, 24) || 'firma' + Date.now().toString(36);
+}
+function cargoLabel(o) { return (o.cargo && o.cargo.companyName) || cargoCompanyName(o.cargo && o.cargo.company); }
+
+function loadCargoSettings() {
+  return db.collection('settings').doc('kargo').get().then(doc => {
+    const d = doc.exists ? doc.data() : {};
+    if (Array.isArray(d.companies) && d.companies.length) cargoCompanies = d.companies.map(c => ({ active: true, ...c }));
+    else cargoCompanies = CARGO_DEFAULTS.map(c => ({ ...c, price: d[c.key] !== undefined ? d[c.key] : c.price }));
+    cargoLoaded = true;
+    const l = document.getElementById('cargoLimit'), s = document.getElementById('cargoSure');
+    if (l) l.value = d.limit !== undefined ? d.limit : 500;
+    if (s) s.value = d.sure || '';
+    renderCargoCompanies(); fillCargoDatalist();
+  }).catch(e => console.warn('Kargo ayarları okunamadı', e));
+}
+
+function fillCargoDatalist() {
+  const dl = document.getElementById('cargoCompanyList');
+  if (dl) dl.innerHTML = cargoCompanies.map(c => `<option value="${dgEsc(c.name)}">`).join('');
+}
+
+function cargoTab(t) {
+  document.getElementById('cargoPaneShip').style.display = t === 'ship' ? 'block' : 'none';
+  document.getElementById('cargoPaneCo').style.display = t === 'co' ? 'block' : 'none';
+  document.getElementById('cargoTabShip').classList.toggle('active', t === 'ship');
+  document.getElementById('cargoTabCo').classList.toggle('active', t === 'co');
+  if (t === 'co') { cargoLoaded ? renderCargoCompanies() : loadCargoSettings(); }
+}
+
+function renderCargoCompanies() {
+  const b = document.getElementById('cargoCoBody'); if (!b) return;
+  const inp = 'width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:13px;outline:none;';
+  b.innerHTML = cargoCompanies.map((c, i) => `<tr data-key="${dgEsc(c.key || '')}">
+    <td><input type="text" class="cc-name" value="${dgEsc(c.name)}" placeholder="Firma adı" style="${inp}"></td>
+    <td><input type="number" class="cc-price" value="${c.price ?? ''}" min="0" step="1" style="${inp}"></td>
+    <td><input type="text" class="cc-url" value="${dgEsc(c.trackUrl || '')}" placeholder="https://…?no={kod}" style="${inp}"></td>
+    <td style="text-align:center;"><input type="checkbox" class="cc-active" ${c.active !== false ? 'checked' : ''} style="width:18px;height:18px;accent-color:var(--accent);"></td>
+    <td><button class="btn btn-danger btn-sm" onclick="removeCargoCompany(${i})" title="Sil">🗑</button></td></tr>`).join('');
+}
+
+function readCargoRows() {
+  return [...document.querySelectorAll('#cargoCoBody tr')].map(tr => ({
+    key: tr.dataset.key || '',
+    name: tr.querySelector('.cc-name').value.trim(),
+    price: parseFloat(tr.querySelector('.cc-price').value),
+    trackUrl: tr.querySelector('.cc-url').value.trim(),
+    active: tr.querySelector('.cc-active').checked
+  }));
+}
+function addCargoCompany() {
+  cargoCompanies = readCargoRows();
+  cargoCompanies.push({ key: '', name: '', price: 0, trackUrl: '', active: true });
+  renderCargoCompanies();
+  const rows = document.querySelectorAll('#cargoCoBody .cc-name'); rows[rows.length - 1]?.focus();
+}
+function removeCargoCompany(i) {
+  cargoCompanies = readCargoRows();
+  if (!confirm('"' + (cargoCompanies[i].name || 'Bu satır') + '" silinsin mi?\n(Eski siparişlerde firma adı korunur.)')) return;
+  cargoCompanies.splice(i, 1);
+  renderCargoCompanies();
+}
+
+function saveCargoSettings() {
+  const rows = readCargoRows();
+  if (!rows.length) return toast('En az bir kargo firması ekleyin', 'err');
+  const used = new Set();
+  for (const r of rows) {
+    if (!r.name) return toast('Tüm firmalara bir ad girin', 'err');
+    if (isNaN(r.price) || r.price < 0) return toast('"' + r.name + '" için geçerli bir fiyat girin', 'err');
+    if (r.trackUrl && !/^https?:\/\//i.test(r.trackUrl)) return toast('"' + r.name + '" takip bağlantısı http(s):// ile başlamalı', 'err');
+    if (!r.key) { let k = slugCargo(r.name), n = 2; while (used.has(k)) k = slugCargo(r.name) + n++; r.key = k; }
+    if (used.has(r.key)) return toast('Aynı firma iki kez eklenmiş: ' + r.name, 'err');
+    used.add(r.key);
+  }
+  if (!rows.some(r => r.active)) return toast('En az bir firma aktif olmalı', 'err');
+  const limit = parseFloat(document.getElementById('cargoLimit').value);
+  const data = { companies: rows, limit: isNaN(limit) ? 0 : limit, sure: document.getElementById('cargoSure').value.trim() };
+  // Eski sürüm sepet sayfaları için bilinen firmaların fiyatlarını da yaz
+  ['mng', 'yurtici', 'ptt', 'surat'].forEach(k => { const r = rows.find(x => x.key === k); if (r) data[k] = r.price; });
+  db.collection('settings').doc('kargo').set(data, { merge: true })
+    .then(() => { cargoCompanies = rows; fillCargoDatalist(); renderCargoCompanies(); toast('Kargo firmaları kaydedildi ✓', 'ok'); })
+    .catch(e => toast('Kaydedilemedi: ' + e.message, 'err'));
+}
+
+// =============================================
+// DUYURULAR
+// =============================================
+const AN_TYPES = {
+  info:     { bg: '#c8a96e', fg: '#000', icon: '📢', label: 'DUYURU' },
+  kampanya: { bg: '#e63946', fg: '#fff', icon: '🔥', label: 'KAMPANYA' },
+  yeni:     { bg: '#4ade80', fg: '#000', icon: '✨', label: 'YENİ' },
+  uyari:    { bg: '#fb923c', fg: '#000', icon: '⚠️', label: 'DİKKAT' }
+};
+let allAnnouncements = [];
+
+function anState(a) {
+  const now = new Date();
+  if (a.active === false) return 'off';
+  if (a.startAt && new Date(a.startAt + 'T00:00:00') > now) return 'plan';
+  if (a.endAt && new Date(a.endAt + 'T23:59:59') < now) return 'end';
+  return 'live';
+}
+function anPreviewHtml(a) {
+  const t = AN_TYPES[a.type] || AN_TYPES.info;
+  return `<b>${t.icon} ${dgEsc(a.title || t.label)}</b>${dgEsc(a.text || 'Duyuru metni burada görünecek')}` +
+    (a.linkUrl ? `<u>${dgEsc(a.linkText || 'İNCELE')} →</u>` : '');
+}
+
+function loadAnnouncements() {
+  db.collection('announcements').get().then(snap => {
+    allAnnouncements = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+    renderAnnouncements();
+  }).catch(e => toast('Duyurular yüklenemedi: ' + e.message, 'err'));
+}
+
+function renderAnnouncements() {
+  const grid = document.getElementById('annGrid'); if (!grid) return;
+  const cnt = { live: 0, plan: 0, end: 0, off: 0 };
+  allAnnouncements.forEach(a => cnt[anState(a)]++);
+  document.getElementById('anStLive').textContent = cnt.live;
+  document.getElementById('anStPlan').textContent = cnt.plan;
+  document.getElementById('anStEnd').textContent = cnt.end;
+  document.getElementById('anStOff').textContent = cnt.off;
+  if (!allAnnouncements.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;padding:50px 0;"><div class="empty-icon">📣</div><div class="empty-text">Henüz duyuru yok. “+ YENİ DUYURU” ile ekleyin.</div></div>';
+    return;
+  }
+  const lbl = { live: ['YAYINDA', '#4ade80'], plan: ['PLANLI', '#60a5fa'], end: ['SÜRESİ DOLDU', 'var(--accent2)'], off: ['PASİF', 'var(--muted)'] };
+  const place = { bar: 'Üst çubuk', popup: 'Açılır pencere', both: 'Çubuk + pencere', marquee: 'Kayan şerit' };
+  grid.innerHTML = allAnnouncements.map(a => {
+    const t = AN_TYPES[a.type] || AN_TYPES.info, s = anState(a);
+    const fmt = d => new Date(d + 'T00:00:00').toLocaleDateString('tr-TR');
+    return `<div class="an-card ${s === 'live' ? '' : 'off'}">
+      <div class="an-pv" style="background:${t.bg};color:${t.fg};">${anPreviewHtml(a)}</div>
+      <div class="an-meta">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <span class="badge" style="color:${lbl[s][1]};border:1px solid ${lbl[s][1]};">${lbl[s][0]}</span>
+          <span class="cp-chip">${place[a.place || 'bar']}</span>
+          <span class="cp-chip">Sıra ${a.order || 0}</span>
+          ${a.dismissible === false ? '<span class="cp-chip">Kapatılamaz</span>' : ''}
+        </div>
+        <div style="font-size:12px;color:var(--muted);">${a.startAt || a.endAt ? '📅 ' + (a.startAt ? fmt(a.startAt) : 'Hemen') + ' → ' + (a.endAt ? fmt(a.endAt) : 'Süresiz') : '📅 Süresiz'}</div>
+      </div>
+      <div class="an-acts">
+        <button class="btn btn-blue btn-sm" onclick="openAnnModal('${a.id}')">✏️ Düzenle</button>
+        <button class="btn ${a.active === false ? 'btn-accent' : 'btn-outline'} btn-sm" onclick="toggleAnn('${a.id}',${a.active !== false})">${a.active === false ? '▶ Yayınla' : '⏸ Durdur'}</button>
+        <button class="btn btn-outline btn-sm" onclick="dupAnn('${a.id}')">⧉ Çoğalt</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteAnn('${a.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function annFill(a) {
+  document.getElementById('anType').value = a.type || 'info';
+  document.getElementById('anPlace').value = a.place || 'bar';
+  document.getElementById('anTitle').value = a.title || '';
+  document.getElementById('anText').value = a.text || '';
+  document.getElementById('anLink').value = a.linkUrl || '';
+  document.getElementById('anLinkText').value = a.linkText || '';
+  document.getElementById('anStart').value = a.startAt || '';
+  document.getElementById('anEnd').value = a.endAt || '';
+  document.getElementById('anOrder').value = a.order != null ? a.order : (allAnnouncements.length + 1);
+  document.getElementById('anDismiss').value = a.dismissible === false ? '0' : '1';
+  document.getElementById('anActive').value = a.active === false ? '0' : '1';
+  annPreviewUpdate();
+}
+function annPreviewUpdate() {
+  const a = {
+    type: document.getElementById('anType').value,
+    title: document.getElementById('anTitle').value.trim(),
+    text: document.getElementById('anText').value.trim(),
+    linkUrl: document.getElementById('anLink').value.trim(),
+    linkText: document.getElementById('anLinkText').value.trim()
+  };
+  const t = AN_TYPES[a.type] || AN_TYPES.info, pv = document.getElementById('anPreview');
+  pv.style.background = t.bg; pv.style.color = t.fg; pv.innerHTML = anPreviewHtml(a);
+}
+function openAnnModal(id) {
+  const a = id ? allAnnouncements.find(x => x.id === id) : null;
+  document.getElementById('anEditId').value = id || '';
+  document.getElementById('annModalTitle').textContent = a ? 'DUYURUYU DÜZENLE' : 'YENİ DUYURU';
+  annFill(a || {});
+  openModal('annModal');
+}
+function dupAnn(id) {
+  const a = allAnnouncements.find(x => x.id === id); if (!a) return;
+  document.getElementById('anEditId').value = '';
+  document.getElementById('annModalTitle').textContent = 'DUYURUYU ÇOĞALT';
+  annFill({ ...a, order: allAnnouncements.length + 1 });
+  openModal('annModal');
+}
+function saveAnnouncement() {
+  const id = document.getElementById('anEditId').value;
+  const text = document.getElementById('anText').value.trim();
+  if (!text) return toast('Mesaj zorunlu!', 'err');
+  let link = document.getElementById('anLink').value.trim();
+  if (link && !/^(https?:\/\/|mailto:|tel:|\/|#)/i.test(link) && !/^[\w\-./]+\.html?(#.*|\?.*)?$/i.test(link))
+    return toast('Bağlantı http(s):// ile ya da sayfa adı (urunler.html) olarak girilmeli', 'err');
+  const start = document.getElementById('anStart').value, end = document.getElementById('anEnd').value;
+  if (start && end && end < start) return toast('Bitiş tarihi başlangıçtan önce olamaz', 'err');
+  const DEL = firebase.firestore.FieldValue.delete();
+  const data = {
+    type: document.getElementById('anType').value,
+    place: document.getElementById('anPlace').value,
+    title: document.getElementById('anTitle').value.trim(),
+    text,
+    linkUrl: link,
+    linkText: document.getElementById('anLinkText').value.trim(),
+    startAt: start || (id ? DEL : ''),
+    endAt: end || (id ? DEL : ''),
+    order: parseInt(document.getElementById('anOrder').value) || 0,
+    dismissible: document.getElementById('anDismiss').value === '1',
+    active: document.getElementById('anActive').value === '1',
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if (!id) { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); if (!start) delete data.startAt; if (!end) delete data.endAt; }
+  const ref = id ? db.collection('announcements').doc(id) : db.collection('announcements').doc();
+  ref.set(data, { merge: true })
+    .then(() => { toast('Duyuru kaydedildi ✓', 'ok'); closeModal('annModal'); loadAnnouncements(); })
+    .catch(e => toast('Hata: ' + e.message, 'err'));
+}
+function toggleAnn(id, currentlyActive) {
+  db.collection('announcements').doc(id).update({ active: !currentlyActive, updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
+    .then(() => { toast(currentlyActive ? 'Duyuru durduruldu' : 'Duyuru yayında ✓', 'ok'); loadAnnouncements(); })
+    .catch(e => toast('Hata: ' + e.message, 'err'));
+}
+function deleteAnn(id) {
+  if (!confirm('Bu duyuru silinsin mi?')) return;
+  db.collection('announcements').doc(id).delete()
+    .then(() => { toast('Duyuru silindi', 'ok'); loadAnnouncements(); })
+    .catch(e => toast('Hata: ' + e.message, 'err'));
+}
+
+function mediaTab(t) {
+  document.getElementById('mediaPaneSlides').style.display = t === 'slides' ? 'block' : 'none';
+  document.getElementById('mediaPaneGallery').style.display = t === 'gallery' ? 'block' : 'none';
+  document.getElementById('mediaTabSlides').classList.toggle('active', t === 'slides');
+  document.getElementById('mediaTabGallery').classList.toggle('active', t === 'gallery');
+}
+
+// ===== MARQUEE =====
+function loadMarqueeSettings() {
+  db.collection('settings').doc('site').get().then(doc => {
+    const d = doc.exists ? doc.data() : {};
+    document.getElementById('marqueeText').value = d.marquee || '';
+    document.getElementById('marqueeSpeed').value = d.marqueeSpeed || 'normal';
+    document.getElementById('marqueeActive').value = d.marqueeActive === false ? '0' : '1';
+    marqueePreview();
+  }).catch(() => {});
+}
+function marqueeItems(raw) { return String(raw || '').split(/[•|\n]+/).map(s => s.trim()).filter(Boolean); }
+function marqueePreview() {
+  const items = marqueeItems(document.getElementById('marqueeText').value);
+  const el = document.getElementById('mqPrevIn'); if (!el) return;
+  const one = (items.length ? items : ['ÖRNEK YAZI']).map(t => `<span>${dgEsc(t)}</span><span>•</span>`).join('');
+  const reps = Math.max(1, Math.ceil(24 / Math.max(1, items.length)));
+  el.innerHTML = one.repeat(reps * 2);
+  const f = { slow: 1.7, normal: 1, fast: .55 }[document.getElementById('marqueeSpeed').value] || 1;
+  el.style.animationDuration = Math.max(10, Math.round(one.length * reps * 0.045 * f)) + 's';
+}
+function saveMarquee() {
+  const val = document.getElementById('marqueeText').value.trim();
+  const active = document.getElementById('marqueeActive').value === '1';
+  if (!val && active) return toast('Yazı boş olamaz (şeridi gizlemek için “Gizle” seçin)', 'err');
+  const data = { marqueeActive: active, marqueeSpeed: document.getElementById('marqueeSpeed').value };
+  if (val) data.marquee = val;
+  db.collection('settings').doc('site').set(data, { merge: true })
+    .then(() => toast('Marquee kaydedildi ✓ (anasayfada görünür)', 'ok'))
+    .catch(e => toast('Hata: ' + e.message, 'err'));
+}
+// =============================================
+// / DUYURULAR
 // =============================================
 </script>
 

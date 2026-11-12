@@ -289,22 +289,6 @@
     .search-highlight{color:var(--accent);}
     @media(max-width:768px){.search-inner{margin-top:60px;}.search-input-main{font-size:18px;}}
 
-
-    /* ── DİJİTAL DOSYALARIM ── */
-    .dg-sec{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin:26px 0 10px;}
-    .dg-row{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;background:var(--card);border:1px solid var(--border);padding:12px 16px;margin-bottom:2px;}
-    .dg-row:hover{border-color:rgba(200,169,110,.25);}
-    .dg-thumb{width:64px;height:64px;background:var(--bg3);border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:26px;}
-    .dg-thumb img{width:100%;height:100%;object-fit:cover;}
-    .dg-title{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:.5px;}
-    .dg-sub{font-size:11px;color:var(--muted);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-    .dg-fmt{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:1px 7px;border:1px solid var(--border);}
-    .dg-dl{background:var(--accent);color:#000;text-decoration:none;padding:10px 18px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;white-space:nowrap;transition:background .2s;display:inline-block;border:none;cursor:pointer;}
-    .dg-dl:hover{background:#d4b77a;}
-    .dg-wa{display:inline-block;margin-top:10px;border:1px solid rgba(200,169,110,.4);color:var(--accent);padding:8px 16px;font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:2px;text-decoration:none;}
-    .dg-wa:hover{background:rgba(200,169,110,.1);}
-    .nav-cnt{margin-left:auto;background:var(--accent);color:#000;font-size:10px;font-weight:700;padding:1px 7px;border-radius:9px;}
-    @media(max-width:600px){.dg-row{grid-template-columns:52px 1fr;}.dg-row .dg-act{grid-column:1/-1;}.dg-thumb{width:52px;height:52px;}.dg-dl{width:100%;text-align:center;}}
 </style>
 </head>
 <body>
@@ -355,7 +339,6 @@
     <div class="nav-item" onclick="showPage('cargo',this)"><span>🚚</span> Kargo Takibi</div>
     <a href="takip.html" class="nav-item" style="text-decoration:none;"><span>🔍</span> Sipariş Sorgula</a>
     <div class="nav-item" onclick="showPage('favorites',this)"><span>❤️</span> Favorilerim</div>
-    <div class="nav-item" onclick="showPage('digital',this)"><span>💾</span> Dijital Dosyalarım <span class="nav-cnt" id="dgNavCnt" style="display:none">0</span></div>
     <div class="nav-lbl">Ayarlar</div>
     <div class="nav-item" onclick="showPage('addresses',this)"><span>📍</span> Adres Defteri</div>
     <div class="nav-item" onclick="showPage('profile',this)"><span>👤</span> Profilim</div>
@@ -412,23 +395,6 @@
       <div class="fav-grid" id="favGrid">
         <div class="fav-empty" style="grid-column:1/-1"><div class="fav-empty-icon">❤️</div><p>Yükleniyor...</p></div>
       </div>
-    </div>
-
-    <!-- DİJİTAL DOSYALARIM -->
-    <div class="page" id="page-digital">
-      <div class="page-hdr">
-        <h2>DİJİTAL DOSYALARIM</h2>
-        <a href="dijital-dosyalar.html" class="dg-dl" style="font-size:14px;padding:8px 16px;">+ YENİ DOSYA AL</a>
-      </div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="stat-val" id="dgStOwned">0</div><div class="stat-lbl">Sahip Olduğum Dosya</div></div>
-        <div class="stat-card"><div class="stat-val" id="dgStPend">0</div><div class="stat-lbl">Ödeme Bekleyen</div></div>
-        <div class="stat-card"><div class="stat-val" id="dgStSpent">₺0</div><div class="stat-lbl">Dijital Harcama</div></div>
-      </div>
-      <div class="dg-sec">📂 DOSYALARIM</div>
-      <div id="dgOwnedList"><div class="empty-state"><div class="empty-state-icon">💾</div><p>Yükleniyor...</p></div></div>
-      <div class="dg-sec">🧾 DİJİTAL SİPARİŞLERİM</div>
-      <div id="dgOrdersList"></div>
     </div>
 
     <!-- PROFİL -->
@@ -502,6 +468,12 @@ if (!firebase.apps.length) firebase.initializeApp({
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// Admin → Kargo Yönetimi → Firmalar: elle girilen firmaların adı ve takip bağlantısı
+let CARGO_CUSTOM = {};
+db.collection('settings').doc('kargo').get().then(doc => {
+  ((doc.exists && doc.data().companies) || []).forEach(c => { if (c && c.key) CARGO_CUSTOM[c.key] = c; });
+}).catch(() => {});
+
 let currentUser = null;
 let allOrders = [];
 let allFavorites = [];
@@ -515,7 +487,6 @@ auth.onAuthStateChanged(user => {
   loadOrders();
   loadFavorites();
   loadProfile();
-  loadDigital();
 });
 
 function showPage(name, el) {
@@ -525,7 +496,6 @@ function showPage(name, el) {
   el?.classList.add('active');
   if (name==='cargo') renderCargo();
   if (name==='addresses') loadAddresses();
-  if (name==='digital') loadDigital();
 }
 
 // ═══ ORDERS ═══
@@ -661,6 +631,8 @@ function trackSteps(status) {
 }
 
 function cargoTrackUrl(company, code) {
+  const cc = CARGO_CUSTOM[company];
+  if (cc && cc.trackUrl) return cc.trackUrl.replace(/\{(kod|code)\}/gi, encodeURIComponent(code));
   const urls = {
     mng:     `https://www.dhlecommerce.com.tr/gonderitakip?barkod=${code}`,
     yurtici: `https://www.yurticikargo.com/`,
@@ -673,7 +645,7 @@ function cargoTrackUrl(company, code) {
 function openTracking(company, code) {
   const url = cargoTrackUrl(company, code);
   const names = {mng:'DHL eCommerce', yurtici:'Yurtiçi Kargo', ptt:'PTT Kargo', surat:'Sürat Kargo'};
-  const label = names[company] || 'Kargo';
+  const label = ((CARGO_CUSTOM[company] && CARGO_CUSTOM[company].name) || names[company] || 'Kargo');
   navigator.clipboard.writeText(code).then(() => {
     const t = document.createElement('div');
     t.innerHTML = `📋 <b>${code}</b> kopyalandı!<br><span style="font-size:11px;opacity:.8;">${label} sayfası açılıyor, numarayı yapıştırın.</span>`;
@@ -971,102 +943,6 @@ function doLogout() {
 }
 
 // ═══ UTILS ═══
-
-// ═══ DİJİTAL DOSYALARIM ═══
-let dgOwned = [], dgOrders = [];
-const dgEsc = v => String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const dgThumb = u => (u && u.includes('ik.imagekit.io') && !u.includes('?')) ? u+'?tr=w-160,q-80' : u;
-const dgMoney = n => '₺'+Number(n||0).toLocaleString('tr-TR',{maximumFractionDigits:2});
-
-async function loadDigital() {
-  if (!currentUser) return;
-  try {
-    const uid = currentUser.uid;
-    const [dl, os] = await Promise.all([
-      db.collection('users').doc(uid).collection('downloads').get(),
-      db.collection('digital_orders').where('userId','==',uid).get()
-    ]);
-    dgOrders = os.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-    dgOwned = await Promise.all(dl.docs.map(async d => {
-      let f=null, url=null, note='';
-      try { const x=await db.collection('digital_files').doc(d.id).get(); if (x.exists) f=x.data(); } catch(e){}
-      try { const x=await db.collection('digital_secrets').doc(d.id).get(); if (x.exists) { url=x.data().url; note=x.data().note||''; } } catch(e){}
-      return { id:d.id, meta:d.data(), f, url, note };
-    }));
-    dgOwned.sort((a,b)=>(b.meta.grantedAt?.seconds||0)-(a.meta.grantedAt?.seconds||0));
-    renderDigital();
-  } catch(e) {
-    console.warn('Dijital dosyalar yüklenemedi:', e.message);
-    document.getElementById('dgOwnedList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Dijital dosyalar yüklenemedi</p></div>';
-  }
-}
-
-function dgStatus(s) {
-  const m = { 'bekliyor':['b-yellow','Ödeme Bekleniyor'], 'onaylandı':['b-green','Onaylandı'], 'iptal':['b-red','İptal'] };
-  const [c,l] = m[s] || ['b-gray', s||'—'];
-  return `<span class="badge ${c}">${dgEsc(l)}</span>`;
-}
-
-function renderDigital() {
-  // Menü rozeti + istatistikler
-  const cnt = document.getElementById('dgNavCnt');
-  if (cnt) { cnt.textContent = dgOwned.length; cnt.style.display = dgOwned.length ? 'inline' : 'none'; }
-  const pend = dgOrders.filter(o=>o.status==='bekliyor').length;
-  const spent = dgOrders.filter(o=>o.status==='onaylandı').reduce((t,o)=>t+Number(o.total||0),0);
-  document.getElementById('dgStOwned').textContent = dgOwned.length;
-  document.getElementById('dgStPend').textContent = pend;
-  document.getElementById('dgStSpent').textContent = dgMoney(spent);
-
-  // Sahip olunan dosyalar
-  const ol = document.getElementById('dgOwnedList');
-  if (!dgOwned.length) {
-    ol.innerHTML = `<div class="empty-state"><div class="empty-state-icon">💾</div><p>Henüz dijital dosyanız yok</p>
-      <a href="dijital-dosyalar.html" class="dg-dl" style="margin-top:14px;">DOSYALARA GÖZ AT</a></div>`;
-  } else {
-    ol.innerHTML = dgOwned.map(o => {
-      const f=o.f||{}, title=f.title||o.meta.title||'Dosya';
-      return `<div class="dg-row">
-        <div class="dg-thumb">${f.image?`<img src="${dgEsc(dgThumb(f.image))}" alt="">`:'🧵'}</div>
-        <div>
-          <div class="dg-title">${dgEsc(title)}</div>
-          <div class="dg-sub">
-            ${(f.formats||[]).map(x=>`<span class="dg-fmt">${dgEsc(x)}</span>`).join('')}
-            ${o.meta.orderCode?`<span>Sipariş: ${dgEsc(o.meta.orderCode)}</span>`:''}
-            ${o.meta.grantedAt?`<span>· ${formatDate(o.meta.grantedAt)}</span>`:''}
-            ${o.note?`<span>· ${dgEsc(o.note)}</span>`:''}
-          </div>
-        </div>
-        <div class="dg-act">${o.url
-          ? `<a class="dg-dl" href="${dgEsc(o.url)}" target="_blank" rel="noopener noreferrer">⬇ İNDİR</a>`
-          : '<span class="badge b-yellow">Hazırlanıyor</span>'}</div>
-      </div>`;
-    }).join('');
-  }
-
-  // Dijital siparişler
-  const dl = document.getElementById('dgOrdersList');
-  if (!dgOrders.length) {
-    dl.innerHTML = '<div class="empty-state" style="padding:30px;"><p>Dijital siparişiniz yok</p></div>';
-    return;
-  }
-  dl.innerHTML = dgOrders.map(o => {
-    const wa = 'https://wa.me/905375295290?text='+encodeURIComponent('Merhaba! Dijital dosya siparişim için dekont gönderiyorum.\nSipariş kodu: '+o.code+'\nTutar: '+dgMoney(o.total));
-    return `<div class="order-card">
-      <div class="order-head" onclick="document.getElementById('dgo-${dgEsc(o.id)}').classList.toggle('open')">
-        <div><div class="order-code">${dgEsc(o.code)}</div><div class="order-date">${formatDate(o.createdAt)}</div></div>
-        <div style="display:flex;align-items:center;gap:12px;">${dgStatus(o.status)}<div class="order-total">${dgMoney(o.total)}</div><span style="color:var(--muted);font-size:14px;">▾</span></div>
-      </div>
-      <div class="order-body" id="dgo-${dgEsc(o.id)}">
-        <div class="order-items">
-          ${(o.items||[]).map(i=>`<div class="order-item"><div class="order-item-img">💾</div><div><div class="order-item-name">${dgEsc(i.title)}</div><div class="order-item-cat">Dijital dosya</div></div><div class="order-item-price">${dgMoney(i.price)}</div></div>`).join('')}
-        </div>
-        ${o.status==='bekliyor'?`<div style="font-size:12px;color:var(--muted);line-height:1.7;">Havale açıklamasına <b style="color:var(--accent)">${dgEsc(o.code)}</b> yazın ve dekontu gönderin. Onaylanınca dosyalarınız burada açılır.</div>
-          <a class="dg-wa" href="${wa}" target="_blank" rel="noopener">💬 DEKONTU WHATSAPP'TAN GÖNDER</a>`:''}
-      </div>
-    </div>`;
-  }).join('');
-}
-
 function statusBadge(s) {
   const map = {
     'yeni':'b-yellow','Hazırlanıyor':'b-blue','Kargoya Verildi':'b-blue',

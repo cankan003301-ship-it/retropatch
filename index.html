@@ -505,7 +505,7 @@
 
 <!-- MARQUEE -->
 <div class="marquee-wrap">
-  <div class="marquee-inner">
+  <div class="marquee-inner" id="marqueeInner">
     <span>PROFESYONEL NAKIŞ</span><span>•</span><span>ÖZEL SİPARİŞ</span><span>•</span><span>HIZLI TESLİMAT</span><span>•</span><span>YÜKSEK KALİTE</span><span>•</span><span>MAKİNE NAKIŞI</span><span>•</span><span>343+ MÜŞTERİ</span><span>•</span>
     <span>PROFESYONEL NAKIŞ</span><span>•</span><span>ÖZEL SİPARİŞ</span><span>•</span><span>HIZLI TESLİMAT</span><span>•</span><span>YÜKSEK KALİTE</span><span>•</span><span>MAKİNE NAKIŞI</span><span>•</span><span>343+ MÜŞTERİ</span><span>•</span>
   </div>
@@ -760,6 +760,7 @@
     <button class="feat-tab active" onclick="switchTab('sales',this)">🔥 En Çok Satan</button>
     <button class="feat-tab" onclick="switchTab('favorites',this)">❤️ En Çok Favorilenen</button>
     <button class="feat-tab" onclick="switchTab('reviews',this)">⭐ En Çok Yorum Alan</button>
+    <button class="feat-tab" onclick="switchTab('new',this)">🆕 Yeni Gelenler</button>
   </div>
   <div class="prod-grid" id="featGrid">
     <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">YÜKLENİYOR...</div>
@@ -798,6 +799,31 @@
   .dgh-price s{font-family:'Barlow',sans-serif;font-size:12px;color:var(--muted);margin-right:6px;}
   @media(max-width:768px){.dgh-grid{grid-template-columns:repeat(2,1fr);}.dgh-title{font-size:16px;}}
 </style>
+<!-- KUPON VİTRİNİ (anasayfa) -->
+<style>
+  .cpn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+  .cpn-card{display:grid;grid-template-columns:104px 1fr;background:var(--card,#141414);border:1px solid var(--border);position:relative;transition:border-color .2s,transform .2s;}
+  .cpn-card:hover{border-color:rgba(200,169,110,.55);transform:translateY(-2px);}
+  .cpn-card::before,.cpn-card::after{content:'';position:absolute;left:94px;width:16px;height:16px;border-radius:50%;background:var(--bg,#0a0a0a);border:1px solid var(--border);z-index:2;}
+  .cpn-card::before{top:-9px;}.cpn-card::after{bottom:-9px;}
+  .cpn-l{border-right:2px dashed var(--border);background:linear-gradient(160deg,rgba(200,169,110,.2),rgba(200,169,110,.03));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 6px;text-align:center;}
+  .cpn-big{font-family:'Bebas Neue',cursive;font-size:40px;color:var(--accent);line-height:1;letter-spacing:1px;}
+  .cpn-s{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;color:var(--muted);margin-top:4px;}
+  .cpn-r{padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0;}
+  .cpn-desc{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:.5px;line-height:1.25;}
+  .cpn-meta{font-size:11px;color:var(--muted);line-height:1.5;}
+  .cpn-copy{margin-top:auto;align-self:flex-start;background:transparent;border:1px dashed var(--accent);color:var(--accent);font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:3px;padding:7px 14px;cursor:pointer;transition:all .2s;}
+  .cpn-copy:hover{background:var(--accent);color:#000;}
+  .cpn-copy.ok{background:#4ade80;border-color:#4ade80;color:#000;}
+  @media(max-width:600px){.cpn-grid{grid-template-columns:1fr;}}
+</style>
+<div class="section" id="kuponlar" style="display:none;border-top:1px solid var(--border);">
+  <div class="section-label">Kampanyalar</div>
+  <div class="section-title">İNDİRİM KUPONLARI</div>
+  <div class="cpn-grid" id="cpnGrid"></div>
+  <div style="text-align:center;margin-top:18px;font-size:12px;color:var(--muted);">Kodu kopyalayın, sepet sayfasında “Kupon kodu” alanına yapıştırın.</div>
+</div>
+
 <div class="section" id="dijital" style="border-top:1px solid var(--border);">
   <div class="section-label">Koleksiyon</div>
   <div class="section-title">DİJİTAL NAKIŞ DOSYALARI</div>
@@ -1641,8 +1667,35 @@ firebase.initializeApp({
   appId:"1:449894507687:web:a932684047bd590579e782"
 });
 const db = firebase.firestore();
+try { db.settings({ experimentalAutoDetectLongPolling: true, merge: true }); } catch(e) { console.warn('Firestore ayarı uygulanamadı', e); }
 const BACK_PRICES_IDX = {"Düz":0,"Ütüyle Yapışan":20,"Cırt Cırt":30};
 function updateOrderPrice(val){window._backExtra=BACK_PRICES_IDX[val]||0;}
+
+// ===== MARQUEE (Admin → Duyurular → Kayan Şerit) =====
+// Şerit = ayarlardaki yazı + "Kayan şerit" yerleşimli aktif duyurular (duyuru.js getirir)
+let _mqSettings = null;
+function renderMarquee() {
+  const inner = document.getElementById('marqueeInner');
+  const wrap = inner && inner.closest('.marquee-wrap');
+  if (!inner || !wrap) return;
+  const d = _mqSettings || {};
+  if (d.marqueeActive === false) { wrap.style.display = 'none'; return; }
+  const split = v => String(v || '').split(/[•|\n]+/).map(t => t.trim()).filter(Boolean);
+  const items = split(d.marquee).concat(window.rpMarqueeExtra || []);
+  if (!items.length) return;                       // boşsa varsayılan yazı kalır
+  wrap.style.display = '';
+  const e = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const one = items.map(t => '<span>' + e(t) + '</span><span>•</span>').join('');
+  const reps = Math.max(1, Math.ceil(24 / items.length));   // kısa metinde şerit boş kalmasın
+  const half = one.repeat(reps);
+  inner.innerHTML = half + half;                   // -%50 kaydırma için iki eşit yarı = kesintisiz döngü
+  const f = { slow: 1.7, normal: 1, fast: .55 }[d.marqueeSpeed] || 1;
+  inner.style.animation = 'none'; void inner.offsetWidth;   // animasyonu baştan başlat
+  inner.style.animation = '';
+  inner.style.animationDuration = Math.max(10, Math.round(half.length * 0.045 * f)) + 's';
+}
+function applyMarquee(d) { _mqSettings = d; renderMarquee(); }
+window.rpRenderMarquee = renderMarquee;
 
 // ===== CONTACT SETTINGS =====
 function loadContactSettings() {
@@ -1663,6 +1716,8 @@ function loadContactSettings() {
       document.getElementById('ctaIG').href = 'https://instagram.com/' + ig;
       document.getElementById('ctaIGText').textContent = 'Instagram: ' + d.instagram;
     }
+    applyMarquee(d);
+    applyDefaultFeatTab(d.defaultTab);
     if (d.dolap) {
       const dolap = d.dolap.replace('@','');
       document.getElementById('ctaDolap').href = 'https://dolap.com/profil/' + dolap;
@@ -1681,6 +1736,7 @@ db.collection("settings").doc("backPrices").get().then(s=>{
 
 let allProducts = [];
 let currentProduct = null;
+let curFeat = 'sales', featTouched = false;   // aktif öne çıkanlar sekmesi / ziyaretçi elle seçti mi
 let currentSlide = 0;
 let slideList = [];
 let sliderTimer;
@@ -1689,8 +1745,11 @@ let sliderTimer;
 db.collection('products').onSnapshot(snap => {
   allProducts = snap.docs.map(d => ({id:d.id,...d.data()}));
   buildSlider();
-  renderFeatured('sales');
-  document.querySelector('.feat-tab.active')?.click();
+  renderFeatured(curFeat);
+}, err => {
+  console.error('Ürünler yüklenemedi:', err.code, err.message);
+  const g = document.getElementById('featGrid');
+  if (g) g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted);font-family:\'Barlow Condensed\',sans-serif;letter-spacing:2px;font-size:13px;">ÜRÜNLER YÜKLENEMEDİ (' + (err.code||'hata') + ') — SAYFAYI YENİLEYİN</div>';
 });
 
 // ===== SLIDER =====
@@ -1789,14 +1848,26 @@ function startSlider(){clearInterval(sliderTimer);if(slideList.length>1)sliderTi
 function updateCounter(){document.getElementById('slideCounter').textContent=`${currentSlide+1} / ${Math.max(slideList.length,1)}`;}
 
 // ===== FEATURED TABS =====
-function switchTab(field, btn) {
+function switchTab(field, btn, auto) {
+  if (!auto) featTouched = true;
   document.querySelectorAll('.feat-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderFeatured(field);
 }
 
+// Admin → Site Yönetimi → Varsayılan Sekme (ziyaretçi henüz seçim yapmadıysa uygulanır)
+function applyDefaultFeatTab(tab) {
+  tab = tab || 'sales';
+  if (featTouched) return;
+  const btn = [...document.querySelectorAll('.feat-tab')].find(b => (b.getAttribute('onclick')||'').includes("'" + tab + "'"));
+  if (btn) switchTab(tab, btn, true);
+}
+
 function renderFeatured(field) {
-  const sorted = [...allProducts].sort((a,b)=>(b[field]||0)-(a[field]||0)).slice(0,10);
+  curFeat = field;
+  const sorted = (field === 'new'
+    ? [...allProducts].sort((a,b)=>((b.createdAt&&b.createdAt.seconds)||0)-((a.createdAt&&a.createdAt.seconds)||0))
+    : [...allProducts].sort((a,b)=>(b[field]||0)-(a[field]||0))).slice(0,10);
   const grid = document.getElementById('featGrid');
   const icons = {sales:'🔥',favorites:'❤️',reviews:'⭐'};
   const labels = {sales:'satış',favorites:'favori',reviews:'yorum'};
@@ -2539,9 +2610,13 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
   db.collection('digital_files').where('active','==',true).get().then(snap=>{
     files=snap.docs.map(d=>({id:d.id,...d.data()}));
     render();
-    // Yorum sayısı: admin yorumu onaylayınca digital_files.ratingCount güncellenir
-    files.forEach(f=>{ f.reviews=Number(f.ratingCount)||0; });
-    render();
+    // Yorum sayıları: digital_reviews koleksiyonundan hesaplanır
+    db.collection('digital_reviews').get().then(rs=>{
+      const cnt={};
+      rs.forEach(r=>{const d=r.data(); if(d.approved!==false && d.fileId) cnt[d.fileId]=(cnt[d.fileId]||0)+1;});
+      files.forEach(f=>{f.reviews=cnt[f.id]||0;});
+      render();
+    }).catch(e=>console.warn('Yorum sayıları okunamadı:',e.message));
   }).catch(e=>{ console.warn('Dijital vitrin yüklenemedi:',e.message); showEmpty(); });
 
   function showEmpty(){
@@ -2909,6 +2984,39 @@ function rpFaqToggle(el) {
 }
 </script>
 
+<script>
+/* Anasayfa: herkese açık kuponlar */
+(function(){
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  db.collection('coupons').where('public','==',true).get().then(snap=>{
+    const now=new Date();
+    const list=snap.docs.map(d=>({id:d.id,...d.data()})).filter(c=>
+      c.active!==false &&
+      !(c.expiry && new Date(c.expiry+'T23:59:59')<now) &&
+      !(c.limit && (c.used||0)>=c.limit));
+    if(!list.length) return;                      // kupon yoksa bölüm gizli kalır
+    list.sort((a,b)=>(b.value||0)-(a.value||0));
+    document.getElementById('cpnGrid').innerHTML=list.map(c=>`
+      <div class="cpn-card">
+        <div class="cpn-l"><div class="cpn-big">${c.type==='percent'?'%'+esc(c.value):'₺'+esc(c.value)}</div><div class="cpn-s">İNDİRİM</div></div>
+        <div class="cpn-r">
+          <div class="cpn-desc">${esc(c.desc||'Sepette geçerli indirim kuponu')}</div>
+          <div class="cpn-meta">${c.minCart?'Min. sepet ₺'+esc(c.minCart)+' · ':''}${c.expiry?new Date(c.expiry+'T00:00:00').toLocaleDateString('tr-TR')+' tarihine kadar':'Süresiz'}</div>
+          <button class="cpn-copy" data-code="${esc(c.id)}">${esc(c.id)} ⧉</button>
+        </div>
+      </div>`).join('');
+    document.getElementById('kuponlar').style.display='block';
+    document.getElementById('cpnGrid').addEventListener('click',e=>{
+      const b=e.target.closest('.cpn-copy'); if(!b) return;
+      const code=b.dataset.code, old=b.textContent;
+      const done=()=>{b.textContent='KOPYALANDI ✓';b.classList.add('ok');setTimeout(()=>{b.textContent=old;b.classList.remove('ok');},1800);};
+      (navigator.clipboard?navigator.clipboard.writeText(code):Promise.reject()).then(done).catch(()=>{
+        const t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();
+        try{document.execCommand('copy');done();}catch(x){}t.remove();});
+    });
+  }).catch(e=>console.warn('Kuponlar yüklenemedi:',e.message));
+})();
+</script>
 <script src="duyuru.js"></script>
 </body>
 </html>

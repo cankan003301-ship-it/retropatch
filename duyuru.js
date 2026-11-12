@@ -207,7 +207,12 @@
         .filter(inRange)
         .sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
 
-      var bars = all.filter(function (a) { return (a.place || 'bar') !== 'popup' && dismissed[a.id] !== version(a); });
+      // Kayan şerit (marquee) duyuruları anasayfadaki altın şeride eklenir
+      window.rpMarqueeExtra = all.filter(function (a) { return a.place === 'marquee'; })
+        .map(function (a) { return (a.title ? a.title + ': ' : '') + a.text; });
+      if (typeof window.rpRenderMarquee === 'function') window.rpRenderMarquee();
+
+      var bars = all.filter(function (a) { var p = a.place || 'bar'; return (p === 'bar' || p === 'both') && dismissed[a.id] !== version(a); });
       buildBar(bars);
 
       if (isHome()) {

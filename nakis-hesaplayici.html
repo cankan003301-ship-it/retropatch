@@ -59,6 +59,12 @@
 
     /* SECTION CARD */
     .calc-section{background:var(--bg2);border:1px solid var(--border);padding:28px;margin-bottom:16px;}
+    .calc-section.missing{border-color:var(--accent2);box-shadow:0 0 0 1px rgba(230,57,70,.35);animation:rpShake .45s;}
+    .req{color:var(--accent2);}
+    .req-note{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--accent2);margin-left:8px;vertical-align:middle;}
+    .req-msg{display:none;color:var(--accent2);font-size:12px;letter-spacing:1px;margin-top:12px;}
+    .calc-section.missing .req-msg{display:block;}
+    @keyframes rpShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
     .calc-section h3{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;}
     .calc-section p{font-size:12px;color:var(--muted);letter-spacing:1px;margin-bottom:22px;}
 
@@ -225,12 +231,13 @@
     </div>
 
     <!-- TASARIM -->
-    <div class="calc-section">
-      <h3>TASARIM</h3>
-      <p>Tasarımı kim yapıyor?</p>
+    <div class="calc-section" id="designSection">
+      <h3>TASARIM <span class="req">*</span><span class="req-note">ZORUNLU</span></h3>
+      <p>Tasarımı kim yapıyor? Fiyat hesaplamak için bir tasarım tipi seçmelisiniz.</p>
       <div class="design-grid" id="designGrid">
         <!-- JS ile dolacak -->
       </div>
+      <div class="req-msg">⚠ Lütfen bir tasarım tipi seçin.</div>
     </div>
 
     <!-- ADET -->
@@ -498,6 +505,7 @@ function selectDesign(id, el) {
   el.classList.add('selected');
   const types = calcConfig.designTypes || [];
   selectedDesign = types.find(d => d.id === id) || { id, name: id, extra: 0 };
+  document.getElementById('designSection')?.classList.remove('missing');
   updateQuote();
 }
 
@@ -526,8 +534,12 @@ function onQtyChange(v) {
 }
 
 // ===== PRICE CALCULATION =====
+// Tasarım tipi zorunlu (admin hiç tip tanımlamamışsa bloklama)
+function designRequired() { return (calcConfig.designTypes || []).length > 0; }
+
 function calcPrice() {
   if (!selectedProduct || !selectedSize || !selectedBack) return null;
+  if (designRequired() && !selectedDesign) return null;
 
   let unit = selectedProduct.basePrice[selectedSize.id] || 0;
   unit += (colorCount - 1) * (calcConfig.colorExtra || 5);
@@ -551,7 +563,7 @@ function updateQuote() {
   document.getElementById('qSize').textContent    = selectedSize ? selectedSize.name + ' (' + selectedSize.desc + ')' : '—';
   document.getElementById('qColors').textContent  = colorCount;
   document.getElementById('qBack').textContent    = selectedBack ? selectedBack.name : '—';
-  document.getElementById('qDesign').textContent  = selectedDesign ? selectedDesign.name + (selectedDesign.extra ? ' (+₺'+selectedDesign.extra+')' : ' (Ücretsiz)') : '—';
+  document.getElementById('qDesign').textContent  = selectedDesign ? selectedDesign.name + (selectedDesign.extra ? ' (+₺'+selectedDesign.extra+')' : ' (Ücretsiz)') : 'Seçiniz *';
   document.getElementById('qQty').textContent     = qty;
 
   // sticky bar sync
@@ -605,6 +617,13 @@ function buildDiscountTable(p) {
 }
 
 function goToOrder() {
+  if (designRequired() && !selectedDesign) {
+    const sec = document.getElementById('designSection');
+    sec.classList.remove('missing'); void sec.offsetWidth; sec.classList.add('missing');
+    sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    alert('Lütfen bir tasarım tipi seçin (zorunlu).');
+    return;
+  }
   const p = calcPrice();
   if (!p) { alert('Lütfen tüm seçimleri yapın.'); return; }
   const msg = encodeURIComponent(

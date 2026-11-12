@@ -257,6 +257,12 @@ if (!firebase.apps.length) firebase.initializeApp({
   appId:"1:449894507687:web:a932684047bd590579e782"
 });
 const db  = firebase.firestore();
+
+// Admin → Kargo Yönetimi → Firmalar: elle girilen firmaların adı ve takip bağlantısı
+let CARGO_CUSTOM = {};
+db.collection('settings').doc('kargo').get().then(doc => {
+  ((doc.exists && doc.data().companies) || []).forEach(c => { if (c && c.key) CARGO_CUSTOM[c.key] = c; });
+}).catch(() => {});
 const auth = firebase.auth();
 
 let currentUser = null;
@@ -556,6 +562,8 @@ function copyCode(orderId, code) {
 }
 
 function cargoTrackUrl(company, code) {
+  const cc = CARGO_CUSTOM[company];
+  if (cc && cc.trackUrl) return cc.trackUrl.replace(/\{(kod|code)\}/gi, encodeURIComponent(code));
   const urls = {
     mng:     `https://www.dhlecommerce.com.tr/gonderitakip?barkod=${code}`,
     yurtici: `https://www.yurticikargo.com/tr/online-islemler/gonderi-sorgula?code=${code}`,
@@ -569,7 +577,7 @@ function openTracking(company, code) {
   copyCode('', code);
   const url = cargoTrackUrl(company, code);
   const names = {mng:'DHL eCommerce',yurtici:'Yurtiçi Kargo',ptt:'PTT Kargo',surat:'Sürat Kargo'};
-  showToast('📋 ' + code + ' kopyalandı — ' + (names[company]||'Kargo') + ' açılıyor');
+  showToast('📋 ' + code + ' kopyalandı — ' + ((CARGO_CUSTOM[company] && CARGO_CUSTOM[company].name) || names[company] || 'Kargo') + ' açılıyor');
   setTimeout(() => window.open(url, '_blank'), 800);
 }
 
