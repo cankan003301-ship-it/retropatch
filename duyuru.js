@@ -258,12 +258,29 @@
     var skip = /(sepet|tesekkur|admin|takip|uye|yasal)/i.test(location.pathname);
     var st = document.createElement('style');
     st.textContent =
-      '.rp-cart-pill{display:inline-flex!important;align-items:center;gap:8px;border:1px solid var(--accent,#c8a96e);background:rgba(200,169,110,.12);color:var(--accent,#c8a96e)!important;padding:7px 14px!important;font-weight:700;letter-spacing:1px;font-size:14px!important;transition:transform .2s,background .2s}' +
-      '.rp-cart-pill:hover{background:var(--accent,#c8a96e);color:#000!important}' +
-      '.rp-cart-pill .ic,.rp-cart-pill svg{width:20px;height:20px}' +
-      '.rp-cart-pill .rp-cart-sum{opacity:.9;border-left:1px solid currentColor;padding-left:8px;font-size:13px}' +
+      '.rp-cart-pill{display:inline-flex!important;align-items:center;gap:6px}' +
+      '.rp-cart-pill .ic,.rp-cart-pill svg{width:1.15em;height:1.15em}' +
+      '.rp-cart-pill .rp-cart-sum{display:none}' +
       '.rp-cart-pill.rp-bump{animation:rpBump .6s}' +
       '@keyframes rpBump{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}' +
+      '.rp-hasdd{position:relative}' +
+      '.rp-dd{display:none;position:absolute;top:100%;right:0;padding-top:10px;z-index:9999;min-width:230px;text-align:left}' +
+      '.rp-dd>.rp-ddb{background:#141414;border:1px solid #2a2a2a;border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.6);padding:8px;font-family:"Barlow",sans-serif}' +
+      '.rp-hasdd:hover>.rp-dd,.rp-hasdd.rp-open>.rp-dd{display:block}' +
+      '.rp-dd a,.rp-dd button.rp-lnk{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;background:none;color:#ddd!important;text-decoration:none;font-family:"Barlow Condensed",sans-serif;font-size:14px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;border-radius:8px;cursor:pointer;text-align:left;background:transparent!important;white-space:nowrap}' +
+      '.rp-dd a:hover,.rp-dd button.rp-lnk:hover{background:rgba(200,169,110,.14)!important;color:var(--accent,#c8a96e)!important}' +
+      '.rp-dd hr{border:0;border-top:1px solid #2a2a2a;margin:6px 0}' +
+      '.rp-dd.rp-cartdd{min-width:320px;max-width:92vw}' +
+      '.rp-cartdd .rp-ci{display:flex;gap:10px;align-items:center;padding:8px 6px;border-bottom:1px solid #222}' +
+      '.rp-cartdd .rp-ci img{width:44px;height:44px;object-fit:cover;border-radius:6px;background:#222;flex-shrink:0}' +
+      '.rp-cartdd .rp-ci div{flex:1;min-width:0;text-transform:none;letter-spacing:0}' +
+      '.rp-cartdd .rp-ci b{display:block;color:#fff;font-size:13px;font-weight:600;white-space:normal;line-height:1.25}' +
+      '.rp-cartdd .rp-ci small{display:block;color:#999;font-size:11px;margin-top:2px;line-height:1.35}' +
+      '.rp-cartdd .rp-ci span{color:var(--accent,#c8a96e);font-weight:700;font-size:13px;white-space:nowrap}' +
+      '.rp-cartdd .rp-ct{display:flex;justify-content:space-between;padding:10px 6px 6px;color:#fff;font-size:14px;text-transform:none;letter-spacing:0}' +
+      '.rp-cartdd .rp-ct b{color:var(--accent,#c8a96e)}' +
+      '.rp-cartdd .rp-cgo{justify-content:center;background:var(--accent,#c8a96e)!important;color:#000!important;margin-top:6px}' +
+      '.rp-cartdd .rp-cgo:hover{background:#d4b77a!important;color:#000!important}' +
       '#rpCartFloat{position:fixed;left:14px;bottom:14px;z-index:9990;display:none;align-items:center;gap:12px;background:var(--accent,#c8a96e);color:#000;text-decoration:none;padding:13px 20px;box-shadow:0 8px 30px rgba(0,0,0,.55);font-family:"Barlow Condensed",sans-serif;font-weight:800;letter-spacing:1.5px;font-size:16px;max-width:calc(100vw - 28px)}' +
       '#rpCartFloat.show{display:flex}' +
       '#rpCartFloat .rp-fc-n{background:#000;color:var(--accent,#c8a96e);min-width:26px;height:26px;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;padding:0 6px}' +
@@ -282,13 +299,30 @@
     }
     function money(v) { return v.toLocaleString('tr-TR', { maximumFractionDigits: 2 }) + ' ₺'; }
 
-    var float = null, note = null, last = null, noteTimer = 0;
+    var float = null, note = null, last = null, noteTimer = 0, cartDD = null;
+    function esc2(x) { return String(x == null ? '' : x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function paintCartDD(v) {
+      if (!cartDD) return;
+      var c = []; try { c = JSON.parse(localStorage.getItem('retropatch_cart') || '[]'); } catch (e) {}
+      var h = '';
+      c.forEach(function (i) {
+        var q = i.qty || 1, pr = parseFloat(i.price) || 0, feat = [];
+        if (i.backType || i.back) feat.push('Arka: ' + (i.backType || i.back));
+        if (i.size) feat.push('Boyut: ' + i.size);
+        if (i.cat) feat.push(i.cat);
+        h += '<div class="rp-ci"><img src="' + esc2(i.image) + '" alt=""><div><b>' + esc2(i.name) + ' × ' + q + '</b><small>' + esc2(feat.join(' · ')) + '</small></div><span>' + money(pr * q) + '</span></div>';
+      });
+      cartDD.querySelector('.rp-ddb').innerHTML = c.length
+        ? h + '<div class="rp-ct"><span>' + v.n + ' ürün · Toplam</span><b>' + money(v.t) + '</b></div><a class="rp-cgo" href="sepet.html">SEPETE GİT</a>'
+        : '<div style="padding:18px;color:#888;text-align:center;text-transform:none;letter-spacing:0">Sepetiniz boş</div>';
+    }
     function ensure() {
       if (!document.body) return false;
       var cc = document.getElementById('cartCount');
       var a = cc && cc.closest ? cc.closest('a') : null;
       if (a && !a.classList.contains('rp-cart-pill')) {
         a.classList.add('rp-cart-pill');
+        var li = a.parentElement; if (li) { li.classList.add('rp-hasdd'); cartDD = document.createElement('div'); cartDD.className = 'rp-dd rp-cartdd'; cartDD.innerHTML = '<div class="rp-ddb"></div>'; li.appendChild(cartDD); }
         var sp = document.createElement('span'); sp.className = 'rp-cart-sum'; sp.id = 'rpCartSum'; a.appendChild(sp);
       }
       if (!skip && !float) {
@@ -304,6 +338,7 @@
       var v = read();
       var pill = document.querySelector('.rp-cart-pill'), sum = document.getElementById('rpCartSum');
       if (sum) sum.textContent = v.n ? v.n + ' ürün · ' + money(v.t) : 'Boş';
+      paintCartDD(v);
       if (float) {
         float.classList.toggle('show', v.n > 0);
         document.getElementById('rpFcN').textContent = v.n;
@@ -464,6 +499,31 @@
       var f = e.target.closest && e.target.closest('#rpCartFloat');
       if (f) { e.preventDefault(); window.rpOpenCart(); }
     });
+  })();
+
+
+  /* ───────── HESABIM AÇILIR MENÜ ───────── */
+  (function () {
+    var done = false;
+    function build() {
+      var li = document.getElementById('navHesapLi'); if (!li || done) return;
+      var a = li.querySelector('a'); if (!a) return;
+      if (!/hesap\.html/.test(a.getAttribute('href') || '')) return;
+      if (li.style.display === 'none') return;
+      done = true;
+      li.classList.add('rp-hasdd');
+      var d = document.createElement('div'); d.className = 'rp-dd';
+      d.innerHTML = '<div class="rp-ddb">' +
+        '<a href="hesap.html#orders">Siparişlerim</a><a href="hesap.html#cargo">Kargo Takibi</a><a href="hesap.html#favorites">Favorilerim</a>' +
+        '<a href="hesap.html#addresses">Adreslerim</a><a href="hesap.html#profile">Profilim</a><hr>' +
+        '<button type="button" class="rp-lnk" id="rpLogout">Çıkış Yap</button></div>';
+      li.appendChild(d);
+      a.addEventListener('click', function (e) { if (window.matchMedia('(hover:none)').matches) { e.preventDefault(); li.classList.toggle('rp-open'); } });
+      d.querySelector('#rpLogout').onclick = function () {
+        try { firebase.auth().signOut().then(function () { location.href = 'index.html'; }); } catch (e) { location.href = 'index.html'; }
+      };
+    }
+    setInterval(build, 600);
   })();
 
   /* ───────── SEO / PERFORMANS ─────────

@@ -567,6 +567,16 @@ auth.onAuthStateChanged(user => {
   loadProfile();
 });
 
+
+// Üst menüden gelen #orders / #cargo / #favorites / #addresses / #profile bağlantıları
+function rpHashPage(){
+  var n=(location.hash||'').replace('#','');
+  if(!n||!document.getElementById('page-'+n))return;
+  var el=Array.prototype.find.call(document.querySelectorAll('.nav-item'),function(x){return (x.getAttribute('onclick')||'').indexOf("'"+n+"'")>-1;});
+  showPage(n,el);
+}
+window.addEventListener('hashchange',rpHashPage);
+setTimeout(rpHashPage,400);
 function showPage(name, el) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
