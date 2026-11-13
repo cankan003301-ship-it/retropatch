@@ -294,6 +294,58 @@
 .ic{width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-.14em;flex-shrink:0;pointer-events:none}
 .ic[data-n=heart]{color:#e63946}.ic[data-n=fire]{color:#ff7a1a}.ic[data-n=star]{color:#f4c542}
 button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color:inherit}
+
+    /* ═════ MODERN GÖRÜNÜM (2026-11) ═════ */
+    :root{--r:16px;--r2:12px;--glow:0 10px 40px rgba(0,0,0,.45);}
+    body{background:radial-gradient(1200px 600px at 85% -10%,rgba(200,169,110,.08),transparent 60%),radial-gradient(900px 500px at -10% 110%,rgba(200,169,110,.05),transparent 60%),var(--bg);}
+    .layout{grid-template-columns:270px 1fr;gap:0;}
+    .sidebar{background:rgba(17,17,17,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-right:1px solid rgba(255,255,255,.06);padding:24px 14px;}
+    .user-card{background:linear-gradient(145deg,rgba(200,169,110,.16),rgba(200,169,110,.03));border:1px solid rgba(200,169,110,.22);border-radius:var(--r);padding:18px;margin-bottom:14px;text-align:left;}
+    .user-avatar{width:56px;height:56px;border-radius:50%;border:0;background:linear-gradient(135deg,#e6c98a,#b08a4a);color:#111;font-weight:800;box-shadow:0 6px 20px rgba(200,169,110,.35);margin-bottom:12px;}
+    .user-name{font-size:18px;}
+    .nav-lbl{padding:14px 14px 6px;}
+    .nav-item{border-left:0!important;border-radius:var(--r2);margin:2px 0;padding:11px 14px;transition:all .18s;}
+    .nav-item:hover{background:rgba(255,255,255,.05);transform:translateX(2px);}
+    .nav-item.active{background:linear-gradient(90deg,rgba(200,169,110,.22),rgba(200,169,110,.06));color:var(--accent);box-shadow:inset 0 0 0 1px rgba(200,169,110,.25);}
+    .logout-btn{width:100%;margin:18px 0 0;border-radius:999px;padding:11px;transition:all .2s;}
+    .main{padding:34px 40px!important;}
+    .page-hdr h2{font-size:34px;letter-spacing:3px;background:linear-gradient(90deg,#fff,#c8a96e);-webkit-background-clip:text;background-clip:text;color:transparent;}
+    .stats-row{gap:14px!important;margin-bottom:22px;}
+    .stat-card{background:linear-gradient(160deg,#181818,#121212);border:1px solid rgba(255,255,255,.07);border-radius:var(--r);padding:20px 22px;box-shadow:var(--glow);transition:transform .2s,border-color .2s;}
+    .stat-card:hover{transform:translateY(-3px);border-color:rgba(200,169,110,.4);}
+    .stat-val{font-size:38px;color:var(--accent);}
+    .order-card{background:linear-gradient(160deg,#171717,#121212);border:1px solid rgba(255,255,255,.07);border-radius:var(--r);margin-bottom:14px;overflow:hidden;box-shadow:var(--glow);}
+    .order-card:hover{border-color:rgba(200,169,110,.35);}
+    .order-item-img{border-radius:10px;}
+    .badge,.b-green,.b-red,.b-gray,.addr-default-badge,.fav-cat-badge{border-radius:999px!important;padding:4px 12px;}
+    .fav-grid{gap:18px!important;}
+    .fav-card,.addr-card,.profile-card,.cargo-track,.empty-state,.fav-empty{border-radius:var(--r)!important;border:1px solid rgba(255,255,255,.07);background:linear-gradient(160deg,#171717,#121212);box-shadow:var(--glow);}
+    .fav-card{overflow:hidden;transition:transform .22s,border-color .22s;}
+    .fav-card:hover,.addr-card:hover{transform:translateY(-4px);border-color:rgba(200,169,110,.4);}
+    .fav-img{border-radius:0;}
+    .fav-cart-btn,.fav-detail-btn,.addr-btn,.addr-add-btn,.fav-empty-btn{border-radius:999px!important;}
+    .btn-save{border-radius:999px!important;padding:12px 26px;box-shadow:0 6px 20px rgba(200,169,110,.25);transition:transform .15s,box-shadow .15s;}
+    .btn-save:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(200,169,110,.4);}
+    .fg input,.addr-fg input,.addr-fg select,.fav-sort,#trackCodeInput{border-radius:var(--r2)!important;background:#101010!important;border:1px solid rgba(255,255,255,.1)!important;padding:12px 14px!important;transition:border-color .2s,box-shadow .2s;}
+    .fg input:focus,.addr-fg input:focus,.addr-fg select:focus,#trackCodeInput:focus{border-color:var(--accent)!important;box-shadow:0 0 0 3px rgba(200,169,110,.18);outline:none;}
+    .addr-modal{border-radius:20px!important;border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 80px rgba(0,0,0,.7);}
+    #page-orders>div[style*="rgba(200,169,110,.2)"]{border-radius:var(--r)!important;background:linear-gradient(135deg,rgba(200,169,110,.1),rgba(20,20,20,.9))!important;}
+    #page-orders button[onclick="trackByCode()"]{border-radius:999px!important;}
+    #trackCodeInput{min-width:0;}
+    .page.active{animation:rpIn .35s ease both;}
+    @keyframes rpIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    .toast{border-radius:999px!important;}
+    @media(max-width:900px){
+      .layout{grid-template-columns:minmax(0,1fr);}
+      .main{min-width:0;}
+      .sidebar{min-width:0;width:100%;}
+      .sidebar{position:static;height:auto;display:flex;flex-wrap:nowrap;overflow-x:auto;gap:8px;padding:12px;border-right:0;border-bottom:1px solid rgba(255,255,255,.06);}
+      .sidebar .user-card,.sidebar .nav-lbl,.sidebar .logout-btn{display:none;}
+      .sidebar .nav-item{white-space:nowrap;flex:0 0 auto;background:rgba(255,255,255,.04);border-radius:999px;padding:9px 16px;}
+      .main{padding:20px 14px!important;}
+      .page-hdr h2{font-size:28px;}
+      .stats-row{grid-template-columns:1fr 1fr 1fr;gap:8px!important;}.stat-card{padding:14px 12px;}.stat-val{font-size:26px;}
+    }
 </style>
 </head>
 <body>
@@ -333,8 +385,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <ul>
     <li><a href="urunler.html">Ürünler</a></li>
     <li><a href="sepet.html"><svg class=ic data-n=cart><use href=#i-cart></use></svg> Sepet</a></li>
-  
-    <li><button class="search-btn" onclick="openSearch()" title="Ara (Ctrl+K / /)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></li>
   
     <li><button class="search-btn" onclick="openSearch()" title="Ara (Ctrl+K / /)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></li>
   </ul>

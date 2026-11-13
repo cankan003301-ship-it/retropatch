@@ -253,6 +253,81 @@
   })();
 
 
+  /* ───────── SEPET GÖSTERGESİ: ürün adedi + toplam tutar, büyük ve her sayfada ───────── */
+  (function () {
+    var skip = /(sepet|tesekkur|admin|takip|uye|yasal)/i.test(location.pathname);
+    var st = document.createElement('style');
+    st.textContent =
+      '.rp-cart-pill{display:inline-flex!important;align-items:center;gap:8px;border:1px solid var(--accent,#c8a96e);background:rgba(200,169,110,.12);color:var(--accent,#c8a96e)!important;padding:7px 14px!important;font-weight:700;letter-spacing:1px;font-size:14px!important;transition:transform .2s,background .2s}' +
+      '.rp-cart-pill:hover{background:var(--accent,#c8a96e);color:#000!important}' +
+      '.rp-cart-pill .ic,.rp-cart-pill svg{width:20px;height:20px}' +
+      '.rp-cart-pill .rp-cart-sum{opacity:.9;border-left:1px solid currentColor;padding-left:8px;font-size:13px}' +
+      '.rp-cart-pill.rp-bump{animation:rpBump .6s}' +
+      '@keyframes rpBump{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}' +
+      '#rpCartFloat{position:fixed;left:14px;bottom:14px;z-index:9990;display:none;align-items:center;gap:12px;background:var(--accent,#c8a96e);color:#000;text-decoration:none;padding:13px 20px;box-shadow:0 8px 30px rgba(0,0,0,.55);font-family:"Barlow Condensed",sans-serif;font-weight:800;letter-spacing:1.5px;font-size:16px;max-width:calc(100vw - 28px)}' +
+      '#rpCartFloat.show{display:flex}' +
+      '#rpCartFloat .rp-fc-n{background:#000;color:var(--accent,#c8a96e);min-width:26px;height:26px;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;padding:0 6px}' +
+      '#rpCartFloat .rp-fc-go{opacity:.75;font-size:13px}' +
+      '#rpCartFloat.rp-bump{animation:rpBump .6s}' +
+      '#rpCartNote{position:fixed;left:14px;bottom:78px;z-index:9991;background:#111;border:1px solid var(--accent,#c8a96e);color:#fff;padding:12px 16px;font-size:14px;line-height:1.5;opacity:0;transform:translateY(10px);pointer-events:none;transition:all .3s;max-width:calc(100vw - 28px)}' +
+      '#rpCartNote.show{opacity:1;transform:none}#rpCartNote b{color:var(--accent,#c8a96e)}';
+    document.head.appendChild(st);
+
+    function read() {
+      try {
+        var c = JSON.parse(localStorage.getItem('retropatch_cart') || '[]'), n = 0, t = 0;
+        c.forEach(function (i) { var q = i.qty || 1; n += q; t += (parseFloat(i.price) || 0) * q; });
+        return { n: n, t: Math.round(t * 100) / 100 };
+      } catch (e) { return { n: 0, t: 0 }; }
+    }
+    function money(v) { return v.toLocaleString('tr-TR', { maximumFractionDigits: 2 }) + ' ₺'; }
+
+    var float = null, note = null, last = null, noteTimer = 0;
+    function ensure() {
+      if (!document.body) return false;
+      var cc = document.getElementById('cartCount');
+      var a = cc && cc.closest ? cc.closest('a') : null;
+      if (a && !a.classList.contains('rp-cart-pill')) {
+        a.classList.add('rp-cart-pill');
+        var sp = document.createElement('span'); sp.className = 'rp-cart-sum'; sp.id = 'rpCartSum'; a.appendChild(sp);
+      }
+      if (!skip && !float) {
+        float = document.createElement('a'); float.id = 'rpCartFloat'; float.href = 'sepet.html';
+        float.innerHTML = '<span>SEPETİM</span><span class="rp-fc-n" id="rpFcN">0</span><span id="rpFcT"></span><span class="rp-fc-go">GÖR →</span>';
+        document.body.appendChild(float);
+        note = document.createElement('div'); note.id = 'rpCartNote'; document.body.appendChild(note);
+      }
+      return true;
+    }
+    function paint(showNote) {
+      if (!ensure()) return;
+      var v = read();
+      var pill = document.querySelector('.rp-cart-pill'), sum = document.getElementById('rpCartSum');
+      if (sum) sum.textContent = v.n ? v.n + ' ürün · ' + money(v.t) : 'Boş';
+      if (float) {
+        float.classList.toggle('show', v.n > 0);
+        document.getElementById('rpFcN').textContent = v.n;
+        document.getElementById('rpFcT').textContent = money(v.t);
+      }
+      if (showNote && v.n) {
+        [pill, float].forEach(function (el) { if (el) { el.classList.remove('rp-bump'); void el.offsetWidth; el.classList.add('rp-bump'); } });
+        if (note) {
+          note.innerHTML = '✓ Sepete eklendi · Sepetinizde <b>' + v.n + ' ürün</b> var · Toplam <b>' + money(v.t) + '</b>';
+          note.classList.add('show'); clearTimeout(noteTimer);
+          noteTimer = setTimeout(function () { note.classList.remove('show'); }, 3500);
+        }
+      }
+    }
+    function tick() {
+      var v = read();
+      if (last === null) { last = v; paint(false); return; }
+      if (v.n !== last.n || v.t !== last.t) { var up = v.n > last.n; last = v; paint(up); }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick); else tick();
+    setInterval(tick, 500);
+    window.addEventListener('storage', tick);
+  })();
+
   /* ───────── SEO / PERFORMANS ─────────
      1) Dinamik eklenen görsellere lazy-load; ürün kartı görsellerine ImageKit otomatik biçim/kalite
      2) Ürünler yüklenince schema.org Product listesi (Google zengin sonuçlar) */
