@@ -226,9 +226,9 @@
       background:transparent;
       border:1px solid rgba(200,169,110,0.35);
       color:var(--accent);
-      padding:6px 12px;
+      padding:10px 18px;min-height:40px;border-radius:10px;justify-content:center;
       font-family:'Barlow Condensed',sans-serif;
-      font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+      font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
       cursor:pointer;
       transition:all .25s ease;
       flex-shrink:0;
@@ -1992,8 +1992,8 @@ function renderFeatured(field) {
         <div class="product-name">${p.name||''}</div>
         <div class="product-bottom">
           <div class="product-price">${p.price?'₺'+p.price:'—'}</div>
-          <button class="add-cart-btn" onclick="event.stopPropagation();openModal(this.closest('.product-card').dataset.id)" title="Sepete ekle">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          <button class="add-cart-btn" onclick="event.stopPropagation();rpQuickAdd(this.closest('.product-card').dataset.id)" title="Sepete ekle">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
             <span>Sepete Ekle</span>
           </button>
         </div>

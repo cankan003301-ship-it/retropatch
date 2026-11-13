@@ -328,6 +328,144 @@
     window.addEventListener('storage', tick);
   })();
 
+  /* ───────── HIZLI SEPETE EKLE (ek özellikleri sorar) + SEPET ÇEKMECESİ ───────── */
+  (function () {
+    var st = document.createElement('style');
+    st.textContent =
+      '#rpQA{position:fixed;inset:0;z-index:100010;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center}' +
+      '#rpQA.open{display:flex}' +
+      '#rpQA .rp-sheet{background:#141414;border:1px solid #2a2a2a;border-bottom:0;width:100%;max-width:460px;padding:20px 20px 22px;border-radius:18px 18px 0 0;animation:rpUp .25s ease;max-height:92vh;overflow:auto}' +
+      '@media(min-width:640px){#rpQA{align-items:center}#rpQA .rp-sheet{border-bottom:1px solid #2a2a2a;border-radius:18px}}' +
+      '@keyframes rpUp{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}' +
+      '#rpQA .rp-top{display:flex;gap:14px;align-items:center;margin-bottom:16px}' +
+      '#rpQA .rp-thumb{width:64px;height:64px;object-fit:cover;border-radius:10px;background:#222;flex-shrink:0}' +
+      '#rpQA .rp-nm{font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:1px;font-size:18px;color:#fff;line-height:1.2}' +
+      '#rpQA .rp-bp{color:var(--accent,#c8a96e);font-size:14px;margin-top:2px}' +
+      '#rpQA .rp-x{margin-left:auto;background:none;border:1px solid #333;color:#aaa;width:32px;height:32px;border-radius:50%;cursor:pointer;flex-shrink:0}' +
+      '#rpQA .rp-lbl{font-family:"Barlow Condensed",sans-serif;font-size:11px;letter-spacing:2px;color:#888;text-transform:uppercase;margin:12px 0 7px}' +
+      '#rpQA .rp-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}' +
+      '#rpQA .rp-opt{background:#1b1b1b;border:1px solid #2f2f2f;color:#ddd;border-radius:12px;padding:11px 6px;cursor:pointer;text-align:center;font-size:13px;font-family:inherit;line-height:1.3}' +
+      '#rpQA .rp-opt small{display:block;color:var(--accent,#c8a96e);font-size:12px;margin-top:2px}' +
+      '#rpQA .rp-opt.on{border-color:var(--accent,#c8a96e);background:rgba(200,169,110,.14);color:#fff}' +
+      '#rpQA .rp-qty{display:inline-flex;align-items:center;border:1px solid #2f2f2f;border-radius:999px;overflow:hidden}' +
+      '#rpQA .rp-qty button{background:#1b1b1b;border:0;color:#fff;width:42px;height:40px;font-size:20px;cursor:pointer}' +
+      '#rpQA .rp-qty span{min-width:44px;text-align:center;font-weight:700;color:#fff}' +
+      '#rpQA .rp-go{width:100%;margin-top:18px;background:var(--accent,#c8a96e);color:#000;border:0;border-radius:999px;padding:15px;font-family:"Bebas Neue",cursive;font-size:20px;letter-spacing:2px;cursor:pointer}' +
+      '#rpDr{position:fixed;inset:0;z-index:100008;background:rgba(0,0,0,.6);display:none}#rpDr.open{display:block}' +
+      '#rpDr .rp-panel{position:absolute;right:0;top:0;bottom:0;width:min(400px,100vw);background:#121212;border-left:1px solid #2a2a2a;display:flex;flex-direction:column;animation:rpSl .25s ease}' +
+      '@keyframes rpSl{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}' +
+      '#rpDr .rp-h{padding:16px 18px;border-bottom:1px solid #2a2a2a;display:flex;justify-content:space-between;align-items:center;font-family:"Bebas Neue",cursive;font-size:22px;letter-spacing:2px;color:#fff}' +
+      '#rpDr .rp-l{flex:1;overflow:auto;padding:10px 16px}' +
+      '#rpDr .rp-it{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #222;align-items:center}' +
+      '#rpDr .rp-it img{width:56px;height:56px;object-fit:cover;border-radius:8px;background:#222;flex-shrink:0}' +
+      '#rpDr .rp-in{flex:1;min-width:0}#rpDr .rp-in b{display:block;color:#fff;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+      '#rpDr .rp-in small{color:#888;font-size:12px;display:block;margin:2px 0 6px}' +
+      '#rpDr .rp-q{display:inline-flex;align-items:center;border:1px solid #2f2f2f;border-radius:999px;overflow:hidden}#rpDr .rp-q button{background:#1b1b1b;border:0;color:#fff;width:28px;height:26px;cursor:pointer}#rpDr .rp-q span{min-width:28px;text-align:center;font-size:13px;color:#fff}' +
+      '#rpDr .rp-pr{text-align:right;color:var(--accent,#c8a96e);font-weight:700;font-size:14px;white-space:nowrap}#rpDr .rp-pr button{display:block;margin:6px 0 0 auto;background:none;border:0;color:#777;font-size:12px;cursor:pointer;text-decoration:underline}' +
+      '#rpDr .rp-f{padding:16px 18px;border-top:1px solid #2a2a2a}#rpDr .rp-tot{display:flex;justify-content:space-between;color:#fff;font-size:17px;margin-bottom:12px}#rpDr .rp-tot b{color:var(--accent,#c8a96e)}' +
+      '#rpDr .rp-gosepet{display:block;text-align:center;background:var(--accent,#c8a96e);color:#000;text-decoration:none;border-radius:999px;padding:14px;font-family:"Bebas Neue",cursive;font-size:20px;letter-spacing:2px}' +
+      '#rpDr .rp-empty{color:#777;text-align:center;padding:50px 10px}';
+    document.head.appendChild(st);
+
+    function esc(x) { return String(x == null ? '' : x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function money(v) { return v.toLocaleString('tr-TR', { maximumFractionDigits: 2 }) + ' ₺'; }
+    function readCart() { try { return JSON.parse(localStorage.getItem('retropatch_cart') || '[]'); } catch (e) { return []; } }
+    function writeCart(c) { localStorage.setItem('retropatch_cart', JSON.stringify(c)); try { if (typeof updateCartCount === 'function') updateCartCount(); } catch (e) {} }
+    function prices() {
+      var p = { 'Düz': 0, 'Ütüyle Yapışan': 20, 'Cırt Cırt': 30 };
+      try { if (typeof BACK_PRICES_IDX !== 'undefined') p = BACK_PRICES_IDX; else if (typeof BACK_PRICES !== 'undefined') p = BACK_PRICES; } catch (e) {}
+      return p;
+    }
+    function product(id) {
+      try { if (typeof allProducts !== 'undefined') { for (var i = 0; i < allProducts.length; i++) if (allProducts[i].id === id) return allProducts[i]; } } catch (e) {}
+      return null;
+    }
+
+    var qa = null, cur = null, selBack = 'Düz', qty = 1;
+    function ensureQA() {
+      if (qa) return;
+      qa = document.createElement('div'); qa.id = 'rpQA';
+      qa.innerHTML = '<div class="rp-sheet"><div class="rp-top"><img class="rp-thumb" id="rpQi" alt=""><div><div class="rp-nm" id="rpQn"></div><div class="rp-bp" id="rpQb"></div></div><button class="rp-x" aria-label="Kapat">✕</button></div>' +
+        '<div class="rp-lbl">Arka yüzey</div><div class="rp-opts" id="rpQo"></div>' +
+        '<div class="rp-lbl">Adet</div><div class="rp-qty"><button type="button" id="rpQm">−</button><span id="rpQq">1</span><button type="button" id="rpQp">+</button></div>' +
+        '<button class="rp-go" id="rpQgo" type="button"></button></div>';
+      document.body.appendChild(qa);
+      qa.addEventListener('click', function (e) { if (e.target === qa || e.target.className === 'rp-x') closeQA(); });
+      document.getElementById('rpQm').onclick = function () { if (qty > 1) { qty--; paintQA(); } };
+      document.getElementById('rpQp').onclick = function () { if (qty < 99) { qty++; paintQA(); } };
+      document.getElementById('rpQgo').onclick = confirmQA;
+    }
+    function closeQA() { if (qa) qa.classList.remove('open'); document.body.style.overflow = ''; }
+    function paintQA() {
+      var pr = prices(), base = parseFloat(cur.price) || 0, extra = pr[selBack] || 0;
+      document.querySelectorAll('#rpQo .rp-opt').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-b') === selBack); });
+      document.getElementById('rpQq').textContent = qty;
+      document.getElementById('rpQgo').textContent = 'SEPETE EKLE · ' + money((base + extra) * qty);
+    }
+    function confirmQA() {
+      var pr = prices(), extra = pr[selBack] || 0, base = parseFloat(cur.price) || 0;
+      var c = readCart(), ex = null;
+      for (var i = 0; i < c.length; i++) if (c[i].id === cur.id && (c[i].backType || c[i].back || 'Düz') === selBack) { ex = c[i]; break; }
+      if (ex) ex.qty = (ex.qty || 1) + qty;
+      else c.push({ id: cur.id, name: cur.name, price: base + extra, basePrice: base, backType: selBack, back: selBack, backExtra: extra, image: cur.image || '', cat: cur.cat || '', size: cur.size || '', qty: qty });
+      writeCart(c); closeQA();
+    }
+    window.rpQuickAdd = function (id) {
+      var p = product(id); if (!p) { location.href = 'urunler.html'; return; }
+      ensureQA(); cur = p; qty = 1; selBack = 'Düz';
+      var pr = prices();
+      document.getElementById('rpQi').src = p.image || '';
+      document.getElementById('rpQn').textContent = p.name || '';
+      document.getElementById('rpQb').textContent = 'Başlangıç: ' + money(parseFloat(p.price) || 0);
+      var o = document.getElementById('rpQo'); o.innerHTML = '';
+      ['Düz', 'Ütüyle Yapışan', 'Cırt Cırt'].forEach(function (k) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'rp-opt'; b.setAttribute('data-b', k);
+        b.innerHTML = esc(k) + '<small>' + ((pr[k] || 0) ? '+' + (pr[k] || 0) + ' ₺' : 'Ücretsiz') + '</small>';
+        b.onclick = function () { selBack = k; paintQA(); };
+        o.appendChild(b);
+      });
+      paintQA(); qa.classList.add('open'); document.body.style.overflow = 'hidden';
+    };
+
+    /* Sepet çekmecesi */
+    var dr = null;
+    function paintDrawer() {
+      var c = readCart(), tot = 0, n = 0, h = '';
+      c.forEach(function (i, ix) {
+        var q = i.qty || 1, pr = parseFloat(i.price) || 0; tot += pr * q; n += q;
+        h += '<div class="rp-it"><img src="' + esc(i.image) + '" alt=""><div class="rp-in"><b>' + esc(i.name) + '</b><small>' + esc(i.backType || i.back || 'Düz') + ' · ' + money(pr) + '</small>' +
+          '<span class="rp-q"><button data-a="m" data-i="' + ix + '">−</button><span>' + q + '</span><button data-a="p" data-i="' + ix + '">+</button></span></div>' +
+          '<div class="rp-pr">' + money(pr * q) + '<button data-a="r" data-i="' + ix + '">Kaldır</button></div></div>';
+      });
+      document.getElementById('rpDrL').innerHTML = h || '<div class="rp-empty">Sepetiniz boş</div>';
+      document.getElementById('rpDrN').textContent = n ? '(' + n + ' ürün)' : '';
+      document.getElementById('rpDrT').textContent = money(tot);
+      document.getElementById('rpDrF').style.display = n ? '' : 'none';
+    }
+    window.rpOpenCart = function () {
+      if (!dr) {
+        dr = document.createElement('div'); dr.id = 'rpDr';
+        dr.innerHTML = '<div class="rp-panel"><div class="rp-h"><span>SEPETİM <small id="rpDrN" style="font-size:14px;color:#888"></small></span><button class="rp-x" style="background:none;border:1px solid #333;color:#aaa;width:32px;height:32px;border-radius:50%;cursor:pointer">✕</button></div>' +
+          '<div class="rp-l" id="rpDrL"></div><div class="rp-f" id="rpDrF"><div class="rp-tot"><span>Ara toplam</span><b id="rpDrT"></b></div><a class="rp-gosepet" href="sepet.html">SEPETE GİT / ÖDEME</a></div></div>';
+        document.body.appendChild(dr);
+        dr.addEventListener('click', function (e) {
+          if (e.target === dr || (e.target.className === 'rp-x')) { dr.classList.remove('open'); document.body.style.overflow = ''; return; }
+          var a = e.target.getAttribute && e.target.getAttribute('data-a'); if (!a) return;
+          var ix = +e.target.getAttribute('data-i'), c = readCart(); if (!c[ix]) return;
+          if (a === 'p') c[ix].qty = Math.min(99, (c[ix].qty || 1) + 1);
+          else if (a === 'm') c[ix].qty = Math.max(1, (c[ix].qty || 1) - 1);
+          else c.splice(ix, 1);
+          writeCart(c); paintDrawer();
+        });
+      }
+      paintDrawer(); dr.classList.add('open'); document.body.style.overflow = 'hidden';
+    };
+    document.addEventListener('click', function (e) {
+      var f = e.target.closest && e.target.closest('#rpCartFloat');
+      if (f) { e.preventDefault(); window.rpOpenCart(); }
+    });
+  })();
+
   /* ───────── SEO / PERFORMANS ─────────
      1) Dinamik eklenen görsellere lazy-load; ürün kartı görsellerine ImageKit otomatik biçim/kalite
      2) Ürünler yüklenince schema.org Product listesi (Google zengin sonuçlar) */
