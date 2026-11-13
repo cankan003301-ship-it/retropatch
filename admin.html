@@ -1970,7 +1970,6 @@ function listenMessages() {
     badge.style.display = unread > 0 ? 'inline-block' : 'none';
     document.getElementById('sMessages').textContent = unread;
     renderMessages();
-    addActivity('✉', `${unread} okunmamış mesaj`);
   };
 
   db.collection('messages').orderBy('createdAt', 'desc').onSnapshot(handleSnap, err => {
@@ -1992,6 +1991,7 @@ function listenPendingReviews() {
     .onSnapshot(snap => {
       const pending = snap.docs.length;
       window._prodPend = pending;
+      window._pendRevList = snap.docs.map(d => d.data());
       const badge = document.getElementById('badgeReviews');
       if (badge) {
         badge.textContent = pending + dgRevPendingCount();
@@ -4438,18 +4438,59 @@ function formatDate(ts) {
 
 const activities = [];
 function addActivity(icon, text) {
-  activities.unshift({ icon, text, time: new Date() });
-  if (activities.length > 8) activities.pop();
-  const feed = document.getElementById('actFeed');
-  feed.innerHTML = activities.map(a => `
-    <div class="act-item">
-      <div class="act-icon">${a.icon}</div>
-      <div class="act-text">
-        <div class="at">${a.text}</div>
-        <div class="act-time">${a.time.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</div>
-      </div>
-    </div>`).join('');
+  // Panelde yapılan işlemler (ürün ekleme vb.) gerçek zamanıyla akışa girer
+  activities.unshift({ icon, text, t: Date.now() });
+  if (activities.length > 12) activities.pop();
+  renderActivityFeed();
 }
+function _actTime(ms) {
+  const d = new Date(ms), now = new Date();
+  const hm = d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  if (d.toDateString() === now.toDateString()) return 'Bugün ' + hm;
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return 'Dün ' + hm;
+  return d.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' }) + ' ' + hm;
+}
+function renderActivityFeed() {
+  const feed = document.getElementById('actFeed'); if (!feed) return;
+  const ev = [];
+  const ms = x => (x && x.seconds) ? x.seconds * 1000 : 0;
+  (typeof allOrders !== 'undefined' ? allOrders : []).slice(0, 30).forEach(o => {
+    const t = ms(o.createdAt); if (!t) return;
+    const waiting = o.payment && o.payment.status === 'awaiting_card';
+    const tot = Number(o.total) || 0;
+    ev.push({ t, icon: waiting ? '⏳' : '🛒', text: (waiting ? 'Kart ödemesi bekleniyor' : 'Yeni sipariş') + ' · ' + (o.name || o.customerName || 'Müşteri') + (tot ? ' · ₺' + tot.toLocaleString('tr-TR') : '') });
+  });
+  (typeof allMessages !== 'undefined' ? allMessages : []).slice(0, 20).forEach(m => {
+    const t = ms(m.createdAt); if (!t) return;
+    ev.push({ t, icon: '✉', text: (m.read ? 'Mesaj' : 'Yeni mesaj') + ' · ' + (m.name || 'Ziyaretçi') + ': "' + String(m.message || '').slice(0, 40) + '"' });
+  });
+  (typeof allMembers !== 'undefined' ? allMembers : []).slice(0, 30).forEach(u => {
+    const t = ms(u.createdAt); if (!t) return;
+    ev.push({ t, icon: '👤', text: 'Yeni üye · ' + (u.name || u.email || '—') });
+  });
+  (window._pendRevList || []).slice(0, 20).forEach(r => {
+    const t = ms(r.createdAt); if (!t) return;
+    ev.push({ t, icon: '💬', text: 'Yorum onay bekliyor · "' + String(r.text || '').slice(0, 40) + '"' });
+  });
+  activities.forEach(a => ev.push(a));
+  ev.sort((x, y) => y.t - x.t);
+  const top = ev.slice(0, 10);
+  feed.innerHTML = '';
+  if (!top.length) {
+    const e = document.createElement('div'); e.className = 'act-item';
+    e.innerHTML = '<div class="act-text"><div class="at">Henüz hareket yok</div></div>'; feed.appendChild(e); return;
+  }
+  top.forEach(a => {
+    const it = document.createElement('div'); it.className = 'act-item';
+    const ic = document.createElement('div'); ic.className = 'act-icon'; ic.textContent = a.icon;
+    const tx = document.createElement('div'); tx.className = 'act-text';
+    const at = document.createElement('div'); at.className = 'at'; at.textContent = a.text;
+    const tm = document.createElement('div'); tm.className = 'act-time'; tm.textContent = _actTime(a.t);
+    tx.appendChild(at); tx.appendChild(tm); it.appendChild(ic); it.appendChild(tx); feed.appendChild(it);
+  });
+}
+setInterval(renderActivityFeed, 4000);
 
 function toast(msg, type='ok') {
   const t = document.getElementById('toast');
