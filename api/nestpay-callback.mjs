@@ -1,6 +1,6 @@
 // POST /api/nestpay-callback — bankanın 3D dönüş adresi (okUrl/failUrl). Tarayıcıyı sepet sayfasına yönlendirir.
 import { fb } from './_fb.mjs';
-import { loadPaySettings, prepareGroup, markPaid, markFailed, nestpayVerify, nestpayApproved, siteOrigin, GROUP_RE, HttpError } from './_pay.mjs';
+import { loadPaySettings, prepareGroup, markPaid, markFailed, nestpayVerify, nestpayApproved, notifyPaid, siteOrigin, GROUP_RE, HttpError } from './_pay.mjs';
 import { bodyOf } from './_http.mjs';
 
 export default async function handler(req, res) {
@@ -29,7 +29,8 @@ export default async function handler(req, res) {
     if (Math.round(Number(String(p.amount).replace(',', '.')) * 100) < g.kurus) {
       await markFailed(db, FieldValue, group, 'Tutar uyuşmadı'); return go('/sepet.html?odeme=hata');
     }
-    await markPaid(db, FieldValue, group, 'nestpay', g.kurus);
+    const r = await markPaid(db, FieldValue, group, 'nestpay', g.kurus);
+    await notifyPaid(origin, r.emails);
     go('/sepet.html?odeme=ok&kod=' + encodeURIComponent(g.codes.join(' + ')));
   } catch (e) {
     console.error('[nestpay-callback]', e);

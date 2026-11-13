@@ -227,3 +227,23 @@ export function siteOrigin(req) {
   const proto = (req.headers['x-forwarded-proto'] || 'https').split(',')[0];
   return proto + '://' + req.headers.host;
 }
+
+// ───────────── Ödeme sonrası bildirim (mevcut /api/send-email ve /api/send-whatsapp uçları) ─────────────
+export async function notifyPaid(origin, emails) {
+  for (const { orderCode, data: o } of emails || []) {
+    try {
+      const items = (o.items || []).map(i => ({ name: i.name, qty: i.qty || 1, price: (i.price || 0) * (i.qty || 1) }));
+      const a = o.address || {};
+      const common = { orderCode, customerName: o.userName || a.name || 'Müşteri', items, total: o.total, paymentMethod: 'Kredi/Banka Kartı (ödendi)' };
+      const post = (path, data) => fetch(origin + path, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'order_confirmed', data }), signal: AbortSignal.timeout(8000)
+      }).catch(e => console.warn('[notify]', path, e.message));
+      await Promise.all([
+        o.userEmail ? post('/api/send-email', { ...common, customerEmail: o.userEmail, customerPhone: a.phone || '',
+          address: [a.name, a.phone, a.address, a.district, a.city].filter(Boolean).join(', '), whatsapp: '905375295290' }) : null,
+        a.phone ? post('/api/send-whatsapp', { ...common, customerPhone: a.phone }) : null
+      ]);
+    } catch (e) { console.warn('[notify]', e.message); }
+  }
+}

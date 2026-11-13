@@ -1,7 +1,7 @@
 // POST /api/paytr-callback  — PayTR "Bildirim URL"si (PayTR panelinde bu adresi tanımlayın)
 // Her zaman düz metin "OK" döner; aksi halde PayTR bildirimi tekrar tekrar gönderir.
 import { fb } from './_fb.mjs';
-import { loadPaySettings, prepareGroup, markPaid, markFailed, paytrVerify, GROUP_RE, HttpError } from './_pay.mjs';
+import { loadPaySettings, prepareGroup, markPaid, markFailed, paytrVerify, notifyPaid, siteOrigin, GROUP_RE, HttpError } from './_pay.mjs';
 import { bodyOf } from './_http.mjs';
 
 export default async function handler(req, res) {
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       try { g = await prepareGroup(db, group, null); }
       catch (e) { if (e instanceof HttpError && e.status === 409 && /zaten/.test(e.message)) return res.status(200).send('OK'); throw e; }   // zaten işlendi
       if (Number(p.total_amount) < g.kurus) { console.error('[paytr] tutar eksik', p.total_amount, g.kurus); await markFailed(db, FieldValue, group, 'Tutar uyuşmadı'); }
-      else await markPaid(db, FieldValue, group, 'paytr', Number(p.total_amount));
+      else { const r = await markPaid(db, FieldValue, group, 'paytr', Number(p.total_amount)); await notifyPaid(siteOrigin(req), r.emails); }
     } else {
       await markFailed(db, FieldValue, group, p.failed_reason_msg || 'Ödeme başarısız');
     }
