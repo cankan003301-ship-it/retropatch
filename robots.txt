@@ -6,4 +6,4 @@ Disallow: /sepet.html
 Disallow: /hesap.html
 Disallow: /tesekkur.html
 
-Sitemap: https://retropatch.com.tr/sitemap.xml
+Sitemap: https://retropatch.vercel.app/sitemap.xml
