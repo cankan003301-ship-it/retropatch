@@ -258,9 +258,16 @@
     var skip = /(sepet|tesekkur|admin|takip|uye|yasal)/i.test(location.pathname);
     var st = document.createElement('style');
     st.textContent =
-      '.rp-cart-pill{display:inline-flex!important;align-items:center;gap:6px}' +
-      '.rp-cart-pill .ic,.rp-cart-pill svg{width:1.15em;height:1.15em}' +
-      '.rp-cart-pill .rp-cart-sum{display:none}' +
+      '.rp-cart-pill{display:inline-flex!important;align-items:center;gap:8px;font-size:14px!important;padding:6px 10px!important;border-radius:10px;transition:background .2s}' +
+      '.rp-cart-pill:hover{background:rgba(200,169,110,.12)}' +
+      '.rp-cart-pill .ic,.rp-cart-pill svg{width:24px!important;height:24px!important}' +
+      '.rp-cart-pill #cartCount{background:var(--accent,#c8a96e);color:#000;border-radius:999px;min-width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;padding:0 6px;letter-spacing:0}' +
+      '.rp-cart-pill .rp-cart-sum{color:#fff;font-size:13px;letter-spacing:.5px;font-weight:700}' +
+      '.rp-cartdd .rp-ci .rp-ctl{display:inline-flex;align-items:center;border:1px solid #333;border-radius:999px;overflow:hidden;margin-top:5px}' +
+      '.rp-cartdd .rp-ci .rp-ctl button{background:#1b1b1b;border:0;color:#fff;width:24px;height:22px;cursor:pointer;font-size:14px;line-height:1}' +
+      '.rp-cartdd .rp-ci .rp-ctl i{font-style:normal;min-width:24px;text-align:center;color:#fff;font-size:12px}' +
+      '.rp-cartdd .rp-ci .rp-del{background:none;border:0;color:#e06666;cursor:pointer;font-size:12px;display:block;margin:6px 0 0 auto;text-decoration:underline;padding:0;font-family:inherit}' +
+      '.rp-cartdd .rp-ci .rp-right{text-align:right;flex:0 0 auto}' +
       '.rp-cart-pill.rp-bump{animation:rpBump .6s}' +
       '@keyframes rpBump{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}' +
       '.rp-hasdd{position:relative}' +
@@ -305,12 +312,12 @@
       if (!cartDD) return;
       var c = []; try { c = JSON.parse(localStorage.getItem('retropatch_cart') || '[]'); } catch (e) {}
       var h = '';
-      c.forEach(function (i) {
+      c.forEach(function (i, ix) {
         var q = i.qty || 1, pr = parseFloat(i.price) || 0, feat = [];
         if (i.backType || i.back) feat.push('Arka: ' + (i.backType || i.back));
         if (i.size) feat.push('Boyut: ' + i.size);
         if (i.cat) feat.push(i.cat);
-        h += '<div class="rp-ci"><img src="' + esc2(i.image) + '" alt=""><div><b>' + esc2(i.name) + ' × ' + q + '</b><small>' + esc2(feat.join(' · ')) + '</small></div><span>' + money(pr * q) + '</span></div>';
+        h += '<div class="rp-ci"><img src="' + esc2(i.image) + '" alt=""><div><b>' + esc2(i.name) + '</b><small>' + esc2(feat.join(' · ')) + '</small><span class="rp-ctl"><button type="button" data-a="m" data-i="' + ix + '">−</button><i>' + q + '</i><button type="button" data-a="p" data-i="' + ix + '">+</button></span></div><div class="rp-right"><span>' + money(pr * q) + '</span><button type="button" class="rp-del" data-a="r" data-i="' + ix + '">Çıkar</button></div></div>';
       });
       cartDD.querySelector('.rp-ddb').innerHTML = c.length
         ? h + '<div class="rp-ct"><span>' + v.n + ' ürün · Toplam</span><b>' + money(v.t) + '</b></div><a class="rp-cgo" href="sepet.html">SEPETE GİT</a>'
@@ -322,7 +329,19 @@
       var a = cc && cc.closest ? cc.closest('a') : null;
       if (a && !a.classList.contains('rp-cart-pill')) {
         a.classList.add('rp-cart-pill');
-        var li = a.parentElement; if (li) { li.classList.add('rp-hasdd'); cartDD = document.createElement('div'); cartDD.className = 'rp-dd rp-cartdd'; cartDD.innerHTML = '<div class="rp-ddb"></div>'; li.appendChild(cartDD); }
+        var li = a.parentElement; if (li) { li.classList.add('rp-hasdd'); cartDD = document.createElement('div'); cartDD.className = 'rp-dd rp-cartdd'; cartDD.innerHTML = '<div class="rp-ddb"></div>'; li.appendChild(cartDD);
+          cartDD.addEventListener('click', function (e) {
+            var t = e.target.closest ? e.target.closest('[data-a]') : null; if (!t) return;
+            e.preventDefault(); e.stopPropagation();
+            var c2 = []; try { c2 = JSON.parse(localStorage.getItem('retropatch_cart') || '[]'); } catch (x) {}
+            var ix = +t.getAttribute('data-i'), a2 = t.getAttribute('data-a'); if (!c2[ix]) return;
+            if (a2 === 'p') c2[ix].qty = Math.min(99, (c2[ix].qty || 1) + 1);
+            else if (a2 === 'm') c2[ix].qty = Math.max(1, (c2[ix].qty || 1) - 1);
+            else c2.splice(ix, 1);
+            localStorage.setItem('retropatch_cart', JSON.stringify(c2));
+            try { if (typeof updateCartCount === 'function') updateCartCount(); } catch (x) {}
+            tick();
+          }); }
         var sp = document.createElement('span'); sp.className = 'rp-cart-sum'; sp.id = 'rpCartSum'; a.appendChild(sp);
       }
       if (!skip && !float) {
@@ -337,7 +356,7 @@
       if (!ensure()) return;
       var v = read();
       var pill = document.querySelector('.rp-cart-pill'), sum = document.getElementById('rpCartSum');
-      if (sum) sum.textContent = v.n ? v.n + ' ürün · ' + money(v.t) : 'Boş';
+      if (sum) sum.textContent = v.n ? money(v.t) : '';
       paintCartDD(v);
       if (float) {
         float.classList.toggle('show', v.n > 0);
