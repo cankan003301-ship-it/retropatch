@@ -1623,6 +1623,21 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         </div>
       </div>
       <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">İptal edilen ve ödenmemiş kart siparişleri hesaba katılmaz.</div>
+      <div class="settings-card" style="margin-bottom:20px;" id="repEsnafCard">
+        <h4><svg class=ic data-n=warn><use href=#i-warn></use></svg> ESNAF MUAFİYETİ — YILLIK SATIŞ SINIRI</h4>
+        <div class="fg-row">
+          <div class="fg"><label>Muafiyet türü</label>
+            <select id="esnafBent" onchange="esnafBentChanged()">
+              <option value="396360">GVK 9/1-6 (evde üretim) — 2026: 396.360 ₺</option>
+              <option value="1900000">GVK 9/1-10 (el emeği, internet) — 2026: 1.900.000 ₺</option>
+              <option value="custom">Başka / elle gir</option>
+            </select></div>
+          <div class="fg"><label>Yıllık sınır (₺)</label><input type="number" id="esnafLimit" min="0"></div>
+        </div>
+        <button class="btn btn-accent btn-sm" onclick="saveEsnaf()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
+        <div id="esnafBar" style="margin-top:14px;"></div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:8px;line-height:1.6;">Brüt satış = bu takvim yılında iptal edilmemiş, ödenmiş siparişlerin toplamı (kargo dahil, komisyon ve kargo düşülmeden). Resmî hesabınız için muhasebecinize danışın; sınır rakamları her yıl güncellenir.</div>
+      </div>
       <div id="repKpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2px;margin-bottom:20px;"></div>
       <div class="settings-card" style="margin-bottom:20px;"><h4><svg class=ic data-n=trend><use href=#i-trend></use></svg> AYLIK GELİR</h4><div id="repMonths" style="display:flex;align-items:flex-end;gap:8px;height:190px;padding-top:10px;overflow-x:auto;"></div></div>
       <div class="settings-grid">
@@ -3308,6 +3323,41 @@ function renderReports() {
   good.forEach(o => { const c = (o.address?.city || '').trim(); if (c) ct[c] = (ct[c] || 0) + 1; });
   document.getElementById('repCity').innerHTML = _barList(Object.entries(ct).sort((a, b) => b[1] - a[1]).slice(0, 8), n => n + ' sipariş');
 }
+
+// ---- Esnaf muafiyeti sınırı ----
+let _esnaf = { limit: 396360, bent: '396360' };
+function esnafBentChanged() {
+  const v = document.getElementById('esnafBent').value;
+  if (v !== 'custom') document.getElementById('esnafLimit').value = v;
+  _esnaf.limit = parseFloat(document.getElementById('esnafLimit').value) || 0; renderEsnafBar();
+}
+function renderEsnafBar() {
+  const el = document.getElementById('esnafBar'); if (!el) return;
+  const y = new Date().getFullYear();
+  const sold = allOrders.filter(o => { const d = _ordDate(o); return d && d.getFullYear() === y && !isCancelled(o); }).reduce((s, o) => s + orderAmount(o), 0);
+  const lim = _esnaf.limit || 0, pct = lim ? sold / lim * 100 : 0;
+  const col = pct >= 100 ? '#e63946' : pct >= 80 ? '#fb923c' : '#4ade80';
+  el.innerHTML = `<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><span>${y} brüt satış: <b>₺${Math.round(sold).toLocaleString('tr-TR')}</b></span><span>Sınır: ₺${lim.toLocaleString('tr-TR')}</span></div>
+    <div style="height:10px;background:var(--bg3);border:1px solid var(--border);"><div style="height:100%;width:${Math.min(100, pct)}%;background:${col};"></div></div>
+    <div style="font-size:12px;margin-top:6px;color:${col};">${!lim ? 'Sınır girilmedi' : pct >= 100 ? '⚠ Sınır aşıldı! Muafiyetiniz etkilenebilir, muhasebecinize danışın.' : pct >= 80 ? '⚠ Sınırın %' + Math.round(pct) + '\'ine ulaştınız. Kalan: ₺' + Math.round(lim - sold).toLocaleString('tr-TR') : '%' + Math.round(pct) + ' — kalan ₺' + Math.round(lim - sold).toLocaleString('tr-TR')}</div>`;
+}
+async function loadEsnaf() {
+  try {
+    const d = (await db.collection('settings').doc('esnaf').get()).data();
+    if (d && d.limit) { _esnaf = { limit: d.limit, bent: d.bent || 'custom' }; }
+  } catch (e) {}
+  document.getElementById('esnafBent').value = ['396360', '1900000'].includes(String(_esnaf.bent)) ? String(_esnaf.bent) : 'custom';
+  document.getElementById('esnafLimit').value = _esnaf.limit;
+  renderEsnafBar();
+}
+function saveEsnaf() {
+  const limit = parseFloat(document.getElementById('esnafLimit').value) || 0;
+  const bent = document.getElementById('esnafBent').value;
+  db.collection('settings').doc('esnaf').set({ limit, bent }, { merge: true })
+    .then(() => { _esnaf = { limit, bent }; renderEsnafBar(); toast('Sınır kaydedildi ✓', 'ok'); })
+    .catch(e => toast('Hata: ' + e.message, 'err'));
+}
+
 function exportOrdersCSV() {
   const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
   const head = ['Sipariş Kodu', 'Tarih', 'Müşteri', 'Telefon', 'Şehir', 'Ürünler', 'Tutar (TL)', 'Ödeme', 'Ödeme Durumu', 'Durum', 'Kargo', 'Takip No', 'Kupon'];
@@ -3443,7 +3493,7 @@ function showPage(name) {
   if (name === 'reviews') loadAllReviews();
   if (name === 'settings') { loadSiteSettings(); loadBackPrices(); }
   if (name === 'payments') { loadSiteSettings(); loadPayments(); }
-  if (name === 'reports') renderReports();
+  if (name === 'reports') { renderReports(); loadEsnaf(); }
   if (name === 'categories') loadCategories();
   if (name === 'digital') loadDigital();
   if (name === 'announcements') { loadAnnouncements(); loadMarqueeSettings(); }

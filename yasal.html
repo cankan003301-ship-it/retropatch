@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yasal Bilgiler ve Sözleşmeler — RetroPatch</title>
+<meta name="description" content="RetroPatch mesafeli satış sözleşmesi, ön bilgilendirme formu, iade ve cayma koşulları, KVKK aydınlatma metni, gizlilik ve çerez politikası.">
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:#2a2a2a;--accent:#c8a96e;--text:#e8e8e8;--muted:#9a9a9a;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;line-height:1.75;font-size:15px}
+a{color:var(--accent)}
+header{padding:18px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header a.back{font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;text-decoration:none;font-weight:700;font-size:13px}
+header .logo{font-family:'Bebas Neue',cursive;font-size:26px;letter-spacing:4px;color:var(--text);text-decoration:none}
+.wrap{max-width:900px;margin:0 auto;padding:28px 20px 70px}
+h1{font-family:'Bebas Neue',cursive;font-weight:400;letter-spacing:3px;font-size:38px;margin-bottom:6px}
+.upd{color:var(--muted);font-size:12px;margin-bottom:20px}
+nav.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:26px}
+nav.tabs a{border:1px solid var(--border);padding:9px 14px;text-decoration:none;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1.5px;font-size:12px}
+nav.tabs a.on{border-color:var(--accent);color:var(--accent);background:rgba(200,169,110,.07)}
+section{display:none}section.on{display:block}
+h2{font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:20px;color:var(--accent);margin:26px 0 8px}
+p,li{color:#cfcfcf;margin-bottom:8px}ul,ol{padding-left:22px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;margin:10px 0 16px}
+td{border:1px solid var(--border);padding:9px 12px;vertical-align:top;font-size:14px}td:first-child{width:34%;color:var(--muted)}
+.box{background:var(--bg2);border:1px solid var(--border);padding:14px 16px;margin:14px 0;font-size:14px}
+@media print{header,nav.tabs{display:none}body{background:#fff;color:#000}p,li,td{color:#000}h2{color:#000}}
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">RETROPATCH</a><a class="back" href="index.html">← ALIŞVERİŞE DÖN</a></header>
+<div class="wrap">
+<h1>YASAL BİLGİLER</h1>
+<div class="upd">Son güncelleme: 13 Kasım 2026</div>
+<nav class="tabs" id="tabs">
+  <a href="#sozlesme" data-s="sozlesme">MESAFELİ SATIŞ SÖZLEŞMESİ</a>
+  <a href="#on-bilgi" data-s="on-bilgi">ÖN BİLGİLENDİRME</a>
+  <a href="#iade" data-s="iade">İADE · İPTAL · CAYMA</a>
+  <a href="#kvkk" data-s="kvkk">KVKK AYDINLATMA</a>
+  <a href="#gizlilik" data-s="gizlilik">GİZLİLİK · ÇEREZ</a>
+</nav>
+
+<!-- ===== SATICI BİLGİLERİ (tüm bölümlerde ortak) ===== -->
+<template id="seller">
+<table>
+<tr><td>Satıcı</td><td>Hüseyin Kanmaz (RetroPatch)</td></tr>
+<tr><td>Adres</td><td>Limonluk Mah. 2401 Sk. Nazmiye Gök Apt. No: 10/7 Yenişehir / Mersin</td></tr>
+<tr><td>Vergi Dairesi / No</td><td>İstiklal Vergi Dairesi Müdürlüğü / 4960240192</td></tr>
+<tr><td>Vergi durumu</td><td>Gelir Vergisi Kanunu md. 9/10 kapsamında esnaf vergi muafiyeti; satışlar KDV'den istisnadır.</td></tr>
+<tr><td>Telefon / WhatsApp</td><td>0 (537) 529 52 90</td></tr>
+<tr><td>E-posta</td><td>retropatchyama@gmail.com</td></tr>
+<tr><td>Web sitesi</td><td>retropatch.com.tr</td></tr>
+</table>
+</template>
+
+<section id="sozlesme">
+<h2>MESAFELİ SATIŞ SÖZLEŞMESİ</h2>
+<h2 style="font-size:16px">MADDE 1 — TARAFLAR</h2>
+<p><b>SATICI:</b></p><div class="seller-slot"></div>
+<p><b>ALICI:</b> Sipariş sırasında site üzerinden ad-soyad, adres, telefon ve e-posta bilgilerini bildiren kişidir. Alıcı, siparişte yazdığı bilgilerin doğruluğunu kabul eder.</p>
+<h2 style="font-size:16px">MADDE 2 — KONU</h2>
+<p>Bu sözleşme, Alıcı'nın retropatch.com.tr sitesinden elektronik ortamda sipariş ettiği ürün(ler)in satışı ve teslimi ile tarafların hak ve yükümlülüklerini 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri çerçevesinde düzenler.</p>
+<h2 style="font-size:16px">MADDE 3 — ÜRÜN, FİYAT VE ÖDEME</h2>
+<ul>
+<li>Ürünün adı, adedi, ölçüsü, arka yüzey tipi, rengi ve tüm vergiler dahil satış fiyatı ile kargo bedeli sipariş özetinde ve sipariş onay e-postasında yer alır. Satışlar KDV'den istisna olduğundan fiyatlara ayrıca KDV eklenmez.</li>
+<li>Ödeme; havale/EFT, kredi veya banka kartı (3D Secure) ya da etkinse kapıda ödeme ile yapılabilir. Kart bilgileri Satıcı tarafından görülmez ve saklanmaz; ödeme, ödeme kuruluşunun/bankanın güvenli sayfasında alınır.</li>
+<li>Havale/EFT ile ödemede banka bilgileri sipariş tamamlandıktan sonra gösterilir. Ödeme, sipariş kodunun açıklamaya yazılmasıyla yapılmalıdır. Ödemesi yapılmayan siparişler üretime alınmayabilir.</li>
+<li>Satıcı muaf esnaf olduğundan fatura düzenleme yükümlülüğü bulunmamaktadır; sipariş kodu ve sipariş onayı satış kaydı olarak geçerlidir.</li>
+</ul>
+<h2 style="font-size:16px">MADDE 4 — ÜRETİM VE TESLİMAT</h2>
+<ul>
+<li>Ürünler, Alıcı'nın seçtiği ölçü, renk, arka yüzey ve tasarıma göre sipariş üzerine, kişiye özel olarak üretilir.</li>
+<li>Siparişler (ödemenin onaylanmasından sonra) 1-2 iş günü içinde kargoya teslim edilir. Teslim süresi hiçbir durumda yasal azami süre olan 30 günü aşamaz.</li>
+<li>Ürün, Alıcı'nın belirttiği adrese anlaşmalı kargo firması ile gönderilir. Kargo ücreti sipariş özetinde gösterilir; sepet tutarı mağazada belirtilen ücretsiz kargo sınırını aşarsa kargo ücretsizdir.</li>
+<li>Alıcı, ürünü teslim alırken paketin hasarsız olup olmadığını kontrol eder; hasarlı pakette kargo görevlisine tutanak tutturur.</li>
+</ul>
+<h2 style="font-size:16px">MADDE 5 — CAYMA HAKKI</h2>
+<p>Mesafeli Sözleşmeler Yönetmeliği md. 15/1-ç uyarınca, tüketicinin istekleri veya kişisel ihtiyaçları doğrultusunda hazırlanan, niteliği itibarıyla geri gönderilmeye elverişli olmayan ürünlerde cayma hakkı kullanılamaz. Bu sitedeki ürünler kişiye özel/sipariş üzerine üretildiğinden cayma ve iade hakkı bulunmamaktadır. Ayrıntılar “İade · İptal · Cayma” bölümündedir. Dijital dosyalarda cayma hakkı, ilgili bölümde açıklanan şekilde sona erer.</p>
+<h2 style="font-size:16px">MADDE 6 — AYIPLI VEYA HATALI ÜRÜN</h2>
+<p>Cayma hakkının bulunmaması, ayıplı mal halinde Alıcı'nın 6502 sayılı Kanun'dan doğan haklarını (ücretsiz onarım, yenileme, bedel iadesi vb.) ortadan kaldırmaz. Sipariş edilenden farklı veya kusurlu ürün gelirse Alıcı, teslimden itibaren makul süre içinde fotoğraflarla birlikte Satıcı'ya yazılı bildirimde bulunur.</p>
+<h2 style="font-size:16px">MADDE 7 — DİJİTAL DOSYALAR</h2>
+<p>Nakış dosyası gibi dijital içerikler, ödemenin onaylanmasından sonra hesabınıza tanımlanır ve indirme bağlantısı verilir. Alıcı'nın önceden açık onayı ile ifasına başlanan dijital içeriklerde cayma hakkı sona erer. Alıcı bu onayı sipariş sırasında verir.</p>
+<h2 style="font-size:16px">MADDE 8 — UYUŞMAZLIKLAR</h2>
+<p>Bu sözleşmeden doğan uyuşmazlıklarda, Ticaret Bakanlığı'nca her yıl ilan edilen parasal sınırlar dahilinde Alıcı'nın veya Satıcı'nın yerleşim yerindeki Tüketici Hakem Heyetleri, bu sınırları aşan durumlarda Tüketici Mahkemeleri yetkilidir.</p>
+<h2 style="font-size:16px">MADDE 9 — YÜRÜRLÜK</h2>
+<p>Alıcı, sipariş tamamlanmadan önce bu sözleşmeyi ve Ön Bilgilendirme Formu'nu okuduğunu, elektronik ortamda onayladığını kabul eder. Sözleşme, onayın verildiği tarih ve saatte yürürlüğe girer; onay kaydı sipariş ile birlikte saklanır.</p>
+</section>
+
+<section id="on-bilgi">
+<h2>ÖN BİLGİLENDİRME FORMU</h2>
+<p>Mesafeli Sözleşmeler Yönetmeliği uyarınca, sözleşme kurulmadan önce aşağıdaki bilgiler Alıcı'ya verilir.</p>
+<h2 style="font-size:16px">1. Satıcı Bilgileri</h2><div class="seller-slot"></div>
+<h2 style="font-size:16px">2. Ürünün Temel Nitelikleri</h2>
+<p>Makine nakışı yama (patch) ve ilgili ürünler. Ürünün cinsi, ölçüsü, rengi, arka yüzey tipi ve adedi sipariş sayfasında ve sipariş özetinde gösterilir. Ürünler Alıcı'nın seçimlerine göre sipariş üzerine, kişiye özel üretilir.</p>
+<h2 style="font-size:16px">3. Fiyat ve Ödeme</h2>
+<p>Satış fiyatı sipariş özetinde gösterilen toplam tutardır (satışlar KDV'den istisnadır). Ödeme yöntemleri: havale/EFT, kredi/banka kartı, (etkinse) kapıda ödeme. Kapıda ödemede sipariş özetinde gösterilen hizmet bedeli eklenir.</p>
+<h2 style="font-size:16px">4. Teslimat</h2>
+<p>Ödeme onayından sonra 1-2 iş günü içinde kargoya teslim; kargo süresi kargo firmasına ve adrese göre değişir. Teslimat masrafları Alıcı'ya aittir (ücretsiz kargo sınırı hariç).</p>
+<h2 style="font-size:16px">5. Cayma Hakkı</h2>
+<p>Kişiye özel ve sipariş üzerine hazırlanan ürünlerde cayma hakkı yoktur (Yönetmelik md. 15/1-ç). Dijital içerikte, ifaya başlanmasına verilen onayla cayma hakkı sona erer. Ayıplı mal haklarınız saklıdır. Ayrıntılar: “İade · İptal · Cayma”.</p>
+<h2 style="font-size:16px">6. Şikâyet ve Uyuşmazlık</h2>
+<p>Şikâyetlerinizi yukarıdaki iletişim bilgilerinden iletebilirsiniz. Tüketici Hakem Heyetleri ve Tüketici Mahkemeleri'ne başvuru hakkınız saklıdır.</p>
+</section>
+
+<section id="iade">
+<h2>İADE · İPTAL · CAYMA KOŞULLARI</h2>
+<div class="box"><b>Önemli:</b> Ürünlerimiz sizin seçtiğiniz ölçü, renk ve tasarıma göre sipariş üzerine <b>kişiye özel</b> üretildiği için, cayma ve iade hakkı bulunmamaktadır (Mesafeli Sözleşmeler Yönetmeliği md. 15/1-ç).</div>
+<h2 style="font-size:16px">Ayıplı veya hatalı ürün</h2>
+<ul>
+<li>Ürün siparişe uygun değilse veya üretim hatası varsa, teslim aldığınız andan itibaren makul süre içinde fotoğraflarla birlikte bize ulaşın.</li>
+<li>Haklı bulunan durumda ürünü ücretsiz yeniden üretir/onarır veya bedelini iade ederiz. Bu hakkınız yasa gereği saklıdır.</li>
+<li>Kargoda hasar görmüş paketi teslim almadan, kargo görevlisine tutanak tutturun.</li>
+</ul>
+<h2 style="font-size:16px">Sipariş iptali</h2>
+<p>Ödeme yapılmış ve üretime alınmış siparişler iptal edilemez. Üretime başlanmadan önce iptal için hemen iletişime geçin; üretime başlanmamışsa siparişi iptal eder, ödemenizi iade ederiz.</p>
+<h2 style="font-size:16px">Ödeme iadesi</h2>
+<p>İade onaylanan durumlarda tutar, ödeme yaptığınız yöntemle 14 gün içinde iade edilir. Kartla yapılan ödemelerde bankanızın hesabınıza yansıtma süresi değişebilir.</p>
+<h2 style="font-size:16px">Dijital dosyalar</h2>
+<p>Satın alınan dijital nakış dosyaları, ödeme onaylanıp indirme erişimi verildikten sonra iade edilemez. Bu onay sipariş sırasında ayrıca sizden alınır. Dosya açılmıyorsa veya hatalıysa bize yazın, düzeltilmiş dosyayı göndeririz.</p>
+<h2 style="font-size:16px">İletişim</h2>
+<p>retropatchyama@gmail.com · 0 (537) 529 52 90 (WhatsApp)</p>
+</section>
+
+<section id="kvkk">
+<h2>KİŞİSEL VERİLERİN KORUNMASI — AYDINLATMA METNİ</h2>
+<p>6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) md. 10 uyarınca bilgilendirme:</p>
+<h2 style="font-size:16px">Veri sorumlusu</h2><div class="seller-slot"></div>
+<h2 style="font-size:16px">İşlenen veriler</h2>
+<p>Ad-soyad, telefon, e-posta, teslimat adresi, sipariş ve ödeme durumu bilgisi (kart bilgileri hariç), üyelik bilgileri, yüklediğiniz tasarım dosyaları, gönderdiğiniz mesajlar, bağlantı (IP) ve cihaz kayıtları.</p>
+<h2 style="font-size:16px">İşleme amaçları ve hukuki sebepleri</h2>
+<ul>
+<li>Siparişin alınması, üretimi, kargolanması, ödemenin ve iadelerin yönetimi, müşteri iletişimi — sözleşmenin kurulması ve ifası (KVKK md. 5/2-c).</li>
+<li>Muhasebe, vergi ve saklama yükümlülükleri — kanuni yükümlülük (md. 5/2-ç).</li>
+<li>Sitenin güvenliği, dolandırıcılığın önlenmesi, hak ve alacakların korunması — meşru menfaat (md. 5/2-f).</li>
+<li>Sepet hatırlatma e-postası gibi pazarlama amaçlı iletiler yalnızca yasal izne uygun olarak gönderilir.</li>
+</ul>
+<h2 style="font-size:16px">Verilerin aktarıldığı taraflar</h2>
+<p>Yalnızca hizmetin gerektirdiği ölçüde: kargo firmaları, ödeme kuruluşu/bankalar (PayTR veya banka sanal POS), e-posta gönderim hizmeti (Resend), barındırma ve altyapı hizmetleri (Vercel, Google Firebase), görsel depolama (ImageKit), yetkili kamu kurumları. Bu hizmet sağlayıcıların bir kısmının sunucuları yurt dışında bulunabilir; aktarım KVKK md. 9 hükümlerine uygun olarak yapılır.</p>
+<h2 style="font-size:16px">Saklama süresi</h2>
+<p>Veriler, ilgili mevzuatta öngörülen süre (vergi ve ticari defter/belge saklama süreleri dahil) ve amaç için gerekli süre boyunca saklanır, süre sonunda silinir veya anonim hale getirilir.</p>
+<h2 style="font-size:16px">Haklarınız (KVKK md. 11)</h2>
+<p>Verilerinizin işlenip işlenmediğini öğrenme, bilgi talep etme, düzeltme, silme, aktarılan kişileri öğrenme, itiraz etme ve zararın giderilmesini talep etme haklarına sahipsiniz. Başvurularınızı yukarıdaki e-posta adresine yazılı olarak iletebilirsiniz; en geç 30 gün içinde yanıtlanır.</p>
+</section>
+
+<section id="gizlilik">
+<h2>GİZLİLİK VE ÇEREZ POLİTİKASI</h2>
+<h2 style="font-size:16px">Kart bilgileriniz</h2>
+<p>Kart numaranız, son kullanma tarihiniz ve CVV kodunuz bu sitede saklanmaz. Ödeme, ödeme kuruluşunun veya bankanın güvenli (3D Secure) sayfasında alınır. Site ile tarayıcınız arasındaki bağlantı SSL/TLS ile şifrelenir.</p>
+<h2 style="font-size:16px">Çerezler ve yerel depolama</h2>
+<p>Sitemiz reklam veya takip amaçlı çerez kullanmaz ve üçüncü taraf analiz aracı barındırmaz. Yalnızca sitenin çalışması için gerekli teknolojileri kullanırız:</p>
+<ul>
+<li><b>Sepet:</b> sepetinizi cihazınızda hatırlamak için tarayıcı yerel depolaması.</li>
+<li><b>Oturum:</b> üye girişinizi sürdürmek için Firebase kimlik doğrulama kayıtları.</li>
+<li><b>Tercihler:</b> kapattığınız duyuruları ve bu bildirimi hatırlamak için yerel depolama.</li>
+</ul>
+<p>Bu teknolojiler zorunlu olduğundan ayrıca onay gerektirmez. Tarayıcı ayarlarınızdan silebilirsiniz; bu durumda sepetiniz ve oturumunuz sıfırlanır.</p>
+<h2 style="font-size:16px">Üçüncü taraf bağlantılar</h2>
+<p>Ödeme ve kargo takip sayfaları gibi dış sitelerin gizlilik uygulamalarından Satıcı sorumlu değildir.</p>
+<h2 style="font-size:16px">İletişim</h2>
+<p>Gizlilikle ilgili sorularınız için: retropatchyama@gmail.com</p>
+</section>
+</div>
+<script>
+(function(){
+  var secs=['sozlesme','on-bilgi','iade','kvkk','gizlilik'];
+  var tpl=document.getElementById('seller');
+  document.querySelectorAll('.seller-slot').forEach(function(el){el.appendChild(tpl.content.cloneNode(true));});
+  function show(){
+    var h=(location.hash||'#sozlesme').slice(1); if(secs.indexOf(h)<0)h='sozlesme';
+    secs.forEach(function(s){document.getElementById(s).classList.toggle('on',s===h);});
+    document.querySelectorAll('#tabs a').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-s')===h);});
+    window.scrollTo(0,0);
+  }
+  window.addEventListener('hashchange',show);show();
+})();
+</script>
+</body>
+</html>

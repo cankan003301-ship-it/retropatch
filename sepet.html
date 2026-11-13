@@ -641,6 +641,17 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
             <button onclick="applyCoupon()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">UYGULA</button>
           </div>
 
+          <div id="consentBox" style="margin:14px 0 6px;font-size:12px;color:var(--muted);line-height:1.6;">
+            <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;margin-bottom:8px;">
+              <input type="checkbox" id="chkContract" style="margin-top:3px;accent-color:var(--accent);">
+              <span><a href="yasal.html#sozlesme" target="_blank" style="color:var(--accent);">Mesafeli Satış Sözleşmesi</a>'ni, <a href="yasal.html#on-bilgi" target="_blank" style="color:var(--accent);">Ön Bilgilendirme Formu</a>'nu ve <a href="yasal.html#iade" target="_blank" style="color:var(--accent);">İade koşullarını</a> okudum, onaylıyorum. Ürünlerin kişiye özel üretildiğini ve cayma hakkının bulunmadığını kabul ediyorum.</span>
+            </label>
+            <label id="chkDigitalWrap" style="display:none;gap:8px;align-items:flex-start;cursor:pointer;margin-bottom:8px;">
+              <input type="checkbox" id="chkDigital" style="margin-top:3px;accent-color:var(--accent);">
+              <span>Dijital dosyanın ödeme onayından sonra hemen erişime açılmasını istiyorum; bu durumda <b>cayma hakkımın sona ereceğini</b> kabul ediyorum.</span>
+            </label>
+            <div style="font-size:11px;">Kişisel verileriniz <a href="yasal.html#kvkk" target="_blank" style="color:var(--accent);">KVKK Aydınlatma Metni</a> kapsamında işlenir.</div>
+          </div>
           <button class="checkout-btn" id="checkoutBtn" onclick="doCheckout()">SİPARİŞİ TAMAMLA</button>
           <div class="secure-badge"><svg class=ic data-n=lock><use href=#i-lock></use></svg> 256-bit SSL şifreleme ile güvenli ödeme</div>
           <button onclick="sendToWhatsApp()" style="width:100%;margin-top:8px;background:#25D366;color:#fff;border:none;padding:13px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s;" onmouseover="this.style.background='#1ebe59'" onmouseout="this.style.background='#25D366'">
@@ -791,6 +802,7 @@ function updateSectionsVisibility(){
   const kapidaOff = dig || !KAPIDA_ENABLED;
   if(k) k.style.display=kapidaOff?'none':'';
   if(n) n.style.display=dig?'block':'none';
+  const dw=document.getElementById('chkDigitalWrap'); if(dw) dw.style.display=dig?'flex':'none';
   if(kapidaOff && selectedPay==='kapida'){
     const inp=document.querySelector('.pay-method input[value="havale"]');
     const l=inp && inp.closest('.pay-method');
@@ -1097,6 +1109,8 @@ async function doCheckout() {
     location.href = 'uye.html?redirect=sepet.html';
     return;
   }
+  if (!document.getElementById('chkContract').checked) { toast('Devam etmek için sözleşme ve ön bilgilendirme onayı gerekli.', true); document.getElementById('consentBox').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if (D.length && !document.getElementById('chkDigital').checked) { toast('Dijital dosya için cayma hakkı onayını işaretleyin.', true); document.getElementById('consentBox').scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if (D.length && selectedPay === 'kapida') { toast('Dijital dosyalar için Havale / EFT seçin.', true); return; }
   if (selectedPay === 'kapida' && !KAPIDA_ENABLED) { toast('Kapıda ödeme şu anda kullanılamıyor. Lütfen Havale/EFT seçin.', true); updateSectionsVisibility(); return; }
 
@@ -1166,6 +1180,7 @@ async function doCheckout() {
       status: 'yeni',
       orderSource: 'cart',
       orderCode,
+      consent: { contract: true, version: '2026-11', at: firebase.firestore.FieldValue.serverTimestamp() },
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     batch.set(orderRef, orderData);
@@ -1175,6 +1190,7 @@ async function doCheckout() {
     batch.set(db.collection('digital_orders').doc(), {
       code: digCode, userId: currentUser.uid, email: currentUser.email||'', name: currentUser.displayName||'',
       items: digOut, total: digTotal, status: 'bekliyor',
+      consent: { contract: true, digitalWaiver: true, version: '2026-11', at: firebase.firestore.FieldValue.serverTimestamp() },
       ...(isCard ? { payment: { method: 'card', status: 'awaiting_card' }, payGroup } : {}),
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });

@@ -293,6 +293,35 @@
   }
   setTimeout(productLD, 2500);
 
+
+  /* ───────── YASAL BAĞLANTILAR + BİLGİLENDİRME ÇUBUĞU ───────── */
+  function legalFooter() {
+    try {
+      if (/yasal(\.html)?$/i.test(location.pathname) || document.getElementById('rpLegal')) return;
+      var links = [['sozlesme', 'Mesafeli Satış Sözleşmesi'], ['on-bilgi', 'Ön Bilgilendirme'], ['iade', 'İade · İptal · Cayma'], ['kvkk', 'KVKK Aydınlatma'], ['gizlilik', 'Gizlilik · Çerez']];
+      var box = document.createElement('div'); box.id = 'rpLegal';
+      box.style.cssText = 'padding:14px 20px;text-align:center;font:600 11px "Barlow Condensed",sans-serif;letter-spacing:1px;color:#777;border-top:1px solid #2a2a2a;background:#0a0a0a;line-height:2';
+      box.innerHTML = links.map(function (l) { return '<a href="yasal.html#' + l[0] + '" style="color:#999;text-decoration:none;margin:0 10px;white-space:nowrap">' + l[1] + '</a>'; }).join('') +
+        '<div style="font-weight:400;letter-spacing:.3px;color:#666;font-size:11px">RetroPatch · Mersin · Satıcı bilgileri için sözleşme sayfalarına bakınız</div>';
+      var f = document.querySelector('footer');
+      if (f && f.parentNode) f.parentNode.insertBefore(box, f.nextSibling);
+      else document.body.appendChild(box);
+    } catch (e) {}
+  }
+  function cookieNote() {
+    try {
+      if (/yasal(\.html)?$/i.test(location.pathname)) return;
+      if (localStorage.getItem('rp_cookie_ok')) return;
+      var n = document.createElement('div');
+      n.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:99990;max-width:560px;margin:0 auto;background:#141414;border:1px solid #c8a96e;color:#ccc;padding:12px 14px;font:13px/1.5 Barlow,sans-serif;display:flex;gap:12px;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,.6)';
+      n.innerHTML = '<span style="flex:1">Bu sitede reklam/takip çerezi kullanılmaz; yalnızca sepet ve oturum için zorunlu yerel depolama kullanılır. <a href="yasal.html#gizlilik" style="color:#c8a96e">Ayrıntı</a></span><button style="background:#c8a96e;border:none;color:#000;padding:8px 14px;font:700 12px \'Barlow Condensed\',sans-serif;letter-spacing:1px;cursor:pointer">TAMAM</button>';
+      n.querySelector('button').onclick = function () { try { localStorage.setItem('rp_cookie_ok', '1'); } catch (e) {} n.remove(); };
+      document.body.appendChild(n);
+    } catch (e) {}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { legalFooter(); cookieNote(); });
+  else { legalFooter(); cookieNote(); }
+
   /* ───────── YÜKLE ───────── */
   function load() {
     injectCSS();
