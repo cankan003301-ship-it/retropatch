@@ -3815,7 +3815,7 @@ function renderReviewTable() {
   const approvalFilter = document.getElementById('reviewApprovalFilter')?.value || 'all';
 
   const pf = document.getElementById('reviewProductFilter')?.value || 'all';
-  const dig = (typeof dgReviews !== 'undefined' ? dgReviews : []).map(r => ({ ...r, kind: 'digital', reviewId: r.id, productId: '', productName: '<svg class=ic data-n=save><use href=#i-save></use></svg> ' + (r.fileTitle || r.fileId), userEmail: '' }));
+  const dig = (typeof dgReviews !== 'undefined' ? dgReviews : []).map(r => ({ ...r, kind: 'digital', reviewId: r.id, productId: '', productName: 'Dijital · ' + (r.fileTitle || r.fileId), userEmail: '' }));
   const merged = [...allReviews.filter(() => pf !== 'digital'), ...((pf === 'all' || pf === 'digital') ? dig : [])]
     .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
   let list = starFilter === 'all' ? merged : merged.filter(r => String(r.rating) === starFilter);
