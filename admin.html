@@ -3134,8 +3134,8 @@ async function syncStatsFromData(silent) {
       fs.docs.forEach(d => { if (ids.has(d.id)) fav[d.id] = (fav[d.id] || 0) + 1; });
     } catch (e) { favErr = e.message; }
     try {
-      const rs = await db.collectionGroup('reviews').where('approved', '==', true).get();
-      rs.docs.forEach(d => {
+      const rs = await db.collectionGroup('reviews').get();   // filtresiz: ek dizin gerekmez
+      rs.docs.filter(d => d.data().approved === true).forEach(d => {
         const par = d.ref.parent.parent;
         if (par && par.parent && par.parent.id === 'products' && ids.has(par.id)) rev[par.id] = (rev[par.id] || 0) + 1;
       });
