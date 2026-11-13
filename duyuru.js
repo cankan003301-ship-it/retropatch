@@ -235,7 +235,20 @@
   window.rpCartSync = function () { lastCartSig = ''; cartSync(); };
   (function waitAuth() {
     if (typeof firebase !== 'undefined' && firebase.auth && typeof db !== 'undefined') {
-      firebase.auth().onAuthStateChanged(function () { setTimeout(cartSync, 1500); });
+      firebase.auth().onAuthStateChanged(function (u) {
+        setTimeout(cartSync, 1500);
+        // Üye kaydı yoksa oluştur (Google girişinde kayıt eksik kalabiliyordu); admin üye listesi bu kayıttan okur
+        if (u) {
+          try {
+            var r = db.collection('users').doc(u.uid);
+            r.get().then(function (d) {
+              if (d.exists) return;
+              return r.set({ name: u.displayName || '', email: u.email || '', phone: u.phoneNumber || '',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(), role: 'customer' }, { merge: true });
+            }).catch(function () {});
+          } catch (e) {}
+        }
+      });
     } else setTimeout(waitAuth, 400);
   })();
 
