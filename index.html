@@ -605,7 +605,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <!-- JS ile doldurulur, fallback statik kartlar aşağıda -->
     <a href="urunler.html" class="kat-card">
       <div class="kat-img-wrap">
-        <div class="kat-img-placeholder"><svg class=ic data-n=spool><use href=#i-spool></use></svg></div>
+        <img src="https://images.unsplash.com/photo-1652142702675-fc3f93a713a9?auto=format&fit=crop&w=700&h=900&q=75" onerror="this.onerror=null;this.src='img/kat-nakis-yama.svg'" alt="Nakış Yama" loading="lazy">
       </div>
       <div class="kat-label">
         <span class="kat-name">Nakış Yama</span>
@@ -614,7 +614,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </a>
     <a href="tisort-sweatshirt.html" class="kat-card">
       <div class="kat-img-wrap">
-        <div class="kat-img-placeholder"><svg class=ic data-n=shirt><use href=#i-shirt></use></svg></div>
+        <img src="https://images.unsplash.com/photo-1742654230442-98d89399b484?auto=format&fit=crop&w=700&h=900&q=75" onerror="this.onerror=null;this.src='img/kat-tisort-sweatshirt.svg'" alt="Tişört / Sweatshirt" loading="lazy">
       </div>
       <div class="kat-label">
         <span class="kat-name">Tişört / Sweatshirt</span>
@@ -623,7 +623,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </a>
     <a href="sapka.html" class="kat-card">
       <div class="kat-img-wrap">
-        <div class="kat-img-placeholder"><svg class=ic data-n=cap><use href=#i-cap></use></svg></div>
+        <img src="https://images.unsplash.com/photo-1560774358-d727658f457c?auto=format&fit=crop&w=700&h=900&q=75" onerror="this.onerror=null;this.src='img/kat-sapka.svg'" alt="Şapka" loading="lazy">
       </div>
       <div class="kat-label">
         <span class="kat-name">Şapka</span>
@@ -632,7 +632,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </a>
     <a href="canta-anahtarlik.html" class="kat-card">
       <div class="kat-img-wrap">
-        <div class="kat-img-placeholder"><svg class=ic data-n=bag><use href=#i-bag></use></svg></div>
+        <img src="https://images.unsplash.com/photo-1744728958569-922a8781c5f0?auto=format&fit=crop&w=700&h=900&q=75" onerror="this.onerror=null;this.src='img/kat-canta-anahtarlik.svg'" alt="Çanta / Anahtarlık" loading="lazy">
       </div>
       <div class="kat-label">
         <span class="kat-name">Çanta / Anahtarlık</span>
@@ -779,6 +779,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script>
 /* ── Firestore'dan kategori verisi çek ve kartları güncelle ── */
 (function() {
+  function katDefault(c) {
+    const k = ((c.slug || c.id || '') + ' ' + (c.name || '')).toLowerCase();
+    if (/(tisort|tişört|sweat)/.test(k)) return 'https://images.unsplash.com/photo-1742654230442-98d89399b484?auto=format&fit=crop&w=700&h=900&q=75';
+    if (/(sapka|şapka)/.test(k)) return 'https://images.unsplash.com/photo-1560774358-d727658f457c?auto=format&fit=crop&w=700&h=900&q=75';
+    if (/(canta|çanta|anahtar)/.test(k)) return 'https://images.unsplash.com/photo-1744728958569-922a8781c5f0?auto=format&fit=crop&w=700&h=900&q=75';
+    if (/(nakis|nakış|yama|patch)/.test(k)) return 'https://images.unsplash.com/photo-1652142702675-fc3f93a713a9?auto=format&fit=crop&w=700&h=900&q=75';
+    return '';
+  }
   function buildKatCards(cats) {
     const grid = document.getElementById('kategoriGrid');
     if (!grid || !cats || !cats.length) return;
@@ -797,7 +805,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="kat-img-wrap">
           ${c.image
             ? `<img src="${c.image}" alt="${c.name}" loading="lazy">`
-            : `<div class="kat-img-placeholder">${c.icon || '🧵'}</div>`
+            : (katDefault(c) ? `<img src="${katDefault(c)}" alt="${c.name}" loading="lazy" onerror="this.onerror=null;this.src='img/kat-'+(/sapka|şapka/i.test(this.alt)?'sapka':/tisort|tişört|sweat/i.test(this.alt)?'tisort-sweatshirt':/canta|çanta|anahtar/i.test(this.alt)?'canta-anahtarlik':'nakis-yama')+'.svg'">` : `<div class="kat-img-placeholder">${c.icon || '🧵'}</div>`)
           }
         </div>
         ${c.count ? `<div class="kat-count">${c.count} ürün</div>` : ''}
