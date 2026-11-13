@@ -264,6 +264,14 @@
 .ic{width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-.14em;flex-shrink:0;pointer-events:none}
 .ic[data-n=heart]{color:#e63946}.ic[data-n=fire]{color:#ff7a1a}.ic[data-n=star]{color:#f4c542}
 button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color:inherit}
+    /* ── Hesaplayıcı simge hücresi ── */
+    .ico-cell{display:flex;align-items:center;gap:6px;}
+    .ico-prev{width:40px;height:40px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+    .ico-prev img{width:100%;height:100%;object-fit:contain;padding:3px;}
+    .ico-up{cursor:pointer;padding:6px 9px;margin:0;white-space:nowrap;}
+    .ico-in{width:58px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-size:15px;outline:none;text-align:center;}
+    .ico-x{background:none;border:1px solid rgba(230,57,70,.3);color:var(--accent2);width:26px;height:26px;cursor:pointer;font-size:11px;flex-shrink:0;}
+    .ico-up.busy{opacity:.5;pointer-events:none;}
 </style>
 
 </head>
@@ -347,6 +355,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="nav-item" onclick="showPage('digital')"><span class="ic"><svg class=ic data-n=save><use href=#i-save></use></svg></span> Dijital Dosyalar <span class="nav-badge" id="badgeDigital" style="display:none">0</span></div>
         <div class="nav-item" onclick="showPage('media')"><span class="ic"><svg class=ic data-n=image><use href=#i-image></use></svg></span> Medya</div>
         <div class="nav-item" onclick="showPage('sitemanage')"><span class="ic"><svg class=ic data-n=monitor><use href=#i-monitor></use></svg></span> Site Yönetimi</div>
+        <div class="nav-item" onclick="showPage('payments')"><span class="ic"><svg class=ic data-n=card><use href=#i-card></use></svg></span> Ödemeler</div>
         <div class="nav-item" onclick="showPage('settings')"><span class="ic"><svg class=ic data-n=settings><use href=#i-settings></use></svg></span> Ayarlar</div>
         <a class="nav-item" href="https://retropatch.vercel.app" target="_blank" style="text-decoration:none;"><span class="ic"><svg class=ic data-n=globe><use href=#i-globe></use></svg></span> Siteyi Gör</a>
       </div>
@@ -1069,11 +1078,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <div class="fg"><label>Gösterim Yeri</label>
               <select id="anPlace">
                 <option value="bar">Üst çubuk</option>
-                <option value="popup">Açılır pencere (anasayfa)</option>
+                <option value="popup">Açılır pencere (tüm sayfalar)</option>
                 <option value="both">Çubuk + pencere</option>
                 <option value="marquee">Kayan şerit (marquee)</option>
               </select></div>
           </div>
+          <div class="fg"><label>Pencere Sıklığı (açılır pencere için)</label>
+            <select id="anFreq">
+              <option value="session">Ziyaretçi başına oturumda 1 kez</option>
+              <option value="always">Her sayfa açılışında</option>
+            </select></div>
           <div class="fg"><label>Başlık (opsiyonel, kısa)</label><input type="text" id="anTitle" maxlength="60" placeholder="Hafta Sonu İndirimi" oninput="annPreviewUpdate()"></div>
           <div class="fg"><label>Mesaj *</label><textarea id="anText" maxlength="300" placeholder="Tüm nakış yamalarında %20 indirim! Kod: RETRO20" oninput="annPreviewUpdate()" style="min-height:70px;"></textarea></div>
           <div class="fg-row">
@@ -1569,7 +1583,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <div id="statsPaneProducts" style="display:none;">
         <div id="statsCatKpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:2px;margin-bottom:16px;"></div>
 
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;"><button class="btn btn-blue btn-sm" onclick="syncStatsFromData(false)">🔄 Gerçek verilerden senkronla</button><span id="statsSyncNote" style="font-size:12px;color:var(--muted2);">Satış, favori ve yorum sayıları siparişlerden / üye favorilerinden / onaylı yorumlardan hesaplanır.</span></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
           <input type="text" id="statsProdSearch" placeholder=" Ürün veya kategori ara…" oninput="renderStats()" style="flex:1;min-width:180px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
           <select id="statsProdSort" onchange="renderStats()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;outline:none;">
             <option value="sales">Satışa göre</option><option value="favorites">Favoriye göre</option>
@@ -1596,6 +1611,74 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </div>
 
     <!-- SETTINGS -->
+    <!-- ================= ÖDEMELER ================= -->
+    <div class="page" id="page-payments">
+      <div class="section-hdr"><div class="section-ttl">ÖDEMELER</div></div>
+      <div style="font-size:12px;color:var(--muted2);margin-bottom:16px;line-height:1.7;max-width:900px;">
+        Müşteriler sepette <b>Havale/EFT</b> (IBAN, <u>yalnızca sipariş verildikten sonra</u> gösterilir), <b>Kredi/Banka Kartı</b> ve <b>Kapıda Ödeme</b> seçebilir.
+        Kart ödemesi için aşağıdan <b>PayTR</b> ya da <b>banka sanal POS</b> (Ziraat, İş Bankası, Akbank, Halkbank, TEB… NestPay) bilgilerinizi girin. Anahtarlar yalnızca yönetici hesabıyla okunabilen gizli bir alanda saklanır ve sadece sunucuda kullanılır.
+      </div>
+      <div class="settings-grid">
+        <div class="settings-card" style="grid-column:1/-1;">
+          <h4><svg class=ic data-n=card><use href=#i-card></use></svg> KREDİ / BANKA KARTI</h4>
+          <div class="fg-row">
+            <div class="fg"><label>Kart ile ödeme</label><select id="payCardEnabled"><option value="0">Kapalı</option><option value="1">Açık</option></select></div>
+            <div class="fg"><label>Sağlayıcı</label><select id="payProvider" onchange="payProviderChanged()"><option value="paytr">PayTR</option><option value="nestpay">Banka sanal POS (Ziraat, İş Bankası, Akbank, Halkbank, TEB…)</option></select></div>
+            <div class="fg"><label>Mod</label><select id="payTest"><option value="0">Canlı (gerçek ödeme)</option><option value="1">Test</option></select></div>
+          </div>
+          <div id="payStatus" style="font-size:12px;margin-top:6px;"></div>
+        </div>
+
+        <div class="settings-card" id="payBoxPaytr">
+          <h4><svg class=ic data-n=lock><use href=#i-lock></use></svg> PAYTR (iFrame API)</h4>
+          <div class="fg"><label>Mağaza No (merchant_id)</label><input type="text" id="paytrId" autocomplete="off"></div>
+          <div class="fg"><label>Mağaza Parolası (merchant_key)</label><input type="password" id="paytrKey" autocomplete="new-password"></div>
+          <div class="fg"><label>Mağaza Gizli Anahtarı (merchant_salt)</label><input type="password" id="paytrSalt" autocomplete="new-password"></div>
+          <div class="fg-row">
+            <div class="fg"><label>Taksit</label><select id="paytrInst"><option value="0">Taksit yok (tek çekim)</option><option value="2">En fazla 2</option><option value="3">En fazla 3</option><option value="6">En fazla 6</option><option value="9">En fazla 9</option><option value="12">En fazla 12</option></select></div>
+          </div>
+          <div style="font-size:11px;color:var(--muted2);line-height:1.7;margin-top:6px;">PayTR panelinde <b>Bildirim URL</b> olarak şunu tanımlayın:<br><code id="paytrCbUrl" style="color:var(--accent);word-break:break-all;"></code></div>
+        </div>
+
+        <div class="settings-card" id="payBoxNest">
+          <h4><svg class=ic data-n=bank><use href=#i-bank></use></svg> BANKA SANAL POS (NestPay · 3D Pay)</h4>
+          <div class="fg"><label>Banka</label>
+            <select id="nestBank" onchange="nestBankChanged()">
+              <option value="ziraat">Ziraat Bankası</option><option value="isbank">İş Bankası</option><option value="akbank">Akbank</option>
+              <option value="halkbank">Halkbank</option><option value="teb">TEB</option><option value="test">Test ortamı (Asseco)</option><option value="diger">Diğer (NestPay uyumlu)</option>
+            </select></div>
+          <div class="fg"><label>Üye İşyeri No (Client ID)</label><input type="text" id="nestClient" autocomplete="off"></div>
+          <div class="fg"><label>3D Store Key (Mağaza Anahtarı)</label><input type="password" id="nestKey" autocomplete="new-password"></div>
+          <div class="fg"><label>3D Gate Adresi</label><input type="text" id="nestGate" placeholder="https://…/fim/est3Dgate"></div>
+          <div style="font-size:11px;color:var(--muted2);line-height:1.7;">Adres bankanızın entegrasyon belgesindeki <b>3D Pay Hosting</b> adresiyle aynı olmalıdır; gerekirse düzenleyin. Bankaya dönüş adresi olarak şunu bildirin:<br><code id="nestCbUrl" style="color:var(--accent);word-break:break-all;"></code></div>
+        </div>
+
+        <div class="settings-card" style="grid-column:1/-1;">
+          <button class="btn btn-accent" onclick="savePayments()"><svg class=ic data-n=save><use href=#i-save></use></svg> KART AYARLARINI KAYDET</button>
+        </div>
+
+        <div class="settings-card">
+          <h4><svg class=ic data-n=bank><use href=#i-bank></use></svg> HAVALE / EFT (IBAN SİPARİŞ SONRASI GÖSTERİLİR)</h4>
+          <div class="fg"><label>Banka Adı</label><input type="text" id="bankAdi" placeholder="Ziraat Bankası"></div>
+          <div class="fg"><label>Hesap Sahibi</label><input type="text" id="bankHesapSahibi" placeholder="RetroPatch Tic."></div>
+          <div class="fg"><label>IBAN</label><input type="text" id="bankIBAN" placeholder="TR00 0000 0000 0000 0000 0000 00"></div>
+          <div class="fg"><label>Şube / Hesap No</label><input type="text" id="bankSube" placeholder="0000 / 0000000"></div>
+          <button class="btn btn-accent" onclick="saveBank()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
+        </div>
+
+
+        <div class="settings-card">
+          <h4><svg class=ic data-n=wrench><use href=#i-wrench></use></svg> SUNUCU KURULUMU (BİR KEZ)</h4>
+          <div style="font-size:12px;color:var(--muted2);line-height:1.8;">
+            Vercel → Settings → Environment Variables:<br>
+            <b>FIREBASE_SERVICE_ACCOUNT</b> = Firebase Console › Proje Ayarları › Hizmet Hesapları › "Yeni özel anahtar oluştur" ile inen JSON dosyasının tamamı<br>
+            <b>SITE_URL</b> = https://retropatch.vercel.app (isteğe bağlı)<br>
+            Sonra projeyi yeniden dağıtın (Redeploy).
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="page" id="page-settings">
       <div class="section-hdr"><div class="section-ttl">AYARLAR</div></div>
       <div class="settings-grid">
@@ -1622,22 +1705,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <button class="btn btn-accent" onclick="saveBackPrices()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
 
-
-        <div class="settings-card">
-          <h4><svg class=ic data-n=bank><use href=#i-bank></use></svg> HAVALE / EFT BİLGİLERİ</h4>
-          <div class="fg"><label>Banka Adı</label><input type="text" id="bankAdi" placeholder="Ziraat Bankası"></div>
-          <div class="fg"><label>Hesap Sahibi</label><input type="text" id="bankHesapSahibi" placeholder="RetroPatch Tic."></div>
-          <div class="fg"><label>IBAN</label><input type="text" id="bankIBAN" placeholder="TR00 0000 0000 0000 0000 0000 00"></div>
-          <div class="fg"><label>Şube / Hesap No</label><input type="text" id="bankSube" placeholder="0000 / 0000000"></div>
-          <button class="btn btn-accent" onclick="saveBank()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
-        </div>
-
-        <div class="settings-card">
-          <h4><svg class=ic data-n=card><use href=#i-card></use></svg> KREDİ KARTI (STRIPE)</h4>
-          <div class="fg"><label>Stripe Public Key</label><input type="text" id="stripeKey" placeholder="pk_live_..."></div>
-          <div class="fg"><label>Taksit Seçenekleri</label><input type="text" id="taksitSecenekler" placeholder="1,2,3,6,9,12"></div>
-          <button class="btn btn-accent" onclick="saveStripe()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
-        </div>
 
         <div class="settings-card">
           <h4><svg class=ic data-n=cart><use href=#i-cart></use></svg> SİPARİŞ AYARLARI</h4>
@@ -2045,6 +2112,21 @@ function switchOrderTab(src, btn) {
   renderOrders(src, document.getElementById('orderFilter')?.value || 'all');
 }
 
+// Ödeme durumu rozeti (kart / havale / kapıda)
+function payBadge(o) {
+  const p = o.payment || {}, st = p.status, m = p.method;
+  const b = (t, c) => `<div style="font-size:10px;letter-spacing:.5px;margin-top:3px;color:${c};">${t}</div>`;
+  if (m === 'card') return st === 'paid' ? b('💳 Kart · ÖDENDİ', '#4ade80') : st === 'failed' ? b('💳 Kart · başarısız', '#e63946') : b('💳 Kart · ödeme bekliyor', '#fb923c');
+  if (m === 'havale') return b('🏦 Havale', 'var(--muted2)');
+  if (m === 'kapida') return b('💵 Kapıda', 'var(--muted2)');
+  return '';
+}
+function payLabel(o) {
+  const p = o.payment || {}; if (!p.method) return '';
+  const names = { card: 'Kredi/Banka Kartı', havale: 'Havale / EFT', kapida: 'Kapıda Ödeme' };
+  const sts = { paid: ' — ÖDENDİ', failed: ' — başarısız', awaiting_card: ' — ödeme bekliyor', awaiting_transfer: ' — havale bekleniyor' };
+  return (names[p.method] || p.method) + (sts[p.status] || '');
+}
 function renderOrders(src = 'cart', filter = 'all') {
   // Sepet siparişi: orderSource='cart' VEYA address alanı var VEYA items[0].id var
   const cartOrders = allOrders.filter(o =>
@@ -2081,7 +2163,7 @@ function renderOrders(src = 'cart', filter = 'all') {
         <td style="color:var(--muted2);font-size:12px;">${telefon}</td>
         <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted2);font-size:12px;">${icerik}</td>
         <td style="color:var(--muted);font-size:11px;">${formatDate(o.createdAt)}</td>
-        <td style="color:var(--accent);font-family:'Bebas Neue',cursive;font-size:18px;">${tutar}</td>
+        <td style="color:var(--accent);font-family:'Bebas Neue',cursive;font-size:18px;">${tutar}${payBadge(o)}</td>
         <td><select onchange="updateOrderStatus('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
           ${['yeni','hazırlanıyor','tamamlandı','iptal'].map(s=>`<option value="${s}" ${(o.status||'yeni')===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
         </select></td>
@@ -2157,7 +2239,7 @@ function showOrderDetail(id) {
       ${o.back ? row('Arka Yüzey', o.back) : ''}
       ${o.qty ? row('Adet', o.qty) : ''}
       ${o.cargo?.companyName ? row('Kargo', o.cargo.companyName) : ''}
-      ${o.payment?.method ? row('Ödeme', o.payment.method) : ''}
+      ${o.payment?.method ? row('Ödeme', payLabel(o)) : ''}
       ${row('Toplam', tutar)}
       ${row('Tarih', formatDate(o.createdAt))}
       ${row('Durum', statusBadge(o.status || 'yeni'))}
@@ -2840,13 +2922,7 @@ function loadSiteSettings() {
       if (d.sube) document.getElementById('bankSube').value = d.sube;
     }
   });
-  db.collection('settings').doc('stripe').get().then(doc => {
-    if (doc.exists) {
-      const d = doc.data();
-      if (d.publicKey) document.getElementById('stripeKey').value = d.publicKey;
-      if (d.taksit) document.getElementById('taksitSecenekler').value = d.taksit;
-    }
-  });
+
   db.collection('settings').doc('siparis').get().then(doc => {
     if (doc.exists) {
       const d = doc.data();
@@ -2983,7 +3059,7 @@ function orderAmount(o) {
   const v = parseFloat(o.total != null ? o.total : o.price);
   return isNaN(v) ? 0 : v;
 }
-const isCancelled = o => /iptal/i.test(o.status || '');
+const isCancelled = o => /iptal/i.test(o.status || '') || (o.payment?.method === 'card' && o.payment?.status !== 'paid');  // ödenmemiş kart siparişi gelir/satışa sayılmaz
 
 function statsTab(t) {
   document.getElementById('statsPaneSales').style.display = t === 'sales' ? 'block' : 'none';
@@ -3036,6 +3112,56 @@ function renderStats() {
   if (ct) ct.innerHTML = Object.entries(cats).sort((a, b) => b[1].s - a[1].s).map(([c, v]) =>
     `<tr><td>${dgEsc(c)}</td><td>${v.n}</td><td>${v.s}</td><td>${v.f}</td><td>${v.r}</td></tr>`).join('') ||
     '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">Veri yok</td></tr>';
+}
+
+
+// ============ GERÇEK VERİDEN SAYAÇ SENKRONU ============
+// Satış → siparişlerden, Favori → üyelerin favori listelerinden, Yorum → onaylı yorumlardan.
+let _statsSyncing = false;
+async function syncStatsFromData(silent) {
+  if (_statsSyncing) return; _statsSyncing = true;
+  const note = document.getElementById('statsSyncNote');
+  if (note) note.textContent = 'Senkronize ediliyor…';
+  try {
+    const ids = new Set(allProducts.map(p => p.id));
+    const sales = {}, fav = {}, rev = {};
+    allOrders.filter(o => !isCancelled(o)).forEach(o => (o.items || []).forEach(i => {
+      if (i.id && !i.digital && ids.has(i.id)) sales[i.id] = (sales[i.id] || 0) + (Number(i.qty) || 1);
+    }));
+    let favErr = '', revErr = '';
+    try {
+      const fs = await db.collectionGroup('favorites').get();
+      fs.docs.forEach(d => { if (ids.has(d.id)) fav[d.id] = (fav[d.id] || 0) + 1; });
+    } catch (e) { favErr = e.message; }
+    try {
+      const rs = await db.collectionGroup('reviews').where('approved', '==', true).get();
+      rs.docs.forEach(d => {
+        const par = d.ref.parent.parent;
+        if (par && par.parent && par.parent.id === 'products' && ids.has(par.id)) rev[par.id] = (rev[par.id] || 0) + 1;
+      });
+    } catch (e) { revErr = e.message; }
+    const ups = [];
+    allProducts.forEach(p => {
+      const u = {};
+      if ((Number(p.sales) || 0) !== (sales[p.id] || 0)) u.sales = sales[p.id] || 0;
+      if (!favErr && (Number(p.favorites) || 0) !== (fav[p.id] || 0)) u.favorites = fav[p.id] || 0;
+      if (!revErr && (Number(p.reviews) || 0) !== (rev[p.id] || 0)) u.reviews = rev[p.id] || 0;
+      if (Object.keys(u).length) ups.push([p.id, u]);
+    });
+    for (let i = 0; i < ups.length; i += 400) {
+      const b = db.batch();
+      ups.slice(i, i + 400).forEach(([id, u]) => b.update(db.collection('products').doc(id), u));
+      await b.commit();
+    }
+    const msg = (ups.length ? ups.length + ' ürün güncellendi' : 'Sayaçlar güncel') +
+      (favErr ? ' · Favori okunamadı (Rules: collectionGroup favorites kuralı ekleyin)' : '') +
+      (revErr ? ' · Yorum okunamadı (' + revErr.slice(0, 80) + ')' : '');
+    if (note) note.textContent = msg + ' — ' + new Date().toLocaleTimeString('tr-TR');
+    if (!silent || ups.length) toast(msg, (favErr || revErr) ? 'err' : 'ok');
+  } catch (e) {
+    if (note) note.textContent = 'Hata: ' + e.message;
+    toast('Senkron hatası: ' + e.message, 'err');
+  } finally { _statsSyncing = false; }
 }
 
 function saveStats(id) {
@@ -3119,6 +3245,79 @@ function loadBackPrices() {
 }
 
 
+
+// ============ ÖDEMELER (PayTR / banka sanal POS) ============
+const NEST_GATES = {
+  ziraat:   'https://sanalpos2.ziraatbank.com.tr/fim/est3Dgate',
+  isbank:   'https://spos.isbank.com.tr/fim/est3Dgate',
+  akbank:   'https://www.sanalakpos.com/fim/est3Dgate',
+  halkbank: 'https://sanalpos.halkbank.com.tr/fim/est3Dgate',
+  teb:      'https://sanalpos.teb.com.tr/fim/est3Dgate',
+  test:     'https://entegrasyon.asseco-see.com.tr/fim/est3Dgate'
+};
+function payProviderChanged() {
+  const p = document.getElementById('payProvider').value;
+  document.getElementById('payBoxPaytr').style.display = p === 'paytr' ? '' : 'none';
+  document.getElementById('payBoxNest').style.display = p === 'nestpay' ? '' : 'none';
+}
+function nestBankChanged() {
+  const b = document.getElementById('nestBank').value;
+  if (NEST_GATES[b]) document.getElementById('nestGate').value = NEST_GATES[b];
+}
+async function loadPayments() {
+  const origin = location.origin.startsWith('http') ? location.origin : 'https://retropatch.vercel.app';
+  document.getElementById('paytrCbUrl').textContent = origin + '/api/paytr-callback';
+  document.getElementById('nestCbUrl').textContent = origin + '/api/nestpay-callback';
+  try {
+    const pub = (await db.collection('settings').doc('payments').get()).data() || {};
+    document.getElementById('payCardEnabled').value = pub.cardEnabled ? '1' : '0';
+    document.getElementById('payProvider').value = pub.provider === 'nestpay' ? 'nestpay' : 'paytr';
+    document.getElementById('payTest').value = pub.testMode ? '1' : '0';
+    document.getElementById('paytrInst').value = String(pub.maxInstallment || 0);
+    const [pt, ns] = await Promise.all([
+      db.collection('payment_secrets').doc('paytr').get(),
+      db.collection('payment_secrets').doc('nestpay').get()
+    ]);
+    const a = pt.data() || {}, b = ns.data() || {};
+    document.getElementById('paytrId').value = a.merchant_id || '';
+    document.getElementById('paytrKey').value = a.merchant_key || '';
+    document.getElementById('paytrSalt').value = a.merchant_salt || '';
+    document.getElementById('nestBank').value = b.bank || 'ziraat';
+    document.getElementById('nestClient').value = b.clientId || '';
+    document.getElementById('nestKey').value = b.storeKey || '';
+    document.getElementById('nestGate').value = b.gateUrl || NEST_GATES[b.bank || 'ziraat'] || '';
+    payProviderChanged();
+    payStatusLine(pub);
+  } catch (e) { toast('Ödeme ayarları okunamadı: ' + e.message, 'err'); }
+}
+function payStatusLine(pub) {
+  const el = document.getElementById('payStatus'); if (!el) return;
+  el.innerHTML = pub.cardEnabled && pub.cardReady
+    ? '<span style="color:var(--green);">● Kart ödemesi sitede AÇIK (' + (pub.provider === 'nestpay' ? 'banka sanal POS' : 'PayTR') + (pub.testMode ? ' · TEST modu' : '') + ')</span>'
+    : '<span style="color:var(--muted2);">○ Kart ödemesi sitede kapalı</span>';
+}
+async function savePayments() {
+  const v = id => document.getElementById(id).value.trim();
+  const provider = v('payProvider'), enabled = v('payCardEnabled') === '1';
+  const secrets = provider === 'paytr'
+    ? { merchant_id: v('paytrId'), merchant_key: v('paytrKey'), merchant_salt: v('paytrSalt') }
+    : { bank: v('nestBank'), clientId: v('nestClient'), storeKey: v('nestKey'), gateUrl: v('nestGate') };
+  const ready = Object.entries(secrets).every(([k, x]) => k === 'bank' || x);
+  if (enabled && !ready) return toast('Kartı açmak için tüm anahtar alanlarını doldurun', 'err');
+  if (provider === 'nestpay' && secrets.gateUrl && !/^https:\/\//i.test(secrets.gateUrl)) return toast('3D Gate adresi https:// ile başlamalı', 'err');
+  const pub = {
+    cardEnabled: enabled, cardReady: ready, provider, testMode: v('payTest') === '1',
+    maxInstallment: parseInt(v('paytrInst'), 10) || 0, noInstallment: !(parseInt(v('paytrInst'), 10) > 0),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  try {
+    await db.collection('payment_secrets').doc(provider).set(secrets, { merge: true });
+    await db.collection('settings').doc('payments').set(pub, { merge: true });
+    payStatusLine(pub);
+    toast('Ödeme ayarları kaydedildi ✓', 'ok');
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+
 function saveBank() {
   db.collection('settings').doc('bank').set({
     adi: document.getElementById('bankAdi').value,
@@ -3128,12 +3327,6 @@ function saveBank() {
   }).then(() => toast('Banka bilgileri kaydedildi', 'ok'));
 }
 
-function saveStripe() {
-  db.collection('settings').doc('stripe').set({
-    publicKey: document.getElementById('stripeKey').value,
-    taksit: document.getElementById('taksitSecenekler').value,
-  }).then(() => toast('Stripe ayarları kaydedildi', 'ok'));
-}
 
 function saveSiparis() {
   db.collection('settings').doc('siparis').set({
@@ -3169,9 +3362,10 @@ function showPage(name) {
   if (name === 'coupons') loadCoupons();
   if (name === 'sitemanage') { loadSiteSettings(); }
   if (name === 'media') { renderSlides(); loadGallery(); }
-  if (name === 'stats') { renderStatsPage(); renderStats(); }
+  if (name === 'stats') { renderStatsPage(); renderStats(); syncStatsFromData(true); }
   if (name === 'reviews') loadAllReviews();
   if (name === 'settings') { loadSiteSettings(); loadBackPrices(); }
+  if (name === 'payments') { loadSiteSettings(); loadPayments(); }
   if (name === 'categories') loadCategories();
   if (name === 'digital') loadDigital();
   if (name === 'announcements') { loadAnnouncements(); loadMarqueeSettings(); }
@@ -4176,7 +4370,7 @@ function getOrderEmailData(order) {
     items: (order.items||[]).map(i => ({name:i.name, qty:i.qty||1, price:(i.price||0)*(i.qty||1)})),
     total: order.total || 0,
     address: [addr.name, addr.phone, addr.address, addr.district, addr.city].filter(Boolean).join(', '),
-    paymentMethod: order.payment?.method === 'havale' ? 'Havale/EFT' :
+    paymentMethod: order.payment?.method === 'card' ? 'Kredi/Banka Kartı' : order.payment?.method === 'havale' ? 'Havale/EFT' :
                    order.payment?.method === 'kapida' ? 'Kapıda Ödeme' : 'Online Ödeme',
     whatsapp: '905375295290'
   };
@@ -4652,9 +4846,7 @@ function renderProductTable() {
   tbody.innerHTML = calcAdminData.products.map((p, i) => `
     <tr style="border-bottom:1px solid rgba(255,255,255,.03);">
       <td style="padding:10px 12px;">
-        <input type="text" value="${p.icon || ''}" maxlength="4"
-          onchange="calcAdminData.products[${i}].icon=this.value"
-          style="width:50px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-size:20px;outline:none;text-align:center;">
+        ${calcIconCell('products', i, p.icon)}
       </td>
       <td style="padding:10px 12px;">
         <input type="text" value="${p.name || ''}"
@@ -4705,9 +4897,7 @@ function renderBackTypesList() {
   const container = document.getElementById('backTypesList');
   container.innerHTML = calcAdminData.backTypes.map((b, i) => `
     <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);">
-      <input type="text" value="${b.icon||''}" maxlength="4"
-        onchange="calcAdminData.backTypes[${i}].icon=this.value"
-        style="width:50px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-size:20px;outline:none;text-align:center;">
+      ${calcIconCell('backTypes', i, b.icon)}
       <input type="text" value="${b.name||''}"
         onchange="calcAdminData.backTypes[${i}].name=this.value;buildPreviewSelectors()"
         style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:13px;outline:none;">
@@ -4738,9 +4928,7 @@ function renderDesignTypesList() {
   const types = calcAdminData.designTypes || [];
   container.innerHTML = types.map((d, i) => `
     <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);">
-      <input type="text" value="${d.icon||''}" maxlength="4"
-        onchange="calcAdminData.designTypes[${i}].icon=this.value"
-        style="width:50px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-size:20px;outline:none;text-align:center;">
+      ${calcIconCell('designTypes', i, d.icon)}
       <input type="text" value="${d.name||''}"
         onchange="calcAdminData.designTypes[${i}].name=this.value;buildPreviewSelectors()"
         style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-size:13px;outline:none;">
@@ -4793,12 +4981,12 @@ function buildPreviewSelectors() {
   const pvSize    = document.getElementById('pvSize');
   const pvBack    = document.getElementById('pvBack');
   if (!pvProduct) return;
-  pvProduct.innerHTML = calcAdminData.products.map(p => `<option value="${p.id}">${p.icon||''} ${p.name}</option>`).join('');
+  pvProduct.innerHTML = calcAdminData.products.map(p => `<option value="${p.id}">${calcIconText(p.icon)} ${p.name}</option>`).join('');
   pvSize.innerHTML    = calcAdminData.sizes.map(s    => `<option value="${s.id}">${s.name} (${s.desc})</option>`).join('');
-  pvBack.innerHTML    = calcAdminData.backTypes.map(b => `<option value="${b.id}">${b.icon||''} ${b.name} (+₺${b.extra||0})</option>`).join('');
+  pvBack.innerHTML    = calcAdminData.backTypes.map(b => `<option value="${b.id}">${calcIconText(b.icon)} ${b.name} (+₺${b.extra||0})</option>`).join('');
   const pvDesign = document.getElementById('pvDesign');
   if (pvDesign && calcAdminData.designTypes) {
-    pvDesign.innerHTML = calcAdminData.designTypes.map(d => `<option value="${d.id}">${d.icon||''} ${d.name} (+₺${d.extra||0})</option>`).join('');
+    pvDesign.innerHTML = calcAdminData.designTypes.map(d => `<option value="${d.id}">${calcIconText(d.icon)} ${d.name} (+₺${d.extra||0})</option>`).join('');
   }
   updatePreview();
 }
@@ -4846,6 +5034,71 @@ function updatePreview() {
 }
 
 // ── KAYDET ──
+
+// ── HESAPLAYICI SİMGELERİ: emoji VEYA yüklenen görsel (PNG / SVG / JPG / WebP) ──
+function calcIsImg(v) { return /^(https?:\/\/|data:image\/|\/)/i.test(String(v || '').trim()); }
+function calcIconText(v) { return calcIsImg(v) ? '' : String(v || ''); }
+const calcEscA = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function calcIconCell(kind, i, icon) {
+  const isImg = calcIsImg(icon);
+  const prev = isImg
+    ? '<img src="' + calcEscA(icon) + '" alt="">'
+    : '<span style="font-size:22px;line-height:1;">' + calcEscA(icon || '') + '</span>';
+  return '<div class="ico-cell">' +
+    '<div class="ico-prev" title="' + (isImg ? 'Yüklenen görsel' : 'Emoji') + '">' + prev + '</div>' +
+    '<label class="btn btn-outline btn-sm ico-up" title="Görsel yükle (PNG, SVG, JPG, WebP — şeffaf arka planlı kare görsel en iyisi)">📷 Yükle' +
+      '<input type="file" accept="image/png,image/svg+xml,image/jpeg,image/webp,image/gif" hidden onchange="calcUploadIcon(\'' + kind + '\',' + i + ',this)"></label>' +
+    '<input type="text" class="ico-in" value="' + (isImg ? '' : calcEscA(icon || '')) + '" placeholder="emoji" title="İstersen emoji yaz" maxlength="8" onchange="calcSetIcon(\'' + kind + '\',' + i + ',this.value)">' +
+    (isImg ? '<button class="ico-x" title="Görseli kaldır" onclick="calcSetIcon(\'' + kind + '\',' + i + ',\'\')">✕</button>' : '') +
+  '</div>';
+}
+
+function calcRerender(kind) {
+  if (kind === 'products') renderProductTable();
+  else if (kind === 'backTypes') renderBackTypesList();
+  else if (kind === 'designTypes') renderDesignTypesList();
+  buildPreviewSelectors();
+  if (typeof updatePreview === 'function') updatePreview();
+}
+
+function calcSetIcon(kind, i, val) {
+  const list = calcAdminData[kind];
+  if (!list || !list[i]) return;
+  list[i].icon = String(val || '').trim();
+  calcRerender(kind);
+}
+
+async function calcUploadIcon(kind, i, input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const label = input.closest('label');
+  if (!/^image\/(png|svg\+xml|jpeg|webp|gif)$/.test(file.type)) { toast('Yalnızca PNG, SVG, JPG, WebP veya GIF yükleyin', 'err'); input.value = ''; return; }
+  if (file.size > 1024 * 1024) { toast('Görsel en fazla 1 MB olmalı (simge için küçük bir dosya yeterli)', 'err'); input.value = ''; return; }
+  if (label) label.classList.add('busy');
+  try {
+    const auth = await (await fetch('/api/imagekit-auth')).json();
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('fileName', 'calc_icon_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_'));
+    fd.append('folder', '/calc-icons');
+    fd.append('publicKey', 'public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8=');
+    fd.append('signature', auth.signature);
+    fd.append('expire', auth.expire);
+    fd.append('token', auth.token);
+    const r = await fetch('https://upload.imagekit.io/api/v1/files/upload', { method: 'POST', body: fd });
+    const data = await r.json();
+    if (!data.url) throw new Error(data.message || 'Yükleme başarısız');
+    calcAdminData[kind][i].icon = data.url;
+    calcRerender(kind);
+    toast('✓ Simge yüklendi — "Kaydet" ile yayınla', 'ok');
+  } catch (e) {
+    toast('Simge yüklenemedi: ' + e.message, 'err');
+    if (label) label.classList.remove('busy');
+  }
+  input.value = '';
+}
+
 function saveCalcConfig() {
   // Form değerlerini güncelle
   calcAdminData.colorExtra = parseFloat(document.getElementById('calcColorExtra').value) || 5;
@@ -5420,6 +5673,7 @@ function renderAnnouncements() {
 function annFill(a) {
   document.getElementById('anType').value = a.type || 'info';
   document.getElementById('anPlace').value = a.place || 'bar';
+  document.getElementById('anFreq').value = a.freq === 'always' ? 'always' : 'session';
   document.getElementById('anTitle').value = a.title || '';
   document.getElementById('anText').value = a.text || '';
   document.getElementById('anLink').value = a.linkUrl || '';
@@ -5469,6 +5723,7 @@ function saveAnnouncement() {
   const data = {
     type: document.getElementById('anType').value,
     place: document.getElementById('anPlace').value,
+    freq: document.getElementById('anFreq').value,
     title: document.getElementById('anTitle').value.trim(),
     text,
     linkUrl: link,
@@ -5538,8 +5793,6 @@ function saveMarquee() {
 // =============================================
 // / DUYURULAR
 // =============================================
-</script>
-
 </script>
 </body>
 </html>

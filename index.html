@@ -975,6 +975,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     transition: all .2s;
     user-select: none;
   }
+  .cw-chip { display: inline-flex; align-items: center; gap: 7px; }
+  .cw-ico { width: 22px; height: 22px; object-fit: contain; display: block; flex-shrink: 0; }
+  .cw-ico-s { width: 16px; height: 16px; display: inline-block; vertical-align: -3px; object-fit: contain; }
   .cw-chip:hover { border-color: var(--accent); color: var(--accent); }
   .cw-chip.active { background: var(--accent); border-color: var(--accent); color: #000; }
   #cw-design-box { padding: 12px; margin: -12px; border: 1px solid transparent; transition: border-color .2s, background .2s; }
@@ -990,6 +993,21 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <script>
 (function() {
+  // Simge: emoji (yazı) ya da yüklenen görsel (URL). Görselse <img> çizilir.
+  const isImg = v => /^(https?:\/\/|data:image\/|\/)/i.test(String(v || '').trim());
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function iconHtml(ic, small) {
+    ic = String(ic || '').trim();
+    if (!ic) return '';
+    if (isImg(ic)) {
+      let u = ic;
+      if (/ik\.imagekit\.io/.test(u) && !/\.svg(\?|$)/i.test(u) && !u.includes('?')) u += '?tr=w-96';   // hafif kopya
+      return '<img class="' + (small ? 'cw-ico-s' : 'cw-ico') + '" src="' + esc(u) + '" alt="" loading="lazy" decoding="async">';
+    }
+    return esc(ic);
+  }
+  const iconText = ic => isImg(ic) ? '' : String(ic || '').trim();   // WhatsApp mesajı için (görsel yazıya dönmez)
+
   const CW = {
     data: {
       products: [
@@ -1036,10 +1054,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const d = CW.data;
     // Yönetici tasarım tiplerini değiştirdiyse eski seçim geçersiz olabilir
     if (CW.sel.design && !d.designTypes.some(dg => dg.id === CW.sel.design)) CW.sel.design = null;
-    document.getElementById('cw-products').innerHTML = d.products.map(p => chip(p.id, p.icon+' '+p.name, 'product', CW.sel.product===p.id)).join('');
+    document.getElementById('cw-products').innerHTML = d.products.map(p => chip(p.id, iconHtml(p.icon)+' '+esc(p.name), 'product', CW.sel.product===p.id)).join('');
     document.getElementById('cw-sizes').innerHTML    = d.sizes.map(s => chip(s.id, s.name+' <span style="font-size:10px;opacity:.6;">'+s.desc+'</span>', 'size', CW.sel.size===s.id)).join('');
-    document.getElementById('cw-backs').innerHTML    = d.backs.map(b => chip(b.id, b.icon+' '+b.name+(b.extra?` +₺${b.extra}`:''), 'back', CW.sel.back===b.id)).join('');
-    document.getElementById('cw-designs').innerHTML  = d.designTypes.map(dg => chip(dg.id, dg.icon+' '+dg.name+(dg.extra?` +₺${dg.extra}`:''), 'design', CW.sel.design===dg.id)).join('');
+    document.getElementById('cw-backs').innerHTML    = d.backs.map(b => chip(b.id, iconHtml(b.icon)+' '+esc(b.name)+(b.extra?` +₺${b.extra}`:''), 'back', CW.sel.back===b.id)).join('');
+    document.getElementById('cw-designs').innerHTML  = d.designTypes.map(dg => chip(dg.id, iconHtml(dg.icon)+' '+esc(dg.name)+(dg.extra?` +₺${dg.extra}`:''), 'design', CW.sel.design===dg.id)).join('');
     cwCalc();
   }
 
@@ -1086,7 +1104,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       document.getElementById('cw-discount-row').style.display = 'none';
       const sz = d.sizes.find(s=>s.id===CW.sel.size);
       document.getElementById('cw-breakdown').innerHTML =
-        `<span>${prod.icon} ${prod.name}${sz ? ' · ' + sz.name : ''}</span><span style="color:#e63946;">⚠ Fiyatı görmek için tasarım tipi seçin</span>`;
+        `<span>${iconHtml(prod.icon,1)} ${esc(prod.name)}${sz ? ' · ' + esc(sz.name) : ''}</span><span style="color:#e63946;">⚠ Fiyatı görmek için tasarım tipi seçin</span>`;
       if (waBtn) { waBtn.href = '#hesaplayici'; waBtn.classList.add('cw-wa-locked'); waBtn.textContent = '🎨 ÖNCE TASARIM TİPİ SEÇİN'; }
       if (req) req.style.display = '';
       return;
@@ -1115,16 +1133,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
     const size = d.sizes.find(s=>s.id===CW.sel.size);
     document.getElementById('cw-breakdown').innerHTML = [
-      `<span>${prod.icon} ${prod.name} · ${size.name}</span>`,
+      `<span>${iconHtml(prod.icon,1)} ${esc(prod.name)} · ${esc(size.name)}</span>`,
       `<span>Baz: ₺${prod.basePrice[CW.sel.size]}</span>`,
       colors>1 ? `<span>+${colors-1} renk: ₺${((colors-1)*d.colorExtra).toFixed(0)}</span>` : '',
-      back.extra ? `<span>${back.icon} ${back.name}: +₺${back.extra}</span>` : '',
-      design && design.extra ? `<span>${design.icon} ${design.name}: +₺${design.extra}</span>` : '',
+      back.extra ? `<span>${iconHtml(back.icon,1)} ${esc(back.name)}: +₺${back.extra}</span>` : '',
+      design && design.extra ? `<span>${iconHtml(design.icon,1)} ${esc(design.name)}: +₺${design.extra}</span>` : '',
       pct ? `<span style="color:#2ecc71;">Toplu indirim: -%${pct}</span>` : '',
     ].filter(Boolean).join('');
 
     if (waBtn) {
-      const msg = `Merhaba! Fiyat hesaplayıcıdan seçimlerim:\n- Ürün: ${prod.icon} ${prod.name}\n- Boyut: ${size.name} (${size.desc})\n- Arka Yüzey: ${back.name}\n- Tasarım: ${design.name}\n- Renk: ${colors}\n- Adet: ${qty}\n- Tahmini Fiyat: ₺${total.toLocaleString('tr-TR',{minimumFractionDigits:2})}\n\nSipariş vermek istiyorum.`;
+      const msg = `Merhaba! Fiyat hesaplayıcıdan seçimlerim:\n- Ürün: ${(iconText(prod.icon)+' '+prod.name).trim()}\n- Boyut: ${size.name} (${size.desc})\n- Arka Yüzey: ${back.name}\n- Tasarım: ${design.name}\n- Renk: ${colors}\n- Adet: ${qty}\n- Tahmini Fiyat: ₺${total.toLocaleString('tr-TR',{minimumFractionDigits:2})}\n\nSipariş vermek istiyorum.`;
       waBtn.href = `https://wa.me/${d.waNumber}?text=${encodeURIComponent(msg)}`;
     }
   };

@@ -39,9 +39,9 @@
     if (a.endAt && new Date(a.endAt + 'T23:59:59') < now) return false;
     return true;
   }
-  function isHome() {
-    var p = location.pathname.replace(/\/+$/, '');
-    return p === '' || /\/index\.html$/i.test(p);
+  // Açılır pencere ödeme/sipariş sayfalarında gösterilmez (alışverişi bölmesin)
+  function popupAllowed() {
+    return !/(sepet|tesekkur|admin|takip)(\.html)?$/i.test(location.pathname.replace(/\/+$/, ''));
   }
 
   /* ───────── CSS ───────── */
@@ -181,21 +181,34 @@
         '</div>' +
       '</div>';
     document.body.appendChild(ov);
+    var prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     requestAnimationFrame(function () { ov.classList.add('show'); });
+    var firstBtn = ov.querySelector('.rpp-no'); if (firstBtn) try { firstBtn.focus(); } catch (e) {}
 
-    var seen = readSS(); seen.push(a.id); writeSS(seen);
+    var closed = false;
     function close() {
+      if (closed) return; closed = true;
       var never = document.getElementById('rppNever');
       if (never && never.checked) { var d = readLS(); d[a.id] = version(a); writeLS(d); }
+      if (a.freq !== 'always') { var seen = readSS(); if (seen.indexOf(a.id) < 0) seen.push(a.id); writeSS(seen); }
       ov.classList.remove('show');
-      setTimeout(function () { ov.remove(); }, 300);
+      document.body.style.overflow = prevOverflow;
       document.removeEventListener('keydown', onKey);
+      setTimeout(function () { ov.remove(); popupQueue.shift(); nextPopup(); }, 300);
     }
     function onKey(e) { if (e.key === 'Escape') close(); }
     document.addEventListener('keydown', onKey);
     ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
     ov.querySelector('.rpp-x').onclick = close;
     ov.querySelector('.rpp-no').onclick = close;
+    var go = ov.querySelector('.rpp-go');
+    if (go) go.addEventListener('click', function () { if (a.freq !== 'always') { var seen = readSS(); if (seen.indexOf(a.id) < 0) seen.push(a.id); writeSS(seen); } });
+  }
+
+  var popupQueue = [];
+  function nextPopup() {
+    if (popupQueue.length && !document.getElementById('rpAnnPop')) showPopup(popupQueue[0]);
   }
 
   /* ───────── YÜKLE ───────── */
@@ -215,12 +228,13 @@
       var bars = all.filter(function (a) { var p = a.place || 'bar'; return (p === 'bar' || p === 'both') && dismissed[a.id] !== version(a); });
       buildBar(bars);
 
-      if (isHome()) {
+      if (popupAllowed()) {
         var seen = readSS();
-        var pops = all.filter(function (a) {
-          return (a.place === 'popup' || a.place === 'both') && dismissed[a.id] !== version(a) && seen.indexOf(a.id) < 0;
+        popupQueue = all.filter(function (x) {
+          return (x.place === 'popup' || x.place === 'both') && dismissed[x.id] !== version(x) &&
+                 (x.freq === 'always' || seen.indexOf(x.id) < 0);
         });
-        if (pops.length) setTimeout(function () { showPopup(pops[0]); }, 1400);
+        if (popupQueue.length) setTimeout(nextPopup, 1200);
       }
     }).catch(function (e) { console.warn('Duyurular yüklenemedi:', e && e.message); });
   }
