@@ -2706,7 +2706,7 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
     files=snap.docs.map(d=>({id:d.id,...d.data()}));
     render();
     // Yorum sayıları: digital_reviews koleksiyonundan hesaplanır
-    db.collection('digital_reviews').get().then(rs=>{
+    db.collection('digital_reviews').where('approved','==',true).get().then(rs=>{
       const cnt={};
       rs.forEach(r=>{const d=r.data(); if(d.approved!==false && d.fileId) cnt[d.fileId]=(cnt[d.fileId]||0)+1;});
       files.forEach(f=>{f.reviews=cnt[f.id]||0;});
