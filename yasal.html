@@ -46,13 +46,13 @@ td{border:1px solid var(--border);padding:9px 12px;vertical-align:top;font-size:
 <!-- ===== SATICI BİLGİLERİ (tüm bölümlerde ortak) ===== -->
 <template id="seller">
 <table>
-<tr><td>Satıcı</td><td>Hüseyin Kanmaz (RetroPatch)</td></tr>
-<tr><td>Adres</td><td>Limonluk Mah. 2401 Sk. Nazmiye Gök Apt. No: 10/7 Yenişehir / Mersin</td></tr>
+<tr><td>Satıcı</td><td>RetroPatch</td></tr>
+<tr><td>Adres</td><td>Limonluk Mah. 2401 Sk. No: 10 Yenişehir / Mersin</td></tr>
 <tr><td>Vergi Dairesi / No</td><td>İstiklal Vergi Dairesi Müdürlüğü / 4960240192</td></tr>
 <tr><td>Vergi durumu</td><td>Gelir Vergisi Kanunu md. 9/10 kapsamında esnaf vergi muafiyeti; satışlar KDV'den istisnadır.</td></tr>
 <tr><td>Telefon / WhatsApp</td><td>0 (537) 529 52 90</td></tr>
 <tr><td>E-posta</td><td>retropatchyama@gmail.com</td></tr>
-<tr><td>Web sitesi</td><td>retropatch.com.tr</td></tr>
+<tr><td>Web sitesi</td><td>https://retropatch.vercel.app/</td></tr>
 </table>
 </template>
 
@@ -60,7 +60,7 @@ td{border:1px solid var(--border);padding:9px 12px;vertical-align:top;font-size:
 <h2>MESAFELİ SATIŞ SÖZLEŞMESİ</h2>
 <h2 style="font-size:16px">MADDE 1 — TARAFLAR</h2>
 <p><b>SATICI:</b></p><div class="seller-slot"></div>
-<p><b>ALICI:</b> Sipariş sırasında site üzerinden ad-soyad, adres, telefon ve e-posta bilgilerini bildiren kişidir. Alıcı, siparişte yazdığı bilgilerin doğruluğunu kabul eder.</p>
+<p><b>ALICI:</b> Sipariş sırasında site üzerinden bilgilerini bildiren kişidir. Alıcı bilgileri, siparişte girdiğiniz bilgilerden otomatik olarak doldurulur; Alıcı, bu bilgilerin doğruluğunu kabul eder.</p><div class="buyer-slot"></div>
 <h2 style="font-size:16px">MADDE 2 — KONU</h2>
 <p>Bu sözleşme, Alıcı'nın retropatch.com.tr sitesinden elektronik ortamda sipariş ettiği ürün(ler)in satışı ve teslimi ile tarafların hak ve yükümlülüklerini 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri çerçevesinde düzenler.</p>
 <h2 style="font-size:16px">MADDE 3 — ÜRÜN, FİYAT VE ÖDEME</h2>
@@ -93,6 +93,7 @@ td{border:1px solid var(--border);padding:9px 12px;vertical-align:top;font-size:
 <h2>ÖN BİLGİLENDİRME FORMU</h2>
 <p>Mesafeli Sözleşmeler Yönetmeliği uyarınca, sözleşme kurulmadan önce aşağıdaki bilgiler Alıcı'ya verilir.</p>
 <h2 style="font-size:16px">1. Satıcı Bilgileri</h2><div class="seller-slot"></div>
+<h2 style="font-size:16px">1-A. Alıcı Bilgileri</h2><div class="buyer-slot"></div>
 <h2 style="font-size:16px">2. Ürünün Temel Nitelikleri</h2>
 <p>Makine nakışı yama (patch) ve ilgili ürünler. Ürünün cinsi, ölçüsü, rengi, arka yüzey tipi ve adedi sipariş sayfasında ve sipariş özetinde gösterilir. Ürünler Alıcı'nın seçimlerine göre sipariş üzerine, kişiye özel üretilir.</p>
 <h2 style="font-size:16px">3. Fiyat ve Ödeme</h2>
@@ -127,7 +128,7 @@ td{border:1px solid var(--border);padding:9px 12px;vertical-align:top;font-size:
 <section id="kvkk">
 <h2>KİŞİSEL VERİLERİN KORUNMASI — AYDINLATMA METNİ</h2>
 <p>6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) md. 10 uyarınca bilgilendirme:</p>
-<h2 style="font-size:16px">Veri sorumlusu</h2><div class="seller-slot"></div>
+<h2 style="font-size:16px">Veri sorumlusu</h2><p>RetroPatch. İletişim ve başvuru: retropatchyama@gmail.com</p>
 <h2 style="font-size:16px">İşlenen veriler</h2>
 <p>Ad-soyad, telefon, e-posta, teslimat adresi, sipariş ve ödeme durumu bilgisi (kart bilgileri hariç), üyelik bilgileri, yüklediğiniz tasarım dosyaları, gönderdiğiniz mesajlar, bağlantı (IP) ve cihaz kayıtları.</p>
 <h2 style="font-size:16px">İşleme amaçları ve hukuki sebepleri</h2>
@@ -168,6 +169,7 @@ td{border:1px solid var(--border);padding:9px 12px;vertical-align:top;font-size:
   var secs=['sozlesme','on-bilgi','iade','kvkk','gizlilik'];
   var tpl=document.getElementById('seller');
   document.querySelectorAll('.seller-slot').forEach(function(el){el.appendChild(tpl.content.cloneNode(true));});
+  document.querySelectorAll('.buyer-slot').forEach(function(el){el.innerHTML='<table><tr><td>Ad Soyad</td><td>Sipariş sırasında girdiğiniz bilgilerden otomatik doldurulur</td></tr><tr><td>Teslimat adresi</td><td>Sipariş sırasında girdiğiniz bilgilerden otomatik doldurulur</td></tr><tr><td>Telefon</td><td>Sipariş sırasında girdiğiniz bilgilerden otomatik doldurulur</td></tr><tr><td>E-posta</td><td>Sipariş sırasında girdiğiniz bilgilerden otomatik doldurulur</td></tr></table>';});
   function show(){
     var h=(location.hash||'#sozlesme').slice(1); if(secs.indexOf(h)<0)h='sozlesme';
     secs.forEach(function(s){document.getElementById(s).classList.toggle('on',s===h);});

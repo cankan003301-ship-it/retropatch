@@ -642,15 +642,15 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
           </div>
 
           <div id="consentBox" style="margin:14px 0 6px;font-size:12px;color:var(--muted);line-height:1.6;">
-            <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;margin-bottom:8px;">
-              <input type="checkbox" id="chkContract" style="margin-top:3px;accent-color:var(--accent);">
-              <span><a href="yasal.html#sozlesme" target="_blank" style="color:var(--accent);">Mesafeli Satış Sözleşmesi</a>'ni, <a href="yasal.html#on-bilgi" target="_blank" style="color:var(--accent);">Ön Bilgilendirme Formu</a>'nu ve <a href="yasal.html#iade" target="_blank" style="color:var(--accent);">İade koşullarını</a> okudum, onaylıyorum. Ürünlerin kişiye özel üretildiğini ve cayma hakkının bulunmadığını kabul ediyorum.</span>
-            </label>
+            <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;">
+              <input type="checkbox" id="chkContract" disabled style="margin-top:3px;accent-color:var(--accent);">
+              <span><a href="#" onclick="openLegal();return false;" style="color:var(--accent);font-weight:700;">Mesafeli Satış Sözleşmesi, Ön Bilgilendirme Formu, İade koşulları ve KVKK metnini OKU</a> ve onayla. Sipariş vermek için metinleri sonuna kadar okumanız gerekir. Ürünler kişiye özel üretilir; cayma hakkı bulunmaz.
+              <b id="legalState" style="display:block;margin-top:3px;color:var(--muted);">Henüz onaylanmadı</b></span>
+            </div>
             <label id="chkDigitalWrap" style="display:none;gap:8px;align-items:flex-start;cursor:pointer;margin-bottom:8px;">
               <input type="checkbox" id="chkDigital" style="margin-top:3px;accent-color:var(--accent);">
               <span>Dijital dosyanın ödeme onayından sonra hemen erişime açılmasını istiyorum; bu durumda <b>cayma hakkımın sona ereceğini</b> kabul ediyorum.</span>
             </label>
-            <div style="font-size:11px;">Kişisel verileriniz <a href="yasal.html#kvkk" target="_blank" style="color:var(--accent);">KVKK Aydınlatma Metni</a> kapsamında işlenir.</div>
           </div>
           <button class="checkout-btn" id="checkoutBtn" onclick="doCheckout()">SİPARİŞİ TAMAMLA</button>
           <div class="secure-badge"><svg class=ic data-n=lock><use href=#i-lock></use></svg> 256-bit SSL şifreleme ile güvenli ödeme</div>
@@ -1090,6 +1090,64 @@ async function startCardPayment(group, btn) {
   }
 })();
 
+
+// ───────── YASAL METİNLER: okumadan onay verilemez; alıcı bilgileri otomatik yazılır ─────────
+let _legalDoc = null, _legalOK = false;
+function closeLegal() { document.getElementById('legalModal').style.display = 'none'; document.body.style.overflow = ''; }
+function _buyerInfo() {
+  const v = id => (document.getElementById(id) ? document.getElementById(id).value.trim() : '');
+  const addr = [v('adAddress'), v('adDistrict'), v('adCity')].filter(Boolean).join(', ');
+  return {
+    name: v('adName') || (currentUser && currentUser.displayName) || '',
+    address: hasPhys() ? addr : 'Dijital teslimat (adres gerekmez)',
+    phone: v('adPhone') || '—',
+    email: (currentUser && currentUser.email) || ''
+  };
+}
+async function openLegal() {
+  if (!currentUser) { location.href = 'uye.html?redirect=sepet.html'; return; }
+  const b = _buyerInfo();
+  if (!b.name || (hasPhys() && (!document.getElementById('adAddress').value.trim() || !document.getElementById('adPhone').value.trim()))) {
+    toast('Önce teslimat bilgilerinizi doldurun; alıcı bilgileri sözleşmeye otomatik yazılır.', true);
+    const a = document.getElementById('addrSection'); if (a) a.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  try {
+    if (!_legalDoc) {
+      const r = await fetch('yasal.html', { cache: 'no-cache' });
+      if (!r.ok) throw new Error(r.status);
+      _legalDoc = new DOMParser().parseFromString(await r.text(), 'text/html');
+    }
+  } catch (e) { toast('Yasal metinler yüklenemedi, lütfen tekrar deneyin.', true); return; }
+  const seller = _legalDoc.getElementById('seller');
+  const buyerHTML = '<table><tr><td>Ad Soyad</td><td>' + escH(b.name) + '</td></tr><tr><td>Teslimat adresi</td><td>' + escH(b.address) + '</td></tr><tr><td>Telefon</td><td>' + escH(b.phone) + '</td></tr><tr><td>E-posta</td><td>' + escH(b.email) + '</td></tr></table>';
+  const body = document.getElementById('legalBody'); body.innerHTML = '';
+  [['on-bilgi', 'ÖN BİLGİLENDİRME FORMU'], ['sozlesme', 'MESAFELİ SATIŞ SÖZLEŞMESİ'], ['iade', 'İADE · İPTAL · CAYMA'], ['kvkk', 'KVKK AYDINLATMA METNİ']].forEach(([id, ttl], i) => {
+    const sec = _legalDoc.getElementById(id); if (!sec) return;
+    const wrap = document.createElement('div'); wrap.innerHTML = sec.innerHTML;
+    if (i > 0) body.appendChild(document.createElement('hr'));
+    wrap.querySelectorAll('.seller-slot').forEach(s => { s.innerHTML = seller ? seller.innerHTML : ''; });
+    wrap.querySelectorAll('.buyer-slot').forEach(s => { s.innerHTML = buyerHTML; });
+    body.appendChild(wrap);
+  });
+  const acc = document.getElementById('legalAccept'), hint = document.getElementById('legalHint');
+  acc.disabled = true; acc.style.opacity = '.4'; hint.textContent = 'Onaylamak için metni sonuna kadar kaydırın ↓';
+  document.getElementById('legalModal').style.display = 'flex'; document.body.style.overflow = 'hidden';
+  body.scrollTop = 0;
+  const check = () => {
+    if (body.scrollTop + body.clientHeight >= body.scrollHeight - 12) {
+      acc.disabled = false; acc.style.opacity = '1'; hint.textContent = 'Metinleri sonuna kadar okudunuz. Onaylayabilirsiniz.';
+    }
+  };
+  body.onscroll = check; setTimeout(check, 200);
+}
+function acceptLegal() {
+  _legalOK = true;
+  const c = document.getElementById('chkContract'); if (c) c.checked = true;
+  const s = document.getElementById('legalState'); if (s) { s.textContent = '✓ Okundu ve onaylandı (' + new Date().toLocaleString('tr-TR') + ')'; s.style.color = 'var(--green,#4ade80)'; }
+  closeLegal();
+}
+
 async function doCheckout() {
   if (!cart.length) { toast('Sepetiniz boş!', true); return; }
   const P = physItems(), D = digItems();
@@ -1109,7 +1167,7 @@ async function doCheckout() {
     location.href = 'uye.html?redirect=sepet.html';
     return;
   }
-  if (!document.getElementById('chkContract').checked) { toast('Devam etmek için sözleşme ve ön bilgilendirme onayı gerekli.', true); document.getElementById('consentBox').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if (!_legalOK) { toast('Sipariş için yasal metinleri okuyup onaylamanız gerekir.', true); document.getElementById('consentBox').scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if (D.length && !document.getElementById('chkDigital').checked) { toast('Dijital dosya için cayma hakkı onayını işaretleyin.', true); document.getElementById('consentBox').scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if (D.length && selectedPay === 'kapida') { toast('Dijital dosyalar için Havale / EFT seçin.', true); return; }
   if (selectedPay === 'kapida' && !KAPIDA_ENABLED) { toast('Kapıda ödeme şu anda kullanılamıyor. Lütfen Havale/EFT seçin.', true); updateSectionsVisibility(); return; }
@@ -1180,7 +1238,7 @@ async function doCheckout() {
       status: 'yeni',
       orderSource: 'cart',
       orderCode,
-      consent: { contract: true, version: '2026-11', at: firebase.firestore.FieldValue.serverTimestamp() },
+      consent: { contract: true, legalRead: true, version: '2026-11', at: firebase.firestore.FieldValue.serverTimestamp() },
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     batch.set(orderRef, orderData);
@@ -1190,7 +1248,7 @@ async function doCheckout() {
     batch.set(db.collection('digital_orders').doc(), {
       code: digCode, userId: currentUser.uid, email: currentUser.email||'', name: currentUser.displayName||'',
       items: digOut, total: digTotal, status: 'bekliyor',
-      consent: { contract: true, digitalWaiver: true, version: '2026-11', at: firebase.firestore.FieldValue.serverTimestamp() },
+      consent: { contract: true, legalRead: true, digitalWaiver: true, version: '2026-11', at: firebase.firestore.FieldValue.serverTimestamp() },
       ...(isCard ? { payment: { method: 'card', status: 'awaiting_card' }, payGroup } : {}),
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
@@ -2189,5 +2247,19 @@ function rpFaqToggle(el) {
     <iframe id="cardPayFrame" title="Güvenli ödeme" style="border:0;width:100%;flex:1;" allow="payment"></iframe>
   </div>
 </div>
+<div id="legalModal" style="display:none;position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,.9);align-items:center;justify-content:center;padding:14px;">
+  <div style="background:var(--bg2,#111);border:1px solid var(--border,#2a2a2a);width:100%;max-width:760px;height:min(92vh,820px);display:flex;flex-direction:column;">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--border,#2a2a2a);display:flex;justify-content:space-between;align-items:center;gap:10px;">
+      <b style="font-family:'Bebas Neue',cursive;letter-spacing:3px;font-size:22px;">YASAL BİLGİLER</b>
+      <button onclick="closeLegal()" aria-label="Kapat" style="background:none;border:1px solid var(--border,#2a2a2a);color:#aaa;width:32px;height:32px;cursor:pointer;">✕</button>
+    </div>
+    <div id="legalBody" style="flex:1;overflow-y:auto;padding:16px 20px;font-size:14px;line-height:1.7;color:#cfcfcf;"></div>
+    <div style="padding:12px 18px;border-top:1px solid var(--border,#2a2a2a);display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <span id="legalHint" style="flex:1;font-size:12px;color:var(--muted,#888);min-width:200px;">Onaylamak için metni sonuna kadar kaydırın ↓</span>
+      <button id="legalAccept" disabled onclick="acceptLegal()" style="background:var(--accent,#c8a96e);color:#000;border:none;padding:11px 20px;font-family:'Bebas Neue',cursive;letter-spacing:2px;font-size:17px;cursor:pointer;opacity:.4;">OKUDUM, KABUL EDİYORUM</button>
+    </div>
+  </div>
+</div>
+<style>#legalBody h2{font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:19px;color:var(--accent,#c8a96e);margin:22px 0 8px}#legalBody h2[style]{font-size:15px!important;color:#e8e8e8;margin:16px 0 6px}#legalBody p,#legalBody li{margin-bottom:7px}#legalBody ul,#legalBody ol{padding-left:20px}#legalBody table{width:100%;border-collapse:collapse;margin:8px 0 14px}#legalBody td{border:1px solid #2a2a2a;padding:7px 10px;font-size:13px;vertical-align:top}#legalBody td:first-child{width:32%;color:#999}#legalBody .box{border:1px solid #2a2a2a;padding:10px 12px;margin:10px 0;background:#161616}#legalBody hr{border:0;border-top:2px solid var(--accent,#c8a96e);margin:28px 0 6px}</style>
 </body>
 </html>
