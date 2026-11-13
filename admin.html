@@ -143,12 +143,20 @@
     .fg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 
     /* ACTIVITY */
-    .act-list{background:var(--bg2);border:1px solid var(--border);}
-    .act-item{display:flex;align-items:flex-start;gap:12px;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.03);}
-    .act-item:last-child{border-bottom:none;}
-    .act-icon{width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
-    .act-text .at{font-size:12px;margin-bottom:2px;}
-    .act-time{font-size:10px;color:var(--muted);}
+    .act-list{background:linear-gradient(160deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:16px;padding:8px 6px;position:relative;}
+    .act-item{display:flex;align-items:flex-start;gap:12px;padding:11px 14px;border-radius:12px;position:relative;transition:background .18s;animation:actIn .35s ease both;}
+    .act-item:hover{background:rgba(255,255,255,.04);}
+    .act-item:not(:last-child)::after{content:'';position:absolute;left:29px;top:44px;bottom:-8px;width:2px;background:linear-gradient(var(--border),transparent);}
+    .act-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);z-index:1;}
+    .act-item.k-order .act-icon{background:rgba(46,204,113,.16);box-shadow:inset 0 0 0 1px rgba(46,204,113,.4);}
+    .act-item.k-wait .act-icon{background:rgba(241,196,15,.15);box-shadow:inset 0 0 0 1px rgba(241,196,15,.4);}
+    .act-item.k-msg .act-icon{background:rgba(52,152,219,.16);box-shadow:inset 0 0 0 1px rgba(52,152,219,.4);}
+    .act-item.k-member .act-icon{background:rgba(155,89,182,.18);box-shadow:inset 0 0 0 1px rgba(155,89,182,.4);}
+    .act-item.k-review .act-icon{background:rgba(230,126,34,.16);box-shadow:inset 0 0 0 1px rgba(230,126,34,.4);}
+    .act-text{min-width:0;flex:1;}
+    .act-text .at{font-size:13px;margin-bottom:3px;line-height:1.4;word-break:break-word;}
+    .act-time{font-size:11px;color:var(--muted);letter-spacing:.3px;}
+    @keyframes actIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
     /* SETTINGS */
     .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
@@ -4444,6 +4452,10 @@ function addActivity(icon, text) {
   renderActivityFeed();
 }
 function _actTime(ms) {
+  const diff = Date.now() - ms;
+  if (diff < 60000) return 'Az önce';
+  if (diff < 3600000) return Math.floor(diff / 60000) + ' dk önce';
+  if (diff < 6 * 3600000) return Math.floor(diff / 3600000) + ' saat önce';
   const d = new Date(ms), now = new Date();
   const hm = d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
   if (d.toDateString() === now.toDateString()) return 'Bugün ' + hm;
@@ -4459,19 +4471,19 @@ function renderActivityFeed() {
     const t = ms(o.createdAt); if (!t) return;
     const waiting = o.payment && o.payment.status === 'awaiting_card';
     const tot = Number(o.total) || 0;
-    ev.push({ t, icon: waiting ? '⏳' : '🛒', text: (waiting ? 'Kart ödemesi bekleniyor' : 'Yeni sipariş') + ' · ' + (o.name || o.customerName || 'Müşteri') + (tot ? ' · ₺' + tot.toLocaleString('tr-TR') : '') });
+    ev.push({ t, k: waiting ? 'wait' : 'order', icon: waiting ? '⏳' : '🛒', text: (waiting ? 'Kart ödemesi bekleniyor' : 'Yeni sipariş') + ' · ' + (o.name || o.customerName || 'Müşteri') + (tot ? ' · ₺' + tot.toLocaleString('tr-TR') : '') });
   });
   (typeof allMessages !== 'undefined' ? allMessages : []).slice(0, 20).forEach(m => {
     const t = ms(m.createdAt); if (!t) return;
-    ev.push({ t, icon: '✉', text: (m.read ? 'Mesaj' : 'Yeni mesaj') + ' · ' + (m.name || 'Ziyaretçi') + ': "' + String(m.message || '').slice(0, 40) + '"' });
+    ev.push({ t, k: 'msg', icon: '✉', text: (m.read ? 'Mesaj' : 'Yeni mesaj') + ' · ' + (m.name || 'Ziyaretçi') + ': "' + String(m.message || '').slice(0, 40) + '"' });
   });
   (typeof allMembers !== 'undefined' ? allMembers : []).slice(0, 30).forEach(u => {
     const t = ms(u.createdAt); if (!t) return;
-    ev.push({ t, icon: '👤', text: 'Yeni üye · ' + (u.name || u.email || '—') });
+    ev.push({ t, k: 'member', icon: '👤', text: 'Yeni üye · ' + (u.name || u.email || '—') });
   });
   (window._pendRevList || []).slice(0, 20).forEach(r => {
     const t = ms(r.createdAt); if (!t) return;
-    ev.push({ t, icon: '💬', text: 'Yorum onay bekliyor · "' + String(r.text || '').slice(0, 40) + '"' });
+    ev.push({ t, k: 'review', icon: '💬', text: 'Yorum onay bekliyor · "' + String(r.text || '').slice(0, 40) + '"' });
   });
   activities.forEach(a => ev.push(a));
   ev.sort((x, y) => y.t - x.t);
@@ -4482,7 +4494,7 @@ function renderActivityFeed() {
     e.innerHTML = '<div class="act-text"><div class="at">Henüz hareket yok</div></div>'; feed.appendChild(e); return;
   }
   top.forEach(a => {
-    const it = document.createElement('div'); it.className = 'act-item';
+    const it = document.createElement('div'); it.className = 'act-item' + (a.k ? ' k-' + a.k : '');
     const ic = document.createElement('div'); ic.className = 'act-icon'; ic.textContent = a.icon;
     const tx = document.createElement('div'); tx.className = 'act-text';
     const at = document.createElement('div'); at.className = 'at'; at.textContent = a.text;
