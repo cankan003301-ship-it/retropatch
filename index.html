@@ -668,6 +668,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   transform: translateY(-4px);
   box-shadow: 0 20px 48px rgba(0,0,0,0.55);
 }
+.kategori-grid{transition:opacity .25s;}
+.kategori-grid.kat-wait{opacity:0;}
 .kat-img-wrap {
   position: absolute;
   inset: 0;
@@ -788,9 +790,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if (/(nakis|nakış|yama|patch)/.test(k)) return 'https://images.unsplash.com/photo-1736166054966-d7af5d257d31?auto=format&fit=crop&w=700&h=900&q=75';
     return '';
   }
+  (function(){var g=document.getElementById('kategoriGrid');if(g){g.classList.add('kat-wait');setTimeout(function(){g.classList.remove('kat-wait');},3000);}})();
   function buildKatCards(cats) {
     const grid = document.getElementById('kategoriGrid');
     if (!grid || !cats || !cats.length) return;
+    grid.classList.remove('kat-wait');
     // Sayfaya göre URL eşlemesi
     const pageMap = {
       'nakis-yama': 'urunler.html',
@@ -804,8 +808,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       return `
       <a href="${href}" class="kat-card">
         <div class="kat-img-wrap">
-          ${(katDefault(c) || c.image)
-            ? `<img src="${katDefault(c) || c.image}" alt="${c.name}" loading="lazy" onerror="this.onerror=null;this.src=KAT_FB[/sapka|şapka/i.test(this.alt)?'sapka':/tisort|tişört|sweat/i.test(this.alt)?'tisort-sweatshirt':/canta|çanta|anahtar/i.test(this.alt)?'canta-anahtarlik':'nakis-yama']">`
+          ${(c.image || katDefault(c))
+            ? `<img src="${c.image || katDefault(c)}" alt="${c.name}" loading="lazy" onerror="this.onerror=null;this.src=KAT_FB[/sapka|şapka/i.test(this.alt)?'sapka':/tisort|tişört|sweat/i.test(this.alt)?'tisort-sweatshirt':/canta|çanta|anahtar/i.test(this.alt)?'canta-anahtarlik':'nakis-yama']">`
             : `<div class="kat-img-placeholder">${c.icon || '🧵'}</div>`
           }
         </div>
@@ -824,7 +828,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     // Tümünü çek; aktif olanları admin panelindeki sıraya (order) göre diz (indeks gerektirmez)
     db.collection('categories').get()
       .then(snap => {
-        if (snap.empty) return;
+        if (snap.empty) { document.getElementById('kategoriGrid').classList.remove('kat-wait'); return; }
         const cats = snap.docs.map(d => ({ id: d.id, ...d.data() }))
           .filter(c => c.active !== false)
           .sort((x, y) => (Number(x.order) || 999) - (Number(y.order) || 999));
