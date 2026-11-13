@@ -176,8 +176,9 @@
     <li><a href="index.html">Ana Sayfa</a></li>
     <li><a href="urunler.html">Tüm Ürünler</a></li>
     <li><a href="dijital-dosyalar.html" class="active-link">Dijital Dosyalar</a></li>
-    <li><a href="index.html#siparis">Sipariş</a></li>
+    <li><a href="index.html#hesaplayici">Özel Sipariş</a></li>
     <li><a href="index.html#iletisim">İletişim</a></li>
+    <li id="navCartLi"><a href="sepet.html" aria-label="Sepet"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/></svg> <span id="cartCount">0</span></a></li>
     <li id="navHesapLi" style="display:none"><a href="hesap.html">Hesabım</a></li>
     <li id="navLoginLi"><a href="uye.html?redirect=dijital-dosyalar.html" class="nav-cta">Giriş Yap</a></li>
   </ul>
@@ -187,7 +188,9 @@
   <a href="index.html">ANA SAYFA</a>
   <a href="urunler.html">TÜM ÜRÜNLER</a>
   <a href="dijital-dosyalar.html">DİJİTAL DOSYALAR</a>
+  <a href="index.html#hesaplayici">ÖZEL SİPARİŞ</a>
   <a href="index.html#iletisim">İLETİŞİM</a>
+  <a href="sepet.html">SEPET</a>
   <a href="uye.html?redirect=dijital-dosyalar.html">GİRİŞ YAP / HESABIM</a>
 </div>
 
@@ -405,7 +408,8 @@ function openDetail(id){
 /* ── SEPET ── */
 const CART_KEY='retropatch_cart';
 function cartRead(){ try{ return JSON.parse(localStorage.getItem(CART_KEY)||'[]'); }catch(e){ return []; } }
-function syncBasket(){ BASKET=new Set(cartRead().filter(i=>i.digital).map(i=>i.id)); }
+function updateCartCount(){ const n=cartRead().reduce((t,i)=>t+(i.qty||1),0); const el=document.getElementById('cartCount'); if(el) el.textContent=n; }
+function syncBasket(){ BASKET=new Set(cartRead().filter(i=>i.digital).map(i=>i.id)); updateCartCount(); }
 function toggleBasket(id){
   const f=FILES.find(x=>x.id===id); if(!f) return;
   if(OWNED.has(id)){ toast('Bu dosyaya zaten sahipsiniz'); return; }
