@@ -1,5 +1,5 @@
 // Vercel Cron (günlük): 24 saattir bekleyen sepetler için TEK hatırlatma e-postası gönderir.
-// Gerekli ortam değişkenleri: CRON_SECRET, RESEND_API_KEY, EMAIL_FROM (örn. "RetroPatch <siparis@alanadiniz.com>"), SITE_URL
+// Gerekli ortam değişkenleri: CRON_SECRET, RESEND_API_KEY, FROM_EMAIL (EMAIL_FROM de olur) (örn. "RetroPatch <siparis@alanadiniz.com>"), SITE_URL
 import { fb } from './_fb.mjs';
 import { cronAuthorized } from './cron-cleanup.mjs';
 
@@ -8,8 +8,8 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&a
 export default async function handler(req, res) {
   if (!process.env.CRON_SECRET) return res.status(500).json({ error: 'CRON_SECRET tanımlı değil' });
   if (!cronAuthorized(req)) return res.status(401).json({ error: 'Yetkisiz' });
-  const key = process.env.RESEND_API_KEY, from = process.env.EMAIL_FROM;
-  if (!key || !from) return res.status(500).json({ error: 'RESEND_API_KEY / EMAIL_FROM tanımlı değil' });
+  const key = process.env.RESEND_API_KEY, from = process.env.EMAIL_FROM || process.env.FROM_EMAIL;
+  if (!key || !from) return res.status(500).json({ error: 'RESEND_API_KEY / FROM_EMAIL tanımlı değil' });
   const site = (process.env.SITE_URL || 'https://retropatch.vercel.app').replace(/\/+$/, '');
   try {
     const { db } = fb();
