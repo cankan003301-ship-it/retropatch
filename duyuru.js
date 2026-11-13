@@ -295,6 +295,7 @@
       '#rpCartFloat.rp-bump{animation:rpBump .6s}' +
       '#rpCartNote{position:fixed;left:14px;bottom:78px;z-index:9991;background:#111;border:1px solid var(--accent,#c8a96e);color:#fff;padding:12px 16px;font-size:14px;line-height:1.5;opacity:0;transform:translateY(10px);pointer-events:none;transition:all .3s;max-width:calc(100vw - 28px)}' +
       '#rpCartNote.show{opacity:1;transform:none}#rpCartNote b{color:var(--accent,#c8a96e)}';
+    st.textContent += '#navLoginLi a.nav-cta,#navHesap.nav-cta{background:var(--accent,#c8a96e)!important;color:#000!important;padding:11px 28px!important;font-size:15px!important;font-weight:800!important;letter-spacing:2px;border-radius:10px;box-shadow:0 4px 18px rgba(200,169,110,.35);transition:transform .15s,box-shadow .15s}#navLoginLi a.nav-cta:hover,#navHesap.nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,169,110,.5)}';
     document.head.appendChild(st);
 
     function read() {

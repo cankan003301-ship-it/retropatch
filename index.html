@@ -2372,6 +2372,7 @@ firebase.auth().onAuthStateChanged(user => {
   if (navHesap) {
     navHesap.textContent = user ? '👤 Hesabım' : 'Giriş Yap';
     navHesap.href = user ? 'hesap.html' : 'uye.html';
+    navHesap.classList.toggle('nav-cta', !user);
   }
   if (navSepetLi) navSepetLi.style.display = user ? 'list-item' : 'none';
   updateCartCount();

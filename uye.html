@@ -275,7 +275,7 @@ const db = firebase.firestore();
 // Redirect if already logged in
 auth.onAuthStateChanged(user => {
   if (user) {
-    const redirect = new URLSearchParams(location.search).get('redirect') || 'hesap.html';
+    const redirect = new URLSearchParams(location.search).get('redirect') || 'index.html';
     const go = () => { location.href = redirect; };
     // Yönlendirmeden ÖNCE üye kaydı yoksa oluştur (Google girişinde kayıt yarıda kalıyordu)
     const ref = db.collection('users').doc(user.uid);
