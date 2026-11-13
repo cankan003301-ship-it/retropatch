@@ -1,8 +1,9 @@
 User-agent: *
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
 Disallow: /sepet.html
+Disallow: /hesap.html
 Disallow: /tesekkur.html
-Disallow: /takip.html
 
 Sitemap: https://retropatch.com.tr/sitemap.xml

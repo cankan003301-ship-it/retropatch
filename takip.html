@@ -409,12 +409,7 @@ function doTrack() {
   btn.disabled = true;
 
   // Önce orderCode ile ara, bulamazsan id ile ara
-  db.collection('orders').where('orderCode','==',code).limit(1).get()
-    .then(snap => {
-      if (!snap.empty) return snap;
-      // Eski siparişler için id son 6 karakter
-      return db.collection('orders').where('orderCode','==','RP-'+code.replace('RP-','')).limit(1).get();
-    })
+  rpTrack(code)
     .then(snap => {
       btn.disabled = false;
       if (snap.empty) {
@@ -440,6 +435,13 @@ function doTrack() {
     });
 }
 
+
+// Sipariş durumu sunucudan (adres/telefon dönmez) — Firestore kuralları siparişleri yalnızca sahibine açar
+function rpTrack(code) {
+  return fetch('/api/track?code=' + encodeURIComponent(String(code).trim().toUpperCase()))
+    .then(r => r.ok ? r.json() : {})
+    .then(j => j && j.order ? { empty: false, docs: [{ id: j.order.id, data: () => j.order }] } : { empty: true, docs: [] });
+}
 // ── SİPARİŞ DETAY RENDER ──
 function renderOrderDetail(o, isMain=false) {
   const code    = o.orderCode || o.id.slice(-6).toUpperCase();
@@ -628,5 +630,6 @@ function closeMobileMenu() {
   document.body.style.overflow = '';
 }
 </script>
+<script src="duyuru.js"></script>
 </body>
 </html>

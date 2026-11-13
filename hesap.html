@@ -587,12 +587,19 @@ function renderOrders() {
     </div>`).join('');
 }
 
+
+// Sipariş durumu sunucudan (adres/telefon dönmez) — Firestore kuralları siparişleri yalnızca sahibine açar
+function rpTrack(code) {
+  return fetch('/api/track?code=' + encodeURIComponent(String(code).trim().toUpperCase()))
+    .then(r => r.ok ? r.json() : {})
+    .then(j => j && j.order ? { empty: false, docs: [{ id: j.order.id, data: () => j.order }] } : { empty: true, docs: [] });
+}
 function trackByCode() {
   const code = document.getElementById('trackCodeInput').value.trim().toUpperCase();
   const result = document.getElementById('trackResult');
   if (!code) { result.innerHTML = '<span style="color:var(--accent2);font-size:12px;">Sipariş kodu girin.</span>'; return; }
   result.innerHTML = '<span style="color:var(--muted);font-size:12px;"><svg class=ic data-n=hourglass><use href=#i-hourglass></use></svg> Aranıyor...</span>';
-  db.collection('orders').where('orderCode', '==', code).limit(1).get().then(snap => {
+  rpTrack(code).then(snap => {
     if (snap.empty) {
       result.innerHTML = '<span style="color:var(--accent2);font-size:12px;"><svg class=ic data-n=warn><use href=#i-warn></use></svg> Sipariş bulunamadı. Kodu kontrol edin.</span>';
       return;
@@ -1805,5 +1812,6 @@ function rpFaqToggle(el) {
 }
 </script>
 
+<script src="duyuru.js"></script>
 </body>
 </html>

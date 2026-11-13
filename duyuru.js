@@ -211,6 +211,88 @@
     if (popupQueue.length && !document.getElementById('rpAnnPop')) showPopup(popupQueue[0]);
   }
 
+
+  /* ───────── SEPET SENKRONU (terk sepet hatırlatma için) ─────────
+     Giriş yapmış üyenin sepeti abandoned_carts/{uid} belgesine yazılır; sepet boşsa silinir. */
+  var lastCartSig = '';
+  function cartSync() {
+    try {
+      if (typeof firebase === 'undefined' || !firebase.auth || typeof db === 'undefined') return;
+      var u = firebase.auth().currentUser; if (!u || !u.email) return;
+      var cart = JSON.parse(localStorage.getItem('retropatch_cart') || '[]');
+      var sig = u.uid + JSON.stringify(cart.map(function (i) { return [i.id, i.qty]; }));
+      if (sig === lastCartSig) return; lastCartSig = sig;
+      var ref = db.collection('abandoned_carts').doc(u.uid);
+      if (!cart.length) { ref.delete().catch(function () {}); return; }
+      var total = cart.reduce(function (s, i) { return s + (i.price || 0) * (i.qty || 1); }, 0);
+      ref.set({
+        email: u.email, name: u.displayName || '', total: total, reminded: false,
+        items: cart.slice(0, 20).map(function (i) { return { name: String(i.name || '').slice(0, 80), qty: i.qty || 1, price: i.price || 0 }; }),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function () {});
+    } catch (e) {}
+  }
+  window.rpCartSync = function () { lastCartSig = ''; cartSync(); };
+  (function waitAuth() {
+    if (typeof firebase !== 'undefined' && firebase.auth && typeof db !== 'undefined') {
+      firebase.auth().onAuthStateChanged(function () { setTimeout(cartSync, 1500); });
+    } else setTimeout(waitAuth, 400);
+  })();
+
+
+  /* ───────── SEO / PERFORMANS ─────────
+     1) Dinamik eklenen görsellere lazy-load; ürün kartı görsellerine ImageKit otomatik biçim/kalite
+     2) Ürünler yüklenince schema.org Product listesi (Google zengin sonuçlar) */
+  function optimizeImg(img) {
+    try {
+      if (img.getAttribute('data-rp-opt')) return; img.setAttribute('data-rp-opt', '1');
+      if (img.closest('nav,header,.logo,.mobile-menu')) return;
+      if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+      if (!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async');
+      var src = img.getAttribute('src') || '';
+      if (img.closest('.product-img,.pcard-img,.dgh-img') && /^https:\/\/ik\.imagekit\.io\//.test(src) && src.indexOf('tr=') < 0 && src.indexOf('tr:') < 0)
+        img.setAttribute('src', src + (src.indexOf('?') < 0 ? '?' : '&') + 'tr=w-700,q-80,f-auto');
+    } catch (e) {}
+  }
+  function scanImgs(root) {
+    var list = (root.querySelectorAll ? root.querySelectorAll('img') : []);
+    for (var i = 0; i < list.length; i++) optimizeImg(list[i]);
+    if (root.tagName === 'IMG') optimizeImg(root);
+  }
+  try {
+    scanImgs(document);
+    new MutationObserver(function (ms) {
+      ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) scanImgs(n); }); });
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  } catch (e) {}
+
+  var ldDone = false, ldTries = 0;
+  function productLD() {
+    if (ldDone) return;
+    var list = null;
+    try { list = (typeof allProducts !== 'undefined' && allProducts && allProducts.length) ? allProducts : null; } catch (e) {}
+    if (!list) { if (++ldTries < 30) setTimeout(productLD, 1000); return; }
+    ldDone = true;
+    var origin = location.origin;
+    var items = list.slice(0, 50).filter(function (p) { return p && p.name && Number(p.price) > 0; }).map(function (p, i) {
+      var out = p.status === 'Tükendi';
+      return { '@type': 'ListItem', position: i + 1, item: {
+        '@type': 'Product', name: p.name, sku: p.id,
+        image: p.image ? [p.image] : undefined,
+        description: (p.desc || p.description || p.name + ' — RetroPatch özel nakış yama').toString().slice(0, 300),
+        category: p.cat || undefined,
+        brand: { '@type': 'Brand', name: 'RetroPatch' },
+        offers: { '@type': 'Offer', priceCurrency: 'TRY', price: String(Number(p.price)), url: origin + location.pathname,
+                  availability: out ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock' }
+      } };
+    });
+    if (!items.length) return;
+    var tag = document.createElement('script'); tag.type = 'application/ld+json';
+    tag.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': 'ItemList', itemListElement: items });
+    document.head.appendChild(tag);
+  }
+  setTimeout(productLD, 2500);
+
   /* ───────── YÜKLE ───────── */
   function load() {
     injectCSS();

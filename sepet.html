@@ -579,6 +579,11 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
           <div class="summary-row"><span>İndirim</span><span id="sumDiscount" style="color:var(--green);">-₺0</span></div>
           <div class="summary-row total"><span>TOPLAM</span><span id="sumTotal">₺0</span></div>
 
+          <div id="freeShipBar" style="display:none;margin:16px 0 0;font-size:12px;color:var(--muted);">
+            <div id="freeShipText" style="margin-bottom:6px;"></div>
+            <div style="height:6px;background:var(--bg3);border:1px solid var(--border);"><div id="freeShipFill" style="height:100%;width:0;background:var(--accent);transition:width .4s;"></div></div>
+          </div>
+
           <!-- ÖDEME YÖNTEMİ -->
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;color:var(--muted);margin:20px 0 10px;">ÖDEME YÖNTEMİ</div>
           <div class="pay-methods">
@@ -919,6 +924,7 @@ function removeItem(i) {
 function saveCart() {
   localStorage.setItem('retropatch_cart', JSON.stringify(cart));
   renderCart();
+  if (window.rpCartSync) window.rpCartSync();
 }
 
 function updateSummary() {
@@ -935,6 +941,17 @@ function updateSummary() {
   document.getElementById('sumCargo').textContent = !phys ? 'Yok (dijital)' : (cargo === 0 ? '₺0 (Ücretsiz)' : '₺'+cargo);
   document.getElementById('sumDiscount').textContent = '-₺'+disc;
   document.getElementById('sumTotal').textContent = '₺'+Math.max(0,total).toLocaleString('tr-TR');
+  const fb = document.getElementById('freeShipBar');
+  if (fb) {
+    if (phys && freeLimit > 0) {
+      const left = freeLimit - physSub;
+      fb.style.display = 'block';
+      document.getElementById('freeShipText').innerHTML = left > 0
+        ? 'Ücretsiz kargo için <b style="color:var(--accent);">₺' + Math.ceil(left).toLocaleString('tr-TR') + '</b> daha ekleyin'
+        : '<b style="color:var(--green);">Ücretsiz kargo kazandınız!</b>';
+      document.getElementById('freeShipFill').style.width = Math.min(100, physSub / freeLimit * 100) + '%';
+    } else fb.style.display = 'none';
+  }
   updateCargoPriceDisplay();
   updateSectionsVisibility();
 }
@@ -1045,7 +1062,7 @@ async function startCardPayment(group, btn) {
   if (window.self !== window.top) { try { window.top.location.href = location.href; return; } catch (e) {} }
   history.replaceState(null, '', location.pathname);
   if (st === 'ok') {
-    localStorage.removeItem('retropatch_cart'); cart = [];
+    localStorage.removeItem('retropatch_cart'); cart = []; if (window.rpCartSync) window.rpCartSync();
     window.addEventListener('load', () => {
       document.getElementById('cartWrap').style.display = 'none';
       document.getElementById('successWrap').style.display = 'block';
@@ -1179,7 +1196,7 @@ async function doCheckout() {
   }
 
   localStorage.removeItem('retropatch_cart');
-  cart = [];
+  cart = []; if (window.rpCartSync) window.rpCartSync();
   document.getElementById('cartWrap').style.display='none';
   document.getElementById('successWrap').style.display='block';
   const cb = document.getElementById('checkoutBtn');

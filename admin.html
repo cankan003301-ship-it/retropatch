@@ -355,6 +355,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="nav-item" onclick="showPage('digital')"><span class="ic"><svg class=ic data-n=save><use href=#i-save></use></svg></span> Dijital Dosyalar <span class="nav-badge" id="badgeDigital" style="display:none">0</span></div>
         <div class="nav-item" onclick="showPage('media')"><span class="ic"><svg class=ic data-n=image><use href=#i-image></use></svg></span> Medya</div>
         <div class="nav-item" onclick="showPage('sitemanage')"><span class="ic"><svg class=ic data-n=monitor><use href=#i-monitor></use></svg></span> Site Yönetimi</div>
+        <div class="nav-item" onclick="showPage('reports')"><span class="ic"><svg class=ic data-n=bars><use href=#i-bars></use></svg></span> Raporlar</div>
         <div class="nav-item" onclick="showPage('payments')"><span class="ic"><svg class=ic data-n=card><use href=#i-card></use></svg></span> Ödemeler</div>
         <div class="nav-item" onclick="showPage('settings')"><span class="ic"><svg class=ic data-n=settings><use href=#i-settings></use></svg></span> Ayarlar</div>
         <a class="nav-item" href="https://retropatch.vercel.app" target="_blank" style="text-decoration:none;"><span class="ic"><svg class=ic data-n=globe><use href=#i-globe></use></svg></span> Siteyi Gör</a>
@@ -1611,6 +1612,27 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </div>
 
     <!-- SETTINGS -->
+    <!-- ================= RAPORLAR ================= -->
+    <div class="page" id="page-reports">
+      <div class="section-hdr"><div class="section-ttl">RAPORLAR</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <select id="repRange" onchange="renderReports()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">
+            <option value="12">Son 12 ay</option><option value="6">Son 6 ay</option><option value="3">Son 3 ay</option>
+          </select>
+          <button class="btn btn-accent btn-sm" onclick="exportOrdersCSV()"><svg class=ic data-n=save><use href=#i-save></use></svg> SİPARİŞLERİ CSV İNDİR</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:14px;">İptal edilen ve ödenmemiş kart siparişleri hesaba katılmaz.</div>
+      <div id="repKpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2px;margin-bottom:20px;"></div>
+      <div class="settings-card" style="margin-bottom:20px;"><h4><svg class=ic data-n=trend><use href=#i-trend></use></svg> AYLIK GELİR</h4><div id="repMonths" style="display:flex;align-items:flex-end;gap:8px;height:190px;padding-top:10px;overflow-x:auto;"></div></div>
+      <div class="settings-grid">
+        <div class="settings-card"><h4><svg class=ic data-n=tag><use href=#i-tag></use></svg> EN ÇOK GELİR GETİREN ÜRÜNLER</h4><div id="repTop"></div></div>
+        <div class="settings-card"><h4><svg class=ic data-n=ticket><use href=#i-ticket></use></svg> KUPON PERFORMANSI</h4><div id="repCoupons"></div></div>
+        <div class="settings-card"><h4><svg class=ic data-n=card><use href=#i-card></use></svg> ÖDEME YÖNTEMLERİ</h4><div id="repPay"></div></div>
+        <div class="settings-card"><h4><svg class=ic data-n=pin><use href=#i-pin></use></svg> EN ÇOK SİPARİŞ GELEN ŞEHİRLER</h4><div id="repCity"></div></div>
+      </div>
+    </div>
+
     <!-- ================= ÖDEMELER ================= -->
     <div class="page" id="page-payments">
       <div class="section-hdr"><div class="section-ttl">ÖDEMELER</div></div>
@@ -3134,8 +3156,8 @@ async function syncStatsFromData(silent) {
       fs.docs.forEach(d => { if (ids.has(d.id)) fav[d.id] = (fav[d.id] || 0) + 1; });
     } catch (e) { favErr = e.message; }
     try {
-      const rs = await db.collectionGroup('reviews').get();   // filtresiz: ek dizin gerekmez
-      rs.docs.filter(d => d.data().approved === true).forEach(d => {
+      const rs = await db.collectionGroup('reviews').where('approved', '==', true).get();
+      rs.docs.forEach(d => {
         const par = d.ref.parent.parent;
         if (par && par.parent && par.parent.id === 'products' && ids.has(par.id)) rev[par.id] = (rev[par.id] || 0) + 1;
       });
@@ -3245,6 +3267,61 @@ function loadBackPrices() {
 }
 
 
+
+
+// ============ RAPORLAR ============
+function _ordDate(o) { try { const t = o.createdAt; return t && t.toDate ? t.toDate() : (t ? new Date(t) : null); } catch (e) { return null; } }
+function _barList(rows, fmt) {
+  if (!rows.length) return '<div style="color:var(--muted);font-size:12px;padding:10px 0;">Veri yok</div>';
+  const max = Math.max(...rows.map(r => r[1])) || 1;
+  return rows.map(([k, v, sub]) => `<div style="margin:8px 0;"><div style="display:flex;justify-content:space-between;font-size:12px;gap:10px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${dgEsc(k)}</span><b style="color:var(--accent);white-space:nowrap;">${fmt(v)}${sub ? ' <span style="color:var(--muted2);font-weight:400;">· ' + dgEsc(sub) + '</span>' : ''}</b></div><div style="height:5px;background:var(--bg3);margin-top:3px;"><div style="height:100%;width:${Math.max(2, v / max * 100)}%;background:var(--accent);"></div></div></div>`).join('');
+}
+function renderReports() {
+  const months = parseInt(document.getElementById('repRange')?.value, 10) || 12;
+  const TL = n => '₺' + Math.round(n).toLocaleString('tr-TR');
+  const now = new Date(), start = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1);
+  const all = allOrders.filter(o => { const d = _ordDate(o); return d && d >= start; });
+  const good = all.filter(o => !isCancelled(o));
+  const cancelled = all.length - good.length;
+  const rev = good.reduce((s, o) => s + orderAmount(o), 0);
+  const byM = {};
+  for (let i = 0; i < months; i++) { const d = new Date(start.getFullYear(), start.getMonth() + i, 1); byM[d.getFullYear() + '-' + d.getMonth()] = { label: d.toLocaleDateString('tr-TR', { month: 'short', year: '2-digit' }), v: 0, n: 0 }; }
+  good.forEach(o => { const d = _ordDate(o), k = d.getFullYear() + '-' + d.getMonth(); if (byM[k]) { byM[k].v += orderAmount(o); byM[k].n++; } });
+  const cur = byM[now.getFullYear() + '-' + now.getMonth()] || { v: 0 };
+  const prevD = new Date(now.getFullYear(), now.getMonth() - 1, 1), prev = byM[prevD.getFullYear() + '-' + prevD.getMonth()];
+  const kpi = (l, v, c) => `<div class="kpi-card" style="padding:14px 16px;"><div class="kpi-label">${l}</div><div class="kpi-val ${c || ''}" style="font-size:26px;">${v}</div></div>`;
+  document.getElementById('repKpi').innerHTML =
+    kpi('Dönem Geliri', TL(rev), 'gold') + kpi('Bu Ay', TL(cur.v) + (prev && prev.v ? ` <span style="font-size:12px;color:${cur.v >= prev.v ? '#4ade80' : '#e63946'};">${cur.v >= prev.v ? '▲' : '▼'} %${Math.abs(Math.round((cur.v - prev.v) / prev.v * 100))}</span>` : '')) +
+    kpi('Sipariş', good.length) + kpi('Ort. Sepet', good.length ? TL(rev / good.length) : '—') + kpi('İptal Oranı', all.length ? '%' + Math.round(cancelled / all.length * 100) : '—');
+  const mv = Object.values(byM), mx = Math.max(...mv.map(x => x.v), 1);
+  document.getElementById('repMonths').innerHTML = mv.map(x => `<div style="flex:1;min-width:38px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;" title="${x.label}: ${TL(x.v)} · ${x.n} sipariş"><div style="font-size:10px;color:var(--muted2);margin-bottom:3px;">${x.v ? TL(x.v) : ''}</div><div style="width:100%;background:var(--accent);height:${x.v ? Math.max(3, x.v / mx * 140) : 2}px;opacity:${x.v ? 1 : .25};"></div><div style="font-size:10px;color:var(--muted);margin-top:5px;">${x.label}</div></div>`).join('');
+  const prod = {};
+  good.forEach(o => (o.items || []).forEach(i => { const k = i.name || i.id || '—'; const p = prod[k] = prod[k] || { v: 0, q: 0 }; p.v += (Number(i.price) || 0) * (Number(i.qty) || 1); p.q += Number(i.qty) || 1; }));
+  document.getElementById('repTop').innerHTML = _barList(Object.entries(prod).sort((a, b) => b[1].v - a[1].v).slice(0, 10).map(([k, p]) => [k, p.v, p.q + ' adet']), TL);
+  const cp = {};
+  good.forEach(o => { if (o.coupon) { const c = cp[o.coupon] = cp[o.coupon] || { n: 0, d: 0, v: 0 }; c.n++; c.d += Number(o.discount) || 0; c.v += orderAmount(o); } });
+  document.getElementById('repCoupons').innerHTML = _barList(Object.entries(cp).sort((a, b) => b[1].v - a[1].v).map(([k, c]) => [k, c.v, c.n + ' sipariş, ' + TL(c.d) + ' indirim']), TL);
+  const pm = {}; const names = { card: 'Kredi/Banka Kartı', havale: 'Havale / EFT', kapida: 'Kapıda Ödeme' };
+  good.forEach(o => { const k = names[o.payment?.method] || 'Belirtilmemiş'; const x = pm[k] = pm[k] || { n: 0, v: 0 }; x.n++; x.v += orderAmount(o); });
+  document.getElementById('repPay').innerHTML = _barList(Object.entries(pm).sort((a, b) => b[1].v - a[1].v).map(([k, x]) => [k, x.v, x.n + ' sipariş']), TL);
+  const ct = {};
+  good.forEach(o => { const c = (o.address?.city || '').trim(); if (c) ct[c] = (ct[c] || 0) + 1; });
+  document.getElementById('repCity').innerHTML = _barList(Object.entries(ct).sort((a, b) => b[1] - a[1]).slice(0, 8), n => n + ' sipariş');
+}
+function exportOrdersCSV() {
+  const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  const head = ['Sipariş Kodu', 'Tarih', 'Müşteri', 'Telefon', 'Şehir', 'Ürünler', 'Tutar (TL)', 'Ödeme', 'Ödeme Durumu', 'Durum', 'Kargo', 'Takip No', 'Kupon'];
+  const rows = allOrders.map(o => { const d = _ordDate(o); return [
+    o.orderCode || o.id, d ? d.toLocaleString('tr-TR') : '', o.address?.name || o.userName || '', o.address?.phone || '', o.address?.city || '',
+    (o.items || []).map(i => (i.name || '') + ' x' + (i.qty || 1)).join('; '), orderAmount(o),
+    o.payment?.method || '', o.payment?.status || '', o.status || 'yeni', o.cargo?.companyName || '', o.cargo?.trackingCode || '', o.coupon || ''
+  ].map(q).join(';'); });
+  const blob = new Blob(['﻿' + [head.map(q).join(';'), ...rows].join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'retropatch-siparisler-' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  toast(rows.length + ' sipariş indirildi', 'ok');
+}
 
 // ============ ÖDEMELER (PayTR / banka sanal POS) ============
 const NEST_GATES = {
@@ -3366,6 +3443,7 @@ function showPage(name) {
   if (name === 'reviews') loadAllReviews();
   if (name === 'settings') { loadSiteSettings(); loadBackPrices(); }
   if (name === 'payments') { loadSiteSettings(); loadPayments(); }
+  if (name === 'reports') renderReports();
   if (name === 'categories') loadCategories();
   if (name === 'digital') loadDigital();
   if (name === 'announcements') { loadAnnouncements(); loadMarqueeSettings(); }

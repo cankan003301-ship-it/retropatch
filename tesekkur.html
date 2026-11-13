@@ -249,16 +249,7 @@ if (cancelled) {
   document.getElementById('successBox').style.display = 'block';
   document.getElementById('orderCodeDisplay').textContent = orderCode;
 
-  // Ödemeyi Firestore'da onayla
-  db.collection('orders').where('orderCode', '==', orderCode).limit(1).get().then(snap => {
-    if (!snap.empty) {
-      snap.docs[0].ref.update({
-        'payment.status': 'paid',
-        'status': 'hazırlıkta',
-        paidAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-  });
+  // Ödeme durumu yalnızca sunucudan (PayTR/banka bildirimi) güncellenir; tarayıcı güncelleyemez.
 } else {
   document.getElementById('successBox').style.display = 'block';
 }
@@ -1069,5 +1060,6 @@ function rpFaqToggle(el) {
 }
 </script>
 
+<script src="duyuru.js"></script>
 </body>
 </html>
