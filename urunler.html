@@ -8,14 +8,14 @@
   <!-- SEO -->
   <meta name="description" content="RetroPatch ürün kataloğu. Nakış yamalar, askeri yamalar, retro tasarımlar. Dilediğiniz boyut ve arka yüzey seçeneğiyle sipariş verin.">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://retropatch.com.tr/urunler.html">
+  <link rel="canonical" href="https://retropatch.vercel.app/urunler.html">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://retropatch.com.tr/urunler.html">
+  <meta property="og:url" content="https://retropatch.vercel.app/urunler.html">
   <meta property="og:title" content="Tüm Ürünler — RetroPatch Nakış Yama">
   <meta property="og:description" content="RetroPatch ürün kataloğu. Nakış yamalar, askeri yamalar, retro tasarımlar.">
-  <meta property="og:image" content="https://retropatch.com.tr/og-image.jpg">
+  <meta property="og:image" content="https://retropatch.vercel.app/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="tr_TR">
@@ -25,7 +25,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Tüm Ürünler — RetroPatch Nakış Yama">
   <meta name="twitter:description" content="RetroPatch ürün kataloğu. Nakış yamalar, askeri yamalar, retro tasarımlar.">
-  <meta name="twitter:image" content="https://retropatch.com.tr/og-image.jpg">
+  <meta name="twitter:image" content="https://retropatch.vercel.app/og-image.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -408,6 +408,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <!-- MOBILE MENU -->
 <div class="mobile-menu" id="mobileMenu">
   <ul>
+    <li><button class="mm-btn mm-search" onclick="closeMobileMenu();openSearch()">🔍 ARA</button></li>
     <li><a href="index.html" class="" onclick="closeMobileMenu()">ANA SAYFA</a></li>
       <li><a href="urunler.html" class="" onclick="closeMobileMenu()">TÜM ÜRÜNLER</a></li>
       <li><a href="index.html#siparis" class="" onclick="closeMobileMenu()">SİPARİŞ</a></li>
@@ -556,11 +557,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         </label>
         <label style="flex:1;cursor:pointer;">
           <input type="radio" name="backChoice" value="Ütüyle Yapışan" onchange="onBackChoice(this.value)" style="display:none;">
-          <div class="back-opt" data-val="Ütüyle Yapışan">Ütüyle<br><small>+20₺</small></div>
+          <div class="back-opt" data-val="Ütüyle Yapışan">Ütüyle<br><small>+50₺</small></div>
         </label>
         <label style="flex:1;cursor:pointer;">
           <input type="radio" name="backChoice" value="Cırt Cırt" onchange="onBackChoice(this.value)" style="display:none;">
-          <div class="back-opt" data-val="Cırt Cırt">Cırt Cırt<br><small>+30₺</small></div>
+          <div class="back-opt" data-val="Cırt Cırt">Cırt Cırt<br><small>+75₺</small></div>
         </label>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:6px;width:100%;">
@@ -936,7 +937,7 @@ function openModal(id) {
   document.querySelectorAll("input[name=backChoice]").forEach(r => r.checked = r.value === "Düz");
 
   document.getElementById('modalSpecs').innerHTML = `
-    <div class="modal-spec"><span class="modal-spec-key">Boyut</span><span class="modal-spec-val">${p.size||'—'}</span></div>
+    <div class="modal-spec"><span class="modal-spec-key">Boyut</span><span class="modal-spec-val">${String(p.size||'—').replace(/(\s*cm)+\s*$/i,' cm')}</span></div>
 
     <div class="modal-spec"><span class="modal-spec-key">Durum</span><span class="modal-spec-val">${p.status||'Stokta'}</span></div>
     <div class="modal-spec"><span class="modal-spec-key">Satış</span><span class="modal-spec-val"><svg class=ic data-n=fire><use href=#i-fire></use></svg> ${p.sales||0}</span></div>
@@ -1285,9 +1286,9 @@ function updateCartCount() {
   if (el) el.textContent = count > 0 ? count : '0';
 }
 
-const BACK_PRICES = {"Düz":0,"Ütüyle Yapışan":20,"Cırt Cırt":30};
+const BACK_PRICES = {"Düz":0,"Ütüyle Yapışan":50,"Cırt Cırt":75};
 db.collection("settings").doc("backPrices").get().then(s=>{
-  if(s.exists){const d=s.data();BACK_PRICES["Düz"]=d.duz||0;BACK_PRICES["Ütüyle Yapışan"]=d.utu||20;BACK_PRICES["Cırt Cırt"]=d.cirt||30;
+  if(s.exists){const d=s.data();BACK_PRICES["Düz"]=d.duz||0;BACK_PRICES["Ütüyle Yapışan"]=d.utu||50;BACK_PRICES["Cırt Cırt"]=d.cirt||75;
   document.querySelectorAll(".back-opt").forEach(el=>{
     const v=el.dataset.val;el.querySelector("small").textContent="+"+(BACK_PRICES[v]||0)+"₺";});}});
 let selectedBack = "Düz";
@@ -1514,7 +1515,7 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
           ${imgHtml}
           <div class="sri-info">
             <div class="sri-name">${nameHl}</div>
-            <div class="sri-meta">${p.size || ''}</div>
+            <div class="sri-meta">${String(p.size||'').replace(/(\s*cm)+\s*$/i,' cm')}</div>
           </div>
           ${stockBadge}
           <div class="sri-price">${p.price ? '₺'+p.price : ''}</div>

@@ -192,7 +192,7 @@
   
     <li><button class="search-btn" onclick="openSearch()" title="Ara (Ctrl+K / /)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></li>
   
-    <li><button class="search-btn" onclick="openSearch()" title="Ara (Ctrl+K / /)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></li>
+    
   </ul>
 
   <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Menü"><span></span><span></span><span></span></button>
@@ -201,6 +201,7 @@
 <!-- MOBILE MENU -->
 <div class="mobile-menu" id="mobileMenu">
   <ul>
+    <li><button class="mm-btn mm-search" onclick="closeMobileMenu();openSearch()">🔍 ARA</button></li>
     <li><a href="index.html" class="" onclick="closeMobileMenu()">ANA SAYFA</a></li>
       <li><a href="urunler.html" class="" onclick="closeMobileMenu()">ÜRÜNLER</a></li>
       <li><a href="sepet.html" class="" onclick="closeMobileMenu()">🛒 SEPET</a></li>

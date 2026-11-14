@@ -8,14 +8,14 @@
   <!-- SEO -->
   <meta name="description" content="RetroPatch nakış işlemeli çanta ve anahtarlık koleksiyonu. Özel tasarım, makine nakışı ile profesyonel üretim.">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://retropatch.com.tr/canta-anahtarlik.html">
+  <link rel="canonical" href="https://retropatch.vercel.app/canta-anahtarlik.html">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://retropatch.com.tr/urunler.html">
+  <meta property="og:url" content="https://retropatch.vercel.app/urunler.html">
   <meta property="og:title" content="Tüm Ürünler — RetroPatch Nakış Yama">
   <meta property="og:description" content="RetroPatch ürün kataloğu. Nakış yamalar, askeri yamalar, retro tasarımlar.">
-  <meta property="og:image" content="https://retropatch.com.tr/og-image.jpg">
+  <meta property="og:image" content="https://retropatch.vercel.app/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="tr_TR">
@@ -25,7 +25,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Tüm Ürünler — RetroPatch Nakış Yama">
   <meta name="twitter:description" content="RetroPatch ürün kataloğu. Nakış yamalar, askeri yamalar, retro tasarımlar.">
-  <meta name="twitter:image" content="https://retropatch.com.tr/og-image.jpg">
+  <meta name="twitter:image" content="https://retropatch.vercel.app/og-image.jpg">
   <meta name="keywords" content="nakış yama kataloğu, tüm yamalar, patch yama çeşitleri, anime yama, askeri yama, retro yama, özel nakış yama Türkiye">
   <meta name="author" content="RetroPatch">
 
@@ -35,11 +35,11 @@
     "@type": "CollectionPage",
     "name": "Tüm Ürünler — RetroPatch Nakış Yama",
     "description": "RetroPatch ürün kataloğu. Nakış yamalar, askeri yamalar, retro tasarımlar.",
-    "url": "https://retropatch.com.tr/urunler.html",
+    "url": "https://retropatch.vercel.app/urunler.html",
     "isPartOf": {
       "@type": "WebSite",
       "name": "RetroPatch",
-      "url": "https://retropatch.com.tr"
+      "url": "https://retropatch.vercel.app"
     },
     "breadcrumb": {
       "@type": "BreadcrumbList",
@@ -48,13 +48,13 @@
           "@type": "ListItem",
           "position": 1,
           "name": "Ana Sayfa",
-          "item": "https://retropatch.com.tr"
+          "item": "https://retropatch.vercel.app"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Tüm Ürünler",
-          "item": "https://retropatch.com.tr/urunler.html"
+          "item": "https://retropatch.vercel.app/urunler.html"
         }
       ]
     }
@@ -430,6 +430,7 @@
 <!-- MOBILE MENU -->
 <div class="mobile-menu" id="mobileMenu">
   <ul>
+    <li><button class="mm-btn mm-search" onclick="closeMobileMenu();openSearch()">🔍 ARA</button></li>
     <li><a href="index.html" class="" onclick="closeMobileMenu()">ANA SAYFA</a></li>
       <li><a href="urunler.html" class="" onclick="closeMobileMenu()">TÜM ÜRÜNLER</a></li>
       <li><a href="index.html#siparis" class="" onclick="closeMobileMenu()">SİPARİŞ</a></li>
@@ -597,11 +598,11 @@
         </label>
         <label style="flex:1;cursor:pointer;">
           <input type="radio" name="backChoice" value="Ütüyle Yapışan" onchange="onBackChoice(this.value)" style="display:none;">
-          <div class="back-opt" data-val="Ütüyle Yapışan">Ütüyle<br><small>+20₺</small></div>
+          <div class="back-opt" data-val="Ütüyle Yapışan">Ütüyle<br><small>+50₺</small></div>
         </label>
         <label style="flex:1;cursor:pointer;">
           <input type="radio" name="backChoice" value="Cırt Cırt" onchange="onBackChoice(this.value)" style="display:none;">
-          <div class="back-opt" data-val="Cırt Cırt">Cırt Cırt<br><small>+30₺</small></div>
+          <div class="back-opt" data-val="Cırt Cırt">Cırt Cırt<br><small>+75₺</small></div>
         </label>
       </div>
       <div class="modal-action-row">
@@ -984,7 +985,7 @@ function openModal(id) {
   document.querySelectorAll("input[name=backChoice]").forEach(r => r.checked = r.value === "Düz");
 
   document.getElementById('modalSpecs').innerHTML = `
-    <div class="modal-spec"><span class="modal-spec-key">Boyut</span><span class="modal-spec-val">${p.size||'—'}</span></div>
+    <div class="modal-spec"><span class="modal-spec-key">Boyut</span><span class="modal-spec-val">${String(p.size||'—').replace(/(\s*cm)+\s*$/i,' cm')}</span></div>
 
     <div class="modal-spec"><span class="modal-spec-key">Durum</span><span class="modal-spec-val">${p.status||'Stokta'}</span></div>
     <div class="modal-spec"><span class="modal-spec-key">Satış</span><span class="modal-spec-val">🔥 ${p.sales||0}</span></div>
@@ -1365,9 +1366,9 @@ function updateCartCount() {
   if (el) el.textContent = count > 0 ? count : '0';
 }
 
-const BACK_PRICES = {"Düz":0,"Ütüyle Yapışan":20,"Cırt Cırt":30};
+const BACK_PRICES = {"Düz":0,"Ütüyle Yapışan":50,"Cırt Cırt":75};
 db.collection("settings").doc("backPrices").get().then(s=>{
-  if(s.exists){const d=s.data();BACK_PRICES["Düz"]=d.duz||0;BACK_PRICES["Ütüyle Yapışan"]=d.utu||20;BACK_PRICES["Cırt Cırt"]=d.cirt||30;
+  if(s.exists){const d=s.data();BACK_PRICES["Düz"]=d.duz||0;BACK_PRICES["Ütüyle Yapışan"]=d.utu||50;BACK_PRICES["Cırt Cırt"]=d.cirt||75;
   document.querySelectorAll(".back-opt").forEach(el=>{
     const v=el.dataset.val;el.querySelector("small").textContent="+"+(BACK_PRICES[v]||0)+"₺";});}});
 let selectedBack = "Düz";
@@ -1594,7 +1595,7 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMobi
           ${imgHtml}
           <div class="sri-info">
             <div class="sri-name">${nameHl}</div>
-            <div class="sri-meta">${p.size || ''}</div>
+            <div class="sri-meta">${String(p.size||'').replace(/(\s*cm)+\s*$/i,' cm')}</div>
           </div>
           ${stockBadge}
           <div class="sri-price">${p.price ? '₺'+p.price : ''}</div>

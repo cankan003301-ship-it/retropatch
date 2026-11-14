@@ -642,17 +642,21 @@
         .map(function (a) { return (a.title ? a.title + ': ' : '') + a.text; });
       if (typeof window.rpRenderMarquee === 'function') window.rpRenderMarquee();
 
-      var bars = all.filter(function (a) { var p = a.place || 'bar'; return (p === 'bar' || p === 'both') && dismissed[a.id] !== version(a); });
+      var popupOK = popupAllowed(), seen = readSS();
+      var pops = !popupOK ? [] : all.filter(function (x) {
+        return (x.place === 'popup' || x.place === 'both') && dismissed[x.id] !== version(x) &&
+               (x.freq === 'always' || seen.indexOf(x.id) < 0);
+      });
+      // Aynı duyuru hem üst bantta hem pencerede çıkmasın: pencere gösterilecekse bant tekrarını atla
+      var popKeys = {}; pops.forEach(function (x) { popKeys[x.id] = 1; popKeys[(x.title || '') + '|' + (x.text || '')] = 1; });
+      var bars = all.filter(function (a) {
+        var p = a.place || 'bar';
+        if (!((p === 'bar' || p === 'both') && dismissed[a.id] !== version(a))) return false;
+        return !(popKeys[a.id] || popKeys[(a.title || '') + '|' + (a.text || '')]);
+      });
       buildBar(bars);
 
-      if (popupAllowed()) {
-        var seen = readSS();
-        popupQueue = all.filter(function (x) {
-          return (x.place === 'popup' || x.place === 'both') && dismissed[x.id] !== version(x) &&
-                 (x.freq === 'always' || seen.indexOf(x.id) < 0);
-        });
-        if (popupQueue.length) setTimeout(nextPopup, 1200);
-      }
+      if (pops.length) { popupQueue = pops; setTimeout(nextPopup, 1200); }
     }).catch(function (e) { console.warn('Duyurular yüklenemedi:', e && e.message); });
   }
 
