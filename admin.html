@@ -1400,7 +1400,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
         <!-- Yeni slayt ekle formu -->
         <div style="border:1px solid var(--border);padding:20px;background:var(--bg3);">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">+ YENİ SLAYT EKLE</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;" id="slideFormTitle">+ YENİ SLAYT EKLE</div>
           <div class="fg">
             <label>Resim *</label>
             <div style="display:flex;gap:8px;align-items:center;">
@@ -1425,8 +1425,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <div class="fg" style="margin:0;"><label>2. Buton Linki</label><input type="text" id="slideBtn2Link" placeholder="ör: #siparis"></div>
           </div>
           <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn btn-accent" onclick="addSlide()"><svg class=ic data-n=save><use href=#i-save></use></svg> Slayt Ekle</button>
-            <button class="btn btn-outline" onclick="clearSlideForm()">Temizle</button>
+            <button class="btn btn-accent" id="slideSaveBtn" onclick="addSlide()"><svg class=ic data-n=save><use href=#i-save></use></svg> <span id="slideSaveTxt">Slayt Ekle</span></button>
+            <button class="btn btn-outline" onclick="clearSlideForm()">Temizle / Vazgeç</button>
           </div>
         </div>
       </div>
@@ -3037,6 +3037,7 @@ function renderSlides() {
       <div style="display:flex;gap:6px;flex-shrink:0;">
         ${i > 0 ? `<button class="btn btn-outline btn-sm" onclick="moveSlide('${s.id}', -1)"><svg class=ic data-n=arrow-u><use href=#i-arrow-u></use></svg></button>` : ''}
         ${i < allSlides.length-1 ? `<button class="btn btn-outline btn-sm" onclick="moveSlide('${s.id}', 1)"><svg class=ic data-n=arrow-d><use href=#i-arrow-d></use></svg></button>` : ''}
+        <button class="btn btn-accent btn-sm" onclick="editSlide('${s.id}')">Düzenle</button>
         <button class="btn btn-danger btn-sm" onclick="deleteSlide('${s.id}')">Sil</button>
       </div>
     </div>`).join('');
@@ -3052,6 +3053,17 @@ function addSlide() {
   const btn2Text = document.getElementById('slideBtn2Text').value.trim();
   const btn2Link = document.getElementById('slideBtn2Link').value.trim();
   if (!img || !title) { toast('Resim URL ve başlık zorunlu!', 'err'); return; }
+  if (editingSlideId) {
+    const id = editingSlideId;
+    db.collection('slides').doc(id).update({
+      image: img, bg: img, title,
+      desc: subtitle, subtitle, name: subtitle, tag,
+      btn1Text: btn1Text || 'Tüm Ürünler', btn1Link: btn1Link || 'urunler.html',
+      btn2Text: btn2Text || '', btn2Link: btn2Link || ''
+    }).then(() => { toast('Slayt güncellendi ✓', 'ok'); clearSlideForm(); })
+      .catch(e => toast('Güncellenemedi: ' + e.message, 'err'));
+    return;
+  }
   const maxOrder = allSlides.length ? Math.max(...allSlides.map(s => s.order || 0)) : 0;
   db.collection('slides').add({
     image: img, bg: img, title,
@@ -3066,7 +3078,26 @@ function addSlide() {
   }).catch(e => toast('Eklenemedi: ' + e.message, 'err'));
 }
 
+let editingSlideId = null;
+function editSlide(id) {
+  const s = allSlides.find(x => x.id === id); if (!s) return;
+  editingSlideId = id;
+  const set = (k, v) => { const el = document.getElementById(k); if (el) el.value = v || ''; };
+  set('slideImg', s.image || s.bg); set('slideTitle', s.title); set('slideSubtitle', s.subtitle || s.desc || s.name);
+  set('slideTag', s.tag); set('slideBtn1Text', s.btn1Text); set('slideBtn1Link', s.btn1Link);
+  set('slideBtn2Text', s.btn2Text); set('slideBtn2Link', s.btn2Link);
+  const img = s.image || s.bg || '';
+  const pv = document.getElementById('slideImgPreview'), wrap = document.getElementById('slideImgPreviewWrap');
+  if (pv && wrap && img) { pv.src = img; wrap.style.display = 'block'; }
+  document.getElementById('slideFormTitle').textContent = '✎ SLAYTI DÜZENLE';
+  document.getElementById('slideSaveTxt').textContent = 'Değişiklikleri Kaydet';
+  document.getElementById('slideFormTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function clearSlideForm() {
+  editingSlideId = null;
+  const ft = document.getElementById('slideFormTitle'); if (ft) ft.textContent = '+ YENİ SLAYT EKLE';
+  const st = document.getElementById('slideSaveTxt'); if (st) st.textContent = 'Slayt Ekle';
   ['slideImg','slideTitle','slideSubtitle','slideTag','slideBtn1Text','slideBtn1Link','slideBtn2Text','slideBtn2Link'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
