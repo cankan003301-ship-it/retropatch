@@ -870,9 +870,9 @@ function renderCart() {
             <div class="qty-btn" onclick="changeQty(${i},1)">+</div>
           </div>`}
           ${item.size?`<span class="item-size">${String(item.size).replace(/(\s*cm)+\s*$/i,' cm')}</span>`:''}
-          ${item.backType ? `<span style="display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 9px;border:1px solid rgba(200,169,110,.35);color:var(--accent);background:rgba(200,169,110,.08);">${
-            item.backType==='Ütüyle Yapışan' ? '🔥 ÜTÜ İLE YAPIŞTIRMALı' :
-            item.backType==='Cırt Cırt' ? '⚡ CIRT CIRT' :
+          ${(item.backType||item.back) ? `<span style="display:inline-flex;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 9px;border:1px solid rgba(200,169,110,.35);color:var(--accent);background:rgba(200,169,110,.08);">${
+            (item.backType||item.back)==='Ütüyle Yapışan' ? '🔥 ÜTÜ İLE YAPIŞTIRMALı' :
+            (item.backType||item.back)==='Cırt Cırt' ? '⚡ CIRT CIRT' :
             '◻ DÜZ'
           }</span>` : ''}
         </div>
@@ -945,13 +945,13 @@ function updateSummary() {
   const subtotal = physSub + digSub;
   const phys = hasPhys();
   const kapidaExtra = (phys && selectedPay==='kapida') ? KAPIDA_FEE : 0;
-  const freeLimit = window.FREE_CARGO_LIMIT || kargoSettings.limit || 500;
+  const freeLimit = window.FREE_CARGO_LIMIT || kargoSettings.limit || 1000;
   const cargoPrice = !phys ? 0 : ((freeLimit > 0 && physSub >= freeLimit) ? 0 : (CARGO_PRICES[selectedCargo]||49));
   const cargo = phys ? cargoPrice + kapidaExtra : 0;
   const disc = phys ? Math.min(discountAmount, physSub) : 0;
   const total = subtotal + cargo - disc;
   document.getElementById('sumSubtotal').textContent = '₺'+subtotal.toLocaleString('tr-TR');
-  document.getElementById('sumCargo').textContent = !phys ? 'Yok (dijital)' : (cargo === 0 ? '₺0 (Ücretsiz)' : '₺'+cargo);
+  document.getElementById('sumCargo').textContent = !phys ? (cart.length ? 'Yok (dijital)' : '—') : (cargo === 0 ? '₺0 (Ücretsiz)' : '₺'+cargo);
   document.getElementById('sumDiscount').textContent = '-₺'+disc;
   document.getElementById('sumTotal').textContent = '₺'+Math.max(0,total).toLocaleString('tr-TR');
   const fb = document.getElementById('freeShipBar');
@@ -1029,7 +1029,7 @@ function sendToWhatsApp() {
   cart.forEach(function(item) {
     msg += '• ' + item.name;
     if (item.digital) msg += ' (💾 Dijital dosya)';
-    if (item.backType) msg += ' (' + item.backType + ')';
+    if ((item.backType||item.back)) msg += ' (' + (item.backType||item.back) + ')';
     msg += ' x' + (item.qty||1) + ' — ₺' + ((item.price||0)*(item.qty||1)).toLocaleString('tr-TR') + '\n';
   });
   msg += '\n💰 *Toplam: ₺' + total.toLocaleString('tr-TR') + '*';
@@ -1230,7 +1230,7 @@ async function doCheckout() {
       userId: currentUser.uid,
       userName: currentUser.displayName||adName,
       userEmail: currentUser.email||'',
-      items: P.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty,image:i.image||'',cat:i.cat||''})),
+      items: P.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty,image:i.image||'',cat:i.cat||'',backType:(i.backType||i.back||''),size:i.size||''})),
       address: { name:adName, phone:adPhone, address:adAddress, district:adDistrict, city:adCity, zip:document.getElementById('adZip').value.trim() },
       cargo: { company: selectedCargo, companyName: CARGO_NAMES[selectedCargo], price: cargoPrice, trackingCode:'', status:'Hazırlanıyor' },
       payment: { method: selectedPay, status: selectedPay==='card' ? 'awaiting_card' : (selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery') },

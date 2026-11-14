@@ -490,7 +490,8 @@
 .ic{width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-.14em;flex-shrink:0;pointer-events:none}
 .ic[data-n=heart]{color:#e63946}.ic[data-n=fire]{color:#ff7a1a}.ic[data-n=star]{color:#f4c542}
 button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color:inherit}
-html{scroll-padding-top:84px}[id]{scroll-margin-top:84px}
+.cw-wait #cw-designs,.cw-wait #cw-backs,.cw-wait #cw-breakdown,.cw-wait #cw-unit,.cw-wait #cw-total{visibility:hidden}
+    html{scroll-padding-top:calc(96px + var(--rp-ann-h,0px))}[id]{scroll-margin-top:calc(96px + var(--rp-ann-h,0px))}
     </style>
 </head>
 <body>
@@ -924,7 +925,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <!-- ORDER -->
 <!-- HESAPLAYICI BÖLÜMÜ -->
-<div id="hesaplayici" style="background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:56px 40px 24px;">
+<div id="hesaplayici" class="cw-wait" style="background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:56px 40px 24px;">
   <div style="max-width:1280px;margin:0 auto;">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:16px;">
       <div>
@@ -1108,6 +1109,13 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     document.getElementById('cw-sizes').innerHTML    = d.sizes.map(s => chip(s.id, s.name+' <span style="font-size:10px;opacity:.6;">'+s.desc+'</span>', 'size', CW.sel.size===s.id)).join('');
     document.getElementById('cw-backs').innerHTML    = d.backs.map(b => chip(b.id, iconHtml(b.icon)+' '+esc(b.name)+(b.extra?` +₺${b.extra}`:''), 'back', CW.sel.back===b.id)).join('');
     document.getElementById('cw-designs').innerHTML  = d.designTypes.map(dg => chip(dg.id, iconHtml(dg.icon)+' '+esc(dg.name)+(dg.extra?` +₺${dg.extra}`:''), 'design', CW.sel.design===dg.id)).join('');
+    // Sipariş formundaki "Tasarım Durumu" hesaplayıcıdaki seçeneklerle aynı olsun
+    const ds = document.getElementById('designSelect');
+    if (ds) {
+      const keep = ds.value;
+      ds.innerHTML = d.designTypes.map(dg => '<option value="' + esc(dg.name) + '">' + esc(dg.name) + (dg.extra ? ' (+₺' + dg.extra + ')' : '') + '</option>').join('');
+      if ([...ds.options].some(o => o.value === keep)) ds.value = keep;
+    }
     cwCalc();
   }
 
@@ -1145,7 +1153,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     setSel(typeSel, o => o.value === map[CW.sel.product]);
     setSel(document.getElementById('orderSize'), o => o.dataset.id === CW.sel.size);
     if (back) { setSel(document.getElementById('backSelect'), o => o.value === back.name); try { updateOrderPrice(document.getElementById('backSelect').value); } catch(e){} }
-    if (design) setSel(document.getElementById('designSelect'), o => design.id==='yok' ? /var/i.test(o.value) : (design.id==='basit' ? /Basit/.test(o.value) : /Karmaşık/.test(o.value)));
+    if (design) setSel(document.getElementById('designSelect'), o => o.value === design.name);
     const q = document.getElementById('cw-qty'), qi = f.querySelector('input[type=number]'); if (q && qi) qi.value = q.value;
     try { pvUpdate(); } catch(e){}
     return true;
@@ -1221,7 +1229,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       window._cwBackPrices = m;
       CW.data.backs.forEach(x => { if (m[x.id] != null) x.extra = m[x.id]; });
       try { render(); } catch(e) {}
-    }).catch(()=>{});
+    }).catch(()=>{}).then(() => window.cwDone());
     db.collection('settings').doc('calculator').get().then(doc => {
       if (!doc.exists) return;
       const fd = doc.data();
@@ -1235,12 +1243,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       if (fd.discounts && fd.discounts.length) CW.data.discounts = fd.discounts;
       if (fd.waNumber) CW.data.waNumber = fd.waNumber;
       render();
-    }).catch(() => {});
+    }).catch(() => {}).then(() => window.cwDone());
   }
 
+  let _cwN = 0;
+  window.cwDone = function() { if (++_cwN >= 2) { const h = document.getElementById('hesaplayici'); if (h) h.classList.remove('cw-wait'); } };
   document.addEventListener('DOMContentLoaded', () => {
     render();
     loadFromFirestore();
+    setTimeout(() => { const h = document.getElementById('hesaplayici'); if (h) h.classList.remove('cw-wait'); }, 4000);
   });
 })();
 </script>
@@ -1312,10 +1323,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <h3>BİZE ULAŞIN</h3>
       <p>Sorularınız veya hızlı sipariş için aşağıdan ulaşabilirsiniz.</p>
       <div class="contact-links">
-        <a href="https://wa.me/905375295290" class="contact-link" target="_blank" id="ctaWA"><div class="contact-link-icon"><svg class=ic data-n=phone-m><use href=#i-phone-m></use></svg></div><span id="ctaWAText">WhatsApp: +90 5XX XXX XX XX</span></a>
+        <a href="https://wa.me/905375295290" class="contact-link" target="_blank" id="ctaWA"><div class="contact-link-icon"><svg class=ic data-n=phone-m><use href=#i-phone-m></use></svg></div><span id="ctaWAText">WhatsApp</span></a>
         <a href="mailto:retropatchyama@gmail.com" class="contact-link" id="ctaEmail"><div class="contact-link-icon"><svg class=ic data-n=mail><use href=#i-mail></use></svg></div><span id="ctaEmailText">retropatchyama@gmail.com</span></a>
         <a href="https://dolap.com/profil/retropatch" class="contact-link" target="_blank" id="ctaDolap"><div class="contact-link-icon"><svg class=ic data-n=bag><use href=#i-bag></use></svg></div><span id="ctaDolapText">Dolap: @retropatch</span></a>
-        <a href="https://instagram.com/retropatch" class="contact-link" target="_blank" id="ctaIG"><div class="contact-link-icon"><svg class=ic data-n=camera><use href=#i-camera></use></svg></div><span id="ctaIGText">Instagram: @retropatch</span></a>
+        <a href="https://instagram.com/retropatch" class="contact-link" target="_blank" id="ctaIG"><div class="contact-link-icon"><svg class=ic data-n=camera><use href=#i-camera></use></svg></div><span id="ctaIGText">Instagram</span></a>
       </div>
     </div>
     <div class="contact-form">

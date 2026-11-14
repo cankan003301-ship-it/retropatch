@@ -2198,7 +2198,7 @@ function renderOrders(src = 'cart', filter = 'all') {
     tbody.innerHTML = list.map(o => {
       const musteri = o.address?.name || o.userName || '—';
       const telefon = o.address?.phone || '—';
-      const icerik = (o.items||[]).map(i => i.name).join(', ') || '—';
+      const icerik = (o.items||[]).map(i => i.name + (i.backType ? ' (' + i.backType + ')' : '')).join(', ') || '—';
       const tutar = o.total ? '₺'+o.total : '—';
       return `<tr>
         <td style="font-family:'Bebas Neue',cursive;font-size:15px;color:var(--accent);">${o.orderCode||('#'+o.id.slice(-5).toUpperCase())}</td>
@@ -2267,7 +2267,7 @@ function showOrderDetail(id) {
   const telefon = o.address?.phone || o.phone || '—';
   const email = o.userEmail || o.email || '—';
   const adres = o.address ? [o.address.address, o.address.district, o.address.city].filter(Boolean).join(', ') : '—';
-  const icerik = o.items ? o.items.map(i => `${i.name} x${i.qty}`).join('<br>') : (o.product || o.notes || '—');
+  const icerik = o.items ? o.items.map(i => `${i.name}${(i.backType||i.size)?' ('+[i.size,i.backType].filter(Boolean).join(' · ')+')':''} x${i.qty}`).join('<br>') : (o.product || o.notes || '—');
   const tutar = o.total ? '₺'+o.total : (o.price ? '₺'+o.price : '—');
   document.getElementById('ordDetail').innerHTML = `
     <div style="display:flex;flex-direction:column;gap:12px;">

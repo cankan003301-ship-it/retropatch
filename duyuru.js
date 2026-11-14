@@ -667,3 +667,23 @@
     if (++tries < 55) setTimeout(wait, 150);
   })();
 })();
+
+/* ───────── MOBİL: yüzen butonlar (sepet rozeti, WhatsApp, başa dön) sipariş butonunun/toplamın üstüne binmesin ───────── */
+(function () {
+  if (!('IntersectionObserver' in window)) return;
+  var st = document.createElement('style');
+  st.textContent = '@media(max-width:768px){#rpFabGroup,#rpCartFloat{transition:opacity .2s,transform .2s}' +
+    'body.rp-fab-off #rpFabGroup,body.rp-fab-off #rpCartFloat{opacity:0!important;pointer-events:none!important;transform:translateY(16px)}}';
+  document.head.appendChild(st);
+  function init() {
+    var targets = document.querySelectorAll('#siparis form button[type=submit], #siparis form .btn-submit, .order-summary, .checkout-btn');
+    if (!targets.length) return;
+    var vis = new Set();
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { e.isIntersecting ? vis.add(e.target) : vis.delete(e.target); });
+      document.body.classList.toggle('rp-fab-off', vis.size > 0);
+    });
+    targets.forEach(function (t) { io.observe(t); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
