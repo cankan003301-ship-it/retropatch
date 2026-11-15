@@ -1372,8 +1372,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 document.addEventListener('DOMContentLoaded', function(){
   if (typeof db === 'undefined') return;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  db.collection('digital_reviews').where('approved','==',true).get().then(rs => {
-    const list = []; rs.forEach(r => { const d = r.data(); if (d && d.text && d.rating) list.push(d); });
+  const list = [];
+  const show = () => {
     if (!list.length) return;
     list.sort((a,b) => ((b.createdAt && b.createdAt.seconds) || 0) - ((a.createdAt && a.createdAt.seconds) || 0));
     const avg = list.reduce((t,x) => t + (Number(x.rating) || 0), 0) / list.length;
@@ -1381,10 +1381,21 @@ document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('myGrid').innerHTML = list.slice(0, 6).map(x => {
       const n = Math.max(1, Math.min(5, Math.round(Number(x.rating) || 5)));
       const nm = String(x.userName || 'Müşteri').trim().split(/\s+/).map((w,i) => i === 0 ? w : w.charAt(0) + '.').join(' ');
-      return '<div class="my-card"><div class="st">' + '★'.repeat(n) + '<span style="opacity:.25">' + '★'.repeat(5 - n) + '</span></div><p>' + esc(String(x.text).slice(0, 220)) + '</p><div class="who">' + esc(nm) + (x.fileTitle ? ' · ' + esc(x.fileTitle) : '') + '</div></div>';
+      return '<div class="my-card"><div class="st">' + '★'.repeat(n) + '<span style="opacity:.25">' + '★'.repeat(5 - n) + '</span></div><p>' + esc(String(x.text).slice(0, 220)) + '</p><div class="who">' + esc(nm) + (x.prodName ? ' · ' + esc(x.prodName) : '') + '</div></div>';
     }).join('');
     document.getElementById('musteriYorumlari').style.display = '';
+  };
+  const add = (d, name) => { if (d && d.text && d.rating) list.push(Object.assign({}, d, { prodName: name || d.fileTitle || '' })); };
+  const pDig = db.collection('digital_reviews').where('approved','==',true).get()
+    .then(rs => rs.forEach(r => add(r.data()))).catch(() => {});
+  // Ürün yorumları: products/{id}/reviews alt koleksiyonu (yalnızca onaylılar)
+  const pProd = db.collection('products').get().then(ps => {
+    const ps2 = []; ps.forEach(p => { const d = p.data() || {}; if (d.active !== false && d.status !== 'draft') ps2.push({ id: p.id, name: d.name || '' }); });
+    return Promise.all(ps2.slice(0, 40).map(p =>
+      db.collection('products').doc(p.id).collection('reviews').where('approved','==',true).limit(3).get()
+        .then(rs => rs.forEach(r => add(r.data(), p.name))).catch(() => {})));
   }).catch(() => {});
+  Promise.all([pDig, pProd]).then(show);
 });
 </script>
 <div class="rp-gallery-wrap" id="rpGallerySection">
