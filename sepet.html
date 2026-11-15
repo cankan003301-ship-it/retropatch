@@ -564,6 +564,7 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
       <!-- ORDER SUMMARY -->
       <div>
         <!-- CART ITEMS — sipariş özetinin üstünde -->
+        <div id="rpSuggest" style="display:none;margin:0 0 14px;"></div>
         <div class="cart-items" id="cartItems" style="margin-bottom:2px;">
           <div class="cart-empty">
             <div class="cart-empty-icon"><svg class=ic data-n=cart><use href=#i-cart></use></svg></div>
@@ -2277,5 +2278,42 @@ function rpFaqToggle(el) {
   </div>
 </div>
 <style>#legalBody h2{font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:19px;color:var(--accent,#c8a96e);margin:22px 0 8px}#legalBody h2[style]{font-size:15px!important;color:#e8e8e8;margin:16px 0 6px}#legalBody p,#legalBody li{margin-bottom:7px}#legalBody ul,#legalBody ol{padding-left:20px}#legalBody table{width:100%;border-collapse:collapse;margin:8px 0 14px}#legalBody td{border:1px solid #2a2a2a;padding:7px 10px;font-size:13px;vertical-align:top}#legalBody td:first-child{width:32%;color:#999}#legalBody .box{border:1px solid #2a2a2a;padding:10px 12px;margin:10px 0;background:#161616}#legalBody hr{border:0;border-top:2px solid var(--accent,#c8a96e);margin:28px 0 6px}</style>
+
+<script>
+/* Sepette "Bunu da ekle" önerileri: sepette olmayan, en çok satan 3 ürün */
+(function(){
+  var PRODS = null, loading = false;
+  var esc = function(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); };
+  function draw(){
+    var box = document.getElementById('rpSuggest'); if (!box) return;
+    if (!PRODS || typeof cart === 'undefined' || !cart.length) { box.style.display='none'; return; }
+    var inCart = {}; cart.forEach(function(c){ inCart[c.id]=1; });
+    var list = PRODS.filter(function(p){ return !inCart[p.id]; }).slice(0,3);
+    if (!list.length) { box.style.display='none'; return; }
+    box.innerHTML = '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Bunu da ekle</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;">' +
+      list.map(function(p){ return '<div style="background:var(--bg2);border:1px solid var(--border);padding:8px;display:flex;gap:8px;align-items:center;">' +
+        (p.image && /^https?:/.test(p.image) ? '<img src="'+esc(p.image)+'" alt="" style="width:44px;height:44px;object-fit:cover;flex-shrink:0;">' : '') +
+        '<div style="min-width:0;flex:1;"><div style="font-size:12px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(p.name)+'</div><div style="font-size:12px;color:var(--accent);">₺'+esc(p.price)+'</div></div>' +
+        '<button type="button" data-sid="'+esc(p.id)+'" style="background:var(--accent);color:#000;border:none;width:28px;height:28px;font-size:18px;font-weight:700;cursor:pointer;flex-shrink:0;" aria-label="Sepete ekle">+</button></div>'; }).join('') + '</div>';
+    box.style.display = '';
+    box.querySelectorAll('button[data-sid]').forEach(function(b){ b.onclick = function(){
+      var p = PRODS.find(function(x){ return x.id === b.getAttribute('data-sid'); }); if (!p) return;
+      cart.push({id:p.id, name:p.name, price:parseFloat(p.price)||0, basePrice:parseFloat(p.price)||0, backType:'Düz', back:'Düz', backExtra:0, image:p.image||'', cat:p.cat||'', size:p.size||'', qty:1});
+      saveCart();
+    }; });
+  }
+  function load(){
+    if (PRODS || loading || typeof db === 'undefined') return; loading = true;
+    db.collection('products').get().then(function(snap){
+      var a = []; snap.forEach(function(d){ var p = d.data(); p.id = d.id; if (p.active !== false && (p.status||'Stokta') === 'Stokta' && parseFloat(p.price) > 0) a.push(p); });
+      a.sort(function(x,y){ return (y.sales||0) - (x.sales||0); });
+      PRODS = a; draw();
+    }).catch(function(){});
+  }
+  var _rc = renderCart;
+  renderCart = function(){ _rc.apply(this, arguments); try { load(); draw(); } catch(e){} };
+  try { load(); draw(); } catch(e){}
+})();
+</script>
 </body>
 </html>

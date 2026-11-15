@@ -446,6 +446,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="page" id="page-orders">
       <div class="section-hdr">
         <div class="section-ttl">SİPARİŞLER</div>
+        <button class="btn btn-outline btn-sm" onclick="exportOrdersCSV()" style="margin-left:auto;margin-right:8px;">⬇ Excel (CSV)</button>
         <select onchange="renderOrders(document.querySelector('.ord-tab.active')?.dataset.src||'cart', this.value)" id="orderFilter" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
           <option value="all">Tüm Durumlar</option>
           <option value="yeni">Yeni</option>
@@ -1254,6 +1255,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="page" id="page-members">
       <div class="section-hdr">
         <div class="section-ttl">ÜYELER</div>
+        <button class="btn btn-outline btn-sm" onclick="exportMembersCSV()" style="margin-left:auto;margin-right:8px;">⬇ Excel (CSV)</button>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--muted2);" id="memberCount">0 üye</div>
       </div>
       <div class="tbl-wrap">
@@ -1741,10 +1743,31 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <button class="btn btn-accent" onclick="saveSettings()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
         <div class="settings-card">
+          <h4>⏳ KAMPANYA GERİ SAYIMI</h4>
+          <div class="fg"><label style="display:flex;gap:8px;align-items:center;"><input type="checkbox" id="cmpActive" style="width:auto;"> Anasayfada göster</label></div>
+          <div class="fg"><label>Başlık</label><input type="text" id="cmpTitle" placeholder="Yılbaşı İndirimi: tüm yamalarda %10"></div>
+          <div class="fg"><label>Bitiş (tarih ve saat)</label><input type="datetime-local" id="cmpEnds"></div>
+          <div class="fg"><label>Buton yazısı</label><input type="text" id="cmpBtn" placeholder="Hemen Sipariş Ver"></div>
+          <div class="fg"><label>Buton linki</label><input type="text" id="cmpLink" placeholder="#siparis"></div>
+          <button class="btn btn-accent" onclick="saveCampaign()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
+          <div style="font-size:11px;color:var(--muted);margin-top:8px;">Süre bitince bant kendiliğinden kalkar. İndirimi kupon veya fiyatlarla ayrıca sen tanımlarsın.</div>
+        </div>
+        <div class="settings-card">
+          <h4>🟢 ÇALIŞMA SAATLERİ</h4>
+          <div class="fg"><label style="display:flex;gap:8px;align-items:center;"><input type="checkbox" id="whActive" style="width:auto;"> Çevrimiçi göstergesini göster</label></div>
+          <div class="fg"><label>Açılış</label><input type="time" id="whOpen" value="09:00"></div>
+          <div class="fg"><label>Kapanış</label><input type="time" id="whClose" value="19:00"></div>
+          <div class="fg"><label>Çalışma günleri</label>
+            <div id="whDays" style="display:flex;gap:6px;flex-wrap:wrap;font-size:12px;">
+              <label><input type="checkbox" value="1" style="width:auto;"> Pzt</label><label><input type="checkbox" value="2" style="width:auto;"> Sal</label><label><input type="checkbox" value="3" style="width:auto;"> Çar</label><label><input type="checkbox" value="4" style="width:auto;"> Per</label><label><input type="checkbox" value="5" style="width:auto;"> Cum</label><label><input type="checkbox" value="6" style="width:auto;"> Cmt</label><label><input type="checkbox" value="0" style="width:auto;"> Paz</label>
+            </div></div>
+          <button class="btn btn-accent" onclick="saveWorkHours()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
+        </div>
+        <div class="settings-card">
           <h4><svg class=ic data-n=spool><use href=#i-spool></use></svg> ARKA YÜZEY EK FİYATLARI</h4>
           <div class="fg"><label>Düz (₺)</label><input type="number" id="backPriceDuz" placeholder="0"></div>
-          <div class="fg"><label>Ütüyle Yapışan (₺)</label><input type="number" id="backPriceUtu" placeholder="20"></div>
-          <div class="fg"><label>Cırt Cırt (₺)</label><input type="number" id="backPriceCirt" placeholder="30"></div>
+          <div class="fg"><label>Ütüyle Yapışan (₺)</label><input type="number" id="backPriceUtu" placeholder="50"></div>
+          <div class="fg"><label>Cırt Cırt (₺)</label><input type="number" id="backPriceCirt" placeholder="75"></div>
           <button class="btn btn-accent" onclick="saveBackPrices()"><svg class=ic data-n=save><use href=#i-save></use></svg> KAYDET</button>
         </div>
 
@@ -2291,8 +2314,98 @@ function showOrderDetail(id) {
     <div style="margin-top:20px;display:flex;gap:8px;">
       <a href="https://wa.me/${telefon.replace(/\D/g,'')}" target="_blank" class="btn btn-accent" style="text-decoration:none;flex:1;justify-content:center;"><svg class=ic data-n=phone-m><use href=#i-phone-m></use></svg> WhatsApp</a>
       <a href="mailto:${email}" class="btn btn-outline" style="text-decoration:none;flex:1;justify-content:center;"><svg class=ic data-n=mail><use href=#i-mail></use></svg> Mail</a>
-    </div>`;
+    </div>
+    <div style="margin-top:8px;"><button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="printOrder('${o.id}')">🖨 Üretim Kağıdı</button></div>`;
   openModal('ordModal');
+}
+
+
+// ============ KAMPANYA GERİ SAYIMI & ÇALIŞMA SAATLERİ ============
+function saveCampaign() {
+  const ends = document.getElementById('cmpEnds').value;
+  const d = {
+    active: document.getElementById('cmpActive').checked,
+    title: document.getElementById('cmpTitle').value.trim(),
+    endsAt: ends ? new Date(ends).getTime() : 0,
+    btnText: document.getElementById('cmpBtn').value.trim(),
+    btnLink: document.getElementById('cmpLink').value.trim()
+  };
+  if (d.active && (!d.title || !d.endsAt)) { toast('Başlık ve bitiş zamanı gerekli', 'err'); return; }
+  db.collection('settings').doc('campaign').set(d).then(() => toast('Kampanya kaydedildi ✓', 'ok')).catch(e => toast('Kaydedilemedi: ' + e.message, 'err'));
+}
+function loadCampaign() {
+  db.collection('settings').doc('campaign').get().then(s => {
+    if (!s.exists) return; const d = s.data();
+    document.getElementById('cmpActive').checked = !!d.active;
+    document.getElementById('cmpTitle').value = d.title || '';
+    document.getElementById('cmpBtn').value = d.btnText || '';
+    document.getElementById('cmpLink').value = d.btnLink || '';
+    if (d.endsAt) { const x = new Date(d.endsAt), p = n => String(n).padStart(2, '0'); document.getElementById('cmpEnds').value = x.getFullYear() + '-' + p(x.getMonth() + 1) + '-' + p(x.getDate()) + 'T' + p(x.getHours()) + ':' + p(x.getMinutes()); }
+  }).catch(() => {});
+}
+function saveWorkHours() {
+  const days = [...document.querySelectorAll('#whDays input:checked')].map(i => +i.value);
+  db.collection('settings').doc('workHours').set({
+    active: document.getElementById('whActive').checked,
+    open: document.getElementById('whOpen').value || '09:00',
+    close: document.getElementById('whClose').value || '19:00',
+    days
+  }).then(() => toast('Çalışma saatleri kaydedildi ✓', 'ok')).catch(e => toast('Kaydedilemedi: ' + e.message, 'err'));
+}
+function loadWorkHours() {
+  db.collection('settings').doc('workHours').get().then(s => {
+    const d = s.exists ? s.data() : { active: false, open: '09:00', close: '19:00', days: [1,2,3,4,5,6] };
+    document.getElementById('whActive').checked = !!d.active;
+    document.getElementById('whOpen').value = d.open || '09:00';
+    document.getElementById('whClose').value = d.close || '19:00';
+    document.querySelectorAll('#whDays input').forEach(i => { i.checked = (d.days || []).includes(+i.value); });
+  }).catch(() => {});
+}
+
+// ============ ÜRETİM KAĞIDI (yazdır) ============
+function printOrder(id) {
+  const o = allOrders.find(x => x.id === id); if (!o) return;
+  const e = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const safeUrl = u => /^https?:\/\//i.test(u || '') ? e(u) : '';
+  const ad = o.address?.name || o.name || o.userName || '—', tel = o.address?.phone || o.phone || '—';
+  const adres = o.address ? [o.address.address, o.address.district, o.address.city].filter(Boolean).join(', ') : '—';
+  const items = (o.items || []).map(i => `<tr><td style="width:90px">${safeUrl(i.image) ? `<img src="${safeUrl(i.image)}" style="width:80px;height:80px;object-fit:contain;border:1px solid #ccc">` : ''}</td><td><b>${e(i.name)}</b><br>${e(i.size || '')} ${i.backType ? '· Arka: ' + e(i.backType) : ''}</td><td style="text-align:center;font-size:20px"><b>${e(i.qty)}</b> adet</td></tr>`).join('');
+  const single = !o.items ? `<tr><td colspan="3"><b>${e(o.type || o.product || 'Nakış Yama')}</b><br>Boyut: ${e(o.size || '—')} · Arka yüzey: ${e(o.back || '—')} · Tasarım: ${e(o.designType || '—')} · Adet: <b>${e(o.qty || 1)}</b></td></tr>` : '';
+  const w = window.open('', '_blank'); if (!w) { toast('Açılır pencere engellendi, izin verin', 'err'); return; }
+  w.document.write(`<!doctype html><meta charset="utf-8"><title>Üretim Kağıdı ${e(o.orderCode || '')}</title>
+  <style>body{font-family:Arial,sans-serif;margin:24px;color:#000}h1{font-size:22px;margin:0 0 4px}table{width:100%;border-collapse:collapse;margin:12px 0}td{border-bottom:1px solid #ccc;padding:8px;vertical-align:middle}.k{color:#555;width:130px}.box{border:2px solid #000;padding:10px;min-height:60px}@media print{button{display:none}}</style>
+  <button onclick="print()" style="padding:8px 16px;margin-bottom:12px">Yazdır</button>
+  <h1>ÜRETİM KAĞIDI · ${e(o.orderCode || o.id)}</h1><div>${e(formatDate(o.createdAt))}</div>
+  <table><tr><td class="k">Müşteri</td><td>${e(ad)}</td></tr><tr><td class="k">Telefon</td><td>${e(tel)}</td></tr><tr><td class="k">Adres</td><td>${e(adres)}</td></tr><tr><td class="k">Kargo</td><td>${e(o.cargo?.companyName || '—')}</td></tr></table>
+  <h3>ÜRETİLECEKLER</h3><table>${items}${single}</table>
+  ${safeUrl(o.designFileUrl) ? `<div>Tasarım dosyası: <a href="${safeUrl(o.designFileUrl)}">${safeUrl(o.designFileUrl)}</a></div>` : ''}
+  <h3>NOTLAR</h3><div class="box">${e(o.note || o.notes || '')}</div>
+  <p style="margin-top:20px">Üretim: ☐ Başladı &nbsp; ☐ Bitti &nbsp; ☐ Paketlendi &nbsp; ☐ Kargolandı</p>`);
+  w.document.close();
+}
+
+// ============ EXCEL (CSV) DIŞA AKTARMA ============
+function downloadCSV(name, head, rows) {
+  const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""').replace(/^([=+\-@])/, "'$1") + '"';
+  const csv = '﻿' + [head, ...rows].map(r => r.map(q).join(';')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = name + '-' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function exportOrdersCSV() {
+  const dgs = (typeof dgOrders !== 'undefined' ? dgOrders : []);
+  const rows = [
+    ...allOrders.map(o => ['Fiziksel', o.orderCode || o.id, formatDate(o.createdAt), o.address?.name || o.name || o.userName || '', o.address?.phone || o.phone || '', o.userEmail || o.email || '',
+      o.items ? o.items.map(i => i.name + (i.backType ? ' (' + i.backType + ')' : '') + ' x' + i.qty).join(' | ') : (o.product || o.type || ''), o.total || o.price || '', o.status || 'yeni', o.cargo?.companyName || '']),
+    ...dgs.map(o => ['Dijital', o.orderCode || o.id, formatDate(o.createdAt), o.userName || o.name || '', '', o.userEmail || o.email || '', (o.items || []).map(i => i.title || i.name).join(' | '), o.total || '', o.status || '', ''])
+  ];
+  if (!rows.length) { toast('Aktarılacak sipariş yok', 'err'); return; }
+  downloadCSV('retropatch-siparisler', ['Tür', 'Sipariş No', 'Tarih', 'Müşteri', 'Telefon', 'E-posta', 'Ürünler', 'Tutar (₺)', 'Durum', 'Kargo'], rows);
+}
+function exportMembersCSV() {
+  if (!allMembers.length) { toast('Üye listesi boş (Üyeler sayfasını açın)', 'err'); return; }
+  downloadCSV('retropatch-uyeler', ['Ad Soyad', 'E-posta', 'Telefon', 'Kayıt Tarihi'], allMembers.map(u => [u.name || u.displayName || '', u.email || '', u.phone || '', formatDate(u.createdAt)]));
 }
 
 function row(k, v) {
@@ -3313,8 +3426,8 @@ function loadBackPrices() {
     if (!s.exists) return;
     const d = s.data();
     document.getElementById("backPriceDuz").value  = d.duz  ?? 0;
-    document.getElementById("backPriceUtu").value  = d.utu  ?? 20;
-    document.getElementById("backPriceCirt").value = d.cirt ?? 30;
+    document.getElementById("backPriceUtu").value  = d.utu  ?? 50;
+    document.getElementById("backPriceCirt").value = d.cirt ?? 75;
   });
 }
 
@@ -3528,7 +3641,7 @@ function showPage(name) {
   if (name === 'media') { renderSlides(); loadGallery(); }
   if (name === 'stats') { renderStatsPage(); renderStats(); syncStatsFromData(true); }
   if (name === 'reviews') loadAllReviews();
-  if (name === 'settings') { loadSiteSettings(); loadBackPrices(); }
+  if (name === 'settings') { loadSiteSettings(); loadBackPrices(); loadCampaign(); loadWorkHours(); }
   if (name === 'payments') { loadSiteSettings(); loadPayments(); }
   if (name === 'reports') { renderReports(); loadEsnaf(); }
   if (name === 'categories') loadCategories();

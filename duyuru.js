@@ -427,7 +427,7 @@
     function readCart() { try { return JSON.parse(localStorage.getItem('retropatch_cart') || '[]'); } catch (e) { return []; } }
     function writeCart(c) { localStorage.setItem('retropatch_cart', JSON.stringify(c)); try { if (typeof updateCartCount === 'function') updateCartCount(); } catch (e) {} }
     function prices() {
-      var p = { 'Düz': 0, 'Ütüyle Yapışan': 20, 'Cırt Cırt': 30 };
+      var p = { 'Düz': 0, 'Ütüyle Yapışan': 50, 'Cırt Cırt': 75 };
       try { if (typeof BACK_PRICES_IDX !== 'undefined') p = BACK_PRICES_IDX; else if (typeof BACK_PRICES !== 'undefined') p = BACK_PRICES; } catch (e) {}
       return p;
     }

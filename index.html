@@ -567,6 +567,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 
 <!-- HERO SLIDER -->
+<div id="cmpBar" style="display:none;background:linear-gradient(90deg,#8a6a2a,#c8a96e,#8a6a2a);color:#000;padding:10px 16px;text-align:center;font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;">
+  <span id="cmpTitleTxt" style="font-weight:700;font-size:15px;text-transform:uppercase;"></span>
+  <span id="cmpClock" style="display:inline-block;margin:0 12px;font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;"></span>
+  <a id="cmpBtnA" href="#siparis" style="display:inline-block;background:#000;color:#c8a96e;padding:5px 14px;text-decoration:none;font-weight:700;font-size:13px;"></a>
+</div>
 <div class="hero">
   <div class="slides" id="slides">
     <div class="slide active">
@@ -1790,6 +1795,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="rp-faq-label">Merak Edilenler</div>
   <h2 class="rp-faq-title">SIK SORULAN<br>SORULAR</h2>
   <p class="rp-faq-sub">Siparişleriniz, üretim süreçlerimiz ve kargo hakkında merak ettiğiniz her şey.</p>
+  <div style="max-width:760px;margin:0 auto 18px;"><input type="search" id="faqSearch" placeholder="Soru ara: kargo, iade, dosya formatı…" aria-label="SSS'de ara" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:12px 16px;font-size:15px;font-family:'Barlow',sans-serif;outline:none;"><div id="faqNone" style="display:none;color:var(--muted);font-size:13px;margin-top:8px;">Sonuç bulunamadı. Bize WhatsApp'tan yazabilirsiniz.</div></div>
   <div class="rp-faq-list">
 
     <div class="rp-faq-item">
@@ -3309,5 +3315,60 @@ function rpFaqToggle(el) {
 })();
 </script>
 <script src="duyuru.js"></script>
+
+<script>
+/* Kampanya geri sayımı, çalışma saati göstergesi, SSS arama */
+document.addEventListener('DOMContentLoaded', function () {
+  // SSS arama
+  var fs = document.getElementById('faqSearch');
+  if (fs) fs.addEventListener('input', function () {
+    var q = fs.value.trim().toLocaleLowerCase('tr'), n = 0;
+    document.querySelectorAll('.rp-faq-item').forEach(function (it) {
+      var ok = !q || it.textContent.toLocaleLowerCase('tr').indexOf(q) > -1;
+      it.style.display = ok ? '' : 'none'; if (ok) n++;
+    });
+    document.getElementById('faqNone').style.display = (q && !n) ? '' : 'none';
+  });
+  if (typeof db === 'undefined') return;
+  // Kampanya geri sayımı
+  db.collection('settings').doc('campaign').get().then(function (s) {
+    if (!s.exists) return; var d = s.data();
+    if (!d.active || !d.endsAt || d.endsAt <= Date.now()) return;
+    var bar = document.getElementById('cmpBar'), clock = document.getElementById('cmpClock');
+    document.getElementById('cmpTitleTxt').textContent = d.title || '';
+    var a = document.getElementById('cmpBtnA');
+    if (d.btnText) { a.textContent = d.btnText; var l = String(d.btnLink || '#siparis'); a.href = /^(https?:\/\/|#|[a-z0-9_\-]+\.html)/i.test(l) ? l : '#siparis'; } else a.style.display = 'none';
+    var t;
+    function tick() {
+      var ms = d.endsAt - Date.now();
+      if (ms <= 0) { bar.style.display = 'none'; clearInterval(t); return; }
+      var dd = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5), m = Math.floor(ms % 36e5 / 6e4), sc = Math.floor(ms % 6e4 / 1e3), p = function (n) { return String(n).padStart(2, '0'); };
+      clock.textContent = (dd ? dd + 'g ' : '') + p(h) + ':' + p(m) + ':' + p(sc);
+    }
+    tick(); t = setInterval(tick, 1000); bar.style.display = '';
+  }).catch(function () {});
+  // Çalışma saati göstergesi
+  db.collection('settings').doc('workHours').get().then(function (s) {
+    if (!s.exists) return; var d = s.data(); if (!d.active) return;
+    var days = d.days || [], op = d.open || '09:00', cl = d.close || '19:00';
+    var parts = {}; new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Istanbul', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date()).forEach(function (x) { parts[x.type] = x.value; });
+    var wd = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }[parts.weekday], now = (+parts.hour % 24) * 60 + (+parts.minute);
+    var mins = function (t) { var x = t.split(':'); return +x[0] * 60 + +x[1]; };
+    var open = days.indexOf(wd) > -1 && now >= mins(op) && now < mins(cl), txt;
+    var names = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+    if (open) txt = '🟢 Şu an çevrimiçiyiz · Mesai ' + op + '–' + cl;
+    else {
+      var nx = null;
+      for (var i = (days.indexOf(wd) > -1 && now < mins(op)) ? 0 : 1; i <= 7; i++) { if (days.indexOf((wd + i) % 7) > -1) { nx = i; break; } }
+      txt = '🔴 Şu an kapalıyız' + (nx == null ? '' : ' · ' + (nx === 0 ? 'Bugün' : nx === 1 ? 'Yarın' : names[(wd + nx) % 7]) + ' ' + op + ' itibarıyla yanıtlarız');
+    }
+    var el = document.getElementById('ctaWA'); if (!el) return;
+    var pill = document.createElement('div');
+    pill.style.cssText = 'font-size:12px;letter-spacing:1px;color:var(--muted2);margin:0 0 8px;'; pill.textContent = txt;
+    el.parentNode.insertBefore(pill, el);
+    var fab = document.getElementById('rpWaBtn'); if (fab) fab.title = txt.replace(/^\S+\s/, '');
+  }).catch(function () {});
+});
+</script>
 </body>
 </html>

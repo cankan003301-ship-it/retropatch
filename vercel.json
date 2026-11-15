@@ -1,6 +1,16 @@
 {
   "crons": [
-    { "path": "/api/cron-cleanup", "schedule": "0 3 * * *" },
-    { "path": "/api/cron-cart-reminder", "schedule": "0 7 * * *" }
+    {
+      "path": "/api/cron-cleanup",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron-cart-reminder",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron-weekly-summary",
+      "schedule": "0 6 * * 1"
+    }
   ]
 }

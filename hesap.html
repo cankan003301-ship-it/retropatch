@@ -601,6 +601,34 @@ function loadOrders() {
     });
 }
 
+
+// ── Aynı siparişi tekrar sepete ekle (güncel ürün fiyatıyla)
+async function rpReorder(orderId, btn) {
+  const o = allOrders.find(x => x.id === orderId); if (!o) return;
+  const old = btn.textContent; btn.disabled = true; btn.textContent = 'Ekleniyor…';
+  try {
+    let bp = { 'Düz': 0, 'Ütüyle Yapışan': 50, 'Cırt Cırt': 75 };
+    try { const b = await db.collection('settings').doc('backPrices').get(); if (b.exists) { const d = b.data(); bp = { 'Düz': d.duz || 0, 'Ütüyle Yapışan': d.utu ?? 50, 'Cırt Cırt': d.cirt ?? 75 }; } } catch (e) {}
+    const cart = JSON.parse(localStorage.getItem('retropatch_cart') || '[]');
+    let added = 0, skipped = 0;
+    for (const i of (o.items || [])) {
+      if (!i.id) { skipped++; continue; }
+      const ps = await db.collection('products').doc(i.id).get();
+      const p = ps.exists ? ps.data() : null;
+      if (!p || p.status === 'Tükendi') { skipped++; continue; }
+      const back = i.backType || i.back || 'Düz', extra = bp[back] || 0, base = parseFloat(p.price) || 0;
+      const ex = cart.find(c => c.id === i.id && (c.backType || c.back || 'Düz') === back && (c.size || '') === (i.size || ''));
+      if (ex) ex.qty = (ex.qty || 1) + (i.qty || 1);
+      else cart.push({ id: i.id, name: p.name || i.name, price: base + extra, basePrice: base, backType: back, back, backExtra: extra, image: p.image || i.image || '', cat: p.cat || i.cat || '', size: i.size || '', qty: i.qty || 1 });
+      added++;
+    }
+    if (!added) { alert('Bu siparişteki ürünler artık satışta değil.'); btn.disabled = false; btn.textContent = old; return; }
+    localStorage.setItem('retropatch_cart', JSON.stringify(cart));
+    if (skipped) alert(skipped + ' ürün artık satışta olmadığı için eklenmedi.');
+    location.href = 'sepet.html';
+  } catch (e) { alert('Sepete eklenemedi, lütfen tekrar deneyin.'); btn.disabled = false; btn.textContent = old; }
+}
+
 function renderOrders() {
   const el = document.getElementById('ordersList');
   const active = allOrders.filter(o=>o.status!=='tamamlandı'&&o.status!=='iptal').length;
@@ -631,6 +659,7 @@ function renderOrders() {
               <div class="order-item-price">₺${((i.price||0)*(i.qty||1)).toLocaleString('tr-TR')}</div>
             </div>`).join('')}
         </div>
+        ${(o.items||[]).some(i=>i.id)?`<div style="margin:2px 0 12px;"><button onclick="rpReorder('${o.id}',this)" style="background:var(--accent);color:#000;border:none;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1.5px;font-size:13px;cursor:pointer;">↻ AYNISINI TEKRAR SİPARİŞ VER</button></div>`:''}
         <div style="font-size:12px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border);">
           <span><svg class=ic data-n=card><use href=#i-card></use></svg> ${payMethodLabel(o.payment?.method)}</span>
           <span><svg class=ic data-n=truck><use href=#i-truck></use></svg> ${o.cargo?.companyName||'—'}</span>
