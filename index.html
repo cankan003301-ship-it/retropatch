@@ -88,44 +88,132 @@
 
   <!-- Schema.org: FAQPage -->
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Minimum sipariş adedi nedir?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Tek adet sipariş verebilirsiniz. 10 adet ve üzeri siparişlerde özel fiyatlandırma uygulanır."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Kargo süresi ne kadar?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sipariş onayından itibaren 2–5 iş günü içinde kargoya verilmektedir."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Özel tasarım yama yaptırabilir miyim?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Evet! Logo, amblem veya özel desenlerinizi WhatsApp veya e-posta üzerinden gönderin, fiyat teklifi ve üretim süresi için size dönelim."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Ödeme yöntemleri neler?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Ödeme yöntemleri sepet sayfasında listelenir: banka havalesi/EFT; açık olduğu dönemlerde kapıda ödeme ve kartla ödeme de seçilebilir."
-        }
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Minimum sipariş adedi nedir?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Minimum yok, tek adetten sipariş verebilirsiniz. 10 adet ve üzeri siparişlerde indirim uygulanır; hesaplayıcıda adedi girdiğinizde fiyat otomatik güncellenir."
       }
-    ]
-  }
+    },
+    {
+      "@type": "Question",
+      "name": "Nasıl sipariş verebilirim?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Anasayfadaki fiyat hesaplayıcıda ürün, boyut, arka yüzey ve tasarım durumunu seçin, ardından “Sipariş formuna aktar”a basın. Tasarımınızı yükleyip formu gönderebilir ya da WhatsApp'tan bize yazabilirsiniz. Hazır ürünleri ise mağaza sayfalarından sepete ekleyip sepetten tamamlayabilirsiniz."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Fiyat nasıl hesaplanıyor?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Fiyat; ürün türüne, yamanın boyutuna (≤5, 5–10, 10–15, 15+ cm), seçtiğiniz arka yüzeye ve tasarım durumuna göre belirlenir. Tüm kalemler hesaplayıcıda ayrı ayrı görünür, sürpriz ek ücret yoktur."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kendi tasarımımı yaptırabilir miyim?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Evet. Logo, amblem veya çiziminizi sipariş formundan yükleyin; “Tasarımım var” seçeneğini işaretleyin. Vektör dosyalar (.ai, .eps, .svg) ve yüksek çözünürlüklü PNG/JPG en iyi sonucu verir. Tasarımınız yoksa “Basit tasarım” veya “Karmaşık tasarım yapılsın” seçeneğiyle fikrinizi anlatın, sizin için hazırlayalım."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Arka yüzey türleri nedir, hangisini seçmeliyim?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Düz: dikerek kullanacaksanız. Ütüyle yapışan: ütüyle kumaşa yapıştırılır, tişört ve kot için pratiktir. Cırt cırt: istediğiniz zaman söküp takabilirsiniz, şapka, çanta ve üniformalar için idealdir. Ütüyle yapışan yamaların kenarlarından birkaç dikiş atılması ömrünü uzatır."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kargo süresi ne kadar?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sipariş onayından itibaren 2–5 iş günü içinde kargoya verilir. Kargo firmasına bağlı olarak 1–3 gün teslim süresi eklenebilir. Kargo takip kodunuz e-posta ile iletilir ve “Sipariş Takip” sayfasından sorgulayabilirsiniz."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kargo ücreti ne kadar, ücretsiz kargo var mı?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kargo ücreti seçtiğiniz kargo firmasına göre sepet sayfasında gösterilir. Belirli bir tutarın üzerindeki siparişlerde kargo ücretsizdir; kalan tutar sepetinizde görünür."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Ödeme yöntemleri neler?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ödeme yöntemleri sepet sayfasında listelenir: banka havalesi/EFT; açık olduğu dönemlerde kapıda ödeme ve kartla ödeme de seçilebilir. Tüm işlemler SSL şifreleme ile güvence altındadır."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "İade ve değişim koşulları nelerdir?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ürünlerimiz sipariş üzerine, size özel üretildiği için cayma ve iade hakkı bulunmamaktadır. Ürün hatalı veya sipariş edilenden farklı gelirse, teslimden sonra fotoğraflarla bize yazın; ücretsiz yeniden üretim veya bedel iadesi sağlarız."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Yamalar hangi malzemeden üretiliyor?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tüm ürünlerimiz profesyonel makine nakışı ile üretilir. Zemin kumaşı olarak Twill ve Kanvas kullanılır; arka yüzey düz, ütüyle yapışan veya cırt cırt olarak seçilebilir."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Renkler ekrandakiyle aynı olur mu?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "İplik renkleri tasarımınıza en yakın tonlarla eşleştirilir. Ekran ayarları nedeniyle küçük ton farkları olabilir; renk konusunda hassas bir işiniz varsa sipariş notuna yazın veya WhatsApp'tan danışın."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Yamayı nasıl yıkamalıyım?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ters çevirip 30 derecede, hassas programda yıkamanızı öneririz. Yüksek ısıda ütülemeyin; ütüyle yapışan yamalarda üzerine ince bir bez koyarak ütüleyin. Kuru temizleme ve ağartıcı kullanmayın."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Dijital nakış dosyaları nedir, nasıl alırım?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nakış makineniz için hazır, test edilmiş dosyalardır (DST, PES, JEF, EXP formatlarında). Havale/EFT ödemeniz onaylandığında dosyalarınız hesabınızda açılır ve hemen indirebilirsiniz."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Siparişimi nasıl takip ederim?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Giriş yaptıysanız Hesabım → Siparişler bölümünden durumu görebilirsiniz. Kargoya verildiğinde takip kodu e-postanıza gelir; “Sipariş Takip” sayfasından sorgulayabilirsiniz."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Bize nasıl ulaşırım?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sayfanın altındaki WhatsApp düğmesinden veya e-posta ile ulaşabilirsiniz. Çalışma saatlerimizde en kısa sürede dönüş yaparız."
+      }
+    }
+  ]
+}
   </script>
 
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
@@ -1803,7 +1891,39 @@ document.addEventListener('DOMContentLoaded', function(){
         <span class="rp-faq-q-text">Minimum sipariş adedi nedir?</span>
         <span class="rp-faq-icon">+</span>
       </div>
-      <div class="rp-faq-a"><p>Tek adet sipariş verebilirsiniz. Toplu siparişlerde (10 adet ve üzeri) özel fiyatlandırma için WhatsApp üzerinden iletişime geçin.</p></div>
+      <div class="rp-faq-a"><p>Minimum yok, tek adetten sipariş verebilirsiniz. 10 adet ve üzeri siparişlerde indirim uygulanır; hesaplayıcıda adedi girdiğinizde fiyat otomatik güncellenir.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Nasıl sipariş verebilirim?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Anasayfadaki fiyat hesaplayıcıda ürün, boyut, arka yüzey ve tasarım durumunu seçin, ardından “Sipariş formuna aktar”a basın. Tasarımınızı yükleyip formu gönderebilir ya da WhatsApp'tan bize yazabilirsiniz. Hazır ürünleri ise mağaza sayfalarından sepete ekleyip sepetten tamamlayabilirsiniz.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Fiyat nasıl hesaplanıyor?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Fiyat; ürün türüne, yamanın boyutuna (≤5, 5–10, 10–15, 15+ cm), seçtiğiniz arka yüzeye ve tasarım durumuna göre belirlenir. Tüm kalemler hesaplayıcıda ayrı ayrı görünür, sürpriz ek ücret yoktur.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Kendi tasarımımı yaptırabilir miyim?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Evet. Logo, amblem veya çiziminizi sipariş formundan yükleyin; “Tasarımım var” seçeneğini işaretleyin. Vektör dosyalar (.ai, .eps, .svg) ve yüksek çözünürlüklü PNG/JPG en iyi sonucu verir. Tasarımınız yoksa “Basit tasarım” veya “Karmaşık tasarım yapılsın” seçeneğiyle fikrinizi anlatın, sizin için hazırlayalım.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Arka yüzey türleri nedir, hangisini seçmeliyim?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Düz: dikerek kullanacaksanız. Ütüyle yapışan: ütüyle kumaşa yapıştırılır, tişört ve kot için pratiktir. Cırt cırt: istediğiniz zaman söküp takabilirsiniz, şapka, çanta ve üniformalar için idealdir. Ütüyle yapışan yamaların kenarlarından birkaç dikiş atılması ömrünü uzatır.</p></div>
     </div>
 
     <div class="rp-faq-item">
@@ -1811,23 +1931,23 @@ document.addEventListener('DOMContentLoaded', function(){
         <span class="rp-faq-q-text">Kargo süresi ne kadar?</span>
         <span class="rp-faq-icon">+</span>
       </div>
-      <div class="rp-faq-a"><p>Sipariş onayından itibaren 2–5 iş günü içinde kargoya verilmektedir. Kargo firmasına bağlı olarak ek 1–3 gün teslim süresi eklenebilir. Kargo takip kodunuz e-posta ile iletilir.</p></div>
+      <div class="rp-faq-a"><p>Sipariş onayından itibaren 2–5 iş günü içinde kargoya verilir. Kargo firmasına bağlı olarak 1–3 gün teslim süresi eklenebilir. Kargo takip kodunuz e-posta ile iletilir ve “Sipariş Takip” sayfasından sorgulayabilirsiniz.</p></div>
     </div>
 
     <div class="rp-faq-item">
       <div class="rp-faq-q" onclick="rpFaqToggle(this)">
-        <span class="rp-faq-q-text">Özel tasarım (custom) yama yaptırabilir miyim?</span>
+        <span class="rp-faq-q-text">Kargo ücreti ne kadar, ücretsiz kargo var mı?</span>
         <span class="rp-faq-icon">+</span>
       </div>
-      <div class="rp-faq-a"><p>Evet! Logo, amblem veya özel desenlerinizi WhatsApp veya e-posta üzerinden gönderin; fiyat teklifi ve üretim süresi için size dönelim. Vektör (.ai / .eps / .svg) formatlarda dosya göndermeniz süreci hızlandırır.</p></div>
+      <div class="rp-faq-a"><p>Kargo ücreti seçtiğiniz kargo firmasına göre sepet sayfasında gösterilir. Belirli bir tutarın üzerindeki siparişlerde kargo ücretsizdir; kalan tutar sepetinizde görünür.</p></div>
     </div>
 
     <div class="rp-faq-item">
       <div class="rp-faq-q" onclick="rpFaqToggle(this)">
-        <span class="rp-faq-q-text">Yamalar hangi malzemeden üretiliyor?</span>
+        <span class="rp-faq-q-text">Ödeme yöntemleri neler?</span>
         <span class="rp-faq-icon">+</span>
       </div>
-      <div class="rp-faq-a"><p>Tüm ürünlerimiz profesyonel makine nakışı ile üretilmektedir. Zemin kumaşı olarak Twill ve Kanvas kullanılır; arka yüzey hot-cut veya yapışkanlı seçenek olarak sunulabilir.</p></div>
+      <div class="rp-faq-a"><p>Ödeme yöntemleri sepet sayfasında listelenir: banka havalesi/EFT; açık olduğu dönemlerde kapıda ödeme ve kartla ödeme de seçilebilir. Tüm işlemler SSL şifreleme ile güvence altındadır.</p></div>
     </div>
 
     <div class="rp-faq-item">
@@ -1840,10 +1960,50 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <div class="rp-faq-item">
       <div class="rp-faq-q" onclick="rpFaqToggle(this)">
-        <span class="rp-faq-q-text">Ödeme yöntemleri neler?</span>
+        <span class="rp-faq-q-text">Yamalar hangi malzemeden üretiliyor?</span>
         <span class="rp-faq-icon">+</span>
       </div>
-      <div class="rp-faq-a"><p>Ödeme yöntemleri sepet sayfasında listelenir: banka havalesi/EFT; açık olduğu dönemlerde kapıda ödeme ve kartla ödeme de seçilebilir. Tüm işlemler 256-bit SSL şifreleme ile güvence altındadır.</p></div>
+      <div class="rp-faq-a"><p>Tüm ürünlerimiz profesyonel makine nakışı ile üretilir. Zemin kumaşı olarak Twill ve Kanvas kullanılır; arka yüzey düz, ütüyle yapışan veya cırt cırt olarak seçilebilir.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Renkler ekrandakiyle aynı olur mu?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>İplik renkleri tasarımınıza en yakın tonlarla eşleştirilir. Ekran ayarları nedeniyle küçük ton farkları olabilir; renk konusunda hassas bir işiniz varsa sipariş notuna yazın veya WhatsApp'tan danışın.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Yamayı nasıl yıkamalıyım?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Ters çevirip 30 derecede, hassas programda yıkamanızı öneririz. Yüksek ısıda ütülemeyin; ütüyle yapışan yamalarda üzerine ince bir bez koyarak ütüleyin. Kuru temizleme ve ağartıcı kullanmayın.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Dijital nakış dosyaları nedir, nasıl alırım?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Nakış makineniz için hazır, test edilmiş dosyalardır (DST, PES, JEF, EXP formatlarında). Havale/EFT ödemeniz onaylandığında dosyalarınız hesabınızda açılır ve hemen indirebilirsiniz.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Siparişimi nasıl takip ederim?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Giriş yaptıysanız Hesabım → Siparişler bölümünden durumu görebilirsiniz. Kargoya verildiğinde takip kodu e-postanıza gelir; “Sipariş Takip” sayfasından sorgulayabilirsiniz.</p></div>
+    </div>
+
+    <div class="rp-faq-item">
+      <div class="rp-faq-q" onclick="rpFaqToggle(this)">
+        <span class="rp-faq-q-text">Bize nasıl ulaşırım?</span>
+        <span class="rp-faq-icon">+</span>
+      </div>
+      <div class="rp-faq-a"><p>Sayfanın altındaki WhatsApp düğmesinden veya e-posta ile ulaşabilirsiniz. Çalışma saatlerimizde en kısa sürede dönüş yaparız.</p></div>
     </div>
 
   </div>
