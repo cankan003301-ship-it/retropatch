@@ -371,6 +371,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v1.4</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -6117,5 +6118,19 @@ function saveMarquee() {
 // / DUYURULAR
 // =============================================
 </script>
+<div class="modal-ov" id="changelogModal">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
+    <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v1.4 · 15 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Sol menü kaydırılabilir oldu (Ayarlar görünür)</li><li>Bu "Yenilikler" penceresi eklendi</li></ul>
+      <b style="color:var(--accent)">v1.3 · 14 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Kampanya geri sayımı (Ayarlar'dan yönetilir)</li><li>Çalışma saatleri / çevrimiçi göstergesi</li><li>Üretim kağıdı yazdırma (sipariş detayında)</li><li>Siparişler ve Üyeler için Excel (CSV) indirme</li><li>Haftalık özet e-postası (ADMIN_EMAIL gerekir)</li><li>Sepette "Bunu da ekle", hesapta "Aynısını tekrar sipariş ver"</li><li>Ana sayfada müşteri yorumları, SSS yenilendi + arama</li></ul>
+      <b style="color:var(--accent)">v1.2</b>
+      <ul style="margin:6px 0 0 18px"><li>Slayt düzenleme</li><li>Yeni Aktivite akışı ve varsayılan sekme ayarı</li><li>Arka yüz/boyut bilgisi siparişlerde</li><li>Sitemap ve alan adı düzeltmeleri</li></ul>
+    </div>
+  </div>
+</div>
+<script>function openChangelog(){document.getElementById("changelogModal").classList.add("open");}</script>
 </body>
 </html>
