@@ -490,7 +490,7 @@
 .ic{width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-.14em;flex-shrink:0;pointer-events:none}
 .ic[data-n=heart]{color:#e63946}.ic[data-n=fire]{color:#ff7a1a}.ic[data-n=star]{color:#f4c542}
 button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color:inherit}
-.cw-wait #cw-designs,.cw-wait #cw-backs,.cw-wait #cw-breakdown,.cw-wait #cw-unit,.cw-wait #cw-total{visibility:hidden}
+.cw-wait #cw-from,.cw-wait #cw-designs,.cw-wait #cw-backs,.cw-wait #cw-breakdown,.cw-wait #cw-unit,.cw-wait #cw-total{visibility:hidden}
     html{scroll-padding-top:calc(96px + var(--rp-ann-h,0px))}[id]{scroll-margin-top:calc(96px + var(--rp-ann-h,0px))}
     </style>
 </head>
@@ -931,6 +931,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Adım 1 / 2 · Fiyatı Gör</div>
         <div style="font-family:'Bebas Neue',cursive;font-size:clamp(36px,5vw,58px);letter-spacing:2px;line-height:1;">ÖZEL YAMA SİPARİŞİ</div>
+        <div id="cw-from" style="display:none;margin-top:12px;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);"></div>
         <div style="font-size:13px;color:var(--muted);margin-top:10px;">Ürün tipi, boyut, <b style="color:var(--accent);">tasarım tipi (zorunlu)</b>, renk ve adet seçin — anında tahmini fiyatınızı öğrenin.</div>
       </div>
     </div>
@@ -1109,6 +1110,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     document.getElementById('cw-sizes').innerHTML    = d.sizes.map(s => chip(s.id, s.name+' <span style="font-size:10px;opacity:.6;">'+s.desc+'</span>', 'size', CW.sel.size===s.id)).join('');
     document.getElementById('cw-backs').innerHTML    = d.backs.map(b => chip(b.id, iconHtml(b.icon)+' '+esc(b.name)+(b.extra?` +₺${b.extra}`:''), 'back', CW.sel.back===b.id)).join('');
     document.getElementById('cw-designs').innerHTML  = d.designTypes.map(dg => chip(dg.id, iconHtml(dg.icon)+' '+esc(dg.name)+(dg.extra?` +₺${dg.extra}`:''), 'design', CW.sel.design===dg.id)).join('');
+    // Başlangıç fiyatı: en ucuz yama (küçük boyut, düz arka yüzey, tasarım hazır)
+    try {
+      const fr = document.getElementById('cw-from');
+      const pp = d.products.find(p => p.id === 'patch') || d.products[0];
+      if (fr && pp && pp.basePrice && pp.basePrice.kucuk) {
+        const minBack = Math.min(...d.backs.map(b => b.extra || 0)), minDes = Math.min(...d.designTypes.map(x => x.extra || 0));
+        fr.textContent = 'Yamalar ₺' + (pp.basePrice.kucuk + minBack + minDes).toLocaleString('tr-TR') + "'den başlar · Tek adetten sipariş";
+        fr.style.display = '';
+      }
+    } catch (e) {}
     // Sipariş formundaki "Tasarım Durumu" hesaplayıcıdaki seçeneklerle aynı olsun
     const ds = document.getElementById('designSelect');
     if (ds) {
@@ -1265,7 +1276,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <div class="features">
         <div class="feature"><div class="feature-icon"><svg class=ic data-n=settings><use href=#i-settings></use></svg></div><div class="feature-text"><h4>Makine Nakışı</h4><p>Profesyonel ekipmanla yüksek kalite.</p></div></div>
         <div class="feature"><div class="feature-icon"><svg class=ic data-n=bolt><use href=#i-bolt></use></svg></div><div class="feature-text"><h4>Hızlı Üretim</h4><p>Onaydan sonra 2–5 iş günü içinde kargoya verilir.</p></div></div>
-        <div class="feature"><div class="feature-icon"><svg class=ic data-n=diamond><use href=#i-diamond></use></svg></div><div class="feature-text"><h4>Toplu Sipariş</h4><p>5+ adet siparişlerde özel fiyat.</p></div></div>
+        <div class="feature"><div class="feature-icon"><svg class=ic data-n=diamond><use href=#i-diamond></use></svg></div><div class="feature-text"><h4>Toplu Sipariş</h4><p>10+ adet siparişlerde indirim (hesaplayıcıda otomatik).</p></div></div>
         <div class="feature"><div class="feature-icon"><svg class=ic data-n=diamond><use href=#i-diamond></use></svg></div><div class="feature-text"><h4>Ütüyle / Cırt Cırt</h4><p>Uygulama şekline göre arka yüzey.</p></div></div>
       </div>
     </div>
@@ -1311,6 +1322,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           </div>
         </div>
         <button type="submit" class="form-submit">SİPARİŞİ GÖNDER</button>
+        <div style="margin-top:10px;font-size:12px;color:var(--muted);text-align:center;line-height:1.5;">✔ Ürün hatalı veya farklı gelirse <b style="color:var(--accent);">ücretsiz yeniden üretim ya da iade</b>.<br>Kişiye özel ürünlerde cayma hakkı yoktur.</div>
       </form>
     </div>
   </div>
@@ -1348,6 +1360,33 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
      GALERİ — INSTAGRAM TARZI KARE GRID
 ═══════════════════════════════════════════════ -->
 <div style="background:var(--bg);border-top:1px solid var(--border);">
+<div id="musteriYorumlari" style="display:none;background:var(--bg2);border-top:1px solid var(--border);padding:56px 40px;">
+  <div style="max-width:1280px;margin:0 auto;">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Müşterilerimiz Ne Diyor</div>
+    <div style="font-family:'Bebas Neue',cursive;font-size:clamp(32px,4.5vw,52px);letter-spacing:2px;line-height:1;margin-bottom:22px;">GERÇEK YORUMLAR <span id="myAvg" style="color:var(--accent);font-size:.6em;letter-spacing:1px;"></span></div>
+    <div id="myGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;"></div>
+  </div>
+</div>
+<style>@media(max-width:900px){#musteriYorumlari{padding:36px 16px!important}}.my-card{background:var(--card);border:1px solid var(--border);padding:18px;display:flex;flex-direction:column;gap:10px}.my-card .st{color:var(--accent);letter-spacing:2px;font-size:15px}.my-card p{font-size:14px;line-height:1.6;color:var(--text);margin:0}.my-card .who{font-size:12px;color:var(--muted);margin-top:auto}</style>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  if (typeof db === 'undefined') return;
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  db.collection('digital_reviews').where('approved','==',true).get().then(rs => {
+    const list = []; rs.forEach(r => { const d = r.data(); if (d && d.text && d.rating) list.push(d); });
+    if (!list.length) return;
+    list.sort((a,b) => ((b.createdAt && b.createdAt.seconds) || 0) - ((a.createdAt && a.createdAt.seconds) || 0));
+    const avg = list.reduce((t,x) => t + (Number(x.rating) || 0), 0) / list.length;
+    document.getElementById('myAvg').textContent = '★ ' + avg.toFixed(1) + ' (' + list.length + ' yorum)';
+    document.getElementById('myGrid').innerHTML = list.slice(0, 6).map(x => {
+      const n = Math.max(1, Math.min(5, Math.round(Number(x.rating) || 5)));
+      const nm = String(x.userName || 'Müşteri').trim().split(/\s+/).map((w,i) => i === 0 ? w : w.charAt(0) + '.').join(' ');
+      return '<div class="my-card"><div class="st">' + '★'.repeat(n) + '<span style="opacity:.25">' + '★'.repeat(5 - n) + '</span></div><p>' + esc(String(x.text).slice(0, 220)) + '</p><div class="who">' + esc(nm) + (x.fileTitle ? ' · ' + esc(x.fileTitle) : '') + '</div></div>';
+    }).join('');
+    document.getElementById('musteriYorumlari').style.display = '';
+  }).catch(() => {});
+});
+</script>
 <div class="rp-gallery-wrap" id="rpGallerySection">
   <div class="rp-gallery-header">
     <div>
