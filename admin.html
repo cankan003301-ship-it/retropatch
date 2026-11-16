@@ -371,7 +371,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
-      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v1.4</button>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v1.5</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -643,6 +643,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             </div>
           </div>
           <div id="bulkAddPreview" style="display:none;background:var(--bg3);border:1px solid rgba(200,169,110,.2);padding:12px 16px;margin-bottom:16px;max-height:160px;overflow-y:auto;font-size:12px;"></div>
+          <div style="background:var(--bg3);border:1px solid rgba(200,169,110,.3);padding:14px 16px;margin-bottom:16px;">
+            <div style="font-size:12px;color:var(--muted2);margin-bottom:10px;">&#128230; <b style="color:var(--accent)">Dolap ürünlerini içe aktar</b> &mdash; 229 patch (fotoğraflı, kategorili). Aynı adlı ürünler atlanır.</div>
+            <button class="btn btn-outline" style="width:100%;justify-content:center;padding:10px;" onclick="importDolap()" id="dolapBtn">&#128229; DOLAP ÜRÜNLERİNİ EKLE</button>
+          </div>
           <div style="display:flex;gap:8px;">
             <button class="btn btn-outline" style="flex:1;justify-content:center;padding:12px;" onclick="previewBulkAdd()"><svg class=ic data-n=eye><use href=#i-eye></use></svg> Önizle</button>
             <button class="btn btn-accent" style="flex:2;padding:14px;font-size:17px;justify-content:center;" onclick="applyBulkAdd()" id="bulkAddBtn"><svg class=ic data-n=save><use href=#i-save></use></svg> TOPLU EKLE</button>
@@ -2837,6 +2841,32 @@ function previewBulkAdd() {
   preview.style.display = 'block';
   preview.innerHTML = `<strong style="color:var(--accent);">${items.length} ürün eklenecek:</strong><br><br>` +
     items.map((p,i) => `<span style="color:var(--muted2);">${i+1}.</span> <strong>${p.name}</strong> — ₺${p.price} — ${p.cat} — ${p.status}`).join('<br>');
+}
+
+
+async function importDolap() {
+  const btn = document.getElementById('dolapBtn');
+  try {
+    btn.disabled = true; btn.textContent = '⏳ Hazırlanıyor...';
+    const list = await (await fetch('/products-import.json?v=' + Date.now())).json();
+    const have = new Set((allProducts || []).map(p => (p.name || '').trim().toLowerCase()));
+    const items = list.filter(p => !have.has(p.name.trim().toLowerCase()));
+    if (!items.length) { toast('Hepsi zaten ekli', 'ok'); return; }
+    if (!confirm(items.length + ' ürün eklenecek (' + (list.length - items.length) + ' tanesi zaten var). Devam?')) return;
+    const ts = firebase.firestore.FieldValue.serverTimestamp();
+    for (let i = 0; i < items.length; i += 400) {
+      const b = db.batch();
+      items.slice(i, i + 400).forEach(p => {
+        const { dolapId, favorites, ...rest } = p;
+        b.set(db.collection('products').doc(), { ...rest, sales: 0, favorites: favorites || 0, reviews: 0, views: 0, createdAt: ts });
+      });
+      await b.commit();
+    }
+    toast('✓ ' + items.length + ' ürün eklendi', 'ok');
+    addActivity('📦', items.length + ' Dolap ürünü içe aktarıldı');
+    closeModal('bulkAddModal');
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+  finally { btn.disabled = false; btn.textContent = '📥 DOLAP ÜRÜNLERİNİ EKLE'; }
 }
 
 function applyBulkAdd() {
@@ -6122,6 +6152,8 @@ function saveMarquee() {
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v1.5 · 16 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Toplu ürün ekle penceresine "Dolap ürünlerini ekle" butonu</li></ul>
       <b style="color:var(--accent)">v1.4 · 15 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Sol menü kaydırılabilir oldu (Ayarlar görünür)</li><li>Bu "Yenilikler" penceresi eklendi</li></ul>
       <b style="color:var(--accent)">v1.3 · 14 Kasım 2026</b>
