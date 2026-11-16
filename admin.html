@@ -371,7 +371,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
-      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v1.5</button>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v1.6</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -584,7 +584,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
               <option value="decrease_pct">Yüzde İndir (%)</option>
               <option value="increase_fixed">Sabit Artır (₺)</option>
               <option value="decrease_fixed">Sabit İndir (₺)</option>
+              <option value="dolap_disc">Dolap → Site: Dolap fiyatından indir (%) · 5'e yuvarla</option>
+              <option value="dolap_net">Dolap → Site: Dolap net kazancı + ek kâr (%) · 5'e yuvarla</option>
             </select>
+            <div id="bpDolapNote" style="display:none;margin-top:8px;font-size:11px;color:var(--muted2);line-height:1.6;">Dolap'ta kesilen %18 komisyon ve kargo payı (250 TL altı 0 · 250–399,99 TL: 29,99 TL · 400 TL+: 50,99 TL) düşülerek hesaplanır. Aynı işlemi iki kez uygulama: fiyat tekrar düşer.</div>
           </div>
           <div class="fg"><label id="bpValueLabel">Değer</label>
             <input type="number" id="bpValue" placeholder="0" min="0" oninput="updateBulkPricePreview()"
@@ -2733,27 +2736,38 @@ function openBulkPriceModal() {
   openModal('bulkPriceModal');
 }
 
+function bpCalc(type, old, val) {
+  const r5 = x => Math.max(0, Math.round(x / 5) * 5);
+  if (type === 'fixed') return val;
+  if (type === 'increase_pct') return Math.round(old * (1 + val/100));
+  if (type === 'decrease_pct') return Math.max(0, Math.round(old * (1 - val/100)));
+  if (type === 'increase_fixed') return old + val;
+  if (type === 'decrease_fixed') return Math.max(0, old - val);
+  if (type === 'dolap_disc') return r5(old * (1 - val/100));
+  if (type === 'dolap_net') {
+    const ship = old < 250 ? 0 : old < 400 ? 29.99 : 50.99;
+    const net = old - old * 0.18 - ship;
+    return r5(net * (1 + val/100));
+  }
+  return old;
+}
+
 function updateBulkPricePreview() {
   const type = document.getElementById('bpType')?.value || 'fixed';
   const val = parseFloat(document.getElementById('bpValue')?.value) || 0;
   const cat = document.getElementById('bpCat')?.value || 'all';
   const labelEl = document.getElementById('bpValueLabel');
   const preview = document.getElementById('bpPreview');
-  const labels = {fixed:'Yeni Fiyat (₺)', increase_pct:'Artış (%)', decrease_pct:'İndirim (%)', increase_fixed:'Artış (₺)', decrease_fixed:'İndirim (₺)'};
+  const labels = {fixed:'Yeni Fiyat (₺)', increase_pct:'Artış (%)', decrease_pct:'İndirim (%)', increase_fixed:'Artış (₺)', decrease_fixed:'İndirim (₺)', dolap_disc:'Dolap fiyatından indirim (%)', dolap_net:'Net kazancın üstüne ek kâr (%)'};
+  const dn = document.getElementById('bpDolapNote'); if (dn) dn.style.display = type.startsWith('dolap') ? 'block' : 'none';
   if (labelEl) labelEl.textContent = labels[type] || 'Değer';
 
-  if (!val || !preview) return;
+  if ((!val && !type.startsWith('dolap')) || !preview) return;
   const targets = allProducts.filter(p => cat === 'all' || p.cat === cat);
   const samples = targets.slice(0, 4);
   const newPrices = samples.map(p => {
     const old = parseFloat(p.price) || 0;
-    let np;
-    if (type === 'fixed') np = val;
-    else if (type === 'increase_pct') np = Math.round(old * (1 + val/100));
-    else if (type === 'decrease_pct') np = Math.max(0, Math.round(old * (1 - val/100)));
-    else if (type === 'increase_fixed') np = old + val;
-    else if (type === 'decrease_fixed') np = Math.max(0, old - val);
-    return { name: p.name, old, new: np };
+    return { name: p.name, old, new: bpCalc(type, old, val) };
   });
   preview.style.display = 'block';
   preview.innerHTML = `<strong style="color:var(--accent);">${targets.length} ürün etkilenecek</strong><br>` +
@@ -2765,7 +2779,7 @@ function applyBulkPrice() {
   const type = document.getElementById('bpType').value;
   const val = parseFloat(document.getElementById('bpValue').value);
   const cat = document.getElementById('bpCat').value;
-  if (isNaN(val) || val <= 0) { toast('Geçerli bir değer girin!', 'err'); return; }
+  if (isNaN(val) || val < 0 || (val === 0 && !type.startsWith('dolap'))) { toast('Geçerli bir değer girin!', 'err'); return; }
   const targets = allProducts.filter(p => cat === 'all' || p.cat === cat);
   if (!targets.length) { toast('Hedef ürün bulunamadı!', 'err'); return; }
   if (!confirm(`${targets.length} ürünün fiyatı güncellensin mi?`)) return;
@@ -2775,12 +2789,7 @@ function applyBulkPrice() {
     const batch = db.batch();
     chunk.forEach(p => {
       const old = parseFloat(p.price) || 0;
-      let np;
-      if (type === 'fixed') np = val;
-      else if (type === 'increase_pct') np = Math.round(old * (1 + val/100));
-      else if (type === 'decrease_pct') np = Math.max(0, Math.round(old * (1 - val/100)));
-      else if (type === 'increase_fixed') np = old + val;
-      else if (type === 'decrease_fixed') np = Math.max(0, old - val);
+      const np = bpCalc(type, old, val);
       batch.update(db.collection('products').doc(p.id), { price: Math.round(np) });
     });
     return batch.commit();
@@ -6159,6 +6168,8 @@ function saveMarquee() {
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v1.6 · 16 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Toplu fiyatta yeni işlem türleri: "Dolap → Site" (Dolap %18 komisyon ve kargo payına göre)</li></ul>
       <b style="color:var(--accent)">v1.5 · 16 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Dolap içe aktarma: sitede zaten olan ürünler (adı benzer olsa da) atlanır</li><li>Toplu ürün ekle penceresine "Dolap ürünlerini ekle" butonu</li></ul>
       <b style="color:var(--accent)">v1.4 · 15 Kasım 2026</b>
