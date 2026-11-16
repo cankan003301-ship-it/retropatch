@@ -12,5 +12,22 @@
       "path": "/api/cron-weekly-summary",
       "schedule": "0 6 * * 1"
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/urun/:slug",
+      "destination": "/api/urun?slug=:slug"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    }
   ]
 }
