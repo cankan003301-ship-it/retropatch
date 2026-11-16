@@ -2849,10 +2849,17 @@ async function importDolap() {
   try {
     btn.disabled = true; btn.textContent = '⏳ Hazırlanıyor...';
     const list = await (await fetch('/products-import.json?v=' + Date.now())).json();
-    const have = new Set((allProducts || []).map(p => (p.name || '').trim().toLowerCase()));
-    const items = list.filter(p => !have.has(p.name.trim().toLowerCase()));
+    const norm = n => (n || '').toLocaleLowerCase('tr').replace(/[ıİ]/g,'i').replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ö/g,'o').replace(/ç/g,'c')
+      .replace(/\(\d+\)/g,'').replace(/nakışlı|nakış|patch|yama|bayrağı|bayragi|bayrak|arması|armasi|set/g,'').replace(/[^a-z0-9]/g,'');
+    const have = new Set((allProducts || []).map(p => norm(p.name)).filter(Boolean));
+    const seenNew = new Set(), items = [], dup = [];
+    list.forEach(p => {
+      const k = norm(p.name);
+      if (!k || have.has(k)) { dup.push(p.name); return; }
+      items.push(p);
+    });
     if (!items.length) { toast('Hepsi zaten ekli', 'ok'); return; }
-    if (!confirm(items.length + ' ürün eklenecek (' + (list.length - items.length) + ' tanesi zaten var). Devam?')) return;
+    if (!confirm(items.length + ' yeni ürün eklenecek.\n' + dup.length + ' ürün sitede zaten olduğu için atlanacak.\n\nDevam?')) return;
     const ts = firebase.firestore.FieldValue.serverTimestamp();
     for (let i = 0; i < items.length; i += 400) {
       const b = db.batch();
@@ -6153,7 +6160,7 @@ function saveMarquee() {
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
       <b style="color:var(--accent)">v1.5 · 16 Kasım 2026</b>
-      <ul style="margin:6px 0 14px 18px"><li>Toplu ürün ekle penceresine "Dolap ürünlerini ekle" butonu</li></ul>
+      <ul style="margin:6px 0 14px 18px"><li>Dolap içe aktarma: sitede zaten olan ürünler (adı benzer olsa da) atlanır</li><li>Toplu ürün ekle penceresine "Dolap ürünlerini ekle" butonu</li></ul>
       <b style="color:var(--accent)">v1.4 · 15 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Sol menü kaydırılabilir oldu (Ayarlar görünür)</li><li>Bu "Yenilikler" penceresi eklendi</li></ul>
       <b style="color:var(--accent)">v1.3 · 14 Kasım 2026</b>
