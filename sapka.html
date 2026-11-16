@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Şapka — RetroPatch</title>
+  <title>Nakışlı Şapka Modelleri — RetroPatch</title>
 
   <!-- SEO -->
   <meta name="description" content="RetroPatch nakış işlemeli şapka koleksiyonu. Özel tasarım, makine nakışı ile profesyonel üretim.">
@@ -12,9 +12,9 @@
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://retropatch.vercel.app/urunler.html">
-  <meta property="og:title" content="Tüm Ürünler — RetroPatch Nakış Yama">
-  <meta property="og:description" content="RetroPatch ürün kataloğu. Nakış yamalar, askeri yamalar, retro tasarımlar.">
+  <meta property="og:url" content="https://retropatch.vercel.app/sapka.html">
+  <meta property="og:title" content="Nakışlı Şapka Modelleri — RetroPatch">
+  <meta property="og:description" content="RetroPatch nakış işlemeli şapka koleksiyonu. Özel tasarım, makine nakışı ile profesyonel üretim.">
   <meta property="og:image" content="https://retropatch.vercel.app/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -23,19 +23,18 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Tüm Ürünler — RetroPatch Nakış Yama">
-  <meta name="twitter:description" content="RetroPatch ürün kataloğu. Nakış yamalar, askeri yamalar, retro tasarımlar.">
+  <meta name="twitter:title" content="Nakışlı Şapka Modelleri — RetroPatch">
+  <meta name="twitter:description" content="RetroPatch nakış işlemeli şapka koleksiyonu. Özel tasarım, makine nakışı ile profesyonel üretim.">
   <meta name="twitter:image" content="https://retropatch.vercel.app/og-image.jpg">
-  <meta name="keywords" content="nakış yama kataloğu, tüm yamalar, patch yama çeşitleri, anime yama, askeri yama, retro yama, özel nakış yama Türkiye">
-  <meta name="author" content="RetroPatch">
+    <meta name="author" content="RetroPatch">
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Tüm Ürünler — RetroPatch Nakış Yama",
-    "description": "RetroPatch ürün kataloğu. Nakış yamalar, askeri yamalar, retro tasarımlar.",
-    "url": "https://retropatch.vercel.app/urunler.html",
+    "name": "Nakışlı Şapka Modelleri — RetroPatch",
+    "description": "RetroPatch nakış işlemeli şapka koleksiyonu. Özel tasarım, makine nakışı ile profesyonel üretim.",
+    "url": "https://retropatch.vercel.app/sapka.html",
     "isPartOf": {
       "@type": "WebSite",
       "name": "RetroPatch",
@@ -111,6 +110,7 @@
     .fav-btn:hover{color:#e63946;border-color:rgba(230,57,70,.5);}
     .product-info{padding:14px 16px;border-top:1px solid var(--border);}
     .product-cat{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+    a.product-name{display:block;color:inherit;text-decoration:none;}
     .product-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .product-bottom{display:flex;align-items:center;justify-content:space-between;}
     .product-price{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--accent);}
@@ -404,16 +404,20 @@
   .back-opt.active{border-color:var(--accent);background:var(--accent);color:#000;}
   .back-opt small{font-size:10px;font-weight:400;display:block;}
 </style>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#0a0a0a">
 </head>
 <body>
 
 <nav>
-  <a href="index.html" class="logo"><img src="retro_logo.png" alt="RetroPatch"></a>
+  <a href="/" class="logo"><img src="retro_logo.png" alt="RetroPatch"></a>
   <ul>
-    <li><a href="index.html">Ana Sayfa</a></li>
+    <li><a href="/">Ana Sayfa</a></li>
     <li><a href="urunler.html">Tüm Ürünler</a></li>
-    <li><a href="index.html#siparis">Sipariş</a></li>
-    <li><a href="index.html#iletisim">İletişim</a></li>
+    <li><a href="/#siparis">Sipariş</a></li>
+    <li><a href="/#iletisim">İletişim</a></li>
     <li id="navCartLi" style="display:none"><a href="sepet.html">🛒 <span id="cartCount">0</span></a></li>
     <li id="navHesapLi" style="display:none"><a href="hesap.html">Hesabım</a></li>
     <li id="navLoginLi"><a href="uye.html" class="nav-cta">Giriş Yap</a></li>
@@ -431,13 +435,13 @@
 <div class="mobile-menu" id="mobileMenu">
   <ul>
     <li><button class="mm-btn mm-search" onclick="closeMobileMenu();openSearch()">🔍 ARA</button></li>
-    <li><a href="index.html" class="" onclick="closeMobileMenu()">ANA SAYFA</a></li>
+    <li><a href="/" class="" onclick="closeMobileMenu()">ANA SAYFA</a></li>
       <li><a href="urunler.html" class="" onclick="closeMobileMenu()">TÜM ÜRÜNLER</a></li>
-      <li><a href="index.html#siparis" class="" onclick="closeMobileMenu()">SİPARİŞ</a></li>
-      <li><a href="index.html#iletisim" class="" onclick="closeMobileMenu()">İLETİŞİM</a></li>
+      <li><a href="/#siparis" class="" onclick="closeMobileMenu()">SİPARİŞ</a></li>
+      <li><a href="/#iletisim" class="" onclick="closeMobileMenu()">İLETİŞİM</a></li>
       <li><a href="uye.html" class="mm-hesap" onclick="closeMobileMenu()">GİRİŞ YAP / HESABIM</a></li>
       <li><a href="sepet.html" class="mm-sepet" onclick="closeMobileMenu()">🛒 SEPET</a></li>
-      <li><a href="index.html#siparis" class="mm-cta" onclick="closeMobileMenu()">SİPARİŞ VER</a></li>
+      <li><a href="/#siparis" class="mm-cta" onclick="closeMobileMenu()">SİPARİŞ VER</a></li>
       
   </ul>
   <div class="mobile-menu-footer">
@@ -467,7 +471,7 @@
 
 <div class="page-header">
   <div class="page-header-left">
-    <div class="section-label"><a href="index.html" style="color:var(--muted);text-decoration:none;">Ana Sayfa</a> › <a href="urunler.html" style="color:var(--muted);text-decoration:none;">Ürünler</a> › Şapka</div>
+    <div class="section-label"><a href="/" style="color:var(--muted);text-decoration:none;">Ana Sayfa</a> › <a href="urunler.html" style="color:var(--muted);text-decoration:none;">Ürünler</a> › Şapka</div>
     <h1>ŞAPKA</h1>
   </div>
   <div class="prod-count" id="prodCount">0</div>
@@ -942,6 +946,11 @@ function loadURLParams() {
   }
 }
 
+// Ürün sayfası adresi — api/_seo.mjs içindeki slugify ile aynı kalmalı
+function rpSlug(s){const m={'ç':'c','ğ':'g','ı':'i','i':'i','ö':'o','ş':'s','ü':'u','â':'a','î':'i','û':'u'};return (String(s||'').toLocaleLowerCase('tr').replace(/[çğıiöşüâîû]/g,c=>m[c]||c).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80))||'urun';}
+function rpProdUrl(p){return '/urun/'+rpSlug(p.name)+'-'+p.id;}
+// Normal tıklamada pencere açılsın; Ctrl/Cmd+tık yeni sekmede ürün sayfasını açsın
+function rpNameClick(e){if(e.ctrlKey||e.metaKey||e.shiftKey){e.stopPropagation();return;}e.preventDefault();}
 function renderGrid() {
   const grid = document.getElementById('productsGrid');
   if (!filtered.length) {
@@ -957,7 +966,7 @@ function renderGrid() {
       </div>
       <div class="product-info">
         <div class="product-cat">${p.cat||''}</div>
-        <div class="product-name">${p.name||''}</div>
+        <a class="product-name" href="${rpProdUrl(p)}" onclick="rpNameClick(event)">${p.name||''}</a>
         <div class="product-bottom">
           <div class="product-price">${p.price?'₺'+p.price:'—'}</div>
           <div class="product-badge${p.status==='Tükendi'?' badge-out':''}">${p.status||'Stokta'}</div>
