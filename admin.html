@@ -372,7 +372,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
-      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v1.8</button>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v1.9</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -6221,6 +6221,8 @@ function saveMarquee() {
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v1.9 · 19 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Sepette kargo seçenekleri artık Kargo Yönetimi'ndeki listeden gelir: pasif firmalar görünmez, eklenen yeni firmalar görünür</li></ul>
       <b style="color:var(--accent)">v1.8 · 19 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Sipariş durumları: Yeni → Hazırlanıyor → Üretimde → Kargoya Verildi → Teslim Edildi, ayrıca İptal ve İade</li><li>Kargo bilgisi girilince durum otomatik Kargoya Verildi / Teslim Edildi olur</li></ul>
       <b style="color:var(--accent)">v1.7 · 19 Kasım 2026</b>
