@@ -8,8 +8,8 @@
       if (seen[key]) return; seen[key] = 1; sent++;
       o.page = location.pathname + location.search;
       var body = JSON.stringify(o);
-      if (navigator.sendBeacon) { navigator.sendBeacon('/api/log-error', new Blob([body], { type: 'text/plain' })); }
-      else fetch('/api/log-error', { method: 'POST', body: body, keepalive: true });
+      if (navigator.sendBeacon) { navigator.sendBeacon('/api/track', new Blob([body], { type: 'text/plain' })); }
+      else fetch('/api/track', { method: 'POST', body: body, keepalive: true });
     } catch (e) {}
   }
   function ignore(m, src) {
@@ -32,7 +32,7 @@
   });
   var ce = console.error;
   console.error = function () {
-    try { var a = arguments[0]; var m = a && a.message ? a.message : (typeof a === 'string' ? a : ''); if (m && !/log-error/.test(m)) send({ type: 'console', msg: m + (arguments[1] && arguments[1].message ? ' · ' + arguments[1].message : '') }); } catch (x) {}
+    try { var a = arguments[0]; var m = a && a.message ? a.message : (typeof a === 'string' ? a : ''); if (m && !/api\/track/.test(m)) send({ type: 'console', msg: m + (arguments[1] && arguments[1].message ? ' · ' + arguments[1].message : '') }); } catch (x) {}
     return ce.apply(console, arguments);
   };
 })();

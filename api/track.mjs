@@ -2,6 +2,7 @@
 // (Firestore kuralları artık siparişleri yalnızca sahibine ve admin'e açar.)
 import { fb } from './_fb.mjs';
 import { clientIp } from './_http.mjs';
+import { logError, adminErrors } from './_errors.mjs';
 
 const hits = new Map();   // basit IP sınırlayıcı (sunucu örneği başına)
 function limited(ip) {
@@ -14,6 +15,9 @@ const iso = ts => { try { return ts && ts.toDate ? ts.toDate().toISOString() : n
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
+  // Site hata kaydı / admin hata listesi (ayrı fonksiyon açmamak için burada)
+  if (req.method === 'POST') return req.headers.authorization ? adminErrors(req, res) : logError(req, res);
+  if (req.query && req.query.errors) return adminErrors(req, res);
   if (req.method !== 'GET') return res.status(405).json({ error: 'GET gerekli' });
   if (limited(clientIp(req))) return res.status(429).json({ error: 'Çok fazla deneme, biraz bekleyin' });
   const raw = String(req.query.code || '').trim().toUpperCase();

@@ -6342,7 +6342,7 @@ function _errEsc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c =>
 async function _errApi(opts) {
   const u = auth.currentUser; if (!u) throw new Error('Giriş gerekli');
   const t = await u.getIdToken();
-  const r = await fetch('/api/list-errors', Object.assign({ headers: { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' } }, opts || {}));
+  const r = await fetch('/api/track' + ((opts && opts.method === 'POST') ? '' : '?errors=1'), Object.assign({ headers: { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' } }, opts || {}));
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(j.error || ('Hata ' + r.status));
   return j;
