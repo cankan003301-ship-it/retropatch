@@ -372,7 +372,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
-      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v1.9</button>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v2.0</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -512,6 +512,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <button class="btn btn-outline btn-sm" onclick="toggleProdView('grid')" id="viewGrid" title="Grid görünüm">⊞ Grid</button>
           <button class="btn btn-outline btn-sm" onclick="toggleProdView('table')" id="viewTable" title="Tablo görünüm"><svg class=ic data-n=menu><use href=#i-menu></use></svg> Tablo</button>
           <button class="btn btn-outline btn-sm" onclick="openBulkPriceModal()"><svg class=ic data-n=money><use href=#i-money></use></svg> Toplu Fiyat</button>
+          <button class="btn btn-outline btn-sm" onclick="openDolapCmp()">&#128202; Dolap ↔ Site</button>
           <button class="btn btn-outline btn-sm" onclick="openBulkStatusModal()"><svg class=ic data-n=refresh><use href=#i-refresh></use></svg> Toplu Durum</button>
           <button class="btn btn-outline btn-sm" onclick="openBulkAddModal()"><svg class=ic data-n=clipboard><use href=#i-clipboard></use></svg> Toplu Ekle</button>
           <button class="btn btn-accent" onclick="openProdModal()">+ YENİ ÜRÜN</button>
@@ -6221,6 +6222,8 @@ function saveMarquee() {
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v2.0 · 19 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Ürünler → "Dolap ↔ Site": ürün ürün kâr/zarar karşılaştırması (komisyon, kargo, yeni üye indirimi, kart komisyonu)</li></ul>
       <b style="color:var(--accent)">v1.9 · 19 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Sepette kargo seçenekleri artık Kargo Yönetimi'ndeki listeden gelir: pasif firmalar görünmez, eklenen yeni firmalar görünür</li></ul>
       <b style="color:var(--accent)">v1.8 · 19 Kasım 2026</b>
@@ -6241,5 +6244,77 @@ function saveMarquee() {
   </div>
 </div>
 <script>function openChangelog(){document.getElementById("changelogModal").classList.add("open");}</script>
+<div class="modal-ov" id="dolapCmpModal">
+  <div class="modal-box" style="max-width:1000px;width:96%;">
+    <div class="modal-hdr"><h3>&#128202; DOLAP ↔ SİTE KÂR / ZARAR KARŞILAŞTIRMASI</h3><button class="modal-x" onclick="closeModal('dolapCmpModal')">&times;</button></div>
+    <div class="modal-body" style="max-height:78vh;overflow:auto;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px;font-size:12px;">
+        <label>Ürün maliyeti (₺/adet)<input type="number" id="dcCost" value="0" min="0" oninput="renderDolapCmp()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;"></label>
+        <label>Dolap komisyonu (%)<input type="number" id="dcDolap" value="18" step="0.1" oninput="renderDolapCmp()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;"></label>
+        <label>Kart komisyonu (%)<input type="number" id="dcPos" value="2.69" step="0.01" oninput="renderDolapCmp()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;"></label>
+        <label>Yeni üye indirimi (%)<input type="number" id="dcDisc" value="20" oninput="renderDolapCmp()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;"></label>
+        <label>Kargo gideri (₺)<input type="number" id="dcCargo" value="170" oninput="renderDolapCmp()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;"></label>
+        <label>Ücretsiz kargo limiti (₺)<input type="number" id="dcFree" value="1500" oninput="renderDolapCmp()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;"></label>
+      </div>
+      <div id="dcSummary" style="background:var(--bg3);border:1px solid rgba(200,169,110,.25);padding:12px 16px;margin-bottom:12px;font-size:13px;line-height:1.7;"></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;"><button class="btn btn-outline btn-sm" onclick="exportDolapCmp()">⬇ Excel (CSV)</button></div>
+      <div style="overflow:auto;"><table style="width:100%;font-size:12px;border-collapse:collapse;"><thead><tr id="dcHead"></tr></thead><tbody id="dcBody"></tbody></table></div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:10px;line-height:1.6;">Kargo müşteriden alındığı için (limit altı) maliyet sayılmaz; limit üstünde kargo gideri senden çıkar. Dolap'ta kargo kuralı: 250 TL altı alıcı, 250–399,99 TL paylaşımlı (29,99 TL), 400 TL ve üzeri satıcı (50,99 TL). Ürün maliyetini girmezsen sonuç "net kazanç" olarak gösterilir.</div>
+    </div>
+  </div>
+</div>
+<script>
+let _dcRows = [], _dcDolap = null;
+function dcNorm(n) { return (n || '').toLocaleLowerCase('tr').replace(/[ıİ]/g,'i').replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ö/g,'o').replace(/ç/g,'c').replace(/\(\d+\)/g,'').replace(/nakışlı|nakış|patch|yama|bayrağı|bayragi|bayrak|arması|armasi|set/g,'').replace(/[^a-z0-9]/g,''); }
+async function openDolapCmp() {
+  openModal('dolapCmpModal');
+  if (!_dcDolap) {
+    try { _dcDolap = await (await fetch('/products-import.json?v=' + Date.now())).json(); }
+    catch (e) { toast('Dolap listesi okunamadı: ' + e.message, 'err'); _dcDolap = []; }
+  }
+  renderDolapCmp();
+}
+function renderDolapCmp() {
+  const g = id => parseFloat(document.getElementById(id).value) || 0;
+  const cost = g('dcCost'), dol = g('dcDolap') / 100, pos = g('dcPos') / 100, disc = g('dcDisc') / 100, cargo = g('dcCargo'), free = g('dcFree');
+  const map = new Map();
+  (_dcDolap || []).forEach(d => { const k = dcNorm(d.name); if (k && !map.has(k)) map.set(k, d); });
+  const dolShip = p => p < 250 ? 0 : p < 400 ? 29.99 : 50.99;
+  const rows = [];
+  (allProducts || []).forEach(p => {
+    const ps = parseFloat(p.price) || 0;
+    const d = map.get(dcNorm(p.name));
+    const pd = d ? Number(d.price) : null;
+    const extra = ps >= free && free > 0 ? cargo : 0;
+    const siteReg = ps * (1 - pos) - cost - extra;
+    const siteNew = ps * (1 - disc) * (1 - pos) - cost - extra;
+    const dolNet = pd == null ? null : pd * (1 - dol) - dolShip(pd) - cost;
+    rows.push({ name: p.name, pd, ps, dolNet, siteReg, siteNew });
+  });
+  rows.sort((a, b) => (a.siteNew - b.siteNew));
+  _dcRows = rows;
+  const m = rows.filter(r => r.pd != null);
+  const lossNew = rows.filter(r => r.siteNew < 0).length, lossReg = rows.filter(r => r.siteReg < 0).length, lossDol = m.filter(r => r.dolNet < 0).length;
+  const avg = (arr, f) => arr.length ? arr.reduce((s, r) => s + f(r), 0) / arr.length : 0;
+  const fm = v => (v < 0 ? '−' : '') + '₺' + Math.abs(Math.round(v * 100) / 100).toLocaleString('tr-TR');
+  document.getElementById('dcSummary').innerHTML =
+    `<b style="color:var(--accent)">${rows.length}</b> ürün · <b>${m.length}</b> tanesi Dolap listesiyle eşleşti<br>` +
+    `Eşleşenlerde ortalama net (adet başı${cost ? ', maliyet düşülmüş' : ''}): Dolap <b>${fm(avg(m, r => r.dolNet))}</b> · Site normal müşteri <b>${fm(avg(m, r => r.siteReg))}</b> · Site yeni üye <b>${fm(avg(m, r => r.siteNew))}</b><br>` +
+    `Zararda ürün sayısı: Dolap <b style="color:${lossDol ? '#e63946' : '#4ade80'}">${lossDol}</b> · Site normal <b style="color:${lossReg ? '#e63946' : '#4ade80'}">${lossReg}</b> · Site yeni üye <b style="color:${lossNew ? '#e63946' : '#4ade80'}">${lossNew}</b>` +
+    (cost ? '' : '<br><span style="color:var(--muted2)">Maliyet 0 girildi: zarar yalnızca negatif net kazanç olursa görünür. Gerçek kâr için ürün maliyetini yukarıya yaz.</span>');
+  document.getElementById('dcHead').innerHTML = ['Ürün','Dolap fiyatı','Site fiyatı','Dolap net','Site net (normal)','Site net (yeni üye)','Daha kârlı'].map(h => `<th style="text-align:left;padding:8px;border-bottom:1px solid var(--border);color:var(--accent);white-space:nowrap;">${h}</th>`).join('');
+  const td = (v, c) => `<td style="padding:6px 8px;border-bottom:1px solid var(--border);${c ? 'color:' + c + ';' : ''}">${v}</td>`;
+  document.getElementById('dcBody').innerHTML = rows.slice(0, 400).map(r => {
+    const best = r.dolNet == null ? '—' : (r.siteReg >= r.dolNet ? 'Site' : 'Dolap') + (r.siteNew >= r.dolNet ? '' : ' (yeni üyede Dolap)');
+    const col = v => v == null ? '' : v < 0 ? '#e63946' : '#4ade80';
+    return '<tr>' + td(String(r.name).replace(/[<>&]/g, ''), '') + td(r.pd == null ? '—' : fm(r.pd)) + td(fm(r.ps)) + td(r.dolNet == null ? '—' : fm(r.dolNet), col(r.dolNet)) + td(fm(r.siteReg), col(r.siteReg)) + td(fm(r.siteNew), col(r.siteNew)) + td(best) + '</tr>';
+  }).join('');
+}
+function exportDolapCmp() {
+  const r2 = v => v == null ? '' : Math.round(v * 100) / 100;
+  downloadCSV('dolap-site-karsilastirma.csv', ['Ürün','Dolap fiyatı','Site fiyatı','Dolap net','Site net (normal)','Site net (yeni üye)'],
+    _dcRows.map(r => [r.name, r.pd == null ? '' : r.pd, r.ps, r2(r.dolNet), r2(r.siteReg), r2(r.siteNew)]));
+}
+</script>
 </body>
 </html>
