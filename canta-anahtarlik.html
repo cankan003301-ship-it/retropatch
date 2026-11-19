@@ -1126,8 +1126,7 @@ function loadReviews(productId) {
         if (d.status === 'iptal' || d.status === 'iade') return false;
         const ps = d.payment && d.payment.status;   // ödenmemiş/başarısız kart siparişleri satın alma sayılmaz
         if (ps === 'awaiting_card' || ps === 'failed' || ps === 'abandoned') return false;
-        return (d.items||[]).some(i => i.id === productId) ||
-               (d.orderSource === 'form' && d.userEmail === user.email);
+        return (d.items||[]).some(i => i.id === productId);   // yalnızca bu ürünü içeren sipariş
       });
       const hasReviewed = !existingSnap.empty;
       if (hasReviewed) {
