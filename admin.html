@@ -373,7 +373,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
-      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v2.4</button>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v2.5</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -655,6 +655,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <div style="background:var(--bg3);border:1px solid rgba(200,169,110,.3);padding:14px 16px;margin-bottom:16px;">
             <div style="font-size:12px;color:var(--muted2);margin-bottom:10px;">&#128230; <b style="color:var(--accent)">Dolap ürünlerini içe aktar</b> &mdash; 229 patch (fotoğraflı, kategorili). Aynı adlı ürünler atlanır.</div>
             <button class="btn btn-outline" style="width:100%;justify-content:center;padding:10px;" onclick="importDolap()" id="dolapBtn">&#128229; DOLAP ÜRÜNLERİNİ EKLE</button>
+            <div style="margin-top:10px;font-size:12px;color:var(--muted2);">Dolap'a yeni ürün yüklediysen: dışa aktardığın <b>JSON veya CSV</b> dosyasını seç. Sadece <b>yeni</b> ürünler eklenir, siteye zaten eklenmiş olanlar atlanır.</div>
+            <input type="file" id="dolapFile" accept=".json,.csv,application/json,text/csv" onchange="importDolapFile(this)" style="margin-top:8px;width:100%;font-size:12px;">
           </div>
           <div style="display:flex;gap:8px;">
             <button class="btn btn-outline" style="flex:1;justify-content:center;padding:12px;" onclick="previewBulkAdd()"><svg class=ic data-n=eye><use href=#i-eye></use></svg> Önizle</button>
@@ -2905,27 +2907,83 @@ function previewBulkAdd() {
 }
 
 
-async function importDolap() {
+function dolapCat(t) {
+  const l = String(t).toLocaleLowerCase('tr'), has = ks => ks.some(k => l.includes(k));
+  if (has(['bayrak','bayrağ','arması','ülke']) && !has(['kurukafa'])) return 'Bayrak Patch';
+  if (has(['kurukafa']) && l.includes('bayrağ')) return 'Bayrak Patch';
+  if (has(['stalker','cowboy','bebop','berserk','sailor','ippo','zangetsu','rei ayanami','nerv','ganbare','griffith','sendo','mavi gözlü','kaplumbağa','krang','raphael','hello kitty','denver','girls und','panchiko','kill bill','taxi driver','cobra kai','portal','mandy','keeper','super kahraman','xavier','rainbow six','los pollos','tyler durden','fight','vader','kokobok','rockstady','rdk','reaper','warfield']))
+    return has(['kill bill','taxi','cobra','portal','mandy','pollos','tyler','vader','xavier','rainbow']) ? 'Dizi / Film Patch'
+      : has(['bebop','berserk','sailor','ippo','zangetsu','rei','nerv','ganbare','griffith','sendo','mavi','kaplumbağa','krang','raphael','hello kitty','denver','girls','panchiko']) ? 'Çizgi film / Anime' : 'Oyun Patch';
+  if (has(['tugay','özel harekat','apolet','ordusu','division','dirlewanger','legion','lejyon','squadron','savaş uçağı','zero','tomcat','leopard','sniper','one shot','drone','executive','sandline','militares','fsb','fox','azov','donbas','sovyet','cccp','baas','pflp','garda','bm gönüllü','mercenary','stalker','yeşil gözlü','topgun','charlemagne','kepçe','göktürk','osmanlı','atatürk','ya istiklal','bozkurt','türk yıld','cerberus','dei gratia','holde','lvf','rus','nükleer','bomba','noontide','kan grubu','yaka isimlik','kamp','havati'])) return 'Askeri / Tarihi Patch';
+  if (has(['spor','cska','harley','nissan','motosiklet','ecelle'])) return 'Spor Patch';
+  if (has(['aphex','acid king','blur','bloodbath','burzum','chaos','children of','death in june','exodus','gorguts','hatebreed','heavy metal','joy division','katalysm','megadeth','metallica','onslaught','opeth','palaye','pallbearer','pixies','pop punk','pulp','punks','red fang','sadus','saintvitus','sarcator','skillet','the exploited','twenty one','weedeater','monolith','korol','mf doom','intöxicated','sweet chin','mercenary','eat the rich'])) return 'Müzik / Metal Grup Patch';
+  return 'Sembol Patch';
+}
+function dolapClean(t) {
+  let x = String(t || '').trim().replace(/\s*(nakışlı|nakış)?\s*(patch\s*set|patch\s*yama|yama\s*patch|patch|yama)\s*$/i, '').replace(/\s*(patch\s*yama|nakış yama)\s*$/i, '').trim();
+  return (x.charAt(0).toLocaleUpperCase('tr') + x.slice(1)) + ' Patch';
+}
+// Dolap dışa aktarımı (JSON/CSV satırı) → site ürünü; yalnızca "Yama" türü
+function dolapConvert(rows) {
+  const out = [], cnt = {}, skipped = [];
+  rows.forEach(i => {
+    if ((i.tur || 'Yama') !== 'Yama') { skipped.push(i.baslik); return; }
+    let n = dolapClean(i.baslik); const k = n.toLowerCase(); cnt[k] = (cnt[k] || 0) + 1; if (cnt[k] > 1) n += ' (' + cnt[k] + ')';
+    const g = String(i.gorseller || '');
+    const imgs = (g.includes('|') ? g.split('|') : g.split(/[\s,;]+/)).map(u => u.trim()).filter(u => /^https?:\/\//.test(u)).slice(0, 8);
+    out.push({ name: n, price: parseFloat(i.fiyat_tl) || 0, cat: dolapCat(i.baslik), desc: i.aciklama || '', size: String(i.boyut || '').trim(), status: 'Stokta', back: 'Ütüyle Yapışan', image: imgs[0] || '', images: imgs, favorites: parseInt(i.begeni, 10) || 0, dolapId: String(i.dolap_id || '') });
+  });
+  return { list: out, skipped };
+}
+function dolapParseCSV(text) {
+  const rows = []; let row = [], cur = '', q = false;
+  text = text.replace(/^\uFEFF/, '');
+  const sep = (text.split('\n')[0].match(/;/g) || []).length > (text.split('\n')[0].match(/,/g) || []).length ? ';' : ',';
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === sep) { row.push(cur); cur = ''; }
+    else if (c === '\n') { row.push(cur.replace(/\r$/, '')); rows.push(row); row = []; cur = ''; }
+    else cur += c;
+  }
+  if (cur || row.length) { row.push(cur.replace(/\r$/, '')); rows.push(row); }
+  const head = rows.shift() || [];
+  return rows.filter(r => r.length > 1).map(r => Object.fromEntries(head.map((h, i) => [h.trim(), r[i]])));
+}
+async function importDolapFile(input) {
+  const f = input.files && input.files[0]; if (!f) return;
+  try {
+    const text = await f.text();
+    const rows = /\.csv$/i.test(f.name) ? dolapParseCSV(text) : JSON.parse(text);
+    if (!Array.isArray(rows) || !rows.length || !(rows[0].baslik || rows[0].name)) throw new Error('Dosya biçimi tanınmadı (baslik, fiyat_tl, gorseller sütunları gerekli)');
+    const conv = dolapConvert(rows);
+    await importDolap(conv.list, conv.skipped.length);
+  } catch (e) { toast('Dosya okunamadı: ' + e.message, 'err'); }
+  input.value = '';
+}
+async function importDolap(given, skippedCount) {
   const btn = document.getElementById('dolapBtn');
   try {
     btn.disabled = true; btn.textContent = '⏳ Hazırlanıyor...';
-    const list = await (await fetch('/products-import.json?v=' + Date.now())).json();
+    const list = Array.isArray(given) ? given : await (await fetch('/products-import.json?v=' + Date.now())).json();
     const norm = n => (n || '').toLocaleLowerCase('tr').replace(/[ıİ]/g,'i').replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ö/g,'o').replace(/ç/g,'c')
       .replace(/\(\d+\)/g,'').replace(/nakışlı|nakış|patch|yama|bayrağı|bayragi|bayrak|arması|armasi|set/g,'').replace(/[^a-z0-9]/g,'');
     const have = new Set((allProducts || []).map(p => norm(p.name)).filter(Boolean));
+    const haveId = new Set((allProducts || []).map(p => String(p.dolapId || '')).filter(Boolean));
     const seenNew = new Set(), items = [], dup = [];
     list.forEach(p => {
       const k = norm(p.name);
-      if (!k || have.has(k)) { dup.push(p.name); return; }
+      if (!k || have.has(k) || (p.dolapId && haveId.has(String(p.dolapId)))) { dup.push(p.name); return; }
       items.push(p);
     });
     if (!items.length) { toast('Hepsi zaten ekli', 'ok'); return; }
-    if (!confirm(items.length + ' yeni ürün eklenecek.\n' + dup.length + ' ürün sitede zaten olduğu için atlanacak.\n\nDevam?')) return;
+    if (!confirm(items.length + ' yeni ürün eklenecek.\n' + dup.length + ' ürün sitede zaten olduğu için atlanacak.' + (skippedCount ? '\n' + skippedCount + ' kayıt yama olmadığı için alınmadı.' : '') + '\n\nYeni ürünler: ' + items.slice(0, 6).map(p => p.name).join(', ') + (items.length > 6 ? '…' : '') + '\n\nDevam?')) return;
     const ts = firebase.firestore.FieldValue.serverTimestamp();
     for (let i = 0; i < items.length; i += 400) {
       const b = db.batch();
       items.slice(i, i + 400).forEach(p => {
-        const { dolapId, favorites, ...rest } = p;
+        const { favorites, ...rest } = p;
         b.set(db.collection('products').doc(), { ...rest, sales: 0, favorites: favorites || 0, reviews: 0, views: 0, createdAt: ts });
       });
       await b.commit();
@@ -6251,6 +6309,8 @@ function saveMarquee() {
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v2.5 · 19 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Toplu Ekle → yeni Dolap dosyası (JSON/CSV) yükleyince yalnızca yeni ürünler siteye eklenir (kategori otomatik, tekrarlar atlanır)</li></ul>
       <b style="color:var(--accent)">v2.4 · 19 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Sepet: ürün satırında fiyat ve KALDIR butonu kesiliyordu, düzeltildi</li><li>Sepet: telefonda ürün listesi artık en üstte (formun altında kalıp görünmüyordu)</li><li>Sepet: görsel yüklenemezse boş kutu yerine simge gösterilir</li></ul>
       <b style="color:var(--accent)">v2.3 · 19 Kasım 2026</b>
