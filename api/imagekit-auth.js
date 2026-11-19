@@ -2,6 +2,17 @@
 // Vercel Serverless Function — repo'nun /api/ klasörüne koy
 
 import crypto from 'crypto';
+import { fb } from './_fb.mjs';
+
+const ADMIN_EMAILS = ['retropatchyama@gmail.com', 'admin@retropatch.com'];
+async function isAdmin(req) {
+  try {
+    const m = /^Bearer (.+)$/.exec(req.headers.authorization || '');
+    if (!m) return false;
+    const u = await fb().auth.verifyIdToken(m[1]);
+    return ADMIN_EMAILS.includes(u.email);
+  } catch (e) { return false; }
+}
 
 const IMAGEKIT_PRIVATE_KEY = process.env.IMAGEKIT_PRIVATE_KEY;
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'https://retropatch.vercel.app';
@@ -27,10 +38,11 @@ function isRateLimited(ip) {
   return false;
 }
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   // CORS — sadece kendi domain'e izin ver
   res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization');
   res.setHeader('Vary', 'Origin');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -45,7 +57,8 @@ export default function handler(req, res) {
 
   // Rate limit kontrolü
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
-  if (isRateLimited(ip)) {
+  // Giriş yapmış admin toplu yüklemede (ör. Dolap görsellerini taşıma) sınırdan muaf
+  if (!(await isAdmin(req)) && isRateLimited(ip)) {
     return res.status(429).json({ error: 'Çok fazla istek, lütfen bekleyin' });
   }
 

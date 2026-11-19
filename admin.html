@@ -373,7 +373,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
-      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v2.5</button>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v2.6</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -514,6 +514,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <button class="btn btn-outline btn-sm" onclick="toggleProdView('table')" id="viewTable" title="Tablo görünüm"><svg class=ic data-n=menu><use href=#i-menu></use></svg> Tablo</button>
           <button class="btn btn-outline btn-sm" onclick="openBulkPriceModal()"><svg class=ic data-n=money><use href=#i-money></use></svg> Toplu Fiyat</button>
           <button class="btn btn-outline btn-sm" onclick="openDolapCmp()">&#128202; Dolap ↔ Site</button>
+          <button class="btn btn-outline btn-sm" onclick="openImgMig()">&#128444; Görselleri Taşı</button>
           <button class="btn btn-outline btn-sm" onclick="openBulkStatusModal()"><svg class=ic data-n=refresh><use href=#i-refresh></use></svg> Toplu Durum</button>
           <button class="btn btn-outline btn-sm" onclick="openBulkAddModal()"><svg class=ic data-n=clipboard><use href=#i-clipboard></use></svg> Toplu Ekle</button>
           <button class="btn btn-accent" onclick="openProdModal()">+ YENİ ÜRÜN</button>
@@ -6309,6 +6310,8 @@ function saveMarquee() {
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v2.6 · 19 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Ürünler → "Görselleri Taşı": Dolap sunucusundaki ürün fotoğraflarını ImageKit'e kopyalar (kalıcı, kaldığı yerden devam eder)</li></ul>
       <b style="color:var(--accent)">v2.5 · 19 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Toplu Ekle → yeni Dolap dosyası (JSON/CSV) yükleyince yalnızca yeni ürünler siteye eklenir (kategori otomatik, tekrarlar atlanır)</li></ul>
       <b style="color:var(--accent)">v2.4 · 19 Kasım 2026</b>
@@ -6469,6 +6472,73 @@ async function delSiteError(id) { try { await _errApi({ method: 'POST', body: JS
 async function clearSiteErrors() { if (!confirm('Tüm hata kayıtları silinsin mi?')) return; try { await _errApi({ method: 'POST', body: JSON.stringify({ clear: true }) }); toast('Temizlendi', 'ok'); loadSiteErrors(); } catch (e) { toast(e.message, 'err'); } }
 setTimeout(() => { try { if (auth.currentUser) loadSiteErrors(true); } catch (e) {} }, 6000);
 setInterval(() => { try { if (auth.currentUser) loadSiteErrors(true); } catch (e) {} }, 120000);
+</script>
+<div class="modal-ov" id="imgMigModal">
+  <div class="modal-box" style="max-width:620px;">
+    <div class="modal-hdr"><h3>&#128444; GÖRSELLERİ KENDİ SUNUCUNA TAŞI</h3><button class="modal-x" onclick="closeImgMig()">&times;</button></div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:12px;">Dolap sunucusundaki ürün fotoğraflarını <b>ImageKit</b>'e kopyalar ve ürünün görselini yeni adresle günceller. Böylece Dolap'tan ilanı silsen de fotoğraflar sitede kalır. İşlem sırasında bu sekmeyi açık tut; yarıda kesersen kaldığı yerden devam edersin.</div>
+      <div id="imgMigInfo" style="background:var(--bg3);border:1px solid var(--border);padding:10px 14px;margin-bottom:10px;font-size:13px;"></div>
+      <div style="height:10px;background:var(--bg3);border:1px solid var(--border);margin-bottom:10px;"><div id="imgMigBar" style="height:100%;width:0;background:var(--accent);transition:width .2s;"></div></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <button class="btn btn-accent" style="flex:2;justify-content:center;" id="imgMigStart" onclick="startImgMig()">▶ BAŞLAT</button>
+        <button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="stopImgMig()">■ Durdur</button>
+      </div>
+      <div id="imgMigLog" style="max-height:180px;overflow:auto;font-size:11px;color:var(--muted2);line-height:1.6;"></div>
+    </div>
+  </div>
+</div>
+<script>
+let _imMig = { run: false };
+const _imNeeds = p => /^https?:\/\//i.test(p.image || '') && !/imagekit\.io/i.test(p.image);
+function openImgMig() { openModal('imgMigModal'); renderImgMigInfo(); }
+function closeImgMig() { _imMig.run = false; closeModal('imgMigModal'); }
+function stopImgMig() { _imMig.run = false; }
+function renderImgMigInfo(done, fail) {
+  const total = (allProducts || []).length, need = (allProducts || []).filter(_imNeeds).length;
+  const el = document.getElementById('imgMigInfo');
+  if (el) el.innerHTML = 'Toplam <b>' + total + '</b> ürün · taşınması gereken <b style="color:#fb923c">' + need + '</b> · ImageKit\'te <b style="color:#4ade80">' + (total - need) + '</b>' + (done != null ? ' · bu işlemde ✔ ' + done + (fail ? ' · ✖ ' + fail : '') : '');
+}
+async function _imUpload(url, name, idt) {
+  const a = await (await fetch('/api/imagekit-auth', { headers: { Authorization: 'Bearer ' + idt } })).json();
+  if (!a.signature) throw new Error(a.error || 'Yetkilendirme alınamadı');
+  const fd = new FormData();
+  fd.append('file', url); fd.append('fileName', name); fd.append('folder', '/products');
+  fd.append('publicKey', 'public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8='); fd.append('signature', a.signature); fd.append('expire', a.expire); fd.append('token', a.token);
+  const r = await fetch('https://upload.imagekit.io/api/v1/files/upload', { method: 'POST', body: fd });
+  const d = await r.json();
+  if (!d.url) throw new Error(d.message || 'Yükleme başarısız');
+  return d.url;
+}
+async function startImgMig() {
+  if (_imMig.run) return;
+  const list = (allProducts || []).filter(_imNeeds);
+  const log = document.getElementById('imgMigLog'), bar = document.getElementById('imgMigBar'), btn = document.getElementById('imgMigStart');
+  if (!list.length) { toast('Taşınacak görsel yok', 'ok'); return; }
+  _imMig.run = true; btn.disabled = true; btn.textContent = '⏳ Taşınıyor…'; log.innerHTML = '';
+  let done = 0, fail = 0, i = 0;
+  const idt = async () => await auth.currentUser.getIdToken();
+  const worker = async () => {
+    while (_imMig.run) {
+      const p = list[i++]; if (!p) return;
+      try {
+        const nm = ('dolap-' + (p.dolapId || p.id) + '.jpg').replace(/[^a-zA-Z0-9._-]/g, '_');
+        const nu = await _imUpload(p.image, nm, await idt());
+        await db.collection('products').doc(p.id).update({ image: nu, imageOrig: p.image });
+        p.image = nu; done++;
+      } catch (e) {
+        fail++; log.insertAdjacentHTML('afterbegin', '<div style="color:#e63946;">✖ ' + String(p.name).replace(/[<>&]/g, '') + ': ' + String(e.message).replace(/[<>&]/g, '').slice(0, 90) + '</div>');
+      }
+      bar.style.width = Math.round((done + fail) / list.length * 100) + '%';
+      renderImgMigInfo(done, fail);
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+  const stopped = !_imMig.run; _imMig.run = false; btn.disabled = false; btn.textContent = '▶ BAŞLAT';
+  renderImgMigInfo(done, fail);
+  log.insertAdjacentHTML('afterbegin', '<div style="color:#4ade80;">' + (stopped ? 'Durduruldu' : 'Bitti') + ': ' + done + ' görsel taşındı' + (fail ? ', ' + fail + ' hata (tekrar BAŞLAT ile yeniden denenir)' : '') + '</div>');
+  if (done) addActivity('🖼', done + ' ürün görseli ImageKit\'e taşındı');
+}
 </script>
 </body>
 </html>
