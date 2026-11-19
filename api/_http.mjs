@@ -5,14 +5,19 @@ import { HttpError, GROUP_RE } from './_pay.mjs';
 export function sendErr(res, e) {
   const status = e instanceof HttpError ? e.status : 500;
   if (status === 500) console.error('[pay]', e);
-  res.status(status).json({ error: status === 500 ? 'Sunucu hatası' : e.message });
+  res.status(status).json({ error: e && e.cfg ? e.message : status === 500 ? 'Sunucu hatası' : e.message });
 }
 // Giriş yapmış üyenin kimliğini doğrular (Authorization: Bearer <Firebase ID token>)
 export async function authUid(req) {
   const m = /^Bearer (.+)$/.exec(req.headers.authorization || '');
   if (!m) throw new HttpError(401, 'Giriş gerekli');
-  try { return (await fb().auth.verifyIdToken(m[1])).uid; }
-  catch (e) { throw new HttpError(401, 'Oturum doğrulanamadı'); }
+  const { auth } = fb();            // ayar hatası burada 500 olarak, açık mesajla çıkar
+  try { return (await auth.verifyIdToken(m[1])).uid; }
+  catch (e) {
+    console.error('[auth] verifyIdToken:', e.code || '', e.message);
+    const wrongProj = /aud|audience|project/i.test(e.message || '');
+    throw new HttpError(401, wrongProj ? 'Oturum doğrulanamadı: Firebase servis hesabı yanlış projeye ait olabilir' : 'Oturum doğrulanamadı');
+  }
 }
 export function groupOf(body) {
   const g = body && body.group;
