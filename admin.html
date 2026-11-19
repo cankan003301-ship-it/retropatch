@@ -631,12 +631,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <div class="modal-box" style="max-width:700px;">
         <div class="modal-hdr"><h3><svg class=ic data-n=clipboard><use href=#i-clipboard></use></svg> TOPLU ÜRÜN EKLE</h3><button class="modal-x" onclick="closeModal('bulkAddModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
-          <div style="background:var(--bg3);border:1px solid var(--border);padding:12px 18px;margin-bottom:18px;font-size:12px;color:var(--muted2);line-height:1.8;">
-            Her satır 1 ürün. Sütunlar <code style="color:var(--accent);">|</code> ile ayrılır.<br>
-            Format: <strong style="color:var(--accent);">Ad | Fiyat | Kategori | Açıklama | Boyut | Durum | Arka Yüzey</strong><br>
-            <span style="opacity:.7;">Sadece Ad ve Fiyat zorunlu, geri kalanlar varsayılan değerleri alır.</span>
-          </div>
-          <div class="fg"><label>Ürün Listesi</label>
+          <div class="fg">
             <textarea id="bulkAddText" placeholder="Iron Maiden Patch | 149 | Müzik / Metal Grup Patch&#10;AC/DC Patch | 129&#10;Metallica Patch | 159 | Müzik / Metal Grup Patch | Nakış yama | 8x8 cm | Stokta | Ütüyle Yapışan"
               style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:12px 14px;font-family:monospace;font-size:12px;outline:none;resize:vertical;min-height:160px;"></textarea>
           </div>
