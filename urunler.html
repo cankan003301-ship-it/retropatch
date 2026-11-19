@@ -462,12 +462,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </select>
     <select class="sort-select" onchange="doSort(this.value)" id="sortSelect">
       <option value="default">Sıralama</option>
-      <option value="price_asc">Fiyat </option>
-      <option value="price_desc">Fiyat </option>
-      <option value="sales">En Çok Satan</option>
-      <option value="favorites">En Çok Favorilenen</option>
-      <option value="reviews">En Çok Yorum Alan</option>
-      <option value="name">A-Z</option>
+      <option value="newest">Yeniden eskiye</option>
+      <option value="oldest">Eskiden yeniye</option>
+      <option value="price_asc">Fiyat: düşükten yükseğe</option>
+      <option value="price_desc">Fiyat: yüksekten düşüğe</option>
+      <option value="sales">En çok satan</option>
+      <option value="favorites">En çok favorilenen</option>
+      <option value="reviews">En çok yorum alan</option>
+      <option value="name">İsim: A → Z</option>
     </select>
   </div>
 
@@ -513,8 +515,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <div class="filter-group-label">Sıralama</div>
       <div class="drawer-sort-btns" id="drawerSortBtns">
         <button class="drawer-sort-btn active" onclick="setDrawerSort('default',this)">Varsayılan</button>
-        <button class="drawer-sort-btn" onclick="setDrawerSort('price_asc',this)">Fiyat <svg class=ic data-n=arrow-u><use href=#i-arrow-u></use></svg></button>
-        <button class="drawer-sort-btn" onclick="setDrawerSort('price_desc',this)">Fiyat <svg class=ic data-n=arrow-d><use href=#i-arrow-d></use></svg></button>
+        <button class="drawer-sort-btn" onclick="setDrawerSort('newest',this)">Yeniden eskiye</button>
+        <button class="drawer-sort-btn" onclick="setDrawerSort('oldest',this)">Eskiden yeniye</button>
+        <button class="drawer-sort-btn" onclick="setDrawerSort('price_asc',this)">Fiyat: düşükten yükseğe</button>
+        <button class="drawer-sort-btn" onclick="setDrawerSort('price_desc',this)">Fiyat: yüksekten düşüğe</button>
         <button class="drawer-sort-btn" onclick="setDrawerSort('sales',this)"><svg class=ic data-n=fire><use href=#i-fire></use></svg> Çok Satan</button>
         <button class="drawer-sort-btn" onclick="setDrawerSort('favorites',this)"><svg class=ic data-n=heart><use href=#i-heart></use></svg> Favori</button>
         <button class="drawer-sort-btn" onclick="setDrawerSort('name',this)">A-Z</button>
@@ -715,7 +719,10 @@ function applyAll() {
     const matchMax = currentPriceMax === null || price <= currentPriceMax;
     return matchCat && matchQ && matchStock && matchMin && matchMax;
   });
-  if (currentSort==='price_asc') filtered.sort((a,b)=>(a.price||0)-(b.price||0));
+  const _ts = p => (p.createdAt && p.createdAt.seconds) || 0;
+  if (currentSort==='newest') filtered.sort((a,b)=>_ts(b)-_ts(a));
+  else if (currentSort==='oldest') filtered.sort((a,b)=>_ts(a)-_ts(b));
+  else if (currentSort==='price_asc') filtered.sort((a,b)=>(a.price||0)-(b.price||0));
   else if (currentSort==='price_desc') filtered.sort((a,b)=>(b.price||0)-(a.price||0));
   else if (currentSort==='sales') filtered.sort((a,b)=>(b.sales||0)-(a.sales||0));
   else if (currentSort==='favorites') filtered.sort((a,b)=>(b.favorites||0)-(a.favorites||0));
@@ -839,7 +846,7 @@ function renderActiveBadges() {
     badges.push({ label, clear: () => { currentPriceMin = null; currentPriceMax = null; const mn=document.getElementById('priceMin'); if(mn) mn.value=''; const mx=document.getElementById('priceMax'); if(mx) mx.value=''; const h=document.getElementById('priceRangeHint'); if(h) h.textContent=''; } });
   }
   if (currentSort !== 'default') {
-    const labels = { price_asc: 'Fiyat ↑', price_desc: 'Fiyat ↓', sales: '🔥 Çok Satan', favorites: '❤ Favori', reviews: '⭐ Yorum', name: 'A-Z' };
+    const labels = { newest: 'Yeniden eskiye', oldest: 'Eskiden yeniye', price_asc: 'Fiyat: düşükten yükseğe', price_desc: 'Fiyat: yüksekten düşüğe', sales: '🔥 Çok Satan', favorites: '❤ Favori', reviews: '⭐ Yorum', name: 'A-Z' };
     badges.push({ label: labels[currentSort] || currentSort, clear: () => { currentSort = 'default'; const s=document.getElementById('sortSelect'); if(s) s.value='default'; document.querySelectorAll('.drawer-sort-btn').forEach((b,i)=>b.classList.toggle('active',i===0)); } });
   }
   const q = document.getElementById('searchInput')?.value?.trim();
