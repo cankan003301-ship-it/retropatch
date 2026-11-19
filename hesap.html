@@ -708,7 +708,7 @@ function trackByCode() {
             <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent);">${o.orderCode||code}</div>
             <div style="font-size:11px;color:var(--muted);">${formatDate(o.createdAt)}</div>
           </div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${statusColor};border:1px solid ${statusColor};padding:4px 10px;">${(o.status||'yeni').toUpperCase()}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${statusColor};border:1px solid ${statusColor};padding:4px 10px;">${(({yeni:'YENİ',hazırlanıyor:'HAZIRLANIYOR',üretimde:'ÜRETİMDE',kargoda:'KARGOYA VERİLDİ',tamamlandı:'TESLİM EDİLDİ',iptal:'İPTAL',iade:'İADE'})[o.status||'yeni'] || (o.status||'yeni').toUpperCase())}</div>
         </div>
         ${trackSteps(o.cargo?.status || o.status)}
         ${o.cargo?.trackingCode ? `
