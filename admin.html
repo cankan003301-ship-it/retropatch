@@ -4722,7 +4722,7 @@ function renderActivityFeed() {
       ev.push({ t, k: 'fail', icon: '❌', text: 'Kart ödemesi başarısız · ' + who + (code ? ' · ' + code : '') + (tot ? ' · ₺' + tot.toLocaleString('tr-TR') : '') + (o.payment.failReason ? ' · ' + o.payment.failReason : '') });
     } else if (st === 'awaiting_card' && fresh) {
       ev.push({ t, k: 'wait', icon: '⏳', text: 'Kart ödemesi bekleniyor · ' + who + (tot ? ' · ₺' + tot.toLocaleString('tr-TR') : '') });
-    } else if (st === 'awaiting_card') {
+    } else if (st === 'awaiting_card' || st === 'abandoned') {
       ev.push({ t, k: 'fail', icon: '⚠️', text: 'Kart ödemesi tamamlanmadı · ' + who + (code ? ' · ' + code : '') + (tot ? ' · ₺' + tot.toLocaleString('tr-TR') : '') });
     }
   });
