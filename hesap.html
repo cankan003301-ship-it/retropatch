@@ -595,11 +595,11 @@ function showPage(name, el) {
 function loadOrders() {
   db.collection('orders').where('userId','==',currentUser.uid).orderBy('createdAt','desc')
     .onSnapshot(snap => {
-      allOrders = snap.docs.map(d=>({id:d.id,...d.data()}));
+      allOrders = snap.docs.map(d=>({id:d.id,...d.data()})).filter(o=>!(o.payment&&o.payment.method==='card'&&o.payment.status!=='paid'));
       renderOrders();
     }, () => {
       db.collection('orders').where('userId','==',currentUser.uid).get().then(snap=>{
-        allOrders = snap.docs.map(d=>({id:d.id,...d.data()})).reverse();
+        allOrders = snap.docs.map(d=>({id:d.id,...d.data()})).filter(o=>!(o.payment&&o.payment.method==='card'&&o.payment.status!=='paid')).reverse();
         renderOrders();
       });
     });

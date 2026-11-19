@@ -344,12 +344,13 @@ function loadMyOrders(uid) {
   area.innerHTML = '<div class="loading-state"><div class="loading-spinner"></div>Siparişleriniz yükleniyor...</div>';
   db.collection('orders').where('userId','==',uid).orderBy('createdAt','desc')
     .get().then(snap => {
-      myOrders = snap.docs.map(d => ({id:d.id,...d.data()}));
+      myOrders = snap.docs.map(d => ({id:d.id,...d.data()})).filter(o => !(o.payment && o.payment.method === 'card' && o.payment.status !== 'paid'));
       renderMyOrders();
     }).catch(() => {
       // orderBy index yoksa sırasız al
       db.collection('orders').where('userId','==',uid).get().then(snap => {
         myOrders = snap.docs.map(d => ({id:d.id,...d.data()}))
+          .filter(o => !(o.payment && o.payment.method === 'card' && o.payment.status !== 'paid'))
           .sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
         renderMyOrders();
       }).catch(() => { area.innerHTML = ''; });

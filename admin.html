@@ -149,6 +149,7 @@
     .act-item:not(:last-child)::after{content:'';position:absolute;left:29px;top:44px;bottom:-8px;width:2px;background:linear-gradient(var(--border),transparent);}
     .act-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);z-index:1;}
     .act-item.k-order .act-icon{background:rgba(46,204,113,.16);box-shadow:inset 0 0 0 1px rgba(46,204,113,.4);}
+    .act-item.k-fail .act-icon{background:rgba(231,76,60,.15);box-shadow:inset 0 0 0 1px rgba(231,76,60,.45);}
     .act-item.k-wait .act-icon{background:rgba(241,196,15,.15);box-shadow:inset 0 0 0 1px rgba(241,196,15,.4);}
     .act-item.k-msg .act-icon{background:rgba(52,152,219,.16);box-shadow:inset 0 0 0 1px rgba(52,152,219,.4);}
     .act-item.k-member .act-icon{background:rgba(155,89,182,.18);box-shadow:inset 0 0 0 1px rgba(155,89,182,.4);}
@@ -371,7 +372,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
-      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v1.6</button>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v1.7</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -1975,12 +1976,16 @@ function initData() {
 // ============ REALTIME LISTENERS ============
 function listenOrders() {
   db.collection('orders').onSnapshot(snap => {
-    allOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    const raw = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       .sort((a, b) => {
         const ta = a.createdAt?.seconds || 0;
         const tb = b.createdAt?.seconds || 0;
         return tb - ta;
       });
+    // Kartla ödenmemiş siparişler (bekleyen / başarısız / yarım kalan) Siparişler'de görünmez; yalnızca Aktivite akışında
+    window._cardUnpaid = raw.filter(o => o.payment && o.payment.method === 'card' && o.payment.status !== 'paid');
+    allOrders = raw.filter(o => !(o.payment && o.payment.method === 'card' && o.payment.status !== 'paid'));
+    renderActivityFeed();
     updateDashboard();
     renderOrders(document.querySelector('.ord-tab.active')?.dataset?.src || 'cart', document.getElementById('orderFilter')?.value || 'all');
     renderRecentOrders();
@@ -4656,11 +4661,27 @@ function renderActivityFeed() {
   const feed = document.getElementById('actFeed'); if (!feed) return;
   const ev = [];
   const ms = x => (x && x.seconds) ? x.seconds * 1000 : 0;
+  // Kartla ödenmemiş siparişler: başarısız ödeme / yarım kalan ödeme (siparişlere girmez)
+  (window._cardUnpaid || []).concat(window._cardUnpaidDg || []).slice(0, 40).forEach(o => {
+    const t = ms(o.createdAt); if (!t) return;
+    const st = o.payment && o.payment.status;
+    const tot = Number(o.total) || 0;
+    const who = o.userName || (o.address && o.address.name) || o.name || o.userEmail || o.email || 'Müşteri';
+    const code = o.orderCode || o.code || '';
+    const fresh = Date.now() - t < 30 * 60 * 1000;
+    if (st === 'failed') {
+      ev.push({ t, k: 'fail', icon: '❌', text: 'Kart ödemesi başarısız · ' + who + (code ? ' · ' + code : '') + (tot ? ' · ₺' + tot.toLocaleString('tr-TR') : '') + (o.payment.failReason ? ' · ' + o.payment.failReason : '') });
+    } else if (st === 'awaiting_card' && fresh) {
+      ev.push({ t, k: 'wait', icon: '⏳', text: 'Kart ödemesi bekleniyor · ' + who + (tot ? ' · ₺' + tot.toLocaleString('tr-TR') : '') });
+    } else if (st === 'awaiting_card') {
+      ev.push({ t, k: 'fail', icon: '⚠️', text: 'Kart ödemesi tamamlanmadı · ' + who + (code ? ' · ' + code : '') + (tot ? ' · ₺' + tot.toLocaleString('tr-TR') : '') });
+    }
+  });
   (typeof allOrders !== 'undefined' ? allOrders : []).slice(0, 30).forEach(o => {
     const t = ms(o.createdAt); if (!t) return;
-    const waiting = o.payment && o.payment.status === 'awaiting_card';
+    const waiting = false;
     const tot = Number(o.total) || 0;
-    ev.push({ t, k: waiting ? 'wait' : 'order', icon: waiting ? '⏳' : '🛒', text: (waiting ? 'Kart ödemesi bekleniyor' : 'Yeni sipariş') + ' · ' + (o.name || o.customerName || 'Müşteri') + (tot ? ' · ₺' + tot.toLocaleString('tr-TR') : '') });
+    ev.push({ t, k: waiting ? 'wait' : 'order', icon: waiting ? '⏳' : '🛒', text: (waiting ? 'Kart ödemesi bekleniyor' : 'Yeni sipariş') + ' · ' + (o.userName || (o.address && o.address.name) || o.name || o.customerName || 'Müşteri') + (tot ? ' · ₺' + tot.toLocaleString('tr-TR') : '') });
   });
   (typeof allMessages !== 'undefined' ? allMessages : []).slice(0, 20).forEach(m => {
     const t = ms(m.createdAt); if (!t) return;
@@ -5769,8 +5790,11 @@ async function revokeDgOrder(orderId) {
 let dgListenerReady = false, dgPrevPending = 0;
 function listenDigitalOrders() {
   db.collection('digital_orders').onSnapshot(snap => {
-    dgOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    const rawDg = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    window._cardUnpaidDg = rawDg.filter(o => o.payment && o.payment.method === 'card' && o.payment.status !== 'paid');
+    dgOrders = rawDg.filter(o => !(o.payment && o.payment.method === 'card' && o.payment.status !== 'paid'));
+    renderActivityFeed();
     const pending = dgOrders.filter(o => (o.status || 'bekliyor') === 'bekliyor').length;
     updateDgBadge();
     // İlk yükleme sessiz; sonrasında artış olursa uyar
@@ -6168,6 +6192,8 @@ function saveMarquee() {
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v1.7 · 19 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Kartla ödenmemiş siparişler artık Siparişler'de görünmez; ödeme alınınca düşer</li><li>Başarısız / yarım kalan kart ödemeleri Aktivite akışında görünür</li><li>PayTR ayar hatalarında açık mesaj</li></ul>
       <b style="color:var(--accent)">v1.6 · 16 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Toplu fiyatta yeni işlem türleri: "Dolap → Site" (Dolap %18 komisyon ve kargo payına göre)</li></ul>
       <b style="color:var(--accent)">v1.5 · 16 Kasım 2026</b>
