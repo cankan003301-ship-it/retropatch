@@ -635,7 +635,7 @@ async function rpReorder(orderId, btn) {
 
 function renderOrders() {
   const el = document.getElementById('ordersList');
-  const active = allOrders.filter(o=>o.status!=='tamamlandı'&&o.status!=='iptal').length;
+  const active = allOrders.filter(o=>o.status!=='tamamlandı'&&o.status!=='iptal'&&o.status!=='iade').length;
   const spent = allOrders.reduce((s,o)=>s+(o.total||0),0);
   document.getElementById('statTotal').textContent = allOrders.length;
   document.getElementById('statActive').textContent = active;
@@ -699,7 +699,7 @@ function trackByCode() {
       return;
     }
     const o = { id: snap.docs[0].id, ...snap.docs[0].data() };
-    const statusColors = { yeni: 'var(--accent)', hazırlanıyor: 'var(--blue)', tamamlandı: 'var(--green)', iptal: 'var(--accent2)' };
+    const statusColors = { yeni: 'var(--accent)', hazırlanıyor: 'var(--blue)', tamamlandı: 'var(--green)', üretimde: 'var(--accent)', kargoda: 'var(--blue)', iade: 'var(--muted)', iptal: 'var(--accent2)' };
     const statusColor = statusColors[o.status] || 'var(--muted)';
     result.innerHTML = `
       <div style="background:var(--bg3);border:1px solid var(--border);padding:16px;margin-top:4px;">
@@ -1073,12 +1073,12 @@ function doLogout() {
 function statusBadge(s) {
   const map = {
     'yeni':'b-yellow','Hazırlanıyor':'b-blue','Kargoya Verildi':'b-blue',
-    'Dağıtımda':'b-blue','Teslim Edildi':'b-green','tamamlandı':'b-green',
+    'Dağıtımda':'b-blue','Teslim Edildi':'b-green','tamamlandı':'b-green','üretimde':'b-yellow','kargoda':'b-blue','iade':'b-gray','hazırlanıyor':'b-blue',
     'iptal':'b-red','awaiting_transfer':'b-gray'
   };
   const labels = {
     'yeni':'Yeni','Hazırlanıyor':'Hazırlanıyor','Kargoya Verildi':'Kargoya Verildi',
-    'Dağıtımda':'Dağıtımda','Teslim Edildi':'Teslim Edildi','tamamlandı':'Tamamlandı',
+    'Dağıtımda':'Dağıtımda','Teslim Edildi':'Teslim Edildi','tamamlandı':'Teslim Edildi','üretimde':'Üretimde','kargoda':'Kargoya Verildi','iade':'İade','hazırlanıyor':'Hazırlanıyor',
     'iptal':'İptal','awaiting_transfer':'Havale Bekleniyor'
   };
   return `<span class="badge ${map[s]||'b-yellow'}">${labels[s]||s||'Yeni'}</span>`;

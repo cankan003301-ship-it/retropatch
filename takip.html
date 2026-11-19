@@ -570,8 +570,8 @@ function trackStepsHTML(status, pct) {
 
 // ── YARDIMCI ──
 function statusBadge(s) {
-  const map = {'yeni':'b-yellow','Hazırlanıyor':'b-blue','Kargoya Verildi':'b-blue','Dağıtımda':'b-blue','Teslim Edildi':'b-green','tamamlandı':'b-green','iptal':'b-red','awaiting_transfer':'b-gray'};
-  const lbl = {'yeni':'Yeni','Hazırlanıyor':'Hazırlanıyor','Kargoya Verildi':'Kargoya Verildi','Dağıtımda':'Dağıtımda','Teslim Edildi':'Teslim Edildi','tamamlandı':'Tamamlandı','iptal':'İptal','awaiting_transfer':'Havale Bekleniyor'};
+  const map = {'yeni':'b-yellow','Hazırlanıyor':'b-blue','Kargoya Verildi':'b-blue','Dağıtımda':'b-blue','Teslim Edildi':'b-green','tamamlandı':'b-green','üretimde':'b-yellow','kargoda':'b-blue','iade':'b-gray','hazırlanıyor':'b-blue','iptal':'b-red','awaiting_transfer':'b-gray'};
+  const lbl = {'yeni':'Yeni','Hazırlanıyor':'Hazırlanıyor','Kargoya Verildi':'Kargoya Verildi','Dağıtımda':'Dağıtımda','Teslim Edildi':'Teslim Edildi','tamamlandı':'Teslim Edildi','üretimde':'Üretimde','kargoda':'Kargoya Verildi','iade':'İade','hazırlanıyor':'Hazırlanıyor','iptal':'İptal','awaiting_transfer':'Havale Bekleniyor'};
   return `<span class="badge ${map[s]||'b-yellow'}">${lbl[s]||s||'Yeni'}</span>`;
 }
 
