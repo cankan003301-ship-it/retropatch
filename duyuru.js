@@ -1,3 +1,28 @@
+/* RetroPatch — Kargo notu: ".rp-ship-note" öğelerini admin'deki kargo ayarlarından doldurur ("Kargo ₺170 · ₺1.500 üzeri ücretsiz") */
+(function () {
+  function fill(t) { document.querySelectorAll('.rp-ship-note').forEach(function (e) { e.textContent = t; }); }
+  function run() {
+    try {
+      if (typeof db === 'undefined' || !document.querySelector('.rp-ship-note')) return;
+      db.collection('settings').doc('kargo').get().then(function (doc) {
+        var d = doc.exists ? doc.data() : {}, prices = [];
+        if (Array.isArray(d.companies) && d.companies.length) {
+          d.companies.forEach(function (c) { if (c && c.name && c.active !== false && !isNaN(Number(c.price))) prices.push(Number(c.price)); });
+        }
+        if (!prices.length) ['mng', 'yurtici', 'ptt', 'surat'].forEach(function (k) { if (d[k] !== undefined && !isNaN(Number(d[k]))) prices.push(Number(d[k])); });
+        if (!prices.length) return;
+        var min = Math.min.apply(null, prices), max = Math.max.apply(null, prices);
+        var limit = d.limit !== undefined ? Number(d.limit) : 0;
+        var fmt = function (n) { return '₺' + Number(n).toLocaleString('tr-TR'); };
+        var t = '🚚 Kargo ' + (min === max ? fmt(min) : fmt(min) + "'den başlayan fiyatlarla");
+        if (limit > 0) t += ' · ' + fmt(limit) + ' ve üzeri siparişlerde ÜCRETSİZ';
+        fill(t);
+      }).catch(function () {});
+    } catch (e) {}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
+
 /* RetroPatch — Site hata kaydı: tarayıcıda oluşan hatalar /api/log-error'a gönderilir (Admin → Site Hataları) */
 (function () {
   var sent = 0, seen = {};
