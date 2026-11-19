@@ -2,13 +2,13 @@
 // Vercel Serverless Function — repo'nun /api/ klasörüne koy
 
 import crypto from 'crypto';
-import { fb } from './_fb.mjs';
 
 const ADMIN_EMAILS = ['retropatchyama@gmail.com', 'admin@retropatch.com'];
 async function isAdmin(req) {
   try {
     const m = /^Bearer (.+)$/.exec(req.headers.authorization || '');
     if (!m) return false;
+    const { fb } = await import('./_fb.mjs');   // geç yükleme: Firebase kurulumu sorunlu olsa bile normal yüklemeler çalışır
     const u = await fb().auth.verifyIdToken(m[1]);
     return ADMIN_EMAILS.includes(u.email);
   } catch (e) { return false; }
