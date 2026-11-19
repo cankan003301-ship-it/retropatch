@@ -2218,7 +2218,7 @@ function ordGrouped(list, filter, cols, rowFn) {
     const g = list.filter(o => (o.status || 'yeni') === k);
     if (!g.length) return;
     const c = colors[k] || 'var(--accent)';
-    out += `<tr><td colspan="${cols}" style="background:var(--bg3);border-left:3px solid ${c};padding:10px 14px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;color:${c};">${label.toUpperCase()} <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted2);letter-spacing:1px;">· ${g.length} sipariş</span></td></tr>` + g.map(rowFn).join('');
+    out += `<tr><td colspan="${cols}" style="background:var(--bg3);border-left:3px solid ${c};padding:10px 14px;font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;color:${c};">${label.toLocaleUpperCase('tr')} <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted2);letter-spacing:1px;">· ${g.length} sipariş</span></td></tr>` + g.map(rowFn).join('');
   });
   // bilinmeyen durumlar kaybolmasın
   const known = new Set(ORDER_STATUSES.map(x => x[0]));
