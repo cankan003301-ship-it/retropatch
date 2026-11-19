@@ -628,35 +628,26 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
     <!-- TOPLU EKLEME MODAL -->
     <div class="modal-ov" id="bulkAddModal">
-      <div class="modal-box" style="max-width:700px;">
+      <div class="modal-box" style="max-width:520px;">
         <div class="modal-hdr"><h3><svg class=ic data-n=clipboard><use href=#i-clipboard></use></svg> TOPLU ÜRÜN EKLE</h3><button class="modal-x" onclick="closeModal('bulkAddModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
-          <div class="fg" style="display:none;">
-            <textarea id="bulkAddText" placeholder="Iron Maiden Patch | 149 | Müzik / Metal Grup Patch&#10;AC/DC Patch | 129&#10;Metallica Patch | 159 | Müzik / Metal Grup Patch | Nakış yama | 8x8 cm | Stokta | Ütüyle Yapışan"
-              style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:12px 14px;font-family:monospace;font-size:12px;outline:none;resize:vertical;min-height:160px;"></textarea>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-            <div class="fg" style="margin:0;"><label>Varsayılan Kategori</label>
-              <select id="bulkDefaultCat" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
+          <div style="display:none;">
+            <textarea id="bulkAddText"></textarea>
+            <select id="bulkDefaultCat" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
                 <option value="">Yükleniyor...</option>
               </select>
-            </div>
-            <div class="fg" style="margin:0;"><label>Varsayılan Durum</label>
-              <select id="bulkDefaultStatus" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
+            <select id="bulkDefaultStatus" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;">
                 <option>Stokta</option><option>Son 3</option><option>Tükendi</option>
               </select>
+            <div id="bulkAddPreview"></div>
+            <button id="bulkAddBtn"></button>
+          </div>
+          <div style="background:var(--bg3);border:1px solid rgba(200,169,110,.3);padding:12px 14px;">
+            <div style="font-size:12px;color:var(--muted2);margin-bottom:8px;">&#128230; <b style="color:var(--accent)">Dolap ürünlerini içe aktar</b> &mdash; yalnızca yeni ürünler eklenir, aynı olanlar atlanır, görseller ImageKit'e yüklenir.</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <input type="file" id="dolapFile" accept=".json,.csv,application/json,text/csv" onchange="importDolapFile(this)" style="flex:1;min-width:180px;font-size:12px;">
+              <button class="btn btn-outline" style="padding:7px 12px;font-size:12px;" onclick="importDolap()" id="dolapBtn">&#128229; DOLAP ÜRÜNLERİNİ EKLE</button>
             </div>
-          </div>
-          <div id="bulkAddPreview" style="display:none;background:var(--bg3);border:1px solid rgba(200,169,110,.2);padding:12px 16px;margin-bottom:16px;max-height:160px;overflow-y:auto;font-size:12px;"></div>
-          <div style="background:var(--bg3);border:1px solid rgba(200,169,110,.3);padding:14px 16px;margin-bottom:16px;">
-            <div style="font-size:12px;color:var(--muted2);margin-bottom:10px;">&#128230; <b style="color:var(--accent)">Dolap ürünlerini içe aktar</b> &mdash; 229 patch (fotoğraflı, kategorili). Aynı adlı ürünler atlanır.</div>
-            <button class="btn btn-outline" style="width:100%;justify-content:center;padding:10px;" onclick="importDolap()" id="dolapBtn">&#128229; DOLAP ÜRÜNLERİNİ EKLE</button>
-            <div style="margin-top:10px;font-size:12px;color:var(--muted2);">Dolap'a yeni ürün yüklediysen: dışa aktardığın <b>JSON veya CSV</b> dosyasını seç. Sadece <b>yeni</b> ürünler eklenir, siteye zaten eklenmiş olanlar atlanır.</div>
-            <input type="file" id="dolapFile" accept=".json,.csv,application/json,text/csv" onchange="importDolapFile(this)" style="margin-top:8px;width:100%;font-size:12px;">
-          </div>
-          <div style="display:flex;gap:8px;">
-            <button class="btn btn-outline" style="flex:1;justify-content:center;padding:12px;" onclick="previewBulkAdd()"><svg class=ic data-n=eye><use href=#i-eye></use></svg> Önizle</button>
-            <button class="btn btn-accent" style="flex:2;padding:14px;font-size:17px;justify-content:center;" onclick="applyBulkAdd()" id="bulkAddBtn"><svg class=ic data-n=save><use href=#i-save></use></svg> TOPLU EKLE</button>
           </div>
         </div>
       </div>
