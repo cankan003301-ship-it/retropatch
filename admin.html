@@ -550,6 +550,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" style="accent-color:var(--accent);width:14px;height:14px;"> TÜMÜNÜ SEÇ
         </label>
         <span id="selectedInfo" style="font-size:12px;color:var(--muted2);flex:1;"></span>
+        <button class="btn btn-accent btn-sm" onclick="openBulkPriceModal()">&#128176; Fiyat Güncelle</button>
+        <button class="btn btn-outline btn-sm" onclick="openBulkStatusModal()">&#128260; Durum</button>
         <button class="btn btn-danger btn-sm" onclick="bulkDeleteSelected()"><svg class=ic data-n=trash><use href=#i-trash></use></svg> Seçilenleri Sil</button>
         <button class="btn btn-outline btn-sm" onclick="clearSelection()"><svg class=ic data-n=close><use href=#i-close></use></svg> Temizle</button>
       </div>
@@ -577,7 +579,13 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="modal-hdr"><h3><svg class=ic data-n=money><use href=#i-money></use></svg> TOPLU FİYAT GÜNCELLEME</h3><button class="modal-x" onclick="closeModal('bulkPriceModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
           <div style="background:var(--bg3);border:1px solid var(--border);padding:12px 16px;margin-bottom:18px;font-size:12px;color:var(--muted2);">
-            Seçilen kategorideki tüm ürünlere uygulanır. <strong style="color:var(--accent);">Geri alınamaz.</strong>
+            Kapsama göre (kategori ya da yalnızca seçilen ürünler) uygulanır. <strong style="color:var(--accent);">Geri alınamaz.</strong>
+          </div>
+          <div class="fg"><label>Kapsam</label>
+            <select id="bpScope" onchange="updateBulkPricePreview()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;">
+              <option value="cat">Kategoriye göre (aşağıdaki seçim)</option>
+              <option value="sel">Yalnızca seçilen ürünler</option>
+            </select>
           </div>
           <div class="fg"><label>Kategori (boş = tümü)</label>
             <select id="bpCat" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;">
@@ -611,6 +619,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <div class="modal-box" style="max-width:400px;">
         <div class="modal-hdr"><h3><svg class=ic data-n=refresh><use href=#i-refresh></use></svg> TOPLU DURUM GÜNCELLEME</h3><button class="modal-x" onclick="closeModal('bulkStatusModal')"><svg class=ic data-n=close><use href=#i-close></use></svg></button></div>
         <div class="modal-body">
+          <div class="fg"><label>Kapsam</label>
+            <select id="bsScope" onchange="" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;">
+              <option value="cat">Kategoriye göre (aşağıdaki seçim)</option>
+              <option value="sel">Yalnızca seçilen ürünler</option>
+            </select>
+          </div>
           <div class="fg"><label>Kategori (boş = tümü)</label>
             <select id="bsCat" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;">
               <option value="all">Tüm Kategoriler</option>
@@ -2777,7 +2791,20 @@ function bulkDeleteSelected() {
 }
 
 // ── TOPLU FİYAT ───────────────────────────────────────
+function bulkTargets(scopeId, catId) {
+  const sc = document.getElementById(scopeId)?.value || 'cat';
+  if (sc === 'sel') return allProducts.filter(p => selectedProdIds.has(p.id));
+  const cat = document.getElementById(catId)?.value || 'all';
+  return allProducts.filter(p => cat === 'all' || p.cat === cat);
+}
+function bulkScopeInit(scopeId) {
+  const el = document.getElementById(scopeId); if (!el) return;
+  const n = selectedProdIds.size;
+  el.options[1].textContent = 'Yalnızca seçilen ürünler (' + n + ')';
+  el.value = n > 0 ? 'sel' : 'cat';
+}
 function openBulkPriceModal() {
+  bulkScopeInit('bpScope');
   updateBulkPricePreview();
   openModal('bulkPriceModal');
 }
@@ -2809,7 +2836,7 @@ function updateBulkPricePreview() {
   if (labelEl) labelEl.textContent = labels[type] || 'Değer';
 
   if ((!val && !type.startsWith('dolap')) || !preview) return;
-  const targets = allProducts.filter(p => cat === 'all' || p.cat === cat);
+  const targets = bulkTargets('bpScope', 'bpCat');
   const samples = targets.slice(0, 4);
   const newPrices = samples.map(p => {
     const old = parseFloat(p.price) || 0;
@@ -2826,8 +2853,8 @@ function applyBulkPrice() {
   const val = parseFloat(document.getElementById('bpValue').value);
   const cat = document.getElementById('bpCat').value;
   if (isNaN(val) || val < 0 || (val === 0 && !type.startsWith('dolap'))) { toast('Geçerli bir değer girin!', 'err'); return; }
-  const targets = allProducts.filter(p => cat === 'all' || p.cat === cat);
-  if (!targets.length) { toast('Hedef ürün bulunamadı!', 'err'); return; }
+  const targets = bulkTargets('bpScope', 'bpCat');
+  if (!targets.length) { toast(document.getElementById('bpScope').value === 'sel' ? 'Önce Ürünler sayfasında ürün seç' : 'Hedef ürün bulunamadı!', 'err'); return; }
   if (!confirm(`${targets.length} ürünün fiyatı güncellensin mi?`)) return;
   const chunks = [];
   for (let i = 0; i < targets.length; i += 490) chunks.push(targets.slice(i, i+490));
@@ -2848,13 +2875,13 @@ function applyBulkPrice() {
 }
 
 // ── TOPLU DURUM ───────────────────────────────────────
-function openBulkStatusModal() { openModal('bulkStatusModal'); }
+function openBulkStatusModal() { bulkScopeInit('bsScope'); openModal('bulkStatusModal'); }
 
 function applyBulkStatus() {
   const cat = document.getElementById('bsCat').value;
   const status = document.getElementById('bsStatus').value;
-  const targets = allProducts.filter(p => cat === 'all' || p.cat === cat);
-  if (!targets.length) { toast('Hedef ürün bulunamadı!', 'err'); return; }
+  const targets = bulkTargets('bsScope', 'bsCat');
+  if (!targets.length) { toast(document.getElementById('bsScope').value === 'sel' ? 'Önce Ürünler sayfasında ürün seç' : 'Hedef ürün bulunamadı!', 'err'); return; }
   if (!confirm(`${targets.length} ürünün durumu "${status}" yapılsın mı?`)) return;
   const chunks = [];
   for (let i = 0; i < targets.length; i += 490) chunks.push(targets.slice(i, i+490));
