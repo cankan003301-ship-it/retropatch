@@ -893,7 +893,7 @@ function renderCart() {
   container.innerHTML = cart.map((item,i) => `
     <div class="cart-item">
       <div class="cart-item-img">
-        ${item.image ? `<img src="${item.image}" alt="${item.name}">` : ''}
+        ${item.image ? `<img src="${item.image}" alt="${item.name}" referrerpolicy="no-referrer" loading="lazy" onerror="this.style.display='none';this.parentNode.style.cssText+=';display:flex;align-items:center;justify-content:center;font-size:26px;';this.parentNode.textContent='🧵'">` : ''}
       </div>
       <div>
         <div class="cart-item-name">${item.name}</div>
@@ -944,7 +944,7 @@ function renderMiniCart() {
   el.innerHTML = cart.map(item => `
     <div class="mini-cart-item">
       <div class="mini-cart-thumb">
-        ${item.image ? `<img src="${item.image}" alt="${item.name}">` : ''}
+        ${item.image ? `<img src="${item.image}" alt="${item.name}" referrerpolicy="no-referrer" loading="lazy" onerror="this.style.display='none';this.parentNode.style.cssText+=';display:flex;align-items:center;justify-content:center;font-size:26px;';this.parentNode.textContent='🧵'">` : ''}
       </div>
       <div class="mini-cart-info">
         <div class="mini-cart-name">${item.name}</div>
