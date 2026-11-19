@@ -2980,6 +2980,12 @@ async function importDolap(given, skippedCount) {
     });
     if (!items.length) { toast('Hepsi zaten ekli', 'ok'); return; }
     if (!confirm(items.length + ' yeni ürün eklenecek.\n' + dup.length + ' ürün sitede zaten olduğu için atlanacak.' + (skippedCount ? '\n' + skippedCount + ' kayıt yama olmadığı için alınmadı.' : '') + '\n\nYeni ürünler: ' + items.slice(0, 6).map(p => p.name).join(', ') + (items.length > 6 ? '…' : '') + '\n\nDevam?')) return;
+    // Görselleri otomatik ImageKit'e yükle (hata olursa Dolap bağlantısı kalır; sonra Görselleri Taşı ile tamamlanır)
+    let up = 0, upFail = 0, ui = 0;
+    const idt = await auth.currentUser.getIdToken();
+    const upW = async () => { while (ui < items.length) { const p = items[ui++]; if (!p.image || !/dsmcdn\.com/.test(p.image)) continue;
+      try { btn.textContent = '🖼 Görsel ' + (up + upFail + 1) + '/' + items.length; const nu = await _imUpload(p.image, ('dolap-' + (p.dolapId || Date.now()) + '.jpg').replace(/[^a-zA-Z0-9._-]/g, '_'), idt); p.imageOrig = p.image; p.image = nu; p.images = [nu]; up++; } catch (e) { upFail++; } } };
+    await Promise.all([upW(), upW(), upW()]);
     const ts = firebase.firestore.FieldValue.serverTimestamp();
     for (let i = 0; i < items.length; i += 400) {
       const b = db.batch();
@@ -2989,7 +2995,7 @@ async function importDolap(given, skippedCount) {
       });
       await b.commit();
     }
-    toast('✓ ' + items.length + ' ürün eklendi', 'ok');
+    toast('✓ ' + items.length + ' ürün eklendi · ' + up + ' görsel ImageKit\'e yüklendi' + (upFail ? ' (' + upFail + ' görsel yüklenemedi)' : ''), 'ok');
     addActivity('📦', items.length + ' Dolap ürünü içe aktarıldı');
     closeModal('bulkAddModal');
   } catch (e) { toast('Hata: ' + e.message, 'err'); }
