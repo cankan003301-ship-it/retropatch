@@ -1034,7 +1034,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </style>
 <div class="section" id="kuponlar" style="display:none;border-top:1px solid var(--border);">
   <div class="section-label">Kampanyalar</div>
-  <h2 class="section-title">İNDİRİM KUPONLARI</h2>
+  <h2 class="section-title">KAMPANYALAR &amp; KUPONLAR</h2>
+  <div class="feat-tabs" id="cpnTabs" style="display:none;">
+    <button class="feat-tab active" data-k="all">Tümü</button>
+    <button class="feat-tab" data-k="camp">🔥 Kampanyalar</button>
+    <button class="feat-tab" data-k="cpn">🎟 İndirim Kuponları</button>
+  </div>
   <div class="cpn-grid" id="cpnGrid"></div>
   <div style="text-align:center;margin-top:18px;font-size:12px;color:var(--muted);">Kodu kopyalayın, sepet sayfasında “Kupon kodu” alanına yapıştırın.</div>
 </div>
@@ -3494,15 +3499,23 @@ function rpFaqToggle(el) {
       !(c.limit && (c.used||0)>=c.limit));
     if(!list.length) return;                      // kupon yoksa bölüm gizli kalır
     list.sort((a,b)=>(b.value||0)-(a.value||0));
-    document.getElementById('cpnGrid').innerHTML=list.map(c=>`
+    const camps=list.filter(c=>c.type==='xpay').length;
+    const render=k=>{
+      const shown=list.filter(c=>k==='all'||(k==='camp'?c.type==='xpay':c.type!=='xpay'));
+      document.getElementById('cpnGrid').innerHTML=shown.length?shown.map(c=>`
       <div class="cpn-card">
-        <div class="cpn-l"><div class="cpn-big">${c.type==='percent'?'%'+esc(c.value):'₺'+esc(c.value)}</div><div class="cpn-s">İNDİRİM</div></div>
+        <div class="cpn-l">${c.type==='xpay'?'<div class="cpn-big" style="font-size:26px;line-height:1.05;">'+esc(c.buy)+' AL<br>'+esc(c.pay)+' ÖDE</div><div class="cpn-s">KAMPANYA</div>':'<div class="cpn-big">'+(c.type==='percent'?'%'+esc(c.value):'₺'+esc(c.value))+'</div><div class="cpn-s">İNDİRİM</div>'}</div>
         <div class="cpn-r">
           <div class="cpn-desc">${esc(c.desc||'Sepette geçerli indirim kuponu')}</div>
-          <div class="cpn-meta">${c.minCart?'Min. sepet ₺'+esc(c.minCart)+' · ':''}${c.expiry?new Date(c.expiry+'T00:00:00').toLocaleDateString('tr-TR')+' tarihine kadar':'Süresiz'}</div>
+          <div class="cpn-meta">${c.type==='xpay'?'Sepette '+esc(c.buy)+' ürün alana en ucuz '+esc(c.buy-c.pay)+' ürün ücretsiz · ':''}${c.minCart?'Min. sepet ₺'+esc(c.minCart)+' · ':''}${c.expiry?new Date(c.expiry+'T00:00:00').toLocaleDateString('tr-TR')+' tarihine kadar':'Süresiz'}</div>
           <button class="cpn-copy" data-code="${esc(c.id)}">${esc(c.id)} ⧉</button>
         </div>
-      </div>`).join('');
+      </div>`).join(''):'<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted);">Bu sekmede şu an kampanya yok.</div>';
+    };
+    const tabs=document.getElementById('cpnTabs');
+    if(camps&&camps<list.length){ tabs.style.display='flex'; tabs.addEventListener('click',e=>{const b=e.target.closest('.feat-tab');if(!b)return;tabs.querySelectorAll('.feat-tab').forEach(x=>x.classList.toggle('active',x===b));render(b.dataset.k);}); }
+    else if(camps){ tabs.style.display='none'; }
+    render('all');
     document.getElementById('kuponlar').style.display='block';
     document.getElementById('cpnGrid').addEventListener('click',e=>{
       const b=e.target.closest('.cpn-copy'); if(!b) return;

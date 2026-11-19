@@ -66,7 +66,18 @@ function cargoRule(kargo, key) {
   return { price, limit };
 }
 
-async function couponMaxDiscount(db, code, sub) {
+function xpayDisc(c, items) {
+  const buy = parseInt(c.buy, 10) || 0, pay = parseInt(c.pay, 10);
+  if (buy < 2 || !(pay >= 0) || pay >= buy) return 0;
+  const units = [];
+  for (const i of items || []) { const q = Math.max(0, Math.min(99, parseInt(i.qty, 10) || 1)), p = Number(i.price) || 0; for (let k = 0; k < q; k++) units.push(p); }
+  units.sort((a, b) => b - a);
+  let free = 0;
+  for (let g = 0; g + buy <= units.length; g += buy) for (let k = g + pay; k < g + buy; k++) free += units[k];
+  return Math.round(free * 100) / 100;
+}
+
+async function couponMaxDiscount(db, code, sub, items) {
   if (!code) return 0;
   const doc = await db.collection('coupons').doc(String(code)).get();
   if (!doc.exists) return 0;
@@ -75,6 +86,7 @@ async function couponMaxDiscount(db, code, sub) {
   if (c.expiry && new Date(c.expiry + 'T23:59:59') < new Date()) return 0;
   // Sipariş verildiği an kupon sayacı zaten artmış olabilir; "tükendi" kontrolü client'ta yapıldı, burada yalnızca değer sınırı doğrulanır.
   if (c.minCart && sub < Number(c.minCart)) return 0;
+  if (c.type === 'xpay') return Math.min(sub, xpayDisc(c, items));
   const v = Number(c.value) || 0;
   return Math.min(sub, c.type === 'percent' ? Math.round(sub * v / 100) : v);
 }
@@ -122,7 +134,7 @@ export async function prepareGroup(db, group, uid) {
     const expCargo = (c.limit > 0 && sub >= c.limit) ? 0 : c.price;
     const cargoPrice = Number((d.cargo && d.cargo.price) != null ? d.cargo.price : d.cargoPrice) || 0;
     if (cargoPrice < expCargo - 0.01) throw new HttpError(400, 'Kargo ücreti doğrulanamadı');
-    const maxDisc = await couponMaxDiscount(db, d.coupon, sub);
+    const maxDisc = await couponMaxDiscount(db, d.coupon, sub, items);
     const disc = Number(d.discount) || 0;
     if (disc > maxDisc + 0.01) throw new HttpError(400, 'İndirim doğrulanamadı');
     if (Math.abs(Number(d.total) - r2(sub + cargoPrice - disc)) > 0.01) throw new HttpError(400, 'Toplam tutarsız');

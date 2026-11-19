@@ -1362,9 +1362,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
               <select id="cpType" onchange="cpPreviewUpdate()">
                 <option value="percent">Yüzde (%)</option>
                 <option value="fixed">Sabit (₺)</option>
+                <option value="xpay">X Al Y Öde (adet kampanyası)</option>
               </select>
             </div>
-            <div class="fg"><label>İndirim Değeri *</label><input type="number" id="cpValue" placeholder="20" oninput="cpPreviewUpdate()"></div>
+            <div class="fg" id="cpValueFg"><label>İndirim Değeri *</label><input type="number" id="cpValue" placeholder="20" oninput="cpPreviewUpdate()"></div>
+            <div class="fg" id="cpXpayFg" style="display:none;"><label>Kaç Al → Kaç Öde *</label>
+              <div style="display:flex;gap:6px;align-items:center;"><input type="number" id="cpBuy" min="2" placeholder="3" oninput="cpPreviewUpdate()" style="width:70px;"> <span style="color:var(--muted2);">al</span> <input type="number" id="cpPay" min="0" placeholder="1" oninput="cpPreviewUpdate()" style="width:70px;"> <span style="color:var(--muted2);">öde</span></div>
+              <div style="font-size:11px;color:var(--muted2);margin-top:4px;">Sepette X adet ürün varsa en ucuz (X−Y) tanesi ücretsiz olur. Örn. 3 al 1 öde: her 3 üründen en ucuz 2'si bedava.</div>
+            </div>
           </div>
           <div class="fg-row">
             <div class="fg"><label>Kullanım Limiti</label><input type="number" id="cpLimit" placeholder="Sınırsız"></div>
@@ -4637,7 +4642,7 @@ function renderCoupons() {
         (days < 0 ? 'Bitti ' : (days === 0 ? 'Bugün bitiyor · ' : days + ' gün · ')) + end.toLocaleDateString('tr-TR') + '</span>');
     } else chips.push('<span class="cp-chip">Süresiz</span>');
     return `<div class="cp-card ${st === 'active' ? '' : 'off'}">
-      <div class="cp-val"><div class="cp-big">${c.type === 'percent' ? '%' + c.value : '₺' + c.value}</div><div class="cp-lbl">İNDİRİM</div></div>
+      <div class="cp-val">${c.type === 'xpay' ? '<div class="cp-big" style="font-size:22px;line-height:1.1;">' + c.buy + ' AL<br>' + c.pay + ' ÖDE</div><div class="cp-lbl">KAMPANYA</div>' : '<div class="cp-big">' + (c.type === 'percent' ? '%' + c.value : '₺' + c.value) + '</div><div class="cp-lbl">İNDİRİM</div>'}</div>
       <div class="cp-body">
         <div class="cp-code" onclick="copyCoupon('${c.id}')" title="Kodu kopyala">${dgEsc(c.id)} <span>⧉</span></div>
         <div class="cp-desc">${c.desc ? dgEsc(c.desc) : '&nbsp;'}</div>
@@ -4663,6 +4668,8 @@ function copyCoupon(id) {
 }
 
 function cpFillForm(c, code) {
+  document.getElementById('cpBuy').value = c.buy || '';
+  document.getElementById('cpPay').value = (c.pay !== undefined && c.pay !== null) ? c.pay : '';
   document.getElementById('cpCode').value = code || '';
   document.getElementById('cpType').value = c.type || 'percent';
   document.getElementById('cpValue').value = c.value || '';
@@ -4711,7 +4718,10 @@ function cpPreset(type, value) {
 function cpPreviewUpdate() {
   const type = document.getElementById('cpType').value;
   const v = document.getElementById('cpValue').value || '0';
-  document.getElementById('cpPrevVal').textContent = type === 'percent' ? '%' + v : '₺' + v;
+  const xp = type === 'xpay';
+  document.getElementById('cpValueFg').style.display = xp ? 'none' : '';
+  document.getElementById('cpXpayFg').style.display = xp ? '' : 'none';
+  document.getElementById('cpPrevVal').textContent = xp ? ((document.getElementById('cpBuy').value || '?') + ' AL ' + (document.getElementById('cpPay').value || '?') + ' ÖDE') : (type === 'percent' ? '%' + v : '₺' + v);
   document.getElementById('cpPrevCode').textContent = document.getElementById('cpCode').value.toUpperCase() || 'KUPON KODU';
   document.getElementById('cpPrevDesc').textContent = document.getElementById('cpDesc').value || 'Kupon önizlemesi';
 }
@@ -4734,12 +4744,15 @@ function saveCoupon() {
   const isPublic = document.getElementById('cpPublic').value === '1';
   const desc = document.getElementById('cpDesc').value.trim();
   if (!code) { toast('Kupon kodu zorunlu! (harf, rakam, - _)', 'err'); return; }
-  if (!value || value < 0) { toast('İndirim değeri zorunlu!', 'err'); return; }
+  const buy = parseInt(document.getElementById('cpBuy').value, 10), pay = parseInt(document.getElementById('cpPay').value, 10);
+  if (type === 'xpay') { if (!(buy >= 2) || !(pay >= 0) || pay >= buy) { toast('Geçerli bir "X al Y öde" girin (örn. 3 al 1 öde)', 'err'); return; } }
+  else if (!value || value < 0) { toast('İndirim değeri zorunlu!', 'err'); return; }
   if (type === 'percent' && value > 100) { toast('Yüzde 100\'den fazla olamaz!', 'err'); return; }
   if (!editId && allCoupons.some(c => c.id === code)) { toast('Bu kod zaten var!', 'err'); return; }
   const DEL = firebase.firestore.FieldValue.delete();
-  const data = { type, value, active, public: isPublic, desc, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+  const data = { type, value: type === 'xpay' ? (buy - pay) : value, active, public: isPublic, desc, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
   // Düzenlemede boşaltılan alanlar gerçekten silinsin
+  if (type === 'xpay') { data.buy = buy; data.pay = pay; } else if (editId) { data.buy = DEL; data.pay = DEL; }
   data.limit = limit || (editId ? DEL : undefined);
   data.minCart = minCart || (editId ? DEL : undefined);
   data.expiry = expiry || (editId ? DEL : undefined);

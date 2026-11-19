@@ -978,6 +978,7 @@ function saveCart() {
 }
 
 function updateSummary() {
+  if (appliedCouponData && appliedCouponData.type === 'xpay') discountAmount = Math.min(physSubtotal(), rpXpayDisc(appliedCouponData, physItems()));   // sepet değişince yeniden hesapla
   const physSub = physSubtotal(), digSub = digSubtotal();
   const subtotal = physSub + digSub;
   const phys = hasPhys();
@@ -1025,6 +1026,17 @@ function selectPay(method, label) {
 
 
 
+function rpXpayDisc(c, items) {
+  const buy = parseInt(c.buy, 10) || 0, pay = parseInt(c.pay, 10);
+  if (buy < 2 || !(pay >= 0) || pay >= buy) return 0;
+  const units = [];
+  (items || []).forEach(i => { const q = Math.max(0, parseInt(i.qty, 10) || 1), p = Number(i.price) || 0; for (let k = 0; k < Math.min(q, 99); k++) units.push(p); });
+  units.sort((a, b) => b - a);
+  let free = 0;
+  for (let g = 0; g + buy <= units.length; g += buy) for (let k = g + pay; k < g + buy; k++) free += units[k];
+  return Math.round(free * 100) / 100;
+}
+let appliedCouponData = null;
 function applyCoupon() {
   const code = document.getElementById('couponInput').value.trim().toUpperCase();
   if (!code) return;
@@ -1043,8 +1055,12 @@ function applyCoupon() {
     // Minimum sepet tutarı kontrolü
     const subtotal = physSubtotal();
     if (c.minCart && subtotal < c.minCart) { toast(`Minimum sepet tutarı ₺${c.minCart}!`, true); return; }
-    discountAmount = Math.min(subtotal, c.type==='percent' ? Math.round(subtotal*c.value/100) : c.value);
-    appliedCoupon = code;
+    if (c.type === 'xpay') {
+      const d = rpXpayDisc(c, physItems());
+      if (d <= 0) { toast('Bu kampanya için sepette en az ' + c.buy + ' adet ürün olmalı.', true); return; }
+      discountAmount = Math.min(subtotal, d);
+    } else discountAmount = Math.min(subtotal, c.type==='percent' ? Math.round(subtotal*c.value/100) : c.value);
+    appliedCoupon = code; appliedCouponData = c;
     updateSummary();
     toast('✓ Kupon uygulandı! -₺'+discountAmount+' indirim');
   }).catch(e=>toast(e && e.code==='permission-denied' ? 'Kupon kullanmak için lütfen giriş yapın.' : 'Kupon kontrol edilemedi.', true));
