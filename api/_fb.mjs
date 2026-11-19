@@ -11,6 +11,8 @@ function parseSA(raw) {
   // dıştaki tırnakları at ("{...}" veya '{...}')
   if (/^(["']).*\1$/s.test(t)) t = t.slice(1, -1).trim();
   tries.push(t);
+  if (t.charAt(0) !== '{') { tries.push('{' + t); tries.push('{"' + t); }   // baştaki { veya {" yapıştırılırken kaybolmuşsa
+  if (t.charAt(t.length - 1) !== '}') tries.push(t + '}');
   tries.push(t.replace(/\\"/g, '"'));                       // \" ile kaçırılmış yapıştırma
   tries.push(t.replace(/\r?\n/g, '\\n'));                    // satır sonları gerçek yeni satır olarak girilmişse
   try { tries.push(Buffer.from(t, 'base64').toString('utf8')); } catch (e) {}
