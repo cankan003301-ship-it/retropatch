@@ -1123,7 +1123,9 @@ function loadReviews(productId) {
     ]).then(([orderSnap, existingSnap]) => {
       const hasPurchased = orderSnap.docs.some(doc => {
         const d = doc.data();
-        if (d.status === 'iptal') return false;
+        if (d.status === 'iptal' || d.status === 'iade') return false;
+        const ps = d.payment && d.payment.status;   // ödenmemiş/başarısız kart siparişleri satın alma sayılmaz
+        if (ps === 'awaiting_card' || ps === 'failed' || ps === 'abandoned') return false;
         return (d.items||[]).some(i => i.id === productId) ||
                (d.orderSource === 'form' && d.userEmail === user.email);
       });
