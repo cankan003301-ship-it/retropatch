@@ -2950,7 +2950,7 @@ function dolapClean(t) {
 // Dolap dışa aktarımı (JSON/CSV satırı) → site ürünü; yalnızca "Yama" türü
 function dolapSize(...txts) {
   for (const t of txts) {
-    const m = String(t || '').match(/(\d+(?:[.,]\d+)?)\s*[x×X*]\s*(\d+(?:[.,]\d+)?)\s*(?:cm|santim)?/i);
+    const m = String(t || '').match(/(\d+(?:[.,]\d+)?)\s*(?:cm|santim)?\s*[x×X*]\s*(\d+(?:[.,]\d+)?)\s*(?:cm|santim)?/i);
     if (m) return m[1].replace(',', '.') + 'x' + m[2].replace(',', '.') + ' cm';
   }
   return '';
