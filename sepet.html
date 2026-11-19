@@ -40,13 +40,14 @@
     .cart-empty{background:var(--card);border:1px solid var(--border);padding:60px;text-align:center;}
     .cart-empty-icon{font-size:48px;margin-bottom:16px;opacity:.3;}
     .cart-empty p{font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:var(--muted);margin-bottom:20px;}
-    .cart-item{background:var(--card);border:1px solid var(--border);padding:16px;display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:start;transition:border-color .2s;}
+    .cart-item{background:var(--card);border:1px solid var(--border);padding:16px;display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:14px;align-items:start;transition:border-color .2s;}
+    .cart-item>*{min-width:0;}
     .cart-item:hover{border-color:rgba(200,169,110,.2);}
     .cart-item-img{width:72px;height:72px;background:var(--bg3);overflow:hidden;flex-shrink:0;}
     .cart-item-img img{width:100%;height:100%;object-fit:cover;}
     .cart-item-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;margin-bottom:3px;}
     .cart-item-cat{font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:8px;}
-    .cart-item-meta{display:flex;align-items:center;gap:10px;}
+    .cart-item-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
     .qty-ctrl{display:flex;align-items:center;gap:6px;}
     .qty-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s;}
     .qty-btn:hover{border-color:var(--accent);color:var(--accent);}
@@ -222,6 +223,11 @@
     @media(max-width:900px){
       .cart-layout{grid-template-columns:1fr;}
       .order-summary{position:static;}
+      /* Telefonda ürünler formun altında kalıp görünmüyordu: ürün listesi en üste, özet/ödeme formdan sonra */
+      .cart-layout > div{display:contents;}
+      .cart-layout #cartItems{order:-1;}
+      .cart-layout #rpSuggest{order:8;}
+      .cart-layout .order-summary{order:9;}
     }
 
     @media(max-width:600px){
