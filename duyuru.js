@@ -1,3 +1,42 @@
+/* RetroPatch — Site hata kaydı: tarayıcıda oluşan hatalar /api/log-error'a gönderilir (Admin → Site Hataları) */
+(function () {
+  var sent = 0, seen = {};
+  function send(o) {
+    try {
+      if (sent >= 5) return;
+      var key = o.type + '|' + o.msg + '|' + (o.src || '') + '|' + (o.line || 0);
+      if (seen[key]) return; seen[key] = 1; sent++;
+      o.page = location.pathname + location.search;
+      var body = JSON.stringify(o);
+      if (navigator.sendBeacon) { navigator.sendBeacon('/api/log-error', new Blob([body], { type: 'text/plain' })); }
+      else fetch('/api/log-error', { method: 'POST', body: body, keepalive: true });
+    } catch (e) {}
+  }
+  function ignore(m, src) {
+    m = String(m || ''); src = String(src || '');
+    return !m || /^Script error\.?$/i.test(m) || /ResizeObserver loop/i.test(m) || /^(chrome|moz|safari)-extension:/i.test(src) || /extension:\/\//i.test(src);
+  }
+  window.addEventListener('error', function (e) {
+    var t = e.target;
+    if (t && t !== window && (t.tagName === 'IMG' || t.tagName === 'SCRIPT' || t.tagName === 'LINK')) {
+      var u = t.src || t.href || ''; if (!u || /^data:/i.test(u)) return;
+      return send({ type: 'resource', msg: 'Kaynak yüklenemedi: ' + String(u).slice(0, 220), src: u });
+    }
+    if (ignore(e.message, e.filename)) return;
+    send({ type: 'error', msg: e.message, src: e.filename, line: e.lineno, col: e.colno, stack: e.error && e.error.stack });
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e.reason, m = r && (r.message || r.code) ? (r.code ? r.code + ': ' : '') + (r.message || '') : String(r);
+    if (ignore(m, '')) return;
+    send({ type: 'promise', msg: m, stack: r && r.stack });
+  });
+  var ce = console.error;
+  console.error = function () {
+    try { var a = arguments[0]; var m = a && a.message ? a.message : (typeof a === 'string' ? a : ''); if (m && !/log-error/.test(m)) send({ type: 'console', msg: m + (arguments[1] && arguments[1].message ? ' · ' + arguments[1].message : '') }); } catch (x) {}
+    return ce.apply(console, arguments);
+  };
+})();
+
 /* RetroPatch — Duyuru sistemi (üst çubuk + açılır pencere)
    Admin → Duyurular'dan yönetilir. Veri: Firestore "announcements" koleksiyonu.
    Kullanım: sayfanın </body> kapanışından önce  <script src="duyuru.js"></script>
