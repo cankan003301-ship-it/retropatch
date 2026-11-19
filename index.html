@@ -3499,15 +3499,16 @@ function rpFaqToggle(el) {
       !(c.limit && (c.used||0)>=c.limit));
     if(!list.length) return;                      // kupon yoksa bölüm gizli kalır
     list.sort((a,b)=>(b.value||0)-(a.value||0));
-    const camps=list.filter(c=>c.type==='xpay').length;
+    const isC=c=>c.type==='xpay'||c.type==='nthpct'||c.type==='freeship';
+    const camps=list.filter(isC).length;
     const render=k=>{
-      const shown=list.filter(c=>k==='all'||(k==='camp'?c.type==='xpay':c.type!=='xpay'));
+      const shown=list.filter(c=>k==='all'||(k==='camp'?isC(c):!isC(c)));
       document.getElementById('cpnGrid').innerHTML=shown.length?shown.map(c=>`
       <div class="cpn-card">
-        <div class="cpn-l">${c.type==='xpay'?'<div class="cpn-big" style="font-size:26px;line-height:1.05;">'+esc(c.buy)+' AL<br>'+esc(c.pay)+' ÖDE</div><div class="cpn-s">KAMPANYA</div>':'<div class="cpn-big">'+(c.type==='percent'?'%'+esc(c.value):'₺'+esc(c.value))+'</div><div class="cpn-s">İNDİRİM</div>'}</div>
+        <div class="cpn-l">${c.type==='xpay'?'<div class="cpn-big" style="font-size:26px;line-height:1.05;">'+esc(c.buy)+' AL<br>'+esc(c.pay)+' ÖDE</div><div class="cpn-s">KAMPANYA</div>':c.type==='nthpct'?'<div class="cpn-big" style="font-size:24px;line-height:1.05;">'+esc(c.buy)+'. ÜRÜNE<br>%'+esc(c.value)+'</div><div class="cpn-s">KAMPANYA</div>':c.type==='freeship'?'<div class="cpn-big" style="font-size:22px;line-height:1.05;">ÜCRETSİZ<br>KARGO</div><div class="cpn-s">KAMPANYA</div>':'<div class="cpn-big">'+(c.type==='percent'?'%'+esc(c.value):'₺'+esc(c.value))+'</div><div class="cpn-s">İNDİRİM</div>'}</div>
         <div class="cpn-r">
           <div class="cpn-desc">${esc(c.desc||'Sepette geçerli indirim kuponu')}</div>
-          <div class="cpn-meta">${c.type==='xpay'?'Sepette '+esc(c.buy)+' ürün alana en ucuz '+esc(c.buy-c.pay)+' ürün ücretsiz · ':''}${c.minCart?'Min. sepet ₺'+esc(c.minCart)+' · ':''}${c.expiry?new Date(c.expiry+'T00:00:00').toLocaleDateString('tr-TR')+' tarihine kadar':'Süresiz'}</div>
+          <div class="cpn-meta">${c.type==='xpay'?'Sepette '+esc(c.buy)+' ürün alana en ucuz '+esc(c.buy-c.pay)+' ürün ücretsiz · ':c.type==='nthpct'?'Her '+esc(c.buy)+' üründen en ucuzuna %'+esc(c.value)+' indirim · ':c.type==='freeship'?'Kargo bedava · ':''}${c.minCart?'Min. sepet ₺'+esc(c.minCart)+' · ':''}${c.expiry?new Date(c.expiry+'T00:00:00').toLocaleDateString('tr-TR')+' tarihine kadar':'Süresiz'}</div>
           <button class="cpn-copy" data-code="${esc(c.id)}">${esc(c.id)} ⧉</button>
         </div>
       </div>`).join(''):'<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted);">Bu sekmede şu an kampanya yok.</div>';

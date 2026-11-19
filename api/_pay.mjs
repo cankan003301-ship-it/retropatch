@@ -67,14 +67,32 @@ function cargoRule(kargo, key) {
 }
 
 function xpayDisc(c, items) {
-  const buy = parseInt(c.buy, 10) || 0, pay = parseInt(c.pay, 10);
-  if (buy < 2 || !(pay >= 0) || pay >= buy) return 0;
+  const buy = parseInt(c.buy, 10) || 0;
+  if (buy < 2) return 0;
   const units = [];
   for (const i of items || []) { const q = Math.max(0, Math.min(99, parseInt(i.qty, 10) || 1)), p = Number(i.price) || 0; for (let k = 0; k < q; k++) units.push(p); }
   units.sort((a, b) => b - a);
   let free = 0;
-  for (let g = 0; g + buy <= units.length; g += buy) for (let k = g + pay; k < g + buy; k++) free += units[k];
+  if (c.type === 'xpay') {
+    const pay = parseInt(c.pay, 10);
+    if (!(pay >= 0) || pay >= buy) return 0;
+    for (let g = 0; g + buy <= units.length; g += buy) for (let k = g + pay; k < g + buy; k++) free += units[k];
+  } else if (c.type === 'nthpct') {
+    const pc = Math.max(0, Math.min(100, Number(c.value) || 0));
+    for (let g = 0; g + buy <= units.length; g += buy) free += units[g + buy - 1] * pc / 100;
+  }
   return Math.round(free * 100) / 100;
+}
+
+async function couponIsFreeShip(db, code, sub) {
+  if (!code) return false;
+  const doc = await db.collection('coupons').doc(String(code)).get();
+  if (!doc.exists) return false;
+  const c = doc.data();
+  if (c.type !== 'freeship' || c.active === false) return false;
+  if (c.expiry && new Date(c.expiry + 'T23:59:59') < new Date()) return false;
+  if (c.minCart && sub < Number(c.minCart)) return false;
+  return true;
 }
 
 async function couponMaxDiscount(db, code, sub, items) {
@@ -86,7 +104,8 @@ async function couponMaxDiscount(db, code, sub, items) {
   if (c.expiry && new Date(c.expiry + 'T23:59:59') < new Date()) return 0;
   // Sipariş verildiği an kupon sayacı zaten artmış olabilir; "tükendi" kontrolü client'ta yapıldı, burada yalnızca değer sınırı doğrulanır.
   if (c.minCart && sub < Number(c.minCart)) return 0;
-  if (c.type === 'xpay') return Math.min(sub, xpayDisc(c, items));
+  if (c.type === 'freeship') return 0;
+  if (c.type === 'xpay' || c.type === 'nthpct') return Math.min(sub, xpayDisc(c, items));
   const v = Number(c.value) || 0;
   return Math.min(sub, c.type === 'percent' ? Math.round(sub * v / 100) : v);
 }
@@ -131,7 +150,7 @@ export async function prepareGroup(db, group, uid) {
     sub = r2(sub);
     if (Math.abs(sub - Number(d.subtotal)) > 0.01) throw new HttpError(400, 'Ara toplam tutarsız');
     const c = cargoRule(kargo, d.cargo && d.cargo.company);
-    const expCargo = (c.limit > 0 && sub >= c.limit) ? 0 : c.price;
+    const expCargo = ((c.limit > 0 && sub >= c.limit) || await couponIsFreeShip(db, d.coupon, sub)) ? 0 : c.price;
     const cargoPrice = Number((d.cargo && d.cargo.price) != null ? d.cargo.price : d.cargoPrice) || 0;
     if (cargoPrice < expCargo - 0.01) throw new HttpError(400, 'Kargo ücreti doğrulanamadı');
     const maxDisc = await couponMaxDiscount(db, d.coupon, sub, items);

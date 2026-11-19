@@ -978,13 +978,13 @@ function saveCart() {
 }
 
 function updateSummary() {
-  if (appliedCouponData && appliedCouponData.type === 'xpay') discountAmount = Math.min(physSubtotal(), rpXpayDisc(appliedCouponData, physItems()));   // sepet değişince yeniden hesapla
+  if (appliedCouponData && RP_ITEM_CAMP(appliedCouponData.type)) discountAmount = Math.min(physSubtotal(), rpXpayDisc(appliedCouponData, physItems()));   // sepet değişince yeniden hesapla
   const physSub = physSubtotal(), digSub = digSubtotal();
   const subtotal = physSub + digSub;
   const phys = hasPhys();
   const kapidaExtra = (phys && selectedPay==='kapida') ? KAPIDA_FEE : 0;
   const freeLimit = window.FREE_CARGO_LIMIT || kargoSettings.limit || 1000;
-  const cargoPrice = !phys ? 0 : ((freeLimit > 0 && physSub >= freeLimit) ? 0 : (CARGO_PRICES[selectedCargo]||49));
+  const cargoPrice = !phys ? 0 : ((rpFreeShip() || (freeLimit > 0 && physSub >= freeLimit)) ? 0 : (CARGO_PRICES[selectedCargo]||49));
   const cargo = phys ? cargoPrice + kapidaExtra : 0;
   const disc = phys ? Math.min(discountAmount, physSub) : 0;
   const total = subtotal + cargo - disc;
@@ -1027,15 +1027,24 @@ function selectPay(method, label) {
 
 
 function rpXpayDisc(c, items) {
-  const buy = parseInt(c.buy, 10) || 0, pay = parseInt(c.pay, 10);
-  if (buy < 2 || !(pay >= 0) || pay >= buy) return 0;
+  const buy = parseInt(c.buy, 10) || 0;
+  if (buy < 2) return 0;
   const units = [];
   (items || []).forEach(i => { const q = Math.max(0, parseInt(i.qty, 10) || 1), p = Number(i.price) || 0; for (let k = 0; k < Math.min(q, 99); k++) units.push(p); });
   units.sort((a, b) => b - a);
   let free = 0;
-  for (let g = 0; g + buy <= units.length; g += buy) for (let k = g + pay; k < g + buy; k++) free += units[k];
+  if (c.type === 'xpay') {
+    const pay = parseInt(c.pay, 10);
+    if (!(pay >= 0) || pay >= buy) return 0;
+    for (let g = 0; g + buy <= units.length; g += buy) for (let k = g + pay; k < g + buy; k++) free += units[k];
+  } else if (c.type === 'nthpct') {
+    const pc = Math.max(0, Math.min(100, Number(c.value) || 0));
+    for (let g = 0; g + buy <= units.length; g += buy) free += units[g + buy - 1] * pc / 100;
+  }
   return Math.round(free * 100) / 100;
 }
+const RP_ITEM_CAMP = t => t === 'xpay' || t === 'nthpct';
+function rpFreeShip() { return !!(appliedCouponData && appliedCouponData.type === 'freeship' && hasPhys() && (!appliedCouponData.minCart || physSubtotal() >= appliedCouponData.minCart)); }
 let appliedCouponData = null;
 function applyCoupon() {
   const code = document.getElementById('couponInput').value.trim().toUpperCase();
@@ -1055,14 +1064,16 @@ function applyCoupon() {
     // Minimum sepet tutarı kontrolü
     const subtotal = physSubtotal();
     if (c.minCart && subtotal < c.minCart) { toast(`Minimum sepet tutarı ₺${c.minCart}!`, true); return; }
-    if (c.type === 'xpay') {
+    if (c.type === 'freeship') {
+      discountAmount = 0;
+    } else if (RP_ITEM_CAMP(c.type)) {
       const d = rpXpayDisc(c, physItems());
       if (d <= 0) { toast('Bu kampanya için sepette en az ' + c.buy + ' adet ürün olmalı.', true); return; }
       discountAmount = Math.min(subtotal, d);
     } else discountAmount = Math.min(subtotal, c.type==='percent' ? Math.round(subtotal*c.value/100) : c.value);
     appliedCoupon = code; appliedCouponData = c;
     updateSummary();
-    toast('✓ Kupon uygulandı! -₺'+discountAmount+' indirim');
+    toast(c.type === 'freeship' ? '✓ Ücretsiz kargo uygulandı!' : '✓ Kupon uygulandı! -₺'+discountAmount+' indirim');
   }).catch(e=>toast(e && e.code==='permission-denied' ? 'Kupon kullanmak için lütfen giriş yapın.' : 'Kupon kontrol edilemedi.', true));
 }
 
@@ -1075,7 +1086,7 @@ function copyIBAN() {
 function sendToWhatsApp() {
   if (!cart.length) { toast('Sepetiniz boş!', true); return; }
   var subtotal = cart.reduce(function(s,i){return s+(i.price||0)*(i.qty||1);},0);
-  var cargoPrice = hasPhys() ? (CARGO_PRICES[selectedCargo]||49) : 0;
+  var cargoPrice = hasPhys() ? (rpFreeShip() ? 0 : (CARGO_PRICES[selectedCargo]||49)) : 0;
   var kapidaExtra = (hasPhys() && selectedPay==='kapida') ? KAPIDA_FEE : 0;
   var total = subtotal + cargoPrice + kapidaExtra - discountAmount;
   var msg = '🏷 *RetroPatch Sipariş*\n\n';
@@ -1281,7 +1292,7 @@ async function doCheckout() {
   const physSub = physSubtotal();
   const kapidaExtra = (P.length && selectedPay==='kapida') ? KAPIDA_FEE : 0;
   const freeLimit2 = window.FREE_CARGO_LIMIT !== undefined ? window.FREE_CARGO_LIMIT : (kargoSettings.limit || 1000);
-  const baseCargoPrice = !P.length ? 0 : ((freeLimit2 > 0 && physSub >= freeLimit2) ? 0 : (CARGO_PRICES[selectedCargo]||49));
+  const baseCargoPrice = !P.length ? 0 : ((rpFreeShip() || (freeLimit2 > 0 && physSub >= freeLimit2)) ? 0 : (CARGO_PRICES[selectedCargo]||49));
   const cargoPrice = baseCargoPrice + kapidaExtra;
   const disc = P.length ? Math.min(discountAmount, physSub) : 0;
   const physTotal = P.length ? physSub + cargoPrice - disc : 0;
