@@ -159,6 +159,12 @@
 
     /* YORUM SİSTEMİ */
     .reviews-section{margin-top:16px;border-top:1px solid var(--border);padding-top:16px;}
+    /* yorumlar katlanır (varsayılan kapalı) */
+    .reviews-section.collapsed > *:not(.reviews-title){display:none !important;}
+    .reviews-section .reviews-title{cursor:pointer;user-select:none;}
+    .reviews-section .reviews-title::after{content:'▾';margin-left:10px;color:var(--accent);transition:transform .2s;}
+    .reviews-section:not(.collapsed) .reviews-title::after{transform:rotate(180deg);}
+    .reviews-section.collapsed .reviews-title{margin-bottom:0;}
     .reviews-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
 
     /* Puan özet kartı */
@@ -605,8 +611,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <button class="modal-zoom-btn" onclick="openLB()"><svg class=ic data-n=search><use href=#i-search></use></svg> Tam Ekran Gör</button>
 
       <!-- YORUM BÖLÜMÜ -->
-      <div class="reviews-section">
-        <div class="reviews-title">
+      <div class="reviews-section collapsed">
+        <div class="reviews-title" onclick="this.parentElement.classList.toggle('collapsed')">
           <span><svg class=ic data-n=star><use href=#i-star></use></svg> YORUMLAR</span>
           <span id="reviewAvgBadge" style="font-size:11px;color:#f4c542;"></span>
         </div>
@@ -967,6 +973,7 @@ function renderGrid() {
 }
 
 function openModal(id) {
+  document.querySelectorAll('.reviews-section').forEach(x=>x.classList.add('collapsed'));
   const p = allProducts.find(x=>x.id===id);
   if (!p) return;
   currentProduct = p;
