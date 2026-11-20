@@ -1131,6 +1131,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           </div>
 
           <div id="cw-breakdown" style="margin-top:20px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);padding-top:16px;"></div>
+          <div id="cw-lead" class="cw-lead"></div>
         </div>
 
         <div style="margin-top:24px;display:flex;flex-direction:column;gap:8px;">
@@ -1139,10 +1140,74 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         </div>
       </div>
     </div>
+
+    <!-- Hesaplayıcı ekleri: adet karşılaştırma, ölçü, tasarım türü, nakış notu -->
+    <div class="cw-x">
+      <div class="cw-xb">
+        <div class="cw-xt">📊 ADETE GÖRE BİRİM FİYAT</div>
+        <div id="cw-tiers"><div class="cw-xm">Karşılaştırmayı görmek için tasarım tipi seçin.</div></div>
+      </div>
+      <div class="cw-xb">
+        <div class="cw-xt">📏 ÖLÇÜ KARŞILAŞTIRMASI</div>
+        <div id="cw-sizeviz"></div>
+        <div class="cw-xm">Oranlar gerçek ölçülere göre çizilmiştir; ekranınızda birebir boyut olmayabilir. Ölçü, yamanın en uzun kenarıdır.</div>
+      </div>
+      <div class="cw-xb cw-wide">
+        <div class="cw-xt">🎨 TASARIM TÜRÜ NE DEMEK?</div>
+        <div class="cw-dex">
+          <div><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="#1d3557" stroke="#c8a96e" stroke-width="5" stroke-dasharray="3 2"/><text x="60" y="70" text-anchor="middle" font-family="Bebas Neue,Arial Black,sans-serif" font-size="30" fill="#f1faee" letter-spacing="2">EKİP</text></svg>
+            <b>BASİT</b><span>Yazı veya tek bir şekil, 1–3 renk, büyük ve net hatlar. Örn: isim, kısa slogan, tek ikon.</span><em>Hesaplayıcıda: Basit Tasarım</em></div>
+          <div><svg viewBox="0 0 120 120"><path d="M60 8 104 26v34c0 28-20 45-44 52C36 105 16 88 16 60V26z" fill="#6b0f1a" stroke="#c8a96e" stroke-width="5" stroke-dasharray="3 2"/><path d="M60 30l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z" fill="#f4d35e"/><rect x="30" y="80" width="60" height="12" fill="#f1faee"/><text x="60" y="90" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="9" fill="#6b0f1a">EST. 2024</text></svg>
+            <b>ORTA</b><span>Logo veya arma, 3–5 renk, birkaç şekil ve kısa yazı bir arada. Örn: kulüp arması, şirket logosu.</span><em>Hesaplayıcıda: genelde Karmaşık Tasarım</em></div>
+          <div><svg viewBox="0 0 120 120"><defs><clipPath id="cwc"><circle cx="60" cy="60" r="46"/></clipPath></defs><circle cx="60" cy="60" r="52" fill="#1b263b" stroke="#c8a96e" stroke-width="5" stroke-dasharray="3 2"/><g clip-path="url(#cwc)"><rect x="0" y="0" width="120" height="40" fill="#f4a261"/><rect x="0" y="40" width="120" height="14" fill="#e76f51"/><circle cx="78" cy="46" r="11" fill="#ffd166"/><path d="M0 78 30 44 50 66 70 40 100 72 120 60V120H0z" fill="#457b9d"/><path d="M30 44 36 51 26 53zM70 40 77 49 64 50z" fill="#f1faee"/><path d="M0 88 40 68 80 86 120 74V120H0z" fill="#2a9d8f"/><path d="M0 120V96l30-8 40 10 50-8v30z" fill="#264653"/><path d="M24 98l5-14 5 14zM34 100l4-11 4 11zM88 96l5-13 5 13z" fill="#1b4332"/></g><circle cx="60" cy="60" r="46" fill="none" stroke="#e9c46a" stroke-width="1.2"/><text x="60" y="113" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" fill="#e9c46a" letter-spacing="1">DAĞ KULÜBÜ · 1987</text></svg>
+            <b>DETAYLI</b><span>Manzara, portre veya gölgeli çizim, çok renk (6+), ince detaylar. Nakışa uygun hale getirmek için sadeleştirme gerekir.</span><em>Hesaplayıcıda: Karmaşık Tasarım</em></div>
+        </div>
+        <div class="cw-xm">Görseller örnek çizimdir. Emin değilseniz tasarımı gönderin, uygun türü biz söyleyelim.</div>
+      </div>
+      <div class="cw-xb cw-wide">
+        <div class="cw-xt">⚠ NAKIŞTA NELER DEĞİŞEBİLİR?</div>
+        <div class="cw-emb">
+          <div><svg viewBox="0 0 240 110"><text x="8" y="14" font-family="Arial" font-size="9" fill="#888">TASARIMDA</text><rect x="8" y="22" width="104" height="80" fill="#f1faee"/><path d="M18 40h84" stroke="#1d3557" stroke-width=".6"/><path d="M18 46h84" stroke="#1d3557" stroke-width=".6"/><text x="60" y="64" text-anchor="middle" font-family="Arial" font-size="5" fill="#1d3557">küçük yazı 3 mm · ince detay</text><defs><linearGradient id="cwg"><stop offset="0" stop-color="#e63946"/><stop offset="1" stop-color="#1d3557"/></linearGradient></defs><rect x="18" y="74" width="84" height="18" fill="url(#cwg)"/>
+            <text x="128" y="14" font-family="Arial" font-size="9" fill="#c8a96e">NAKIŞTA</text><rect x="128" y="22" width="104" height="80" fill="#f1faee"/><path d="M138 43h84" stroke="#1d3557" stroke-width="3.2" stroke-dasharray="2 .6"/><text x="180" y="65" text-anchor="middle" font-family="Arial Black" font-size="5.5" fill="#1d3557" opacity=".55" letter-spacing="-.4">kuçuk yazı 3 mm · ınce detay</text><rect x="138" y="74" width="28" height="18" fill="#e63946"/><rect x="166" y="74" width="28" height="18" fill="#8a2c4f"/><rect x="194" y="74" width="28" height="18" fill="#1d3557"/></svg></div>
+          <ul>
+            <li><b>Yakın ince çizgiler birleşir:</b> İplik kalınlığı yüzünden 1 mm'den ince çizgiler kalınlaşır, birbirine yakın olanlar tek çizgi gibi görünür.</li>
+            <li><b>Küçük yazılar okunmaz:</b> Harf yüksekliği 5 mm'nin altındaysa yazı dağılabilir. Küçük yamalarda yazıyı kısa tutun.</li>
+            <li><b>Renk geçişleri yapılamaz:</b> Gradyan ve gölgeler birkaç düz renge bölünür.</li>
+            <li><b>Detay sadeleşir:</b> Çok küçük parçalar birleştirilir veya çıkarılır. Üretimden önce size son halini gösterip onay alırız.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <style>
+  .cw-lead{margin-top:16px;padding:12px 14px;border:1px solid rgba(200,169,110,.3);background:rgba(200,169,110,.06);font-size:12px;color:var(--muted);line-height:1.6}
+  .cw-lead b{color:var(--accent);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:14px}
+  .cw-lead:empty{display:none}
+  .cw-x{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:2px}
+  .cw-xb{background:var(--bg2);border:1px solid var(--border);padding:22px 24px}
+  .cw-wide{grid-column:1/-1}
+  .cw-xt{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2.5px;color:var(--accent);margin-bottom:14px}
+  .cw-xm{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5}
+  .cw-tt{width:100%;border-collapse:collapse;font-size:13px}
+  .cw-tt th{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);font-weight:600}
+  .cw-tt th:first-child,.cw-tt td:first-child{text-align:left}
+  .cw-tt td{padding:8px;text-align:right;border-bottom:1px solid var(--border);color:var(--text)}
+  .cw-tt tr.on td{background:rgba(200,169,110,.1);color:var(--accent);font-weight:700}
+  .cw-tt .sv{color:#2ecc71;font-size:11px}
+  .cw-dex{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .cw-dex>div{background:var(--bg3);border:1px solid var(--border);padding:14px;text-align:center;display:flex;flex-direction:column;gap:6px}
+  .cw-dex svg{width:96px;height:96px;margin:0 auto 4px}
+  .cw-dex b{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--text);font-weight:400}
+  .cw-dex span{font-size:12px;color:var(--muted);line-height:1.5}
+  .cw-dex em{font-style:normal;font-size:11px;color:var(--accent);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px}
+  .cw-emb{display:grid;grid-template-columns:minmax(260px,1fr) 1.2fr;gap:20px;align-items:center}
+  .cw-emb svg{width:100%;max-width:420px;display:block}
+  .cw-emb ul{margin:0;padding-left:18px;font-size:12px;color:var(--muted);line-height:1.6;display:flex;flex-direction:column;gap:6px}
+  .cw-emb li b{color:var(--text)}
+  #cw-sizeviz svg{width:100%;display:block}
+  @media(max-width:768px){.cw-x{grid-template-columns:1fr}.cw-dex{grid-template-columns:1fr}.cw-dex>div{flex-direction:row;text-align:left;align-items:center;flex-wrap:wrap}.cw-dex svg{width:70px;height:70px;margin:0}.cw-dex>div>b{flex:1}.cw-dex span,.cw-dex em{flex-basis:100%}.cw-emb{grid-template-columns:1fr}.cw-xb{padding:18px 16px}}
   .cw-chip {
     padding: 8px 14px;
     background: var(--bg3);
@@ -1299,6 +1364,59 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     return true;
   };
 
+  // ── Ekler: üretim süresi, adet karşılaştırması, ölçü görseli ──
+  const LEAD = [ { max:10, d:[3,5] }, { max:50, d:[5,8] }, { max:100, d:[7,10] }, { max:1e9, d:[10,15] } ];   // iş günü (tasarım hazırken)
+  const DESIGN_LEAD = { yok:[0,0], basit:[1,2], karisik:[2,3] };   // tasarım + onay süresi
+  function addWorkDays(n) { const d = new Date(); let k = 0; while (k < n) { d.setDate(d.getDate() + 1); const w = d.getDay(); if (w !== 0 && w !== 6) k++; } return d; }
+  const fmtD = d => d.toLocaleDateString('tr-TR', { day:'numeric', month:'long' });
+  function cwLead(qty, designId) {
+    const el = document.getElementById('cw-lead'); if (!el) return;
+    if (!designId) { el.innerHTML = ''; return; }
+    const b = (LEAD.find(x => qty <= x.max) || LEAD[LEAD.length-1]).d, ds = DESIGN_LEAD[designId] || [1,3];
+    const lo = b[0] + ds[0], hi = b[1] + ds[1];
+    el.innerHTML = '⏱ <b>Tahmini üretim: ' + lo + '–' + hi + ' iş günü</b><br>Kargo (1–3 iş günü) ile birlikte tahmini teslim: <span style="color:var(--text)">' + fmtD(addWorkDays(lo + 1)) + ' – ' + fmtD(addWorkDays(hi + 3)) + '</span>' +
+      (ds[1] ? '<br><span style="font-size:11px">Tasarım hazırlanıp onayınız alındıktan sonra üretime başlanır.</span>' : '') +
+      '<br><span style="font-size:11px">Süre yoğunluğa göre değişebilir; kesin tarihi sipariş onayında bildiririz.</span>';
+  }
+  function cwTiers(unit, qty) {
+    const el = document.getElementById('cw-tiers'); if (!el) return;
+    if (!unit) { el.innerHTML = '<div class="cw-xm">Karşılaştırmayı görmek için tasarım tipi seçin.</div>'; return; }
+    const pctOf = q => { let p = 0; [...CW.data.discounts].sort((a,b)=>b.minQty-a.minQty).some(x => q >= x.minQty && (p = x.pct, true)); return p; };
+    const tiers = [...new Set([1, ...CW.data.discounts.map(x => x.minQty)])].sort((a,b)=>a-b).slice(0, 6);
+    const m = v => '₺' + v.toLocaleString('tr-TR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+    const cur = tiers.filter(t => t <= qty).pop();
+    el.innerHTML = '<table class="cw-tt"><tr><th>ADET</th><th>BİRİM</th><th>TOPLAM</th><th>TASARRUF</th></tr>' + tiers.map(t => {
+      const p = pctOf(t), u = unit * (1 - p/100), save = (unit - u) * t;
+      return '<tr' + (t === cur ? ' class="on"' : '') + '><td>' + t + (t === cur ? ' ◀' : '') + '</td><td>' + m(u) + '</td><td>' + m(u * t) + '</td><td class="sv">' + (p ? '%' + p + ' · ' + m(save) : '—') + '</td></tr>';
+    }).join('') + '</table>' + (function () {
+      const nx = tiers.find(t => t > qty); if (!nx) return '';
+      const p1 = pctOf(qty), p2 = pctOf(nx); if (p2 <= p1) return '';
+      return '<div class="cw-xm">💡 <b style="color:var(--accent)">' + nx + ' adete</b> çıkarsanız birim fiyat ' + m(unit*(1-p1/100)) + ' yerine <b style="color:#2ecc71">' + m(unit*(1-p2/100)) + '</b> olur.</div>';
+    })();
+  }
+  function cwSizeViz() {
+    const el = document.getElementById('cw-sizeviz'); if (!el) return;
+    const sz = CW.data.sizes.find(s => s.id === CW.sel.size) || {};
+    const nums = String(sz.desc || '').match(/\d+(?:[.,]\d+)?/g) || [];
+    let lo = 0, hi = 99; if (/≤|<|alt/.test(sz.desc || '') && nums[0]) hi = +nums[0]; else if (/\+|üst/.test(sz.desc || '') && nums[0]) lo = +nums[0] - .5; else if (nums.length >= 2) { lo = +nums[0]; hi = +nums[1]; }
+    const S = 10, base = 165, refs = [5, 8, 10, 15], L = 18;
+    let svg = '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg" font-family="Barlow Condensed,Arial,sans-serif">';
+    // cetvel
+    svg += '<line x1="' + L + '" y1="' + (base + 12) + '" x2="' + (L + 16*S) + '" y2="' + (base + 12) + '" stroke="#555"/>';
+    for (let c = 0; c <= 16; c++) svg += '<line x1="' + (L + c*S) + '" y1="' + (base + 12) + '" x2="' + (L + c*S) + '" y2="' + (base + (c % 5 ? 16 : 20)) + '" stroke="#555"/>' + (c % 5 ? '' : '<text x="' + (L + c*S) + '" y="' + (base + 30) + '" font-size="9" fill="#777" text-anchor="middle">' + c + ' cm</text>');
+    refs.slice().reverse().forEach(cm => {
+      const on = cm > lo + .01 && cm <= hi + .01, w = cm * S;
+      svg += '<rect x="' + L + '" y="' + (base - w) + '" width="' + w + '" height="' + w + '" rx="' + (w*.12) + '" fill="' + (on ? 'rgba(200,169,110,.16)' : 'none') + '" stroke="' + (on ? '#c8a96e' : '#444') + '" stroke-width="' + (on ? 2 : 1) + '" stroke-dasharray="' + (on ? '4 2' : '3 3') + '"/>' +
+        '<text x="' + (L + w - 4) + '" y="' + (base - w + 11) + '" font-size="10" text-anchor="end" fill="' + (on ? '#c8a96e' : '#666') + '" font-weight="700">' + cm + ' cm</text>';
+    });
+    // referanslar: kredi kartı 8,56×5,4 · 1 TL Ø2,6
+    const cx = L + 16*S + 14;
+    svg += '<rect x="' + cx + '" y="' + (base - 5.4*S) + '" width="' + 8.56*S + '" height="' + 5.4*S + '" rx="4" fill="#2a4365" stroke="#4a6fa5"/><rect x="' + (cx + 8) + '" y="' + (base - 5.4*S + 14) + '" width="12" height="9" rx="1.5" fill="#d4af37"/><text x="' + (cx + 8.56*S/2) + '" y="' + (base - 5.4*S - 6) + '" font-size="9" fill="#999" text-anchor="middle">Kredi kartı</text>';
+    svg += '<circle cx="' + (cx + 1.3*S + 4) + '" cy="' + (base - 8.2*S) + '" r="' + 1.3*S + '" fill="#b8a46a" stroke="#8a7a45"/><text x="' + (cx + 1.3*S + 4 + 18) + '" y="' + (base - 8.2*S + 3) + '" font-size="9" fill="#999">1 TL</text>';
+    svg += '</svg>';
+    el.innerHTML = svg + '<div class="cw-xm" style="margin-top:4px">Seçili boyut: <b style="color:var(--accent)">' + esc(sz.name || '') + ' (' + esc(sz.desc || '') + ')</b> · altın çizgiler bu aralığa giren ölçüler.</div>';
+  }
+
   window.cwCalc = function() {
     const d = CW.data;
     const prod  = d.products.find(p => p.id===CW.sel.product);
@@ -1320,6 +1438,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         `<span>${iconHtml(prod.icon,1)} ${esc(prod.name)}${sz ? ' · ' + esc(sz.name) : ''}</span><span style="color:#e63946;">⚠ Fiyatı görmek için tasarım tipi seçin</span>`;
       if (waBtn) { waBtn.href = '#hesaplayici'; waBtn.classList.add('cw-wa-locked'); waBtn.textContent = '🎨 ÖNCE TASARIM TİPİ SEÇİN'; }
       if (req) req.style.display = '';
+      cwLead(qty, null); cwTiers(0, qty); cwSizeViz();
       return;
     }
     if (req) req.style.display = 'none';
@@ -1336,6 +1455,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
     const discUnit = unit*(1-pct/100);
     const total    = discUnit*qty;
+    cwLead(qty, design.id); cwTiers(unit, qty); cwSizeViz();
 
     document.getElementById('cw-unit').textContent  = '₺'+discUnit.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
     document.getElementById('cw-total').textContent = '₺'+total.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
