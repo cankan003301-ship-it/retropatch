@@ -36,6 +36,7 @@ export default async function handler(req, res) {
       id: doc.id, orderCode: o.orderCode, createdAt: iso(o.createdAt), status: o.status || 'yeni',
       cargo: { company: c.company || '', companyName: c.companyName || '', trackingCode: c.trackingCode || '', status: c.status || '', price: c.price || 0 },
       payment: { method: p.method || '', status: p.status || '' },
+      production: o.production || '', orderSource: o.orderSource === 'form' ? 'form' : '',
       items: (o.items || []).map(i => ({ id: i.id, name: i.name, qty: i.qty || 1, price: i.price || 0, image: i.image || '' })),
       subtotal: o.subtotal || 0, cargoPrice: o.cargoPrice || 0, discount: o.discount || 0, total: o.total || 0,
       address: { city: (o.address && o.address.city) || '' }

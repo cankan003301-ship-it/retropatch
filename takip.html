@@ -469,6 +469,7 @@ function renderOrderDetail(o, isMain=false) {
       </div>
 
       <!-- KARGO ADIMLARI -->
+      ${rpProdSteps(o) ? '<div class="steps-section" style="padding-bottom:4px;">' + rpProdSteps(o) + '</div>' : ''}
       <div class="steps-section">
         <div class="steps-label">Kargo Durumu</div>
         ${trackStepsHTML(o.cargo?.status, stepPct)}
@@ -540,6 +541,40 @@ function renderOrderDetail(o, isMain=false) {
 }
 
 // ── KARGO ADIMLARI HTML ──
+
+// ── Üretim aşamaları (admin → orders.production) ──
+const RP_PROD = [['inceleme','Tasarım inceleniyor'],['onay','Tasarım onay bekliyor'],['uretim','Üretime alındı'],['nakis','Nakış tamamlandı'],['kalite','Kalite kontrol'],['kargo','Kargoya verildi']];
+function rpProdSteps(o) {
+  if (!o || ['iptal', 'iade'].includes(o.status)) return '';
+  const shipped = ['Kargoya Verildi', 'Dağıtımda', 'Teslim Edildi'].includes(o.cargo && o.cargo.status) || ['kargoda', 'tamamlandı'].includes(o.status);
+  let idx = RP_PROD.findIndex(x => x[0] === o.production);
+  if (idx < 0 && o.orderSource !== 'form') return '';
+  if (shipped) idx = 5; else if (idx < 0) idx = 0;
+  const done = o.status === 'tamamlandı' || (o.cargo && o.cargo.status === 'Teslim Edildi');
+  const li = RP_PROD.map(([k, l], i) => {
+    const st = i < idx || (i === idx && done) ? 'd' : i === idx ? 'c' : 'p';
+    return '<li class="rpps-' + st + '"><i>' + (st === 'd' ? '✓' : i + 1) + '</i><span>' + l + (st === 'c' ? ' <em>şu an</em>' : '') + '</span></li>';
+  }).join('');
+  return '<div class="rpps"><div class="rpps-t">ÜRETİM DURUMU</div><ol>' + li + '</ol></div>';
+}
+(function () {
+  if (document.getElementById('rppsCss')) return;
+  const st = document.createElement('style'); st.id = 'rppsCss';
+  st.textContent = '.rpps{margin:12px 0;padding:14px 16px;background:rgba(200,169,110,.04);border:1px solid var(--border,#2a2a2a)}' +
+    '.rpps-t{font-family:"Barlow Condensed",sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;color:var(--muted,#888);margin-bottom:10px}' +
+    '.rpps ol{list-style:none;margin:0;padding:0}' +
+    '.rpps li{display:flex;align-items:center;gap:10px;position:relative;padding:5px 0;font-size:13px;color:var(--muted,#888)}' +
+    '.rpps li:not(:last-child)::after{content:"";position:absolute;left:11px;top:27px;height:calc(100% - 22px);width:2px;background:var(--border,#2a2a2a)}' +
+    '.rpps li.rpps-d:not(:last-child)::after{background:var(--accent,#c8a96e)}' +
+    '.rpps i{font-style:normal;flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:2px solid var(--border,#2a2a2a);background:var(--bg,#0a0a0a);z-index:1}' +
+    '.rpps .rpps-d i{background:var(--accent,#c8a96e);border-color:var(--accent,#c8a96e);color:#000}' +
+    '.rpps .rpps-d span{color:var(--text,#ddd)}' +
+    '.rpps .rpps-c i{border-color:var(--accent,#c8a96e);color:var(--accent,#c8a96e);box-shadow:0 0 0 4px rgba(200,169,110,.15)}' +
+    '.rpps .rpps-c span{color:var(--accent,#c8a96e);font-weight:700}' +
+    '.rpps em{font-style:normal;font-size:10px;letter-spacing:1.5px;border:1px solid var(--accent,#c8a96e);padding:1px 6px;margin-left:6px;text-transform:uppercase}';
+  document.head.appendChild(st);
+})();
+
 function trackStepIndex(status) {
   const steps = ['Hazırlanıyor','Kargoya Verildi','Dağıtımda','Teslim Edildi'];
   return steps.indexOf(status);

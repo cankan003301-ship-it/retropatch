@@ -2609,7 +2609,7 @@ function submitForm(e) {
     designType: (document.getElementById('designSelect')||{}).value || '',
     qty: f.querySelector('input[type=number]').value,
     notes: f.querySelector('textarea').value + pvSummary(),
-    designFile: fileName || null,
+    designFile: fileName || (uploadedFileUrl ? 'onceki-tasarim' : null),
     designFileUrl: uploadedFileUrl || null,
     userId: currentUser ? currentUser.uid : 'guest',
     userEmail: currentUser ? currentUser.email : f.querySelector('input[type=email]').value,
@@ -2631,6 +2631,31 @@ function submitForm(e) {
     removeFile();
   }).catch(() => showToast('Hata oluştu.'));
 }
+// Hesabım → "Tekrar sipariş ver": form önceki siparişin bilgileriyle dolu açılır
+(function () {
+  let r; try { r = JSON.parse(sessionStorage.getItem('rp_reorder') || 'null'); } catch (e) {}
+  if (!r) return;
+  sessionStorage.removeItem('rp_reorder');
+  function fill() {
+    const f = document.querySelector('#siparis form'); if (!f) return;
+    const set = (el, v) => { if (el && v !== undefined && v !== '') { el.value = v; el.dispatchEvent(new Event('change')); } };
+    const pick = (sel, v) => { if (!sel || !v) return; const o = [...sel.options].find(x => (x.value || x.text) === v || x.text === v); if (o) { sel.value = o.value; sel.dispatchEvent(new Event('change')); } };
+    set(f.querySelector('input[type=text]'), r.name); set(f.querySelector('input[type=tel]'), r.phone); set(f.querySelector('input[type=email]'), r.email);
+    const s = f.querySelectorAll('select'); pick(s[0], r.type); pick(s[1], r.size); pick(s[2], r.back); pick(document.getElementById('designSelect'), r.designType);
+    set(f.querySelector('input[type=number]'), r.qty); set(f.querySelector('textarea'), r.notes);
+    if (r.designFileUrl) {
+      uploadedFileUrl = r.designFileUrl;
+      const pv = document.getElementById('filePreview'), nm = document.getElementById('filePreviewName');
+      if (pv && nm) { pv.style.display = 'block'; nm.textContent = (r.designFile || 'Önceki tasarım dosyası') + ' · ✅ Önceki siparişten'; }
+      const img = document.getElementById('filePreviewImg');
+      if (img && /\.(png|jpe?g|webp|gif|svg)(\?|$)/i.test(r.designFileUrl)) img.src = r.designFileUrl;
+    }
+    const sec = document.getElementById('siparis'); if (sec) setTimeout(() => sec.scrollIntoView({ behavior: 'smooth' }), 300);
+    if (typeof showToast === 'function') showToast('↻ Önceki siparişin bilgileri yüklendi, kontrol edip gönderin.');
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill); else setTimeout(fill, 0);
+})();
+
 function submitContact(e) {
   e.preventDefault();
   const f = e.target;
