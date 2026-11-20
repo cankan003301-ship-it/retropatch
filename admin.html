@@ -5073,9 +5073,10 @@ function toast(msg, type='ok') {
 // ===== EMAIL BİLDİRİMLERİ (ADMIN) =====
 async function sendAdminEmail(type, data) {
   try {
+    const _u = firebase.auth().currentUser, _t = _u ? await _u.getIdToken() : '';
     const res = await fetch('/api/send-email', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: {'Content-Type':'application/json', 'Authorization': 'Bearer ' + _t},
       body: JSON.stringify({ type, data })
     });
     const json = await res.json();

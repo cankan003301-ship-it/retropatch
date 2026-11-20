@@ -9,7 +9,7 @@ function limited(ip) {
   const now = Date.now(), arr = (hits.get(ip) || []).filter(t => now - t < 60000);
   arr.push(now); hits.set(ip, arr);
   if (hits.size > 5000) hits.clear();
-  return arr.length > 20;
+  return arr.length > 10;
 }
 const iso = ts => { try { return ts && ts.toDate ? ts.toDate().toISOString() : null; } catch { return null; } };
 

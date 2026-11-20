@@ -1,6 +1,52 @@
 // api/send-email.js — RetroPatch Email API (Resend)
 // Vercel Serverless Function — repo'nun /api/ klasörüne koy
 
+const ADMIN_EMAILS = ['retropatchyama@gmail.com', 'admin@retropatch.com'];
+const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fbx = async () => (await import('./_fb.mjs')).fb();
+async function adminOk(req) {
+  try {
+    const m = /^Bearer (.+)$/.exec(req.headers.authorization || '');
+    if (!m) return false;
+    const u = await (await fbx()).auth.verifyIdToken(m[1]);
+    return ADMIN_EMAILS.includes(u.email);
+  } catch (e) { return false; }
+}
+// Sipariş onay e-postası: istemcinin gönderdiği içerik KULLANILMAZ. Sipariş koduyla gerçek kayıt bulunur,
+// içerik ve alıcı o kayıttan alınır; her sipariş için yalnızca bir kez, yalnızca yeni siparişlerde gönderilir.
+async function loadOrderForConfirm(code) {
+  const { db } = await fbx();
+  const s = await db.collection('orders').where('orderCode', '==', code).limit(1).get();
+  if (s.empty) return { err: [404, 'Sipariş bulunamadı'] };
+  const doc = s.docs[0], o = doc.data();
+  const t = o.createdAt && o.createdAt.toMillis ? o.createdAt.toMillis() : 0;
+  if (!t || Date.now() - t > 3 * 3600e3) return { err: [409, 'Sipariş e-posta süresi geçti'] };
+  if (o.emailSent && o.emailSent.confirmed) return { err: [200, 'Zaten gönderildi'] };
+  const p = o.payment || {};
+  if (p.method === 'card' && p.status !== 'paid') return { err: [200, 'Ödeme bekleniyor'] };
+  // tek seferlik: önce işaretle (yarış durumunda ikinci istek gönderemesin)
+  const ok = await db.runTransaction(async tx => {
+    const cur = await tx.get(doc.ref), d = cur.data() || {};
+    if (d.emailSent && d.emailSent.confirmed) return false;
+    tx.update(doc.ref, { 'emailSent.confirmed': true });
+    return true;
+  });
+  if (!ok) return { err: [200, 'Zaten gönderildi'] };
+  const a = o.address || {};
+  const isForm = o.orderSource === 'form';
+  return { data: {
+    orderCode: o.orderCode,
+    customerName: o.userName || o.name || a.name || 'Müşteri',
+    customerEmail: o.userEmail || o.email || '',
+    customerPhone: a.phone || o.phone || '',
+    items: (o.items || []).map(i => ({ name: i.name, qty: i.qty || 1, price: isForm ? '—' : (Number(i.price) || 0) * (i.qty || 1) })),
+    total: isForm ? '—' : (o.total || 0),
+    address: isForm ? '—' : [a.name, a.phone, a.address, a.district, a.city].filter(Boolean).join(', '),
+    paymentMethod: isForm ? 'Belirtilmedi' : p.method === 'havale' ? 'Havale/EFT' : p.method === 'kapida' ? 'Kapıda Ödeme' : p.method === 'card' ? 'Kredi/Banka Kartı (ödendi)' : 'Online Ödeme',
+    whatsapp: '905375295290'
+  } };
+}
+
 const RESEND_API_KEY  = process.env.RESEND_API_KEY;
 const ADMIN_EMAIL     = process.env.ADMIN_EMAIL || 'admin@retropatch.com';
 const FROM_EMAIL      = process.env.FROM_EMAIL  || 'onboarding@resend.dev';
@@ -45,7 +91,7 @@ export default async function handler(req, res) {
   // CORS — sadece kendi domain
   res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Vary', 'Origin');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -58,7 +104,8 @@ export default async function handler(req, res) {
 
   // Rate limit
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
-  if (isRateLimited(ip)) {
+  const isAdm = req.headers.authorization ? await adminOk(req) : false;
+  if (!isAdm && isRateLimited(ip)) {
     return res.status(429).json({ error: 'Çok fazla istek, lütfen bekleyin' });
   }
 
@@ -70,6 +117,19 @@ export default async function handler(req, res) {
   }
   if (!data || typeof data !== 'object') {
     return res.status(400).json({ error: 'data alanı zorunlu' });
+  }
+
+  if (type === 'order_confirmed') {
+    const code = String(data.orderCode || '').trim().toUpperCase();
+    if (!/^RP-[A-Z0-9]{4,16}$/.test(code)) return res.status(400).json({ error: 'Geçersiz sipariş kodu' });
+    let r;
+    try { r = await loadOrderForConfirm(code); }
+    catch (e) { console.error('[send-email] sipariş okunamadı', e); return res.status(500).json({ error: 'Sipariş doğrulanamadı' }); }
+    if (r.err) return res.status(r.err[0]).json(r.err[0] === 200 ? { ok: true, skipped: r.err[1] } : { error: r.err[1] });
+    Object.keys(data).forEach(k => delete data[k]);
+    Object.assign(data, r.data);
+  } else if (!isAdm) {
+    return res.status(401).json({ error: 'Yetkisiz' });
   }
 
   // Zorunlu alan doğrulamaları
@@ -94,6 +154,17 @@ export default async function handler(req, res) {
   data.address      = sanitize(data.address, 500);
   data.paymentMethod = sanitize(data.paymentMethod, 100);
   data.total        = sanitize(String(data.total || ''), 20);
+  data.cargoCompany = sanitize(String(data.cargoCompany || ''), 80);
+  data.trackingCode = sanitize(String(data.trackingCode || ''), 80);
+  data.trackingUrl  = /^https:\/\/[^\s"'<>]+$/.test(String(data.trackingUrl || '')) ? String(data.trackingUrl).slice(0, 500) : '';
+  // HTML'e giren her alan kaçışlanır (e-postaya kod/bağlantı enjekte edilemesin)
+  const rawAddr = data.address, subj = { code: data.orderCode, name: data.customerName.replace(/[\r\n]/g, ' ') }, toEmail = data.customerEmail;
+  ['orderCode', 'customerName', 'customerPhone', 'paymentMethod', 'total', 'cargoCompany', 'trackingCode'].forEach(k => { data[k] = esc(data[k]); });
+  data.address = esc(rawAddr);
+  data.trackingUrl = esc(data.trackingUrl);
+  data.items = (Array.isArray(data.items) ? data.items : []).slice(0, 50).map(i => ({ name: esc(sanitize(String((i && i.name) || ''), 150)), qty: esc(parseInt(i && i.qty, 10) || 1), price: esc(sanitize(String((i && i.price) ?? ''), 20)) }));
+  data.whatsapp = '905375295290';
+  data.customerEmail = esc(toEmail);
 
   let emails = [];
 
@@ -113,8 +184,8 @@ export default async function handler(req, res) {
     if (data.customerEmail) {
       emails.push({
         from: FROM_EMAIL,
-        to: data.customerEmail,
-        subject: `✅ Siparişiniz Alındı — #${data.orderCode}`,
+        to: toEmail,
+        subject: `✅ Siparişiniz Alındı — #${subj.code}`,
         html: `
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8">
@@ -201,7 +272,7 @@ export default async function handler(req, res) {
     emails.push({
       from: FROM_EMAIL,
       to: ADMIN_EMAIL,
-      subject: `🛒 YENİ SİPARİŞ — #${data.orderCode} — ${data.customerName}`,
+      subject: `🛒 YENİ SİPARİŞ — #${subj.code} — ${subj.name}`,
       html: `
 <div style="font-family:monospace;background:#0a0a0a;color:#e8e8e8;padding:32px;max-width:500px;">
   <div style="font-size:20px;color:#c8a96e;font-weight:900;letter-spacing:3px;margin-bottom:24px;">YENİ SİPARİŞ 🛒</div>
@@ -233,8 +304,8 @@ export default async function handler(req, res) {
     if (data.customerEmail) {
       emails.push({
         from: FROM_EMAIL,
-        to: data.customerEmail,
-        subject: `📦 Siparişiniz Kargoda — #${data.orderCode}`,
+        to: toEmail,
+        subject: `📦 Siparişiniz Kargoda — #${subj.code}`,
         html: `
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8">
@@ -293,8 +364,8 @@ export default async function handler(req, res) {
     if (data.customerEmail) {
       emails.push({
         from: FROM_EMAIL,
-        to: data.customerEmail,
-        subject: `✅ Siparişiniz Teslim Edildi — #${data.orderCode}`,
+        to: toEmail,
+        subject: `✅ Siparişiniz Teslim Edildi — #${subj.code}`,
         html: `
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8">
@@ -338,7 +409,7 @@ export default async function handler(req, res) {
   }
 
   else {
-    return res.status(400).json({ error: `Bilinmeyen type: ${type}` });
+    return res.status(400).json({ error: 'Bilinmeyen type' });
   }
 
   // ─────────────────────────────────────────────
@@ -359,9 +430,9 @@ export default async function handler(req, res) {
       if (emails.length > 1) await new Promise(resolve => setTimeout(resolve, 1200));
     }
     console.log('Emails sent:', results);
-    return res.status(200).json({ ok: true, sent: results.length, results });
+    return res.status(200).json({ ok: true, sent: results.length });
   } catch (err) {
     console.error('Email error:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'E-posta gönderilemedi' });
   }
 }

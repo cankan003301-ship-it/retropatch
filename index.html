@@ -2563,7 +2563,8 @@ if (fileArea) {
 
 // ===== FORMS =====
 function generateOrderCode() {
-  return 'RP-' + Date.now().toString(36).toUpperCase();
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return 'RP-' + Array.from(crypto.getRandomValues(new Uint8Array(8)), b => A[b % 32]).join('');
 }
 function sendOrderEmail(orderData) {
   fetch('/api/send-email', {
