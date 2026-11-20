@@ -716,6 +716,7 @@
       var bars = all.filter(function (a) {
         var p = a.place || 'bar';
         if (!((p === 'bar' || p === 'both') && dismissed[a.id] !== version(a))) return false;
+        if (p === 'both') return true;   // "Çubuk + pencere" seçilen duyuru hem çubukta hem pencerede görünür
         return !(popKeys[a.id] || popKeys[(a.title || '') + '|' + (a.text || '')]);
       });
       buildBar(bars);

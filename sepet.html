@@ -801,6 +801,8 @@ let CARD_PROVIDER = 'paytr';  // admin: settings/payments.provider
 let selectedCargo = 'mng';
 let discountAmount = 0;
 let appliedCoupon = '';
+let appliedCouponData = null;
+let autoCamps = [];
 
 // Sepeti hemen yükle - auth beklemeden
 loadCart();
@@ -1059,7 +1061,6 @@ function rpCampCalc(c, sub, items) {
   d = Math.min(sub, d);
   return d > 0 ? { disc: d, free: false } : null;
 }
-let autoCamps = [];
 function rpEffective() {
   const none = { code: '', disc: 0, free: false, name: '', auto: false };
   if (!hasPhys()) return none;
@@ -1096,7 +1097,6 @@ function rpLoadAutoCamps() {
   } catch (e) {}
 }
 window.addEventListener('load', rpLoadAutoCamps);
-let appliedCouponData = null;
 function applyCoupon() {
   const code = document.getElementById('couponInput').value.trim().toUpperCase();
   if (!code) return;
