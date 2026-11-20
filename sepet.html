@@ -978,7 +978,7 @@ function saveCart() {
 }
 
 function updateSummary() {
-  if (appliedCouponData && RP_ITEM_CAMP(appliedCouponData.type)) discountAmount = Math.min(physSubtotal(), rpXpayDisc(appliedCouponData, physItems()));   // sepet değişince yeniden hesapla
+  const eff = rpEffective();
   const physSub = physSubtotal(), digSub = digSubtotal();
   const subtotal = physSub + digSub;
   const phys = hasPhys();
@@ -986,8 +986,9 @@ function updateSummary() {
   const freeLimit = window.FREE_CARGO_LIMIT || kargoSettings.limit || 1000;
   const cargoPrice = !phys ? 0 : ((rpFreeShip() || (freeLimit > 0 && physSub >= freeLimit)) ? 0 : (CARGO_PRICES[selectedCargo]||49));
   const cargo = phys ? cargoPrice + kapidaExtra : 0;
-  const disc = phys ? Math.min(discountAmount, physSub) : 0;
+  const disc = phys ? Math.min(eff.disc, physSub) : 0;
   const total = subtotal + cargo - disc;
+  rpShowCampNote(eff);
   document.getElementById('sumSubtotal').textContent = '₺'+subtotal.toLocaleString('tr-TR');
   document.getElementById('sumCargo').textContent = !phys ? (cart.length ? 'Yok (dijital)' : '—') : (cargo === 0 ? '₺0 (Ücretsiz)' : '₺'+cargo);
   document.getElementById('sumDiscount').textContent = '-₺'+disc;
@@ -1044,7 +1045,57 @@ function rpXpayDisc(c, items) {
   return Math.round(free * 100) / 100;
 }
 const RP_ITEM_CAMP = t => t === 'xpay' || t === 'nthpct';
-function rpFreeShip() { return !!(appliedCouponData && appliedCouponData.type === 'freeship' && hasPhys() && (!appliedCouponData.minCart || physSubtotal() >= appliedCouponData.minCart)); }
+function rpFreeShip() { return rpEffective().free; }
+// Bir kampanya/kupon bu sepette ne kadar indirim (ya da ücretsiz kargo) sağlar? Uygun değilse null.
+function rpCampCalc(c, sub, items) {
+  if (!c || c.active === false) return null;
+  if (c.expiry && new Date(c.expiry + 'T23:59:59') < new Date()) return null;
+  if (c.limit && (c.used || 0) >= c.limit) return null;
+  if (c.minCart && sub < c.minCart) return null;
+  if (c.type === 'freeship') return { disc: 0, free: true };
+  let d = 0;
+  if (RP_ITEM_CAMP(c.type)) d = rpXpayDisc(c, items);
+  else d = c.type === 'percent' ? Math.round(sub * c.value / 100) : (Number(c.value) || 0);
+  d = Math.min(sub, d);
+  return d > 0 ? { disc: d, free: false } : null;
+}
+let autoCamps = [];
+function rpEffective() {
+  const none = { code: '', disc: 0, free: false, name: '', auto: false };
+  if (!hasPhys()) return none;
+  const sub = physSubtotal(), items = physItems(), base = (CARGO_PRICES[selectedCargo] || 49);
+  const val = r => r.disc + (r.free ? base : 0);
+  let best = none, bestV = 0;
+  if (appliedCoupon && appliedCouponData) {
+    const r = rpCampCalc(appliedCouponData, sub, items);
+    if (r) { best = { code: appliedCoupon, disc: r.disc, free: r.free, name: appliedCoupon, auto: false }; bestV = val(r); }
+  }
+  autoCamps.forEach(c => {
+    const r = rpCampCalc(c, sub, items);
+    if (r && val(r) > bestV) { best = { code: c.id, disc: r.disc, free: r.free, name: c.desc || c.id, auto: true }; bestV = val(r); }
+  });
+  return best;
+}
+function rpShowCampNote(eff) {
+  let el = document.getElementById('autoCampNote');
+  if (!el) {
+    const row = document.getElementById('sumDiscount') && document.getElementById('sumDiscount').parentElement;
+    if (!row) return;
+    el = document.createElement('div'); el.id = 'autoCampNote';
+    el.style.cssText = 'font-size:11px;color:var(--green);padding:0 0 8px;line-height:1.4;';
+    row.insertAdjacentElement('afterend', el);
+  }
+  el.textContent = eff.auto ? ('🔥 Kampanya uygulandı: ' + eff.name + (eff.free ? ' (ücretsiz kargo)' : '')) : '';
+}
+function rpLoadAutoCamps() {
+  try {
+    db.collection('coupons').where('public', '==', true).get().then(snap => {
+      autoCamps = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.auto === true);
+      updateSummary();
+    }).catch(() => {});
+  } catch (e) {}
+}
+window.addEventListener('load', rpLoadAutoCamps);
 let appliedCouponData = null;
 function applyCoupon() {
   const code = document.getElementById('couponInput').value.trim().toUpperCase();
@@ -1088,7 +1139,8 @@ function sendToWhatsApp() {
   var subtotal = cart.reduce(function(s,i){return s+(i.price||0)*(i.qty||1);},0);
   var cargoPrice = hasPhys() ? (rpFreeShip() ? 0 : (CARGO_PRICES[selectedCargo]||49)) : 0;
   var kapidaExtra = (hasPhys() && selectedPay==='kapida') ? KAPIDA_FEE : 0;
-  var total = subtotal + cargoPrice + kapidaExtra - discountAmount;
+  var _eff = rpEffective();
+  var total = subtotal + cargoPrice + kapidaExtra - Math.min(_eff.disc, physSubtotal());
   var msg = '🏷 *RetroPatch Sipariş*\n\n';
   cart.forEach(function(item) {
     msg += '• ' + item.name;
@@ -1098,7 +1150,7 @@ function sendToWhatsApp() {
   });
   msg += '\n💰 *Toplam: ₺' + total.toLocaleString('tr-TR') + '*';
   if (hasPhys()) msg += '\n🚚 Kargo: ' + CARGO_NAMES[selectedCargo] + ' (₺' + cargoPrice + ')';
-  if (discountAmount > 0) msg += '\n🎟 İndirim: -₺' + discountAmount;
+  if (_eff.disc > 0) msg += '\n🎟 İndirim: -₺' + _eff.disc;
   var adName = document.getElementById('adName').value.trim();
   var adCity = document.getElementById('adCity').value.trim();
   if (adName) msg += '\n\n📦 Alıcı: ' + adName;
@@ -1294,7 +1346,8 @@ async function doCheckout() {
   const freeLimit2 = window.FREE_CARGO_LIMIT !== undefined ? window.FREE_CARGO_LIMIT : (kargoSettings.limit || 1000);
   const baseCargoPrice = !P.length ? 0 : ((rpFreeShip() || (freeLimit2 > 0 && physSub >= freeLimit2)) ? 0 : (CARGO_PRICES[selectedCargo]||49));
   const cargoPrice = baseCargoPrice + kapidaExtra;
-  const disc = P.length ? Math.min(discountAmount, physSub) : 0;
+  const _effO = rpEffective();
+  const disc = P.length ? Math.min(_effO.disc, physSub) : 0;
   const physTotal = P.length ? physSub + cargoPrice - disc : 0;
 
   const isCard = selectedPay === 'card';
@@ -1316,7 +1369,7 @@ async function doCheckout() {
       payment: { method: selectedPay, status: selectedPay==='card' ? 'awaiting_card' : (selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery') },
       ...(isCard ? { payGroup } : {}),
       subtotal: physSub, cargoPrice, discount: disc, total: physTotal,
-      coupon: appliedCoupon||'',
+      coupon: _effO.code || '',
       status: 'yeni',
       orderSource: 'cart',
       orderCode,

@@ -1395,6 +1395,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
               </select>
             </div>
           </div>
+          <div class="fg"><label>Otomatik uygula (kod gerekmez)</label>
+            <select id="cpAuto" onchange="if(this.value==='1')document.getElementById('cpPublic').value='1'">
+              <option value="0">Hayır — müşteri kodu girer</option>
+              <option value="1">Evet — şartı sağlayan sepete kendiliğinden uygulanır</option>
+            </select>
+          </div>
           <div class="fg"><label>Sitede Göster</label>
             <select id="cpPublic">
               <option value="0">Hayır — gizli kod (yalnızca bilenler kullanır)</option>
@@ -4656,6 +4662,7 @@ function renderCoupons() {
     else if (st === 'depleted') chips.push('<span class="cp-chip bad">Tükendi</span>');
     else if (st === 'expired') chips.push('<span class="cp-chip bad">Süresi Doldu</span>');
     else chips.push('<span class="cp-chip pub">Aktif</span>');
+    if (c.auto) chips.push('<span class="cp-chip pub">⚡ Otomatik</span>');
     if (c.public) chips.push('<span class="cp-chip pub"><svg class=ic data-n=globe><use href=#i-globe></use></svg> Sitede</span>');
     if (c.minCart) chips.push('<span class="cp-chip">Min ₺' + c.minCart + '</span>');
     if (end) {
@@ -4690,6 +4697,7 @@ function copyCoupon(id) {
 }
 
 function cpFillForm(c, code) {
+  document.getElementById('cpAuto').value = c.auto ? '1' : '0';
   document.getElementById('cpBuy').value = c.buy || '';
   document.getElementById('cpPay').value = (c.pay !== undefined && c.pay !== null) ? c.pay : '';
   document.getElementById('cpCode').value = code || '';
@@ -4779,6 +4787,8 @@ function saveCoupon() {
   const DEL = firebase.firestore.FieldValue.delete();
   const data = { type, value: type === 'xpay' ? (buy - pay) : (type === 'freeship' ? 0 : value), active, public: isPublic, desc, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
   // Düzenlemede boşaltılan alanlar gerçekten silinsin
+  data.auto = document.getElementById('cpAuto').value === '1' ? true : (editId ? DEL : undefined);
+  if (data.auto === true) data.public = true;
   if (type === 'xpay') { data.buy = buy; data.pay = pay; } else if (type === 'nthpct') { data.buy = buy; if (editId) data.pay = DEL; } else if (editId) { data.buy = DEL; data.pay = DEL; }
   data.limit = limit || (editId ? DEL : undefined);
   data.minCart = minCart || (editId ? DEL : undefined);
