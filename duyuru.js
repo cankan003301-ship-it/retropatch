@@ -45,6 +45,7 @@
     var t = e.target;
     if (t && t !== window && (t.tagName === 'IMG' || t.tagName === 'SCRIPT' || t.tagName === 'LINK')) {
       var u = t.src || t.href || ''; if (!u || /^data:/i.test(u)) return;
+      if (u.split('#')[0] === location.href.split('#')[0]) return;   // boş src="" sayfanın kendi adresine çözülür: gerçek hata değil
       return send({ type: 'resource', msg: 'Kaynak yüklenemedi: ' + String(u).slice(0, 220), src: u });
     }
     if (ignore(e.message, e.filename)) return;
