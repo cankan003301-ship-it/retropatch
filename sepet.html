@@ -429,6 +429,13 @@
 .ic{width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-.14em;flex-shrink:0;pointer-events:none}
 .ic[data-n=heart]{color:#e63946}.ic[data-n=fire]{color:#ff7a1a}.ic[data-n=star]{color:#f4c542}
 button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color:inherit}
+  #paytr_taksit_tablosu{max-width:100%!important;text-align:left!important}
+  #paytr_taksit_tablosu .taksit-tablosu-wrapper{background:var(--bg2,#151515);border-color:var(--border,#2a2a2a)!important;width:calc(50% - 10px)!important;min-width:260px;box-sizing:border-box;margin:5px 5px 5px 0!important}
+  #paytr_taksit_tablosu .taksit-tutari-text{color:var(--muted,#999)!important}
+  #paytr_taksit_tablosu .taksit-tutar-wrapper{background:var(--bg3,#1c1c1c)!important}
+  #paytr_taksit_tablosu .taksit-tutari{color:var(--text,#ddd)!important;border-color:var(--bg2,#151515)!important}
+  #paytr_taksit_tablosu .taksit-logo img{background:#fff;padding:3px 8px;border-radius:4px}
+  @media(max-width:600px){#paytr_taksit_tablosu .taksit-tablosu-wrapper{width:100%!important}}
 </style>
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
@@ -875,20 +882,31 @@ db.collection('settings').doc('payments').get().then(doc => {
   CARD_ENABLED = !!(d.cardEnabled && d.cardReady);
   CARD_PROVIDER = d.provider === 'nestpay' ? 'nestpay' : 'paytr';
   const mi = parseInt(d.maxInstallment,10)||0, ci = document.getElementById('card-info');
+  RP_MAXINST = mi; RP_NOINST = !!d.noInstallment;
   if (ci && mi > 0 && !d.noInstallment) ci.insertAdjacentHTML('beforeend','<br><b style="color:var(--accent);">💳 Taksit imkanı:</b> uygun kartlarda ödeme ekranında en fazla '+mi+' taksit seçebilirsiniz.');
   updateSectionsVisibility();
 }).catch(() => { CARD_ENABLED = false; });
 
-// Kart seçilince: hangi karta kaç taksit yapılır
-let _instLoaded = false;
+// Kart seçilince: PayTR'ın hazır taksit tablosu (hangi karta kaç taksit, tutarlarıyla). Tutar değişince yenilenir.
+var _instAmt = '', RP_MAXINST = 0, RP_NOINST = false;
 function loadInstallments() {
-  if (_instLoaded) return; _instLoaded = true;
-  fetch('/api/paytr-token?rates=1').then(r => r.json()).then(d => {
-    const ci = document.getElementById('card-info');
-    if (!ci || !d.cards || !d.cards.length) { _instLoaded = !!(d && d.cards); return; }
-    const rows = d.cards.map(c => '<tr><td style="padding:5px 10px 5px 0;color:var(--text);white-space:nowrap;">' + c.name + '</td><td style="padding:5px 0;">' + c.inst.map(n => '<span style="display:inline-block;border:1px solid var(--border);padding:1px 7px;margin:1px 3px 1px 0;color:var(--accent);">' + n + '</span>').join('') + ' taksit</td></tr>').join('');
-    ci.insertAdjacentHTML('beforeend', '<div id="instTable" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;"><b style="color:var(--text);">Hangi karta kaç taksit?</b><table style="margin-top:6px;border-collapse:collapse;font-size:12px;">' + rows + '</table><div style="margin-top:6px;font-size:11px;">Tek çekim her kartta geçerlidir. Taksit seçimi ödeme ekranında yapılır; kartınıza göre seçenekler değişebilir.</div></div>');
-  }).catch(() => { _instLoaded = false; });
+  const ci = document.getElementById('card-info');
+  if (!ci || RP_NOINST || selectedPay !== 'card') return;
+  const tot = Math.max(0, (physSubtotal() + digSubtotal()) - (hasPhys() ? Math.min(rpEffective().disc, physSubtotal()) : 0));
+  if (!(tot > 0)) return;
+  const amt = tot.toFixed(2);
+  let box = document.getElementById('instBox');
+  if (!box) {
+    ci.insertAdjacentHTML('beforeend', '<div id="instBox" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;"><b style="color:var(--text);">Hangi karta kaç taksit?</b><div id="paytr_taksit_tablosu"></div></div>');
+    box = document.getElementById('instBox');
+  }
+  if (amt === _instAmt) return;
+  _instAmt = amt;
+  const old = document.getElementById('instScript'); if (old) old.remove();
+  const div = document.getElementById('paytr_taksit_tablosu'); if (div) div.innerHTML = '';
+  const sc = document.createElement('script'); sc.id = 'instScript';
+  sc.src = 'https://www.paytr.com/odeme/taksit-tablosu/v2?token=84f3f2ea9299a055de8b91c00670a6f740c6025bc86b3c931ec57b8aabe566d1&merchant_id=778438&amount=' + amt + '&taksit=' + (RP_MAXINST > 0 ? RP_MAXINST : 0) + '&tumu=0';
+  document.body.appendChild(sc);
 }
 
 function loadCart() {
@@ -1022,6 +1040,7 @@ function updateSummary() {
   }
   updateCargoPriceDisplay();
   updateSectionsVisibility();
+  if (selectedPay === 'card') loadInstallments();
 }
 
 function updateCargo(el) {
