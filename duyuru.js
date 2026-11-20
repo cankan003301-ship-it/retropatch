@@ -671,7 +671,7 @@
       var links = [['sozlesme', 'Mesafeli Satış Sözleşmesi'], ['on-bilgi', 'Ön Bilgilendirme'], ['iade', 'İade · İptal · Cayma'], ['kvkk', 'KVKK Aydınlatma'], ['gizlilik', 'Gizlilik · Çerez']];
       var box = document.createElement('div'); box.id = 'rpLegal';
       box.style.cssText = 'padding:14px 20px;text-align:center;font:600 11px "Barlow Condensed",sans-serif;letter-spacing:1px;color:#777;border-top:1px solid #2a2a2a;background:#0a0a0a;line-height:2';
-      box.innerHTML = links.map(function (l) { return '<a href="yasal.html#' + l[0] + '" style="color:#999;text-decoration:none;margin:0 10px;white-space:nowrap">' + l[1] + '</a>'; }).join('') +
+      box.innerHTML = links.map(function (l) { return '<a href="yasal.html#' + l[0] + '" style="color:#999;text-decoration:none;margin:0 8px;white-space:nowrap;display:inline-block">' + l[1] + '</a>'; }).join(' ') +
         '<div style="font-weight:400;letter-spacing:.3px;color:#666;font-size:11px">RetroPatch · Mersin · Satıcı bilgileri için sözleşme sayfalarına bakınız</div>';
       var f = document.querySelector('footer');
       if (f && f.parentNode) f.parentNode.insertBefore(box, f.nextSibling);

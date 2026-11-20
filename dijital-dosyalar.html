@@ -53,6 +53,9 @@
     /* TABS */
     .shell{max-width:1280px;margin:0 auto;padding:0 40px 80px;}
     .tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin:28px 0 24px;}
+    .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+    .tab{white-space:nowrap;flex:0 0 auto;}
+    @media(max-width:480px){.tab{padding:12px 14px;letter-spacing:1px;}}
     .tab{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;padding:12px 22px;cursor:pointer;transition:all .2s;}
     .tab:hover{color:var(--text);}
     .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
