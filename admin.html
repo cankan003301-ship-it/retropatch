@@ -4871,6 +4871,7 @@ function pfFillEmpty() {
   let n = 0; (allProducts || []).forEach(p => { if (_pfCosts[p.id] === undefined) { _pfCosts[p.id] = v; n++; } });
   toast(n + ' ürüne ₺' + v + ' maliyet atandı (kaydetmeyi unutmayın)', 'ok'); pfRender();
 }
+function pfBaseSum() { const g = id => parseFloat(document.getElementById(id).value) || 0; document.getElementById('pfBase').value = Math.round((g('pfMach') + g('pfElec') + g('pfLab') + g('pfNeedle') + g('pfPack')) * 100) / 100; }
 function pfFillBySize() {
   const base = parseFloat(document.getElementById('pfBase').value) || 0, per = parseFloat(document.getElementById('pfPerCm').value) || 0;
   let n = 0, skip = 0;
@@ -6538,8 +6539,15 @@ function saveMarquee() {
         <span style="color:var(--muted2);">Maliyeti boş olanlara ata (₺):</span>
         <input type="number" id="pfFill" placeholder="örn. 60" style="width:90px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;">
         <button class="btn btn-outline btn-sm" onclick="pfFillEmpty()">UYGULA</button>
-        <span style="color:var(--muted2);">veya boyuta göre: sabit ₺</span><input type="number" id="pfBase" value="10" style="width:60px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;">
-        <span style="color:var(--muted2);">+ cm² başı ₺</span><input type="number" id="pfPerCm" value="0.085" step="0.005" style="width:60px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;">
+        <div style="flex-basis:100%;display:flex;gap:6px;flex-wrap:wrap;align-items:center;color:var(--muted2);">Yama başı sabit gider ₺ —
+          makine payı <input type="number" id="pfMach" value="26.2" step="0.1" oninput="pfBaseSum()" style="width:60px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px;">
+          elektrik <input type="number" id="pfElec" value="1" step="0.1" oninput="pfBaseSum()" style="width:55px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px;">
+          işçilik <input type="number" id="pfLab" value="10" step="0.5" oninput="pfBaseSum()" style="width:55px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px;">
+          iğne <input type="number" id="pfNeedle" value="0.5" step="0.1" oninput="pfBaseSum()" style="width:55px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px;">
+          ambalaj <input type="number" id="pfPack" value="3" step="0.5" oninput="pfBaseSum()" style="width:55px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px;">
+        </div>
+        <span style="color:var(--muted2);">Boyuta göre ata: sabit ₺</span><input type="number" id="pfBase" value="40.7" readonly style="width:60px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;">
+        <span style="color:var(--muted2);">+ cm² başı ₺</span><input type="number" id="pfPerCm" value="0.089" step="0.005" style="width:60px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;">
         <button class="btn btn-outline btn-sm" onclick="pfFillBySize()">BOYUTA GÖRE ATA</button>
         <label style="margin-left:auto;display:flex;gap:6px;align-items:center;"><input type="checkbox" id="pfOnlyMissing" onchange="pfRender()"> Yalnızca maliyeti eksikler</label>
         <button class="btn btn-accent btn-sm" onclick="pfSave()">&#128190; MALİYETLERİ KAYDET</button>
