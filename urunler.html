@@ -159,12 +159,6 @@
 
     /* YORUM SİSTEMİ */
     .reviews-section{margin-top:16px;border-top:1px solid var(--border);padding-top:16px;}
-    /* yorumlar katlanır (varsayılan kapalı) */
-    .reviews-section.collapsed > *:not(.reviews-title){display:none !important;}
-    .reviews-section .reviews-title{cursor:pointer;user-select:none;}
-    .reviews-section .reviews-title::after{content:'▾';margin-left:10px;color:var(--accent);transition:transform .2s;}
-    .reviews-section:not(.collapsed) .reviews-title::after{transform:rotate(180deg);}
-    .reviews-section.collapsed .reviews-title{margin-bottom:0;}
     .reviews-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
 
     /* Puan özet kartı */
@@ -611,8 +605,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <button class="modal-zoom-btn" onclick="openLB()"><svg class=ic data-n=search><use href=#i-search></use></svg> Tam Ekran Gör</button>
 
       <!-- YORUM BÖLÜMÜ -->
-      <div class="reviews-section collapsed">
-        <div class="reviews-title" onclick="this.parentElement.classList.toggle('collapsed')">
+      <div class="reviews-section">
+        <div class="reviews-title">
           <span><svg class=ic data-n=star><use href=#i-star></use></svg> YORUMLAR</span>
           <span id="reviewAvgBadge" style="font-size:11px;color:#f4c542;"></span>
         </div>
@@ -973,7 +967,6 @@ function renderGrid() {
 }
 
 function openModal(id) {
-  document.querySelectorAll('.reviews-section').forEach(x=>x.classList.add('collapsed'));
   const p = allProducts.find(x=>x.id===id);
   if (!p) return;
   currentProduct = p;
@@ -1099,7 +1092,7 @@ function loadReviews(productId) {
       if (hasReviewed) {
         formArea.innerHTML = `<div class="review-already"><svg class=ic data-n=check><use href=#i-check></use></svg> Bu ürün için yorumunuz mevcut. Teşekkürler!</div>`;
       } else if (!hasPurchased) {
-        formArea.innerHTML = `<div class="review-login-note">Yorum yazmak için bu ürünü satın almış olmanız gerekiyor.</div>`;
+        formArea.innerHTML = '';   // satın almayana form/uyarı gösterilmez; mevcut yorumlar görünür
       } else {
         formArea.innerHTML = `
           <div class="review-form">
@@ -1121,10 +1114,10 @@ function loadReviews(productId) {
           </div>`;
       }
     }).catch(() => {
-      formArea.innerHTML = `<div class="review-login-note">Yorum yapmak için <a href="uye.html">giriş yapın</a></div>`;
+      formArea.innerHTML = '';
     });
   } else {
-    formArea.innerHTML = `<div class="review-login-note">Yorum yapmak için <a href="uye.html">giriş yapın</a></div>`;
+    formArea.innerHTML = '';
   }
 
   // Yorumları dinle
