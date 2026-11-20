@@ -429,13 +429,17 @@
 .ic{width:1em;height:1em;fill:currentColor;display:inline-block;vertical-align:-.14em;flex-shrink:0;pointer-events:none}
 .ic[data-n=heart]{color:#e63946}.ic[data-n=fire]{color:#ff7a1a}.ic[data-n=star]{color:#f4c542}
 button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color:inherit}
-  #paytr_taksit_tablosu{max-width:100%!important;text-align:left!important}
-  #paytr_taksit_tablosu .taksit-tablosu-wrapper{background:var(--bg2,#151515);border-color:var(--border,#2a2a2a)!important;width:calc(50% - 10px)!important;min-width:260px;box-sizing:border-box;margin:5px 5px 5px 0!important}
-  #paytr_taksit_tablosu .taksit-tutari-text{color:var(--muted,#999)!important}
-  #paytr_taksit_tablosu .taksit-tutar-wrapper{background:var(--bg3,#1c1c1c)!important}
-  #paytr_taksit_tablosu .taksit-tutari{color:var(--text,#ddd)!important;border-color:var(--bg2,#151515)!important}
-  #paytr_taksit_tablosu .taksit-logo img{background:#fff;padding:3px 8px;border-radius:4px}
-  @media(max-width:600px){#paytr_taksit_tablosu .taksit-tablosu-wrapper{width:100%!important}}
+  #paytr_taksit_tablosu{clear:both;font-size:12px;max-width:100%;text-align:left;font-family:'Barlow',Arial,sans-serif;}
+  #paytr_taksit_tablosu::before{display:table;content:" ";}
+  #paytr_taksit_tablosu::after{content:"";clear:both;display:table;}
+  #paytr_taksit_tablosu .taksit-tablosu-wrapper{margin:0 8px 8px 0;width:calc(50% - 8px);min-width:250px;box-sizing:border-box;padding:12px;cursor:default;text-align:center;display:inline-block;vertical-align:top;border:1px solid var(--border,#2a2a2a);background:var(--bg2,#151515);}
+  #paytr_taksit_tablosu .taksit-logo img{max-height:28px;padding:3px 8px;margin-bottom:10px;background:#fff;border-radius:4px;}
+  #paytr_taksit_tablosu .taksit-tutari-text{float:left;width:50%;color:var(--muted,#999);margin-bottom:5px;font-size:11px;letter-spacing:.5px;}
+  #paytr_taksit_tablosu .taksit-tutar-wrapper{display:inline-block;width:100%;background:var(--bg3,#1c1c1c);}
+  #paytr_taksit_tablosu .taksit-tutar-wrapper:hover{background:#262626;}
+  #paytr_taksit_tablosu .taksit-tutari{float:left;width:50%;box-sizing:border-box;padding:6px 0;color:var(--text,#ddd);border:2px solid var(--bg2,#151515);}
+  #paytr_taksit_tablosu .taksit-tutari-bold{font-weight:700;color:var(--accent,#c8a96e);}
+  @media(max-width:600px){#paytr_taksit_tablosu .taksit-tablosu-wrapper{width:100%;margin-right:0;}}
 </style>
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
