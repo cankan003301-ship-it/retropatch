@@ -2320,7 +2320,7 @@ function renderOrders(src = 'cart', filter = 'all') {
           ${ordStatusOpts(o.status)}
         </select><select onchange="updateOrderProd('${o.id}',this.value)" title="Üretim aşaması (müşteri görür)" style="display:block;margin-top:4px;background:var(--bg3);border:1px solid var(--border);color:var(--muted2);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
           ${ordProdOpts(o.production)}
-        </select></td>
+        </select>${proofChip(o)}</td>
         <td><button class="btn btn-blue btn-sm" onclick="showOrderDetail('${o.id}')">Detay</button></td>
         <td><button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Sil</button></td>
       </tr>`;
@@ -2353,7 +2353,7 @@ function renderOrders(src = 'cart', filter = 'all') {
           ${ordStatusOpts(o.status)}
         </select><select onchange="updateOrderProd('${o.id}',this.value)" title="Üretim aşaması (müşteri görür)" style="display:block;margin-top:4px;background:var(--bg3);border:1px solid var(--border);color:var(--muted2);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
           ${ordProdOpts(o.production)}
-        </select></td>
+        </select>${proofChip(o)}</td>
         <td><button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Sil</button></td>
       </tr>`;
     });
@@ -2379,6 +2379,62 @@ function updateOrderProd(id, stage) {
   db.collection('orders').doc(id).update(upd)
     .then(() => toast(stage ? 'Üretim aşaması: ' + (PROD_STAGES.find(x => x[0] === stage) || [, ''])[1] : 'Üretim aşaması kaldırıldı', 'ok'))
     .catch(() => toast('Hata!', 'err'));
+}
+
+// ── Tasarım onayı: admin önizleme gönderir, müşteri Hesabım → Tasarım Onayları'ndan cevap verir ──
+const pEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function proofChip(o) {
+  const p = o.proof; if (!p || !p.status) return '';
+  const m = { pending: ['🎨 Onay bekliyor', '#f39c12'], approved: ['✅ Tasarım onaylı', '#2ecc71'], revision: ['✏ Değişiklik istendi', '#e63946'] }[p.status];
+  return m ? `<div title="${pEsc(p.customerNote || '')}" style="margin-top:4px;font-size:10px;font-weight:700;letter-spacing:.5px;color:${m[1]};cursor:pointer;" onclick="showOrderDetail('${o.id}')">${m[0]}</div>` : '';
+}
+function proofSection(o) {
+  const p = o.proof || {}, hist = Array.isArray(o.proofHistory) ? o.proofHistory : [];
+  const member = o.userId && o.userId !== 'guest';
+  const st = { pending: '<b style="color:#f39c12">Müşterinin onayı bekleniyor</b>', approved: '<b style="color:#2ecc71">Müşteri onayladı</b>', revision: '<b style="color:#e63946">Müşteri değişiklik istedi</b>' }[p.status] || '';
+  return `<div style="margin-top:6px;padding:14px;border:1px solid rgba(200,169,110,.35);background:rgba(200,169,110,.04);">
+    <div style="font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;">🎨 TASARIM ONAYI</div>
+    ${p.url ? `<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;"><a href="${pEsc(p.url)}" target="_blank"><img src="${pEsc(p.url)}" style="width:96px;height:96px;object-fit:contain;background:#fff;border:1px solid var(--border);"></a>
+      <div style="font-size:12px;line-height:1.6;">${st} <span style="color:var(--muted2)">· ${p.round || 1}. önizleme</span>${p.note ? `<br><span style="color:var(--muted2)">Notunuz:</span> ${pEsc(p.note)}` : ''}${p.customerNote ? `<br><span style="color:var(--muted2)">Müşteri:</span> <b>${pEsc(p.customerNote)}</b>` : ''}</div></div>` : ''}
+    ${hist.length > 1 ? `<details style="font-size:11px;color:var(--muted2);margin-bottom:8px;"><summary style="cursor:pointer;">Geçmiş (${hist.length})</summary>${hist.map(h => `<div style="padding:4px 0;border-bottom:1px solid var(--border)">${h.round}. önizleme — ${h.status === 'approved' ? 'onaylandı' : 'değişiklik'}${h.customerNote ? ': ' + pEsc(h.customerNote) : ''}</div>`).join('')}</details>` : ''}
+    ${member ? '' : '<div style="font-size:11px;color:#f39c12;margin-bottom:8px;">⚠ Müşteri üye değil: önizlemeyi hesabında göremez, e-posta ile gider. Cevabını WhatsApp\'tan alın.</div>'}
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:4px;">${p.url ? 'Yeni önizleme gönder' : 'Önizleme görseli'} (PNG/JPG)</div>
+    <input type="file" id="proofFile" accept="image/*" style="font-size:11px;margin-bottom:6px;width:100%;">
+    <input type="text" id="proofUrl" placeholder="veya görsel adresi https://..." style="width:100%;margin-bottom:6px;">
+    <textarea id="proofNote" rows="2" placeholder="Müşteriye not (ör. Renkleri lacivert/altın yaptık, ölçü 8 cm)" style="width:100%;margin-bottom:6px;"></textarea>
+    <button class="btn btn-accent" style="width:100%;justify-content:center;" id="proofBtn" onclick="sendProof('${o.id}')">🎨 MÜŞTERİYE ONAYA GÖNDER</button>
+  </div>`;
+}
+async function sendProof(id) {
+  const o = allOrders.find(x => x.id === id); if (!o) return;
+  const btn = document.getElementById('proofBtn'), file = document.getElementById('proofFile').files[0];
+  let url = document.getElementById('proofUrl').value.trim();
+  const note = document.getElementById('proofNote').value.trim();
+  if (!file && !/^https:\/\//.test(url)) { toast('Görsel seçin ya da https adresi girin', 'err'); return; }
+  btn.disabled = true; btn.textContent = '⏳ Gönderiliyor...';
+  try {
+    if (file) {
+      const u = firebase.auth().currentUser, idt = u ? await u.getIdToken() : '';
+      const auth = await (await fetch('/api/imagekit-auth', { headers: idt ? { Authorization: 'Bearer ' + idt } : {} })).json();
+      const fd = new FormData();
+      fd.append('file', file); fd.append('fileName', 'onay_' + (o.orderCode || id) + '_' + Date.now() + '.' + (file.name.split('.').pop() || 'jpg'));
+      fd.append('folder', '/retropatch/onay'); fd.append('publicKey', 'public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8=');
+      fd.append('signature', auth.signature); fd.append('expire', auth.expire); fd.append('token', auth.token);
+      const d = await (await fetch('https://upload.imagekit.io/api/v1/files/upload', { method: 'POST', body: fd })).json();
+      if (!d.url) throw new Error(d.message || 'Görsel yüklenemedi');
+      url = d.url;
+    }
+    const round = ((o.proof && o.proof.round) || 0) + 1;
+    await db.collection('orders').doc(id).update({
+      proof: { url, note, status: 'pending', round, sentAt: firebase.firestore.FieldValue.serverTimestamp() },
+      production: 'onay', productionAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    const ed = getOrderEmailData(o);
+    ed.customerEmail = o.userEmail || o.email || ed.customerEmail; ed.customerName = o.userName || o.name || ed.customerName;
+    if (ed.customerEmail) sendAdminEmail('proof_ready', { ...ed, proofUrl: url, proofNote: note });
+    toast('Önizleme müşteriye gönderildi' + (ed.customerEmail ? ' (e-posta gitti)' : ''), 'ok');
+    closeModal('ordModal');
+  } catch (e) { toast('Gönderilemedi: ' + e.message, 'err'); btn.disabled = false; btn.textContent = '🎨 MÜŞTERİYE ONAYA GÖNDER'; }
 }
 
 function updateOrderStatus(id, status) {
@@ -2421,6 +2477,7 @@ function showOrderDetail(id) {
       ${row('Tarih', formatDate(o.createdAt))}
       ${row('Durum', statusBadge(o.status || 'yeni'))}
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted2);font-family:sans-serif;letter-spacing:1px;font-size:11px;">Üretim Aşaması</span><select onchange="updateOrderProd('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:12px;outline:none;">${ordProdOpts(o.production)}</select></div>
+      ${proofSection(o)}
       ${o.designFileUrl ? `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted2);font-family:sans-serif;letter-spacing:1px;font-size:11px;">Tasarım Dosyası</span><a href="${o.designFileUrl}" target="_blank" style="color:var(--accent);"><svg class=ic data-n=clip><use href=#i-clip></use></svg> Görüntüle <svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></a></div>` : ''}
     </div>
     <div style="margin-top:20px;display:flex;gap:8px;">

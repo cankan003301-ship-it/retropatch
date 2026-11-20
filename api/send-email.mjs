@@ -85,7 +85,7 @@ function sanitize(str, maxLen = 200) {
 }
 
 // ── İzin verilen type'lar ────────────────────────────────────
-const ALLOWED_TYPES = ['order_confirmed', 'cargo_updated', 'order_completed'];
+const ALLOWED_TYPES = ['order_confirmed', 'cargo_updated', 'order_completed', 'proof_ready'];
 
 export default async function handler(req, res) {
   // CORS — sadece kendi domain
@@ -156,12 +156,15 @@ export default async function handler(req, res) {
   data.total        = sanitize(String(data.total || ''), 20);
   data.cargoCompany = sanitize(String(data.cargoCompany || ''), 80);
   data.trackingCode = sanitize(String(data.trackingCode || ''), 80);
+  data.proofUrl = /^https:\/\/[^\s"'<>]+$/.test(String(data.proofUrl || '')) ? String(data.proofUrl).slice(0, 500) : '';
+  data.proofNote = sanitize(String(data.proofNote || ''), 600);
   data.trackingUrl  = /^https:\/\/[^\s"'<>]+$/.test(String(data.trackingUrl || '')) ? String(data.trackingUrl).slice(0, 500) : '';
   // HTML'e giren her alan kaçışlanır (e-postaya kod/bağlantı enjekte edilemesin)
   const rawAddr = data.address, subj = { code: data.orderCode, name: data.customerName.replace(/[\r\n]/g, ' ') }, toEmail = data.customerEmail;
   ['orderCode', 'customerName', 'customerPhone', 'paymentMethod', 'total', 'cargoCompany', 'trackingCode'].forEach(k => { data[k] = esc(data[k]); });
   data.address = esc(rawAddr);
   data.trackingUrl = esc(data.trackingUrl);
+  data.proofUrl = esc(data.proofUrl); data.proofNote = esc(data.proofNote).replace(/\n/g, '<br>');
   data.items = (Array.isArray(data.items) ? data.items : []).slice(0, 50).map(i => ({ name: esc(sanitize(String((i && i.name) || ''), 150)), qty: esc(parseInt(i && i.qty, 10) || 1), price: esc(sanitize(String((i && i.price) ?? ''), 20)) }));
   data.whatsapp = '905375295290';
   data.customerEmail = esc(toEmail);
@@ -404,6 +407,29 @@ export default async function handler(req, res) {
   </div>
 </div>
 </body></html>`
+      });
+    }
+  }
+
+  else if (type === 'proof_ready') {
+    if (data.customerEmail) {
+      emails.push({
+        from: FROM_EMAIL,
+        to: toEmail,
+        subject: `🎨 Tasarımınız onayınızı bekliyor — #${subj.code}`,
+        html: `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Helvetica Neue',Arial,sans-serif;">
+<div style="max-width:580px;margin:0 auto;background:#111;border:1px solid #2a2a2a;">
+  <div style="background:#0a0a0a;padding:32px 40px;border-bottom:2px solid #c8a96e;text-align:center;font-size:28px;font-weight:900;letter-spacing:4px;color:#c8a96e;">RETRO<span style="color:#e8e8e8;">PATCH</span></div>
+  <div style="padding:36px 40px;text-align:center;">
+    <div style="font-size:22px;font-weight:700;color:#e8e8e8;margin-bottom:8px;">TASARIMINIZ HAZIR 🎨</div>
+    <div style="font-size:14px;color:#888;margin-bottom:24px;line-height:1.6;">Merhaba <strong style="color:#e8e8e8;">${data.customerName}</strong>, <strong style="color:#c8a96e;">#${data.orderCode}</strong> siparişiniz için tasarım önizlemesi hazırlandı. Onayınızdan sonra üretime başlayacağız.</div>
+    ${data.proofUrl ? `<img src="${data.proofUrl}" alt="Tasarım önizlemesi" style="max-width:100%;max-height:360px;border:1px solid #2a2a2a;margin-bottom:20px;">` : ''}
+    ${data.proofNote ? `<div style="background:#1a1a1a;border:1px solid #2a2a2a;padding:14px 18px;margin-bottom:24px;font-size:13px;color:#ccc;text-align:left;line-height:1.6;">${data.proofNote}</div>` : ''}
+    <a href="https://retropatch.vercel.app/hesap.html#onay" style="display:inline-block;background:#c8a96e;color:#000;padding:13px 32px;font-weight:700;font-size:13px;letter-spacing:2px;text-decoration:none;">TASARIMI İNCELE VE ONAYLA</a>
+    <div style="font-size:12px;color:#666;margin-top:16px;">Değişiklik isterseniz aynı sayfadan notunuzu yazabilirsiniz.</div>
+  </div>
+</div></body></html>`
       });
     }
   }

@@ -352,6 +352,35 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
     .rp-reo button{background:var(--accent);color:#000;border:none;padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;font-size:13px;cursor:pointer}
     .rp-reo button:first-child,.rp-reo button:last-child{background:transparent;color:var(--accent);border:1px solid var(--accent)}
     .rp-reo small{display:block;margin-top:8px;font-size:11px;color:var(--muted)}
+    .nav-badge{background:#f39c12;color:#000;border-radius:999px;font-size:10px;padding:1px 7px;margin-left:auto;font-weight:800}
+    .trk-box{background:var(--card);border:1px solid var(--border);padding:12px 16px;margin-bottom:16px}
+    .trk-box summary{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1.5px;color:var(--muted)}
+    .trk-box[open] summary{color:var(--accent)}
+    .ord-sum{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .ord-sum:empty{display:none}
+    .ord-sum a{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--border);background:var(--card);color:var(--text);text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer}
+    .ord-sum a b{color:var(--accent);font-size:17px}
+    .ord-sum a:not(.warn){cursor:default}
+    .ord-sum a.warn{border-color:#f39c12;background:rgba(243,156,18,.08)}.ord-sum a.warn b{color:#f39c12}
+    .pf-card{background:var(--card);border:1px solid var(--border);padding:18px;margin-bottom:14px;display:grid;grid-template-columns:220px 1fr;gap:18px}
+    .pf-card.pending{border-color:#f39c12}
+    .pf-img{background:#fff;display:flex;align-items:center;justify-content:center;min-height:180px;cursor:zoom-in}
+    .pf-img img{max-width:100%;max-height:260px;object-fit:contain;display:block}
+    .pf-code{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--accent)}
+    .pf-st{display:inline-block;font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 9px;margin:6px 0 10px}
+    .pf-st.pending{background:#f39c12;color:#000}.pf-st.approved{background:#2ecc71;color:#000}.pf-st.revision{background:#e63946;color:#fff}
+    .pf-note{font-size:13px;color:var(--text);background:var(--bg3);border-left:3px solid var(--accent);padding:10px 12px;margin-bottom:10px;line-height:1.6;white-space:pre-line}
+    .pf-card textarea{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px;font-family:inherit;font-size:13px;min-height:70px;margin:6px 0 8px;box-sizing:border-box}
+    .pf-btns{display:flex;gap:8px;flex-wrap:wrap}
+    .pf-btns button{border:none;padding:11px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1.5px;font-size:14px;cursor:pointer}
+    .pf-ok{background:#2ecc71;color:#000}.pf-rev{background:transparent;color:var(--text);border:1px solid var(--border)!important}
+    .pf-sub{font-size:11px;color:var(--muted);margin-top:8px}
+    .dg-row{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);padding:12px 14px;margin-bottom:8px}
+    .dg-row img,.dg-row .ph{width:60px;height:60px;object-fit:cover;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:24px;flex:0 0 60px}
+    .dg-row .t{flex:1;min-width:0;font-weight:600}.dg-row .t small{display:block;color:var(--muted);font-weight:400;font-size:12px;margin-top:2px}
+    .dg-row a.dl{background:var(--accent);color:#000;padding:9px 16px;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1.5px;white-space:nowrap}
+    .dg-row .wait{font-size:11px;color:var(--muted);border:1px solid var(--border);padding:4px 10px}
+    @media(max-width:640px){.pf-card{grid-template-columns:1fr}.dg-row{flex-wrap:wrap}}
 </style>
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
@@ -431,11 +460,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </div>
     <div class="nav-lbl">Hesabım</div>
     <div class="nav-item active" onclick="showPage('orders',this)"><span><svg class=ic data-n=cart><use href=#i-cart></use></svg></span> Siparişlerim</div>
-    <div class="nav-item" onclick="showPage('cargo',this)"><span><svg class=ic data-n=truck><use href=#i-truck></use></svg></span> Kargo Takibi</div>
-    <a href="takip.html" class="nav-item" style="text-decoration:none;"><span><svg class=ic data-n=search><use href=#i-search></use></svg></span> Sipariş Sorgula</a>
+    <div class="nav-item" onclick="showPage('onay',this)"><span><svg class=ic data-n=palette><use href=#i-palette></use></svg></span> Tasarım Onayları <b id="onayBadge" class="nav-badge" style="display:none"></b></div>
+    <div class="nav-item" onclick="showPage('dijital',this)"><span><svg class=ic data-n=save><use href=#i-save></use></svg></span> Dijital Dosyalarım</div>
     <div class="nav-item" onclick="showPage('favorites',this)"><span><svg class=ic data-n=heart><use href=#i-heart></use></svg></span> Favorilerim</div>
     <div class="nav-lbl">Ayarlar</div>
-    <div class="nav-item" onclick="showPage('addresses',this)"><span><svg class=ic data-n=pin><use href=#i-pin></use></svg></span> Adres Defteri</div>
+    <div class="nav-item" onclick="showPage('addresses',this)"><span><svg class=ic data-n=pin><use href=#i-pin></use></svg></span> Adreslerim</div>
     <div class="nav-item" onclick="showPage('profile',this)"><span><svg class=ic data-n=user><use href=#i-user></use></svg></span> Profilim</div>
     <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
   </aside>
@@ -448,20 +477,20 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <div class="page-hdr"><h2>SİPARİŞLERİM</h2></div>
 
       <!-- Sipariş kodu ile sorgula -->
-      <div style="background:var(--card);border:1px solid rgba(200,169,110,.2);padding:20px;margin-bottom:20px;">
-        <div style="font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;color:var(--accent);margin-bottom:10px;"><svg class=ic data-n=search><use href=#i-search></use></svg> SİPARİŞ KODU İLE TAKİP ET</div>
-        <div style="display:flex;gap:8px;">
+      <details class="trk-box"><summary>🔍 Başka bir siparişi kodla sorgula</summary><div style="padding-top:12px;">
+                <div style="display:flex;gap:8px;">
           <input type="text" id="trackCodeInput" placeholder="ör: RP-ABC123" style="flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;outline:none;">
           <button onclick="trackByCode()" style="background:var(--accent);color:#000;border:none;padding:10px 20px;font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;cursor:pointer;">SORGULA</button>
         </div>
         <div id="trackResult" style="margin-top:12px;"></div>
-      </div>
+      </div></details>
 
       <div class="stats-row">
         <div class="stat-card"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Toplam Sipariş</div></div>
         <div class="stat-card"><div class="stat-val" id="statActive">0</div><div class="stat-lbl">Aktif Sipariş</div></div>
         <div class="stat-card"><div class="stat-val" id="statSpent">₺0</div><div class="stat-lbl">Toplam Harcama</div></div>
       </div>
+      <div id="ordSummary" class="ord-sum"></div>
       <div id="ordersList">
         <div class="empty-state"><div class="empty-state-icon"><svg class=ic data-n=cart><use href=#i-cart></use></svg></div><p>Henüz siparişiniz yok</p></div>
       </div>
@@ -492,9 +521,22 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       </div>
     </div>
 
+    <!-- TASARIM ONAYLARI -->
+    <div class="page" id="page-onay">
+      <div class="page-hdr"><h2>TASARIM ONAYLARI</h2></div>
+      <div style="font-size:13px;color:var(--muted);margin:-6px 0 16px;line-height:1.6;">Özel siparişleriniz için hazırladığımız tasarım önizlemeleri burada. Onayladığınızda üretime başlarız; değişiklik isterseniz notunuzu yazın.</div>
+      <div id="onayList"><div class="empty-state"><p>Yükleniyor...</p></div></div>
+    </div>
+
+    <!-- DİJİTAL DOSYALAR -->
+    <div class="page" id="page-dijital">
+      <div class="page-hdr"><h2>DİJİTAL DOSYALARIM</h2></div>
+      <div id="digList"><div class="empty-state"><p>Yükleniyor...</p></div></div>
+    </div>
+
     <!-- PROFİL -->
     <div class="page" id="page-addresses">
-      <div class="page-hdr"><h2>ADRES DEFTERİ</h2></div>
+      <div class="page-hdr"><h2>ADRESLERİM</h2></div>
       <div class="addr-grid" id="addrGrid">
         <div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon"><svg class=ic data-n=pin><use href=#i-pin></use></svg></div><p>Kayıtlı adresiniz yok</p></div>
       </div>
@@ -576,6 +618,7 @@ auth.onAuthStateChanged(user => {
   loadOrders();
   loadFavorites();
   loadProfile();
+  if (document.getElementById('page-dijital').classList.contains('active')) renderDigital();
 });
 
 
@@ -595,6 +638,8 @@ function showPage(name, el) {
   el?.classList.add('active');
   if (name==='cargo') renderCargo();
   if (name==='addresses') loadAddresses();
+  if (name==='onay') renderOnay();
+  if (name==='dijital') renderDigital();
 }
 
 // ═══ ORDERS ═══
@@ -678,6 +723,76 @@ async function rpReorder(orderId, btn, qtyOverride) {
   } catch (e) { alert('Sepete eklenemedi, lütfen tekrar deneyin.'); btn.disabled = false; btn.textContent = old; }
 }
 
+// ── Tasarım onayları ──
+const hEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function proofOrders() { return allOrders.filter(o => o.proof && o.proof.url); }
+function updateOnayBadge() {
+  const n = proofOrders().filter(o => o.proof.status === 'pending').length, b = document.getElementById('onayBadge');
+  if (b) { b.textContent = n; b.style.display = n ? '' : 'none'; }
+  return n;
+}
+function goPage(n) { const el = [...document.querySelectorAll('.nav-item')].find(x => (x.getAttribute('onclick') || '').includes("'" + n + "'")); showPage(n, el); window.scrollTo(0, 0); }
+function renderOnay() {
+  const el = document.getElementById('onayList'); if (!el) return;
+  const list = proofOrders().sort((a, b) => (a.proof.status === 'pending' ? 0 : 1) - (b.proof.status === 'pending' ? 0 : 1) || ((b.proof.sentAt && b.proof.sentAt.seconds) || 0) - ((a.proof.sentAt && a.proof.sentAt.seconds) || 0));
+  if (!list.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><svg class=ic data-n=palette><use href=#i-palette></use></svg></div><p>Onay bekleyen tasarımınız yok</p><div style="font-size:12px;color:var(--muted);margin-top:6px;">Özel sipariş verdiğinizde tasarım önizlemesi buraya gelir.</div></div>'; return; }
+  const lbl = { pending: 'ONAYINIZI BEKLİYOR', approved: 'ONAYLADINIZ', revision: 'DEĞİŞİKLİK İSTEDİNİZ' };
+  el.innerHTML = list.map(o => {
+    const p = o.proof, pend = p.status === 'pending';
+    return `<div class="pf-card ${pend ? 'pending' : ''}">
+      <a class="pf-img" href="${hEsc(p.url)}" target="_blank" rel="noopener"><img src="${hEsc(p.url)}" alt="Tasarım önizlemesi"></a>
+      <div>
+        <div class="pf-code">${hEsc(o.orderCode || o.id.slice(-6).toUpperCase())}</div>
+        <div style="font-size:12px;color:var(--muted);">${hEsc([o.type, o.size, o.qty ? o.qty + ' adet' : ''].filter(Boolean).join(' · ') || (o.items || []).map(i => i.name).join(', '))} · ${p.round || 1}. önizleme</div>
+        <span class="pf-st ${hEsc(p.status)}">${lbl[p.status] || ''}</span>
+        ${p.note ? `<div class="pf-note"><b style="color:var(--accent);font-size:11px;letter-spacing:1px;">RETROPATCH:</b> ${hEsc(p.note)}</div>` : ''}
+        ${p.customerNote ? `<div class="pf-note" style="border-left-color:var(--muted)"><b style="font-size:11px;letter-spacing:1px;color:var(--muted)">NOTUNUZ:</b> ${hEsc(p.customerNote)}</div>` : ''}
+        ${pend ? `<textarea id="pfn-${o.id}" maxlength="1000" placeholder="Değişiklik istiyorsanız yazın (ör. yazıyı büyütün, kenar rengi kırmızı olsun). Onaylarken not zorunlu değil."></textarea>
+        <div class="pf-btns"><button class="pf-ok" onclick="answerProof('${o.id}','approve',this)">✓ TASARIMI ONAYLIYORUM</button><button class="pf-rev" onclick="answerProof('${o.id}','revise',this)">✏ DEĞİŞİKLİK İSTİYORUM</button></div>
+        <div class="pf-sub">Onayladıktan sonra üretime başlanır ve tasarım değiştirilemez. Görsele tıklayarak büyütebilirsiniz.</div>`
+        : p.status === 'approved' ? '<div class="pf-sub">Siparişiniz üretime alındı. Durumunu Siparişlerim sayfasından takip edebilirsiniz.</div>'
+        : '<div class="pf-sub">Notunuza göre düzenleyip yeni önizleme göndereceğiz.</div>'}
+      </div></div>`;
+  }).join('');
+}
+async function answerProof(id, action, btn) {
+  const ta = document.getElementById('pfn-' + id), note = ta ? ta.value.trim() : '';
+  if (action === 'revise' && note.length < 3) { if (ta) { ta.focus(); ta.style.borderColor = '#e63946'; } alert('Lütfen ne değişmesini istediğinizi yazın.'); return; }
+  if (action === 'approve' && !confirm('Tasarımı onaylıyor musunuz? Onaydan sonra üretime başlanır.')) return;
+  const btns = btn.parentElement.querySelectorAll('button'); btns.forEach(b => b.disabled = true);
+  const old = btn.textContent; btn.textContent = 'Gönderiliyor...';
+  try {
+    const t = await currentUser.getIdToken();
+    const r = await fetch('/api/track?proof=1', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + t }, body: JSON.stringify({ orderId: id, action, note }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || 'Gönderilemedi');
+    const o = allOrders.find(x => x.id === id);
+    if (o) { o.proof = { ...o.proof, status: j.status, customerNote: note }; if (action === 'approve') o.production = 'uretim'; }
+    renderOnay(); renderOrders();
+    alert(action === 'approve' ? '✓ Teşekkürler! Tasarım onaylandı, üretime başlıyoruz.' : '✓ Notunuz iletildi. Yeni önizlemeyi hazırlayıp göndereceğiz.');
+  } catch (e) { alert(e.message); btns.forEach(b => b.disabled = false); btn.textContent = old; }
+}
+
+// ── Dijital dosyalarım ──
+async function renderDigital() {
+  const el = document.getElementById('digList'); if (!el || !currentUser) return;
+  el.innerHTML = '<div class="empty-state"><p>Yükleniyor...</p></div>';
+  try {
+    const s = await db.collection('users').doc(currentUser.uid).collection('downloads').get();
+    if (s.empty) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><svg class=ic data-n=save><use href=#i-save></use></svg></div><p>Henüz dijital dosyanız yok</p><a href="dijital-dosyalar.html" style="display:inline-block;margin-top:12px;background:var(--accent);color:#000;padding:9px 18px;text-decoration:none;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;letter-spacing:1.5px;">DİJİTAL DOSYALARA GÖZ AT</a></div>'; return; }
+    const rows = await Promise.all(s.docs.map(async d => {
+      const meta = d.data(); let f = null, url = null, note = '';
+      try { const fs = await db.collection('digital_files').doc(d.id).get(); if (fs.exists) f = fs.data(); } catch (e) {}
+      try { const sec = await db.collection('digital_secrets').doc(d.id).get(); if (sec.exists) { url = sec.data().url; note = sec.data().note || ''; } } catch (e) {}
+      const img = f && f.image ? f.image + (/ik\.imagekit\.io/.test(f.image) && !f.image.includes('?') ? '?tr=w-160' : '') : '';
+      return `<div class="dg-row">${img ? `<img src="${hEsc(img)}" alt="">` : '<div class="ph">🧵</div>'}
+        <div class="t">${hEsc((f && f.title) || meta.title || 'Dosya')}<small>${hEsc(((f && f.formats) || []).join(' · '))}${note ? ' — ' + hEsc(note) : ''}</small></div>
+        ${url && /^https?:\/\//.test(url) ? `<a class="dl" href="${hEsc(url)}" target="_blank" rel="noopener noreferrer">⬇ İNDİR</a>` : '<span class="wait">Hazırlanıyor</span>'}</div>`;
+    }));
+    el.innerHTML = rows.join('') + '<div style="font-size:11px;color:var(--muted);margin-top:10px;">Lisans yalnızca satın alan kişiye aittir; paylaşılması ve yeniden satışı yasaktır.</div>';
+  } catch (e) { el.innerHTML = '<div class="empty-state"><p>Dosyalar yüklenemedi.</p></div>'; }
+}
+
 function renderOrders() {
   const el = document.getElementById('ordersList');
   const active = allOrders.filter(o=>o.status!=='tamamlandı'&&o.status!=='iptal'&&o.status!=='iade').length;
@@ -685,6 +800,14 @@ function renderOrders() {
   document.getElementById('statTotal').textContent = allOrders.length;
   document.getElementById('statActive').textContent = active;
   document.getElementById('statSpent').textContent = '₺'+spent.toLocaleString('tr-TR');
+  const pendN = updateOnayBadge();
+  const prodN = allOrders.filter(o => o.status === 'üretimde').length, shipN = allOrders.filter(o => o.status === 'kargoda').length;
+  document.getElementById('ordSummary').innerHTML = [
+    pendN ? `<a class="warn" onclick="goPage('onay')">🎨 Onay bekleyen tasarım <b>${pendN}</b></a>` : '',
+    prodN ? `<a>🧵 Üretimde <b>${prodN}</b></a>` : '',
+    shipN ? `<a>🚚 Kargoda <b>${shipN}</b></a>` : ''
+  ].join('');
+  if (document.getElementById('page-onay').classList.contains('active')) renderOnay();
   if (!allOrders.length) { el.innerHTML='<div class="empty-state"><div class="empty-state-icon"><svg class=ic data-n=cart><use href=#i-cart></use></svg></div><p>Henüz siparişiniz yok</p></div>'; return; }
   el.innerHTML = allOrders.map(o=>`
     <div class="order-card">
@@ -708,6 +831,7 @@ function renderOrders() {
               <div class="order-item-price">₺${((i.price||0)*(i.qty||1)).toLocaleString('tr-TR')}</div>
             </div>`).join('')}
         </div>
+        ${o.proof && o.proof.status === 'pending' ? `<div onclick="goPage('onay')" style="cursor:pointer;margin:10px 0;padding:12px 14px;border:1px solid #f39c12;background:rgba(243,156,18,.08);font-size:13px;">🎨 <b style="color:#f39c12">Tasarımınız onayınızı bekliyor.</b> İncelemek için tıklayın →</div>` : ''}
         ${rpProdSteps(o)}
         ${((o.items||[]).some(i=>i.id) || o.orderSource==='form')?`<div class="rp-reo"><b>↻ TEKRAR SİPARİŞ VER</b><div><button onclick="rpReorder('${o.id}',this)">Aynı adet</button><button onclick="rpReorder('${o.id}',this,20)">20 adet</button><button onclick="rpReorder('${o.id}',this,50)">50 adet</button><button onclick="rpReorder('${o.id}',this,100)">100 adet</button><button onclick="const n=parseInt(prompt('Kaç adet?','10'),10);if(n>0)rpReorder('${o.id}',this,Math.min(n,10000))">Başka…</button></div><small>${o.orderSource==='form'?'Sipariş formu önceki bilgiler ve tasarım dosyanızla açılır.':'Ürünler güncel fiyatla sepete eklenir; her ürün seçtiğiniz adette olur.'}</small></div>`:''}
         <div style="font-size:12px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border);">

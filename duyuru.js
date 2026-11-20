@@ -599,7 +599,7 @@
       li.classList.add('rp-hasdd');
       var d = document.createElement('div'); d.className = 'rp-dd';
       d.innerHTML = '<div class="rp-ddb">' +
-        '<a href="hesap.html#orders">Siparişlerim</a><a href="hesap.html#cargo">Kargo Takibi</a><a href="hesap.html#favorites">Favorilerim</a>' +
+        '<a href="hesap.html#orders">Siparişlerim</a><a href="hesap.html#onay">Tasarım Onayları</a><a href="hesap.html#dijital">Dijital Dosyalarım</a><a href="hesap.html#favorites">Favorilerim</a>' +
         '<a href="hesap.html#addresses">Adreslerim</a><a href="hesap.html#profile">Profilim</a><hr>' +
         '<button type="button" class="rp-lnk" id="rpLogout">Çıkış Yap</button></div>';
       li.appendChild(d);
