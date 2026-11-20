@@ -1904,16 +1904,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <div id="pImagePreview" style="margin-top:8px;display:none;">
             <img id="pImagePreviewImg" style="max-width:120px;max-height:120px;border-radius:6px;border:1px solid var(--border);object-fit:cover;">
           </div>
-          <div style="margin-top:12px;">
-            <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:6px;">
-              <label style="margin:0;">Ek Fotoğraflar <span style="color:var(--muted2);font-size:10px;">(detay, arka yüz, ölçü — her satıra bir adres)</span></label>
-              <label for="pImagesFile" style="cursor:pointer;border:1px solid var(--accent);color:var(--accent);padding:5px 10px;font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:2px;white-space:nowrap;">+ FOTO YÜKLE</label>
-              <input type="file" id="pImagesFile" accept="image/*" multiple style="display:none;" onchange="uploadProductImages(this)">
-            </div>
-            <textarea id="pImages" rows="3" placeholder="https://ik.imagekit.io/.../detay.jpg" oninput="renderPImages()" style="font-size:11px;"></textarea>
-            <div id="pImagesStatus" style="font-size:11px;color:var(--muted2);margin-top:4px;"></div>
-            <div id="pImagesPrev" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;"></div>
-          </div>
         </div>
         <div class="fg"><label>Durum</label>
           <select id="pStatus"><option>Stokta</option><option>Son 3</option><option>Tükendi</option></select>
@@ -3206,7 +3196,7 @@ function saveQuickEdit() {
 function openProdModal(id) {
   document.getElementById('editProdId').value = '';
   document.getElementById('prodModalTitle').textContent = 'YENİ ÜRÜN';
-  ['pName','pPrice','pDesc','pImage','pImages','pSize'].forEach(id => document.getElementById(id).value = ''); renderPImages(); document.getElementById('pImagesStatus').textContent = '';
+  ['pName','pPrice','pDesc','pImage','pSize'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('pStatus').value = 'Stokta';
   document.getElementById('pImagePreview').style.display = 'none';
   document.getElementById('pSubCatWrap').style.display = 'none';
@@ -3229,7 +3219,6 @@ function editProd(id) {
   basePrice = parseFloat(p.price) || 0;
   document.getElementById('pDesc').value = p.desc || '';
   document.getElementById('pImage').value = p.image || '';
-  document.getElementById('pImages').value = (p.images || []).join('\n'); renderPImages(); document.getElementById('pImagesStatus').textContent = '';
   document.getElementById('pSize').value = p.size || '';
   document.getElementById('pStatus').value = p.status || 'Stokta';
   document.getElementById('pBack').value = p.back || 'Ütüyle Yapışan';
@@ -3258,34 +3247,6 @@ function updateBackPrice(backVal, priceFieldId) {
   const extra = BACK_PRICES[backVal] || 0;
   priceField.value = basePrice + extra;
   note.textContent = extra > 0 ? "+" + extra + "₺ eklendi" : "Ekstra ücret yok";
-}
-
-function pImagesList() { return document.getElementById('pImages').value.split(/\s+/).map(s => s.trim()).filter(u => /^https?:\/\//.test(u)); }
-function renderPImages() {
-  const box = document.getElementById('pImagesPrev'); if (!box) return;
-  box.innerHTML = pImagesList().map(u => `<img src="${u}${/ik\.imagekit\.io/.test(u) && !u.includes('?') ? '?tr=w-120' : ''}" style="width:56px;height:56px;object-fit:cover;border:1px solid var(--border);">`).join('');
-}
-async function uploadProductImages(input) {
-  const files = [...input.files]; if (!files.length) return;
-  const st = document.getElementById('pImagesStatus'), ta = document.getElementById('pImages');
-  let ok = 0;
-  const u = firebase.auth().currentUser, idt = u ? await u.getIdToken() : '';
-  for (const [i, file] of files.entries()) {
-    st.textContent = `⏳ ${i + 1}/${files.length} yükleniyor...`;
-    try {
-      const auth = await (await fetch('/api/imagekit-auth', { headers: idt ? { Authorization: 'Bearer ' + idt } : {} })).json();
-      const fd = new FormData();
-      fd.append('file', file); fd.append('fileName', file.name); fd.append('folder', '/products');
-      fd.append('publicKey', 'public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8=');
-      fd.append('signature', auth.signature); fd.append('expire', auth.expire); fd.append('token', auth.token);
-      const d = await (await fetch('https://upload.imagekit.io/api/v1/files/upload', { method: 'POST', body: fd })).json();
-      if (!d.url) throw new Error(d.message || 'Hata');
-      ta.value = (ta.value.trim() ? ta.value.trim() + '\n' : '') + d.url; ok++;
-      renderPImages();
-    } catch (e) { st.textContent = '❌ ' + file.name + ': ' + e.message; }
-  }
-  if (ok) st.textContent = '✅ ' + ok + ' fotoğraf eklendi. Kaydetmeyi unutmayın.';
-  input.value = '';
 }
 
 async function uploadProductImage(input) {
@@ -3341,7 +3302,6 @@ function saveProd() {
     cat: buildCatValue(),
     desc: document.getElementById('pDesc').value,
     image: document.getElementById('pImage').value,
-    images: pImagesList().filter(u => u !== document.getElementById('pImage').value).slice(0, 12),
     size: (document.getElementById('pSize').value.trim() + ' cm').replace(/s*cms*cm$/, ' cm'),
     status: document.getElementById('pStatus').value,
     back: document.getElementById('pBack').value,
