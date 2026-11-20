@@ -3031,7 +3031,7 @@ function dolapConvert(rows) {
     let n = dolapClean(i.baslik); const k = n.toLowerCase(); cnt[k] = (cnt[k] || 0) + 1; if (cnt[k] > 1) n += ' (' + cnt[k] + ')';
     const g = String(i.gorseller || '');
     const imgs = (g.includes('|') ? g.split('|') : g.split(/[\s,;]+/)).map(u => u.trim()).filter(u => /^https?:\/\//.test(u)).slice(0, 8);
-    out.push({ name: n, price: parseFloat(i.fiyat_tl) || 0, cat: dolapCat(i.baslik), desc: i.aciklama || '', size: String(i.boyut || '').trim() || dolapSize(i.aciklama, i.baslik), status: 'Stokta', back: 'Ütüyle Yapışan', image: imgs[0] || '', images: imgs, favorites: parseInt(i.begeni, 10) || 0, dolapId: String(i.dolap_id || '') });
+    out.push({ name: n, price: parseFloat(i.fiyat_tl) || 0, cat: dolapCat(i.baslik), desc: i.aciklama || '', size: String(i.boyut || '').trim() || dolapSize(i.aciklama, i.baslik), status: 'Stokta', back: 'Ütüyle Yapışan', image: imgs[0] || '', favorites: parseInt(i.begeni, 10) || 0, dolapId: String(i.dolap_id || '') });
   });
   return { list: out, skipped };
 }
@@ -3095,7 +3095,7 @@ async function importDolap(given, skippedCount) {
     let up = 0, upFail = 0, ui = 0;
     const idt = await auth.currentUser.getIdToken();
     const upW = async () => { while (ui < items.length) { const p = items[ui++]; if (!p.image || !/dsmcdn\.com/.test(p.image)) continue;
-      try { btn.textContent = '🖼 Görsel ' + (up + upFail + 1) + '/' + items.length; const nu = await _imUpload(p.image, ('dolap-' + (p.dolapId || Date.now()) + '.jpg').replace(/[^a-zA-Z0-9._-]/g, '_'), idt); p.imageOrig = p.image; p.image = nu; p.images = [nu]; up++; } catch (e) { upFail++; } } };
+      try { btn.textContent = '🖼 Görsel ' + (up + upFail + 1) + '/' + items.length; const nu = await _imUpload(p.image, ('dolap-' + (p.dolapId || Date.now()) + '.jpg').replace(/[^a-zA-Z0-9._-]/g, '_'), idt); p.imageOrig = p.image; p.image = nu; up++; } catch (e) { upFail++; } } };
     await Promise.all([upW(), upW(), upW()]);
     const ts = firebase.firestore.FieldValue.serverTimestamp();
     for (let i = 0; i < items.length; i += 400) {

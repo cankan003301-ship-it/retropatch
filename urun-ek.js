@@ -71,8 +71,7 @@
   /* ───────── Galeri ───────── */
   var gal = [], gi = 0;
   function imagesOf(p) {
-    var a = [p.image].concat(Array.isArray(p.images) ? p.images : []).filter(function (u) { return u && /^https?:\/\//.test(u); });
-    return a.filter(function (u, i) { return a.indexOf(u) === i; });
+    return p && p.image && /^https?:\/\//.test(p.image) ? [p.image] : [];   // yalnızca ana görsel
   }
   function showImg(i) {
     gi = (i + gal.length) % gal.length;
