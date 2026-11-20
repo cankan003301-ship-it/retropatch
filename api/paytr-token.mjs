@@ -8,11 +8,11 @@ import { sendErr, authUid, groupOf, clientIp, bodyOf } from './_http.mjs';
 let ratesCache = { t: 0, key: '', data: null };
 const CARD_NAMES = { axess: 'Axess (Akbank)', world: 'World (Yapı Kredi)', maximum: 'Maximum (İş Bankası)', bonus: 'Bonus (Garanti BBVA)', cardfinans: 'CardFinans (QNB)', paraf: 'Paraf (Halkbank)', advantage: 'Advantage', saglamkart: 'Sağlam Kart' };
 async function rates(req, res) {
-  res.setHeader('Cache-Control', 'public, s-maxage=3600');
+  res.setHeader('Cache-Control', 'no-store');
   try {
     const { db } = fb();
     const { pub, provider, sec } = await loadPaySettings(db);
-    if (!pub.cardEnabled || provider !== 'paytr' || pub.noInstallment || !sec.merchant_id) return res.status(200).json({ cards: [] });
+    if (!pub.cardEnabled || provider !== 'paytr' || pub.noInstallment || !sec.merchant_id) return res.status(200).json({ cards: [], why: 'ayar', cardEnabled: !!pub.cardEnabled, provider, noInstallment: !!pub.noInstallment, merchant: !!sec.merchant_id });
     const cap = parseInt(pub.maxInstallment, 10) || 0, key = String(cap);
     if (ratesCache.data && ratesCache.key === key && Date.now() - ratesCache.t < 3600e3) return res.status(200).json(ratesCache.data);
     const rid = 'r' + Date.now();
@@ -25,9 +25,10 @@ async function rates(req, res) {
       return { key: k, name: CARD_NAMES[k] || (k.charAt(0).toUpperCase() + k.slice(1)), inst };
     }).filter(c => c.inst.length);
     const data = { cards };
+    if (!cards.length) { res.setHeader('Cache-Control', 'no-store'); return res.status(200).json({ cards: [], why: 'paytr', status: j.status, reason: j.reason || j.err_msg || '', keys: Object.keys(j), sample: JSON.stringify(j).slice(0, 400) }); }
     if (cards.length) ratesCache = { t: Date.now(), key, data };
     res.status(200).json(data);
-  } catch (e) { res.status(200).json({ cards: [] }); }
+  } catch (e) { res.setHeader('Cache-Control', 'no-store'); res.status(200).json({ cards: [], why: 'hata', msg: String(e && e.message || e).slice(0, 200) }); }
 }
 
 export default async function handler(req, res) {
