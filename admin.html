@@ -4884,6 +4884,15 @@ function pfFillBySize() {
   });
   toast(n + ' ürüne boyuta göre maliyet atandı' + (skip ? ' · ' + skip + ' üründe boyut yok, atlandı' : '') + ' (tek tek düzeltebilirsin, sonra kaydet)', 'ok'); pfRender();
 }
+async function pfReset() {
+  const n = Object.keys(_pfCosts).length;
+  if (!n) { toast('Girilmiş maliyet yok', 'ok'); return; }
+  if (!confirm(n + ' ürünün maliyeti silinecek (kayıtlı olanlar dahil). Bu işlem geri alınamaz. Devam edilsin mi?')) return;
+  try {
+    await db.collection('payment_secrets').doc('costs').set({ c: {}, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    _pfCosts = {}; pfRender(); toast('✓ Tüm maliyetler sıfırlandı', 'ok');
+  } catch (e) { toast('Sıfırlanamadı: ' + e.message, 'err'); }
+}
 async function pfSave() {
   try {
     const ids = new Set((allProducts || []).map(p => p.id)), c = {};
@@ -6550,6 +6559,7 @@ function saveMarquee() {
         <span style="color:var(--muted2);">+ cm² başı ₺</span><input type="number" id="pfPerCm" value="0.089" step="0.005" style="width:60px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;">
         <button class="btn btn-outline btn-sm" onclick="pfFillBySize()">BOYUTA GÖRE ATA</button>
         <label style="margin-left:auto;display:flex;gap:6px;align-items:center;"><input type="checkbox" id="pfOnlyMissing" onchange="pfRender()"> Yalnızca maliyeti eksikler</label>
+        <button class="btn btn-danger btn-sm" onclick="pfReset()">&#128465; MALİYETLERİ SIFIRLA</button>
         <button class="btn btn-accent btn-sm" onclick="pfSave()">&#128190; MALİYETLERİ KAYDET</button>
       </div>
       <div id="pfSummary" style="margin-bottom:12px;font-size:13px;line-height:1.8;"></div>
