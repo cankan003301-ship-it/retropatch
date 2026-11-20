@@ -283,6 +283,30 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
     .ico-in{width:58px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-size:15px;outline:none;text-align:center;}
     .ico-x{background:none;border:1px solid rgba(230,57,70,.3);color:var(--accent2);width:26px;height:26px;cursor:pointer;font-size:11px;flex-shrink:0;}
     .ico-up.busy{opacity:.5;pointer-events:none;}
+
+  .bd{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(165px,1fr);gap:10px;overflow-x:auto;padding-bottom:10px;align-items:start}
+  .bd-col{background:var(--bg2,#111);border:1px solid var(--border);min-height:300px;display:flex;flex-direction:column}
+  .bd-col.over{border-color:var(--accent);background:rgba(200,169,110,.06)}
+  .bd-h{padding:10px 12px;border-bottom:1px solid var(--border);font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1.5px;font-size:13px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:inherit}
+  .bd-h b{background:var(--bg3);border-radius:999px;padding:1px 8px;font-size:11px;color:var(--accent)}
+  .bd-list{padding:8px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .bd-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--accent);padding:10px;cursor:grab;font-size:12px;line-height:1.45}
+  .bd-card:active{cursor:grabbing}.bd-card.drag{opacity:.4}
+  .bd-card.form{border-left-color:#9b59b6}
+  .bd-card.late{box-shadow:inset 0 0 0 1px rgba(230,57,70,.5)}
+  .bd-code{font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:1.5px;color:var(--accent)}
+  .bd-meta{color:var(--muted2);font-size:11px}
+  .bd-foot{display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:6px}
+  .bd-mv{display:flex;gap:4px}.bd-mv button{background:var(--bg3);border:1px solid var(--border);color:var(--text);width:26px;height:24px;cursor:pointer;font-size:14px;line-height:1}
+  .bd-tag{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;margin:3px 3px 0 0;border:1px solid var(--border);color:var(--muted2)}
+  .cu-hist{margin-top:6px;border:1px solid var(--border);max-height:260px;overflow:auto}
+  .cu-hist div{display:flex;justify-content:space-between;gap:8px;padding:7px 10px;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer}
+  .cu-hist div:hover{background:rgba(200,169,110,.06)}
+  #ordDetail input[type=text],#ordDetail textarea{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:inherit;font-size:12px;outline:none;box-sizing:border-box}
+  #ordDetail input[type=file]{color:var(--muted2)}
+  .emb-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+  .emb-row a{color:var(--accent);text-decoration:none;flex:1;word-break:break-all}
+  .emb-row .x{background:none;border:1px solid var(--border);color:#e63946;cursor:pointer;padding:2px 8px;font-size:11px}
 </style>
 
 </head>
@@ -344,6 +368,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="nav-lbl">Genel</div>
         <div class="nav-item active" onclick="showPage('dashboard')"><span class="ic"><svg class=ic data-n=bars><use href=#i-bars></use></svg></span> Dashboard</div>
         <div class="nav-item" onclick="showPage('orders')"><span class="ic"><svg class=ic data-n=cart><use href=#i-cart></use></svg></span> Siparişler <span class="nav-badge" id="badgeOrders" style="display:none">0</span></div>
+        <div class="nav-item" onclick="showPage('board')"><span class="ic"><svg class=ic data-n=factory><use href=#i-factory></use></svg></span> Üretim Panosu <span class="nav-badge" id="badgeBoard" style="display:none">0</span></div>
+        <div class="nav-item" onclick="showPage('customers')"><span class="ic"><svg class=ic data-n=users><use href=#i-users></use></svg></span> Müşteriler</div>
         <div class="nav-item" onclick="showPage('cargo')"><span class="ic"><svg class=ic data-n=truck><use href=#i-truck></use></svg></span> Kargo Yönetimi</div>
         <div class="nav-item" onclick="showPage('messages')"><span class="ic"><svg class=ic data-n=mail><use href=#i-mail></use></svg></span> Mesajlar <span class="nav-badge" id="badgeMsg" style="display:none">0</span></div>
         <div class="nav-item" onclick="showPage('reviews')"><span class="ic"><svg class=ic data-n=chat><use href=#i-chat></use></svg></span> Yorumlar <span class="nav-badge" id="badgeReviews" style="display:none">0</span></div>
@@ -1286,6 +1312,26 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </div>
 
     <!-- ÜYELER -->
+    <div class="page" id="page-board">
+      <div class="section-hdr" style="flex-wrap:wrap;gap:8px;">
+        <div class="section-ttl">ÜRETİM PANOSU</div>
+        <input type="text" id="bdSearch" placeholder="Ara: kod, müşteri, ürün" oninput="renderBoard()" style="margin-left:auto;max-width:220px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 10px;outline:none;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted2);white-space:nowrap;"><input type="checkbox" id="bdForm" onchange="renderBoard()"> Sadece özel siparişler</label>
+      </div>
+      <div style="font-size:12px;color:var(--muted2);margin:-6px 0 12px;">Kartı sürükleyip başka sütuna bırakın (telefonda ‹ › okları). Müşteri Hesabım'da aşamayı görür. Kargoya vermek için takip numarasını Kargo Yönetimi'nden girin.</div>
+      <div class="bd" id="board"></div>
+    </div>
+
+    <div class="page" id="page-customers">
+      <div class="section-hdr" style="flex-wrap:wrap;gap:8px;">
+        <div class="section-ttl">MÜŞTERİLER</div>
+        <input type="text" id="cuSearch" placeholder="Ara: ad, e-posta, telefon" oninput="renderCustomers()" style="margin-left:auto;max-width:240px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 10px;outline:none;">
+        <select id="cuSort" onchange="renderCustomers()" style="max-width:190px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 10px;outline:none;"><option value="spent">Harcamaya göre</option><option value="count">Sipariş sayısına göre</option><option value="last">Son siparişe göre</option></select>
+      </div>
+      <div style="font-size:12px;color:var(--muted2);margin:-6px 0 12px;">Siparişlerden derlenir; üye olan ve olmayan müşteriler e-posta/telefonla eşleştirilir. İptal ve iadeler harcamaya katılmaz.</div>
+      <div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>İletişim</th><th>Sipariş</th><th>Harcama</th><th>İlk / Son sipariş</th><th></th></tr></thead><tbody id="cuTbody"></tbody></table></div>
+    </div>
+
     <div class="page" id="page-members">
       <div class="section-hdr">
         <div class="section-ttl">ÜYELER</div>
@@ -1904,6 +1950,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <div id="pImagePreview" style="margin-top:8px;display:none;">
             <img id="pImagePreviewImg" style="max-width:120px;max-height:120px;border-radius:6px;border:1px solid var(--border);object-fit:cover;">
           </div>
+          <div id="pEmbBox" style="margin-top:12px;"></div>
         </div>
         <div class="fg"><label>Durum</label>
           <select id="pStatus"><option>Stokta</option><option>Son 3</option><option>Tükendi</option></select>
@@ -2048,6 +2095,8 @@ function listenOrders() {
     // Kargo ve üyeler sayfası açıksa yeniden çiz
     if (document.getElementById('page-cargo')?.classList.contains('active')) renderCargo();
     if (document.getElementById('page-members')?.classList.contains('active')) renderMembers();
+    if (document.getElementById('page-board')?.classList.contains('active')) renderBoard(); else updateBoardBadge();
+    if (document.getElementById('page-customers')?.classList.contains('active')) renderCustomers();
   }, err => {
     console.error('Siparişler dinlenemedi:', err.message);
     toast('Siparişler yüklenemedi: ' + err.message, 'err');
@@ -2381,6 +2430,224 @@ function updateOrderProd(id, stage) {
     .catch(() => toast('Hata!', 'err'));
 }
 
+// ══════════ ÜRETİM PANOSU ══════════
+const BD_COLS = [['', 'Yeni'], ...PROD_STAGES.map(([k, l]) => [k, l])];
+function bdShipped(o) { return ['Kargoya Verildi', 'Dağıtımda'].includes(o.cargo && o.cargo.status) || o.status === 'kargoda'; }
+function bdStage(o) { if (bdShipped(o)) return 'kargo'; return PROD_STAGES.some(s => s[0] === o.production) ? o.production : ''; }
+function bdOrders() { return allOrders.filter(o => !['tamamlandı', 'iptal', 'iade'].includes(o.status) && !(o.cargo && o.cargo.status === 'Teslim Edildi')); }
+function updateBoardBadge() { const b = document.getElementById('badgeBoard'); if (!b) return; const n = bdOrders().filter(o => bdStage(o) === '').length; b.textContent = n; b.style.display = n ? '' : 'none'; }
+function bdName(o) { return o.address?.name || o.name || o.userName || '—'; }
+function bdItems(o) {
+  if (o.orderSource === 'form') return [o.type, o.size, (o.qty || o.items?.[0]?.qty || 1) + ' adet'].filter(Boolean).join(' · ');
+  const it = o.items || [], q = it.reduce((s, i) => s + (i.qty || 1), 0);
+  return it.length ? it[0].name + (it.length > 1 ? ' +' + (it.length - 1) + ' ürün' : '') + ' · ' + q + ' adet' : '—';
+}
+function bdAge(o) { const t = o.createdAt?.seconds; if (!t) return 0; return Math.floor((Date.now() / 1000 - t) / 86400); }
+function renderBoard() {
+  const el = document.getElementById('board'); if (!el) return;
+  updateBoardBadge();
+  const q = (document.getElementById('bdSearch')?.value || '').toLocaleLowerCase('tr'), onlyForm = document.getElementById('bdForm')?.checked;
+  let list = bdOrders();
+  if (onlyForm) list = list.filter(o => o.orderSource === 'form');
+  if (q) list = list.filter(o => [o.orderCode, bdName(o), bdItems(o), o.email, o.userEmail].join(' ').toLocaleLowerCase('tr').includes(q));
+  list.sort((x, y) => (x.createdAt?.seconds || 0) - (y.createdAt?.seconds || 0));   // en eski üstte
+  el.innerHTML = BD_COLS.map(([k, l], ci) => {
+    const items = list.filter(o => bdStage(o) === k);
+    return `<div class="bd-col" data-k="${k}" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="bdDrop(event,'${k}')">
+      <div class="bd-h"><span>${ci ? ci + '. ' : ''}${pEsc(l).toUpperCase()}</span><b>${items.length}</b></div>
+      <div class="bd-list">${items.map(o => {
+        const age = bdAge(o), late = age >= 7 && ci < 6;
+        return `<div class="bd-card ${o.orderSource === 'form' ? 'form' : ''} ${late ? 'late' : ''}" draggable="true" data-id="${o.id}" ondragstart="event.dataTransfer.setData('text/plain','${o.id}');this.classList.add('drag')" ondragend="this.classList.remove('drag')" onclick="if(!event.target.closest('button'))showOrderDetail('${o.id}')">
+          <div class="bd-code">${pEsc(o.orderCode || '#' + o.id.slice(-5).toUpperCase())}</div>
+          <div style="font-weight:600;">${pEsc(bdName(o))}</div>
+          <div class="bd-meta">${pEsc(bdItems(o))}</div>
+          <div>${o.orderSource === 'form' ? '<span class="bd-tag" style="color:#9b59b6;border-color:#9b59b6">ÖZEL</span>' : ''}${(o.embFiles || []).length ? '<span class="bd-tag">🧵 ' + o.embFiles.length + ' dosya</span>' : ''}${o.proof?.status === 'pending' ? '<span class="bd-tag" style="color:#f39c12;border-color:#f39c12">ONAY BEKLİYOR</span>' : o.proof?.status === 'revision' ? '<span class="bd-tag" style="color:#e63946;border-color:#e63946">DEĞİŞİKLİK</span>' : ''}${o.payment?.method === 'havale' && o.payment?.status === 'awaiting_transfer' ? '<span class="bd-tag">HAVALE BEKLİYOR</span>' : ''}</div>
+          <div class="bd-foot"><span class="bd-meta" style="${late ? 'color:#e63946;font-weight:700' : ''}">${age === 0 ? 'bugün' : age + ' gün'}${o.total ? ' · ₺' + Number(o.total).toLocaleString('tr-TR') : ''}</span>
+            <span class="bd-mv">${ci > 0 ? `<button title="Önceki aşama" onclick="bdMove('${o.id}',-1)">‹</button>` : ''}${ci < BD_COLS.length - 1 ? `<button title="Sonraki aşama" onclick="bdMove('${o.id}',1)">›</button>` : ''}</span></div>
+        </div>`;
+      }).join('') || '<div class="bd-meta" style="text-align:center;padding:16px 0;">—</div>'}</div></div>`;
+  }).join('');
+}
+function bdSet(id, k) {
+  const o = allOrders.find(x => x.id === id); if (!o || bdStage(o) === k) return;
+  if (bdShipped(o) && k !== 'kargo') { toast('Kargoya verilmiş sipariş geri alınamaz (Kargo Yönetimi\'nden değiştirin)', 'err'); return; }
+  o.production = k || undefined; if (k === 'kargo') o.status = 'kargoda'; else if (['uretim', 'nakis', 'kalite'].includes(k) && ['yeni', 'hazırlanıyor', undefined, ''].includes(o.status)) o.status = 'üretimde';
+  renderBoard();
+  updateOrderProd(id, k);
+}
+function bdDrop(e, k) { e.preventDefault(); document.querySelectorAll('.bd-col.over').forEach(c => c.classList.remove('over')); const id = e.dataTransfer.getData('text/plain'); if (id) bdSet(id, k); }
+function bdMove(id, d) { const o = allOrders.find(x => x.id === id); if (!o) return; const i = BD_COLS.findIndex(c => c[0] === bdStage(o)); const n = BD_COLS[i + d]; if (n) bdSet(id, n[0]); }
+
+// ══════════ MÜŞTERİ GEÇMİŞİ ══════════
+const cuMail = o => String(o.userEmail || o.email || '').trim().toLowerCase();
+const cuPhone = o => { const d = String(o.address?.phone || o.phone || '').replace(/\D/g, ''); return d.length >= 10 ? d.slice(-10) : ''; };
+const cuUid = o => o.userId && o.userId !== 'guest' ? o.userId : '';
+const cuPaid = o => !['iptal', 'iade'].includes(o.status);
+// Siparişleri müşterilere grupla (aynı e-posta, telefon veya üye kimliği = aynı müşteri)
+function buildCustomers() {
+  const groups = [], idx = {};
+  allOrders.forEach(o => {
+    const keys = ['u:' + cuUid(o), 'm:' + cuMail(o), 'p:' + cuPhone(o)].filter(k => k.length > 2);
+    let g = null; keys.forEach(k => { if (!g && idx[k]) g = idx[k]; });
+    if (!g) { g = { orders: [], keys: new Set() }; groups.push(g); }
+    g.orders.push(o); keys.forEach(k => { g.keys.add(k); idx[k] = g; });
+  });
+  return groups.map(g => {
+    const os = g.orders.slice().sort((x, y) => (y.createdAt?.seconds || 0) - (x.createdAt?.seconds || 0)), last = os[0], first = os[os.length - 1];
+    return { orders: os, keys: g.keys, name: bdName(last), mail: cuMail(last) || os.map(cuMail).find(Boolean) || '', phone: last.address?.phone || last.phone || '',
+      count: os.length, spent: os.filter(cuPaid).reduce((s, o) => s + (Number(o.total) || 0), 0), first: first.createdAt?.seconds || 0, last: last.createdAt?.seconds || 0,
+      member: os.some(o => cuUid(o)), uid: os.map(cuUid).find(Boolean) || '' };
+  });
+}
+function customerOf(o) { const ks = ['u:' + cuUid(o), 'm:' + cuMail(o), 'p:' + cuPhone(o)].filter(k => k.length > 2); return buildCustomers().find(c => ks.some(k => c.keys.has(k))); }
+const cuDate = s => s ? new Date(s * 1000).toLocaleDateString('tr-TR') : '—';
+function cuHistHtml(c, curId) {
+  return '<div class="cu-hist">' + c.orders.map(x => `<div onclick="showOrderDetail('${x.id}')" style="${x.id === curId ? 'background:rgba(200,169,110,.1)' : ''}"><span><b style="color:var(--accent)">${pEsc(x.orderCode || '#' + x.id.slice(-5).toUpperCase())}</b> · ${cuDate(x.createdAt?.seconds)}<br><span style="color:var(--muted2)">${pEsc(bdItems(x))}</span></span><span style="text-align:right;white-space:nowrap">${x.total ? '₺' + Number(x.total).toLocaleString('tr-TR') : '—'}<br><span style="color:var(--muted2);font-size:10px">${pEsc(ordStatusLabel(x.status))}</span></span></div>`).join('') + '</div>';
+}
+function custSummary(o) {
+  const c = customerOf(o); if (!c) return '';
+  const n = c.orders.length - c.orders.findIndex(x => x.id === o.id);
+  return `<div style="padding:12px;border:1px solid var(--border);background:var(--bg2,#111);">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div style="font-size:13px;">👤 <b>${c.count === 1 ? 'İlk siparişi' : 'Bu müşterinin ' + n + '. siparişi'}</b> <span style="color:var(--muted2)">· ${c.count} sipariş${c.spent ? ' · toplam ₺' + c.spent.toLocaleString('tr-TR') : ''}${c.count > 1 ? ' · ilk: ' + cuDate(c.first) : ''}${c.member ? ' · üye' : ' · üye değil'}</span></div>
+      ${c.count > 1 ? `<button class="btn btn-outline btn-sm" onclick="this.nextElementSibling?.remove?.();this.parentElement.insertAdjacentHTML('afterend', cuHistHtml(customerOf(allOrders.find(x=>x.id==='${o.id}')),'${o.id}'));this.remove()">Geçmişi gör</button>` : ''}
+    </div></div>`;
+}
+function renderCustomers() {
+  const tb = document.getElementById('cuTbody'); if (!tb) return;
+  const q = (document.getElementById('cuSearch')?.value || '').toLocaleLowerCase('tr'), sort = document.getElementById('cuSort')?.value || 'spent';
+  let list = buildCustomers();
+  if (q) list = list.filter(c => [c.name, c.mail, c.phone].join(' ').toLocaleLowerCase('tr').includes(q));
+  list.sort((x, y) => sort === 'count' ? y.count - x.count || y.spent - x.spent : sort === 'last' ? y.last - x.last : y.spent - x.spent || y.count - x.count);
+  window._cuList = list;
+  tb.innerHTML = list.length ? list.slice(0, 300).map((c, i) => `<tr>
+    <td><b>${pEsc(c.name)}</b>${c.count >= 3 ? ' <span class="bd-tag" style="color:var(--accent);border-color:var(--accent)">SADIK</span>' : ''}<br><span style="font-size:10px;color:var(--muted2)">${c.member ? 'Üye' : 'Üye değil'}</span></td>
+    <td style="font-size:12px;color:var(--muted2)">${pEsc(c.mail || '—')}<br>${pEsc(c.phone || '')}</td>
+    <td style="font-family:'Bebas Neue',cursive;font-size:18px;">${c.count}</td>
+    <td style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);">${c.spent ? '₺' + c.spent.toLocaleString('tr-TR') : '—'}</td>
+    <td style="font-size:11px;color:var(--muted2)">${cuDate(c.first)}<br>${cuDate(c.last)}</td>
+    <td><button class="btn btn-outline btn-sm" onclick="showCustomerHistory(null,${i})">🧾 Geçmiş</button>${c.phone ? ` <a class="btn btn-outline btn-sm" style="text-decoration:none" target="_blank" href="https://wa.me/${String(c.phone).replace(/\D/g, '').replace(/^0/, '90').replace(/^(?!90)/, '90')}">WhatsApp</a>` : ''}</td>
+  </tr>`).join('') : '<tr><td colspan="6"><div class="empty"><div class="empty-text">Müşteri bulunamadı</div></div></td></tr>';
+}
+function showCustomerHistory(uid, idx) {
+  let c = idx != null ? (window._cuList || [])[idx] : buildCustomers().find(x => x.keys.has('u:' + uid));
+  if (!c && uid) { const m = (allMembers || []).find(u => u.id === uid); if (m && m.email) c = buildCustomers().find(x => x.keys.has('m:' + String(m.email).toLowerCase())); }
+  if (!c) { toast('Bu müşterinin siparişi yok', 'err'); return; }
+  document.getElementById('ordDetail').innerHTML = `<div style="font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;">${pEsc(c.name)}</div>
+    <div style="font-size:12px;color:var(--muted2);margin-bottom:10px;">${pEsc([c.mail, c.phone].filter(Boolean).join(' · '))}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <div class="bd-tag" style="font-size:12px;padding:6px 10px">${c.count} sipariş</div><div class="bd-tag" style="font-size:12px;padding:6px 10px;color:var(--accent)">₺${c.spent.toLocaleString('tr-TR')} harcama</div>
+      <div class="bd-tag" style="font-size:12px;padding:6px 10px">ort. ₺${Math.round(c.spent / Math.max(1, c.orders.filter(cuPaid).length)).toLocaleString('tr-TR')}</div><div class="bd-tag" style="font-size:12px;padding:6px 10px">İlk: ${cuDate(c.first)}</div></div>
+    ${cuHistHtml(c, '')}`;
+  openModal('ordModal');
+}
+
+// ══════════ NAKIŞ DOSYALARI ══════════
+const EMB_ACCEPT = '.dst,.pes,.emb,.jef,.exp,.vp3,.xxx,.hus,.vip,.sew,.pec,.art,.zip,.pdf,.png,.jpg,.svg,.ai';
+function embList(files, owner, id) {
+  return (files || []).map((f, i) => `<div class="emb-row">🧵 ${f.url ? `<a href="${pEsc(f.url)}" target="_blank" rel="noopener" download>${pEsc(f.name)}</a>` : `<span style="flex:1">${pEsc(f.name)} <span style="color:var(--muted2)">(yalnızca bilgisayarda${f.path ? ': ' + pEsc(f.path) : ''})</span></span>`}<span style="color:var(--muted2);font-size:10px">${f.size ? Math.max(1, Math.round(f.size / 1024)) + ' KB' : ''}</span><button class="x" onclick="embRemove('${owner}','${id}',${i})">Sil</button></div>`).join('');
+}
+function embRelated(o) {
+  // Aynı ürünün ya da tekrar edilen eski siparişin dosyaları (tekrar siparişte hazır dosya)
+  const out = [], seen = new Set((o.embFiles || []).map(f => f.url || f.name));
+  (o.items || []).forEach(i => { const p = i.id && (allProducts || []).find(x => x.id === i.id); (p?.embFiles || []).forEach(f => { if (!seen.has(f.url || f.name)) { seen.add(f.url || f.name); out.push({ ...f, from: 'Ürün: ' + p.name }); } }); });
+  const m = /Tekrar sipariş: (RP-[A-Z0-9]+)/.exec(o.notes || '');
+  if (m) { const prev = allOrders.find(x => x.orderCode === m[1]); (prev?.embFiles || []).forEach(f => { if (!seen.has(f.url || f.name)) { seen.add(f.url || f.name); out.push({ ...f, from: 'Önceki sipariş ' + m[1] }); } }); }
+  return out;
+}
+function embSection(o) {
+  const rel = embRelated(o), prodIds = [...new Set((o.items || []).map(i => i.id).filter(Boolean))];
+  return `<div style="padding:12px;border:1px solid var(--border);">
+    <div style="font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;color:var(--accent);margin-bottom:6px;">🧵 NAKIŞ DOSYALARI</div>
+    <div id="embList-${o.id}">${embList(o.embFiles, 'orders', o.id) || '<div style="font-size:12px;color:var(--muted2);padding:4px 0;">Bu siparişe bağlı dosya yok.</div>'}</div>
+    ${rel.length ? `<div style="margin-top:8px;padding:8px 10px;background:rgba(46,204,113,.06);border:1px solid rgba(46,204,113,.3);font-size:12px;"><b style="color:#2ecc71">♻ Hazır dosya var:</b>${rel.map(f => `<div style="margin-top:4px">${f.url ? `<a href="${pEsc(f.url)}" target="_blank" rel="noopener" style="color:var(--accent)">${pEsc(f.name)}</a>` : pEsc(f.name)} <span style="color:var(--muted2)">— ${pEsc(f.from)}</span></div>`).join('')}</div>` : ''}
+    <input type="file" id="embFile-${o.id}" multiple accept="${EMB_ACCEPT}" style="font-size:11px;margin-top:10px;width:100%;">
+    ${prodIds.length ? `<label style="display:flex;gap:6px;align-items:center;font-size:11px;color:var(--muted2);margin-top:6px;"><input type="checkbox" id="embToProd-${o.id}" checked> Ürüne de kaydet (sonraki siparişlerde hazır gelsin)</label>` : ''}
+    <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:6px;" id="embBtn-${o.id}" onclick="embUpload('${o.id}')">⬆ DOSYALARI YÜKLE</button>
+    <div id="embSt-${o.id}" style="font-size:11px;color:var(--muted2);margin-top:4px;"></div>
+  </div>`;
+}
+async function embPut(file) {
+  const u = firebase.auth().currentUser, idt = u ? await u.getIdToken() : '';
+  const send = async (blob, name) => {
+    const auth = await (await fetch('/api/imagekit-auth', { headers: idt ? { Authorization: 'Bearer ' + idt } : {} })).json();
+    const fd = new FormData();
+    fd.append('file', blob, name); fd.append('fileName', name); fd.append('folder', '/retropatch/nakis'); fd.append('useUniqueFileName', 'true');
+    fd.append('publicKey', 'public_hy4ZT2a0P7CQW1tDB/QkgAr+Jw8='); fd.append('signature', auth.signature); fd.append('expire', auth.expire); fd.append('token', auth.token);
+    const d = await (await fetch('https://upload.imagekit.io/api/v1/files/upload', { method: 'POST', body: fd })).json();
+    if (!d.url) throw new Error(d.message || 'Yüklenemedi');
+    return d.url;
+  };
+  const safe = file.name.replace(/[^\w.\-]+/g, '_');
+  try { return { url: await send(file, safe), name: file.name }; }
+  catch (e1) {
+    // Bazı nakış uzantıları reddedilebilir: .zip içine koyup tekrar dene
+    if (!window.JSZip) await new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+    const z = new JSZip(); z.file(file.name, file);
+    const blob = await z.generateAsync({ type: 'blob' });
+    return { url: await send(blob, safe + '.zip'), name: file.name + '.zip', zipped: true };
+  }
+}
+function embProdHtml(p) {
+  return `<label style="margin:0 0 4px;display:block;">🧵 Nakış Dosyaları <span style="color:var(--muted2);font-size:10px;">(DST, PES, EMB, JEF… — siparişlerde "hazır dosya" olarak çıkar)</span></label>
+    <div id="embPList-${p.id}">${embList(p.embFiles, 'products', p.id) || '<div style="font-size:12px;color:var(--muted2);padding:4px 0;">Dosya yok.</div>'}</div>
+    <div style="display:flex;gap:6px;align-items:center;margin-top:6px;"><input type="file" id="embPFile-${p.id}" multiple accept="${EMB_ACCEPT}" style="font-size:11px;flex:1;"><button type="button" class="btn btn-outline btn-sm" onclick="embProdUpload('${p.id}',this)">⬆ YÜKLE</button></div>
+    <div id="embPSt-${p.id}" style="font-size:11px;color:var(--muted2);margin-top:4px;"></div>`;
+}
+async function embProdUpload(pid, btn) {
+  const p = (allProducts || []).find(x => x.id === pid), inp = document.getElementById('embPFile-' + pid), st = document.getElementById('embPSt-' + pid);
+  const files = [...(inp?.files || [])]; if (!p || !files.length) { toast('Dosya seçin', 'err'); return; }
+  btn.disabled = true; const added = [];
+  for (const [i, f] of files.entries()) {
+    st.textContent = `⏳ ${i + 1}/${files.length}: ${f.name}`;
+    try { const r = await embPut(f); added.push({ name: r.name, url: r.url, size: f.size, ext: (f.name.split('.').pop() || '').toLowerCase(), at: new Date().toISOString() }); }
+    catch (e) { st.textContent = '❌ ' + f.name + ': ' + e.message; }
+  }
+  if (added.length) {
+    await db.collection('products').doc(pid).update({ embFiles: firebase.firestore.FieldValue.arrayUnion(...added) });
+    p.embFiles = [...(p.embFiles || []), ...added];
+    document.getElementById('embPList-' + pid).innerHTML = embList(p.embFiles, 'products', pid);
+    st.textContent = '✅ ' + added.length + ' dosya ürüne bağlandı';
+  }
+  btn.disabled = false; inp.value = '';
+}
+async function embUpload(id) {
+  const o = allOrders.find(x => x.id === id), inp = document.getElementById('embFile-' + id), st = document.getElementById('embSt-' + id), btn = document.getElementById('embBtn-' + id);
+  const files = [...(inp?.files || [])]; if (!o || !files.length) { toast('Dosya seçin', 'err'); return; }
+  btn.disabled = true; const added = [];
+  for (const [i, f] of files.entries()) {
+    st.textContent = `⏳ ${i + 1}/${files.length}: ${f.name}`;
+    if (f.size > 25 * 1024 * 1024) { st.textContent = '❌ ' + f.name + ' 25 MB\'tan büyük'; continue; }
+    try { const r = await embPut(f); added.push({ name: r.name, url: r.url, size: f.size, ext: (f.name.split('.').pop() || '').toLowerCase(), at: new Date().toISOString() }); }
+    catch (e) {
+      const path = prompt(f.name + ' yüklenemedi (' + e.message + ').\nBilgisayardaki klasör yolunu yazarsanız en azından adı ve yeri kaydedilir:', 'D:\\Katalog\\' + f.name);
+      if (path !== null) added.push({ name: f.name, url: '', path: path.slice(0, 300), size: f.size, at: new Date().toISOString() });
+    }
+  }
+  if (added.length) {
+    const FV = firebase.firestore.FieldValue;
+    await db.collection('orders').doc(id).update({ embFiles: FV.arrayUnion(...added) });
+    o.embFiles = [...(o.embFiles || []), ...added];
+    const toProd = document.getElementById('embToProd-' + id)?.checked;
+    if (toProd) for (const pid of [...new Set((o.items || []).map(i => i.id).filter(Boolean))]) {
+      await db.collection('products').doc(pid).update({ embFiles: FV.arrayUnion(...added) }).catch(() => {});
+      const p = (allProducts || []).find(x => x.id === pid); if (p) p.embFiles = [...(p.embFiles || []), ...added];
+    }
+    document.getElementById('embList-' + id).innerHTML = embList(o.embFiles, 'orders', id);
+    st.textContent = '✅ ' + added.length + ' dosya kaydedildi' + (added.some(x => x.name.endsWith('.zip')) ? ' (bazıları .zip olarak)' : '') + (toProd ? ', ürüne de bağlandı' : '');
+    if (document.getElementById('page-board')?.classList.contains('active')) renderBoard();
+  } else if (!/❌/.test(st.textContent)) st.textContent = '';
+  btn.disabled = false; inp.value = '';
+}
+async function embRemove(col, id, i) {
+  const src = col === 'orders' ? allOrders : (allProducts || []), o = src.find(x => x.id === id); if (!o) return;
+  const f = (o.embFiles || [])[i]; if (!f || !confirm(f.name + ' bu kayıttan kaldırılsın mı? (Dosya ImageKit\'te kalır)')) return;
+  const next = o.embFiles.filter((_, k) => k !== i);
+  await db.collection(col).doc(id).update({ embFiles: next });
+  o.embFiles = next;
+  const box = document.getElementById((col === 'orders' ? 'embList-' : 'embPList-') + id); if (box) box.innerHTML = embList(next, col, id) || '<div style="font-size:12px;color:var(--muted2);padding:4px 0;">Dosya yok.</div>';
+}
+
 // ── Tasarım onayı: admin önizleme gönderir, müşteri Hesabım → Tasarım Onayları'ndan cevap verir ──
 const pEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function proofChip(o) {
@@ -2477,6 +2744,8 @@ function showOrderDetail(id) {
       ${row('Tarih', formatDate(o.createdAt))}
       ${row('Durum', statusBadge(o.status || 'yeni'))}
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted2);font-family:sans-serif;letter-spacing:1px;font-size:11px;">Üretim Aşaması</span><select onchange="updateOrderProd('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:12px;outline:none;">${ordProdOpts(o.production)}</select></div>
+      ${custSummary(o)}
+      ${embSection(o)}
       ${proofSection(o)}
       ${o.designFileUrl ? `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted2);font-family:sans-serif;letter-spacing:1px;font-size:11px;">Tasarım Dosyası</span><a href="${o.designFileUrl}" target="_blank" style="color:var(--accent);"><svg class=ic data-n=clip><use href=#i-clip></use></svg> Görüntüle <svg class=ic data-n=arrow-r><use href=#i-arrow-r></use></svg></a></div>` : ''}
     </div>
@@ -3253,7 +3522,7 @@ function saveQuickEdit() {
 function openProdModal(id) {
   document.getElementById('editProdId').value = '';
   document.getElementById('prodModalTitle').textContent = 'YENİ ÜRÜN';
-  ['pName','pPrice','pDesc','pImage','pSize'].forEach(id => document.getElementById(id).value = '');
+  ['pName','pPrice','pDesc','pImage','pSize'].forEach(id => document.getElementById(id).value = ''); document.getElementById('pEmbBox').innerHTML = '<div style="font-size:11px;color:var(--muted2);">🧵 Nakış dosyalarını ürünü kaydettikten sonra ekleyebilirsiniz.</div>';
   document.getElementById('pStatus').value = 'Stokta';
   document.getElementById('pImagePreview').style.display = 'none';
   document.getElementById('pSubCatWrap').style.display = 'none';
@@ -3276,6 +3545,7 @@ function editProd(id) {
   basePrice = parseFloat(p.price) || 0;
   document.getElementById('pDesc').value = p.desc || '';
   document.getElementById('pImage').value = p.image || '';
+  document.getElementById('pEmbBox').innerHTML = embProdHtml(p);
   document.getElementById('pSize').value = p.size || '';
   document.getElementById('pStatus').value = p.status || 'Stokta';
   document.getElementById('pBack').value = p.back || 'Ütüyle Yapışan';
@@ -3961,13 +4231,15 @@ function showPage(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   event.currentTarget?.classList.add('active');
-  const titles = {dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',errors:'SİTE HATALARI',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ',categories:'KATEGORİLER',media:'MEDYA',digital:'DİJİTAL DOSYALAR',announcements:'DUYURULAR'};
+  const titles = {board:'ÜRETİM PANOSU',customers:'MÜŞTERİLER',dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',errors:'SİTE HATALARI',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ',categories:'KATEGORİLER',media:'MEDYA',digital:'DİJİTAL DOSYALAR',announcements:'DUYURULAR'};
   document.getElementById('pageTitle').textContent = titles[name] || name.toUpperCase();
   if (name === 'orders') renderOrders('cart', document.getElementById('orderFilter')?.value || 'all');
   if (name === 'products') renderProducts();
   if (name === 'messages') renderMessages();
   if (name === 'cargo') { renderCargo('all'); loadCargoSettings(); }
   if (name === 'members') loadMembers();
+  if (name === 'board') renderBoard();
+  if (name === 'customers') renderCustomers();
   if (name === 'coupons') loadCoupons();
   if (name === 'sitemanage') { loadSiteSettings(); }
   if (name === 'media') { renderSlides(); loadGallery(); }
@@ -4603,6 +4875,7 @@ function renderMembers() {
       <td><span style="font-family:'Bebas Neue',cursive;font-size:18px;">${userOrders.length}</span></td>
       <td style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);">₺${spent.toLocaleString('tr-TR')}</td>
       <td style="display:flex;gap:6px;align-items:center;">
+        <button onclick="showCustomerHistory('${u.id}')" style="font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;white-space:nowrap;">🧾 Geçmiş</button>
         <button onclick="showMemberAddresses('${u.id}','${(u.name||'').replace(/'/g,'')}')" style="font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'"><svg class=ic data-n=pin><use href=#i-pin></use></svg> Adresler</button>
         <button onclick="deleteMember('${u.id}','${(u.name||u.email||'bu üyeyi').replace(/'/g,'')}')" style="font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 10px;border:1px solid rgba(230,57,70,.3);background:transparent;color:#e63946;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.background='rgba(230,57,70,.1)';this.style.borderColor='#e63946'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(230,57,70,.3)'"><svg class=ic data-n=trash><use href=#i-trash></use></svg> Sil</button>
       </td>
