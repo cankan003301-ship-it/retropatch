@@ -516,6 +516,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <button class="btn btn-outline btn-sm" onclick="toggleProdView('table')" id="viewTable" title="Tablo görünüm"><svg class=ic data-n=menu><use href=#i-menu></use></svg> Tablo</button>
           <button class="btn btn-outline btn-sm" onclick="openBulkPriceModal()"><svg class=ic data-n=money><use href=#i-money></use></svg> Toplu Fiyat</button>
           <button class="btn btn-outline btn-sm" onclick="openDolapCmp()">&#128202; Dolap ↔ Site</button>
+          <button class="btn btn-accent btn-sm" onclick="openProfit()">&#128176; Kâr Raporu</button>
           <button class="btn btn-outline btn-sm" onclick="openImgMig()">&#128444; Görselleri Taşı</button>
           <button class="btn btn-outline btn-sm" onclick="openBulkStatusModal()"><svg class=ic data-n=refresh><use href=#i-refresh></use></svg> Toplu Durum</button>
           <button class="btn btn-outline btn-sm" onclick="openBulkAddModal()"><svg class=ic data-n=clipboard><use href=#i-clipboard></use></svg> Toplu Ekle</button>
@@ -4816,6 +4817,88 @@ function viewCouponHistory(couponId) {
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+// ================= MALİYET & KÂR RAPORU =================
+let _pfCosts = {}, _pfLoaded = false;
+const _pfM = v => (v < 0 ? '−' : '') + '₺' + Math.abs(Math.round(v * 100) / 100).toLocaleString('tr-TR');
+async function openProfit() {
+  openModal('profitModal');
+  if (!_pfLoaded) {
+    try { const d = await db.collection('payment_secrets').doc('costs').get(); _pfCosts = (d.exists && d.data().c) || {}; _pfLoaded = true; }
+    catch (e) { toast('Maliyetler okunamadı: ' + e.message, 'err'); }
+  }
+  pfRender();
+}
+function pfCfg() { const g = id => parseFloat(document.getElementById(id).value) || 0; return { pos: g('pfPos') / 100, disc: g('pfDisc') / 100, cargo: g('pfCargo'), free: g('pfFree') }; }
+function pfProfit(p, cost, newMember) {
+  const k = pfCfg(), ps = parseFloat(p.price) || 0, price = newMember ? ps * (1 - k.disc) : ps;
+  const extra = (k.free > 0 && price >= k.free) ? k.cargo : 0;
+  return price * (1 - k.pos) - cost - extra;
+}
+function pfRender() {
+  const only = document.getElementById('pfOnlyMissing').checked;
+  let list = (allProducts || []).slice();
+  if (only) list = list.filter(p => _pfCosts[p.id] === undefined || _pfCosts[p.id] === '');
+  const rows = list.map(p => ({ p, c: _pfCosts[p.id] })).sort((a, b) => {
+    const pa = a.c === undefined ? 1e9 : pfProfit(a.p, +a.c, false), pb = b.c === undefined ? 1e9 : pfProfit(b.p, +b.c, false); return pa - pb; });
+  document.getElementById('pfBody').innerHTML = rows.map(({ p, c }) => `<tr data-id="${p.id}" style="border-bottom:1px solid var(--border);">
+    <td style="padding:6px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${dgEsc(p.name)}</td>
+    <td>₺${parseFloat(p.price) || 0}</td>
+    <td><input type="number" min="0" value="${c === undefined ? '' : c}" placeholder="—" oninput="pfSet('${p.id}',this.value)" style="width:80px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px;"></td>
+    <td class="pf-n"></td><td class="pf-m"></td><td class="pf-w"></td></tr>`).join('') || '<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--muted2);">Gösterilecek ürün yok</td></tr>';
+  pfRecalc();
+}
+function pfSet(id, v) { if (v === '' ) delete _pfCosts[id]; else _pfCosts[id] = parseFloat(v) || 0; pfRecalc(); }
+function pfRecalc() {
+  const prods = new Map((allProducts || []).map(p => [p.id, p]));
+  let withCost = 0, loss = 0, mSum = 0, mN = 0;
+  document.querySelectorAll('#pfBody tr[data-id]').forEach(tr => {
+    const p = prods.get(tr.dataset.id), c = _pfCosts[tr.dataset.id];
+    const n = tr.querySelector('.pf-n'), m = tr.querySelector('.pf-m'), w = tr.querySelector('.pf-w');
+    if (c === undefined) { n.textContent = m.textContent = w.textContent = '—'; n.style.color = ''; return; }
+    const a = pfProfit(p, +c, false), b = pfProfit(p, +c, true), ps = parseFloat(p.price) || 0;
+    n.textContent = _pfM(a); n.style.color = a < 0 ? '#ff6b6b' : '#4ade80';
+    m.textContent = ps ? Math.round(a / ps * 100) + '%' : '—';
+    w.textContent = _pfM(b); w.style.color = b < 0 ? '#ff6b6b' : '#4ade80';
+  });
+  (allProducts || []).forEach(p => { const c = _pfCosts[p.id]; if (c === undefined) return; withCost++; const a = pfProfit(p, +c, false), ps = parseFloat(p.price) || 0; if (a < 0) loss++; if (ps) { mSum += a / ps; mN++; } });
+  const total = (allProducts || []).length;
+  document.getElementById('pfSummary').innerHTML = `Maliyeti girilen: <b>${withCost}</b> / ${total} ürün · Zararda olan: <b style="color:${loss ? '#ff6b6b' : 'inherit'}">${loss}</b> · Ortalama marj: <b>${mN ? Math.round(mSum / mN * 100) + '%' : '—'}</b>`;
+  pfOrders();
+}
+function pfFillEmpty() {
+  const v = parseFloat(document.getElementById('pfFill').value);
+  if (!(v >= 0)) { toast('Bir maliyet girin', 'err'); return; }
+  let n = 0; (allProducts || []).forEach(p => { if (_pfCosts[p.id] === undefined) { _pfCosts[p.id] = v; n++; } });
+  toast(n + ' ürüne ₺' + v + ' maliyet atandı (kaydetmeyi unutmayın)', 'ok'); pfRender();
+}
+async function pfSave() {
+  try {
+    const ids = new Set((allProducts || []).map(p => p.id)), c = {};
+    Object.keys(_pfCosts).forEach(k => { if (ids.has(k)) c[k] = _pfCosts[k]; });
+    await db.collection('payment_secrets').doc('costs').set({ c, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    _pfCosts = c; toast('✓ ' + Object.keys(c).length + ' ürünün maliyeti kaydedildi', 'ok');
+  } catch (e) { toast('Kaydedilemedi: ' + e.message, 'err'); }
+}
+function pfOrders() {
+  const el = document.getElementById('pfOrders'); if (!el) return;
+  const k = pfCfg(), now = Date.now();
+  const ok = o => !/iptal|iade/i.test(o.status || '') && !(o.payment && ['awaiting_card', 'failed', 'abandoned'].includes(o.payment.status));
+  const t = o => { try { return o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().getTime() : 0; } catch (e) { return 0; } };
+  const calc = days => {
+    let rev = 0, cost = 0, fee = 0, n = 0, unk = 0;
+    (typeof allOrders !== 'undefined' ? allOrders : []).filter(ok).filter(o => !days || t(o) >= now - days * 86400000).forEach(o => {
+      const items = o.items || []; if (!items.length) return;
+      let sub = 0, c = 0, miss = false;
+      items.forEach(i => { sub += (+i.price || 0) * (+i.qty || 1); const pc = _pfCosts[i.id]; if (pc === undefined) miss = true; else c += pc * (+i.qty || 1); });
+      const disc = +o.discount || 0, net = sub - disc;
+      rev += net; cost += c; n++; if (miss) unk++;
+      if (o.payment && o.payment.method === 'card') fee += (+o.total || net) * k.pos;
+    });
+    return { rev, cost, fee, n, unk, profit: rev - cost - fee };
+  };
+  const row = (lbl, r) => `<div><b>${lbl}:</b> ${r.n} sipariş · ciro ${_pfM(r.rev)} · maliyet ${_pfM(r.cost)} · POS ${_pfM(r.fee)} → <b style="color:${r.profit < 0 ? '#ff6b6b' : '#4ade80'}">kâr ${_pfM(r.profit)}</b>${r.unk ? ' <span style="color:var(--muted2)">(' + r.unk + ' siparişte maliyeti girilmemiş ürün var, kâr olduğundan yüksek çıkar)</span>' : ''}</div>`;
+  el.innerHTML = '<div style="font-family:\'Bebas Neue\',cursive;letter-spacing:2px;font-size:16px;margin-bottom:4px;">GERÇEKLEŞEN SİPARİŞ KÂRI <span style="font-size:11px;color:var(--muted2);font-family:Barlow,sans-serif;letter-spacing:0;">(iptal/iade ve ödenmemiş hariç; kargo gideri dahil değil)</span></div>' + row('Son 30 gün', calc(30)) + row('Tümü', calc(0));
+}
 function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
 document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-ov.open').forEach(m=>m.classList.remove('open')); });
 
@@ -6429,6 +6512,33 @@ function saveMarquee() {
   </div>
 </div>
 <script>function openChangelog(){document.getElementById("changelogModal").classList.add("open");}</script>
+<div class="modal-ov" id="profitModal">
+  <div class="modal-box" style="max-width:1000px;width:96%;">
+    <div class="modal-hdr"><h3>&#128176; ÜRÜN MALİYETİ &amp; KÂR RAPORU</h3><button class="modal-x" onclick="closeModal('profitModal')">&times;</button></div>
+    <div class="modal-body" style="max-height:78vh;overflow:auto;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px;font-size:12px;">
+        <label>POS komisyonu (%)<input type="number" id="pfPos" value="2.69" step="0.01" oninput="pfRecalc()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px;"></label>
+        <label>Yeni üye indirimi (%)<input type="number" id="pfDisc" value="20" oninput="pfRecalc()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px;"></label>
+        <label>Kargo gideri (₺)<input type="number" id="pfCargo" value="170" oninput="pfRecalc()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px;"></label>
+        <label>Ücretsiz kargo limiti (₺)<input type="number" id="pfFree" value="1500" oninput="pfRecalc()" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px;"></label>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;font-size:12px;">
+        <span style="color:var(--muted2);">Maliyeti boş olanlara ata (₺):</span>
+        <input type="number" id="pfFill" placeholder="örn. 60" style="width:90px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;">
+        <button class="btn btn-outline btn-sm" onclick="pfFillEmpty()">UYGULA</button>
+        <label style="margin-left:auto;display:flex;gap:6px;align-items:center;"><input type="checkbox" id="pfOnlyMissing" onchange="pfRender()"> Yalnızca maliyeti eksikler</label>
+        <button class="btn btn-accent btn-sm" onclick="pfSave()">&#128190; MALİYETLERİ KAYDET</button>
+      </div>
+      <div id="pfSummary" style="margin-bottom:12px;font-size:13px;line-height:1.8;"></div>
+      <div style="overflow:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:640px;">
+        <thead><tr style="text-align:left;color:var(--muted2);border-bottom:1px solid var(--border);"><th style="padding:6px;">Ürün</th><th>Fiyat</th><th>Maliyet ₺</th><th>Kâr (normal)</th><th>Marj</th><th>Kâr (yeni üye)</th></tr></thead>
+        <tbody id="pfBody"></tbody></table></div>
+      <div id="pfOrders" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:13px;line-height:1.8;"></div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:10px;line-height:1.6;">Maliyetler müşterilerin görebildiği ürün kaydına değil, yalnızca yönetici erişimli ayrı bir kayda yazılır. Kâr = fiyat − POS komisyonu − maliyet − (ücretsiz kargo limiti üzerindeyse kargo gideri). Sipariş kârı, ürünün şu anki maliyetiyle hesaplanır.</div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-ov" id="dolapCmpModal">
   <div class="modal-box" style="max-width:1000px;width:96%;">
     <div class="modal-hdr"><h3>&#128202; DOLAP ↔ SİTE KÂR / ZARAR KARŞILAŞTIRMASI</h3><button class="modal-x" onclick="closeModal('dolapCmpModal')">&times;</button></div>
