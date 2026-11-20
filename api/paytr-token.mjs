@@ -15,7 +15,7 @@ async function rates(req, res) {
     if (!pub.cardEnabled || provider !== 'paytr' || pub.noInstallment || !sec.merchant_id) return res.status(200).json({ cards: [], why: 'ayar', cardEnabled: !!pub.cardEnabled, provider, noInstallment: !!pub.noInstallment, merchant: !!sec.merchant_id });
     const cap = parseInt(pub.maxInstallment, 10) || 0, key = String(cap);
     if (ratesCache.data && ratesCache.key === key && Date.now() - ratesCache.t < 3600e3) return res.status(200).json(ratesCache.data);
-    const rid = 'r' + Date.now();
+    const rid = String(Date.now() / 1000);
     const tok = crypto.createHmac('sha256', sec.merchant_key).update(String(sec.merchant_id) + rid + sec.merchant_salt).digest('base64');
     const r = await fetch('https://www.paytr.com/odeme/taksit-oranlari', { method: 'POST', body: new URLSearchParams({ merchant_id: String(sec.merchant_id), request_id: rid, paytr_token: tok }) });
     const j = await r.json().catch(() => ({}));
