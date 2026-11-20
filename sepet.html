@@ -874,6 +874,8 @@ db.collection('settings').doc('payments').get().then(doc => {
   const d = doc.exists ? doc.data() : {};
   CARD_ENABLED = !!(d.cardEnabled && d.cardReady);
   CARD_PROVIDER = d.provider === 'nestpay' ? 'nestpay' : 'paytr';
+  const mi = parseInt(d.maxInstallment,10)||0, ci = document.getElementById('card-info');
+  if (ci && mi > 0 && !d.noInstallment) ci.insertAdjacentHTML('beforeend','<br><b style="color:var(--accent);">💳 Taksit imkanı:</b> uygun kartlarda ödeme ekranında en fazla '+mi+' taksit seçebilirsiniz.');
   updateSectionsVisibility();
 }).catch(() => { CARD_ENABLED = false; });
 
