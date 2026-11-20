@@ -575,6 +575,10 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
             </label>
           </div>
         </div>
+        <div class="address-section" id="instSection" style="display:none;margin-top:2px;">
+          <div class="address-title">💳 TAKSİT SEÇENEKLERİ</div>
+          <div id="instBox"><div id="paytr_taksit_tablosu"></div><div style="margin-top:6px;font-size:11px;color:var(--muted);">Tek çekim her kartta geçerlidir. Taksit seçimi ödeme ekranında yapılır.</div></div>
+        </div>
 
       </div>
 
@@ -890,16 +894,13 @@ db.collection('settings').doc('payments').get().then(doc => {
 // Kart seçilince: PayTR'ın hazır taksit tablosu (hangi karta kaç taksit, tutarlarıyla). Tutar değişince yenilenir.
 var _instAmt = '', RP_MAXINST = 0, RP_NOINST = false;
 function loadInstallments() {
-  const ci = document.getElementById('card-info');
-  if (!ci || RP_NOINST || selectedPay !== 'card') return;
+  const sec = document.getElementById('instSection');
+  if (!sec) return;
+  if (RP_NOINST || selectedPay !== 'card' || !hasPhys() && !digItems().length) { sec.style.display = 'none'; return; }
   const tot = Math.max(0, (physSubtotal() + digSubtotal()) - (hasPhys() ? Math.min(rpEffective().disc, physSubtotal()) : 0));
-  if (!(tot > 0)) return;
+  if (!(tot > 0)) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
   const amt = tot.toFixed(2);
-  let box = document.getElementById('instBox');
-  if (!box) {
-    ci.insertAdjacentHTML('beforeend', '<div id="instBox" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;"><b style="color:var(--text);">Hangi karta kaç taksit?</b><div id="paytr_taksit_tablosu"></div></div>');
-    box = document.getElementById('instBox');
-  }
   if (amt === _instAmt) return;
   _instAmt = amt;
   const old = document.getElementById('instScript'); if (old) old.remove();
@@ -1040,7 +1041,7 @@ function updateSummary() {
   }
   updateCargoPriceDisplay();
   updateSectionsVisibility();
-  if (selectedPay === 'card') loadInstallments();
+  loadInstallments();
 }
 
 function updateCargo(el) {
@@ -1057,7 +1058,7 @@ function selectPay(method, label) {
   document.getElementById('havale-info').style.display = method==='havale' ? 'block' : 'none';
   document.getElementById('kapida-info').style.display = method==='kapida' ? 'block' : 'none';
   const ci = document.getElementById('card-info'); if (ci) ci.style.display = method==='card' ? 'block' : 'none';
-  if (method==='card') loadInstallments();
+  loadInstallments();
   updateSummary();
 }
 
