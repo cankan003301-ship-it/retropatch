@@ -4871,6 +4871,18 @@ function pfFillEmpty() {
   let n = 0; (allProducts || []).forEach(p => { if (_pfCosts[p.id] === undefined) { _pfCosts[p.id] = v; n++; } });
   toast(n + ' ürüne ₺' + v + ' maliyet atandı (kaydetmeyi unutmayın)', 'ok'); pfRender();
 }
+function pfFillBySize() {
+  const base = parseFloat(document.getElementById('pfBase').value) || 0, per = parseFloat(document.getElementById('pfPerCm').value) || 0;
+  let n = 0, skip = 0;
+  (allProducts || []).forEach(p => {
+    if (_pfCosts[p.id] !== undefined) return;
+    const m = String(p.size || '').match(/(\d+(?:[.,]\d+)?)\s*[x×X*]\s*(\d+(?:[.,]\d+)?)/);
+    if (!m) { skip++; return; }
+    const area = parseFloat(m[1].replace(',', '.')) * parseFloat(m[2].replace(',', '.'));
+    _pfCosts[p.id] = Math.round((base + per * area) * 100) / 100; n++;
+  });
+  toast(n + ' ürüne boyuta göre maliyet atandı' + (skip ? ' · ' + skip + ' üründe boyut yok, atlandı' : '') + ' (tek tek düzeltebilirsin, sonra kaydet)', 'ok'); pfRender();
+}
 async function pfSave() {
   try {
     const ids = new Set((allProducts || []).map(p => p.id)), c = {};
@@ -6526,6 +6538,9 @@ function saveMarquee() {
         <span style="color:var(--muted2);">Maliyeti boş olanlara ata (₺):</span>
         <input type="number" id="pfFill" placeholder="örn. 60" style="width:90px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;">
         <button class="btn btn-outline btn-sm" onclick="pfFillEmpty()">UYGULA</button>
+        <span style="color:var(--muted2);">veya boyuta göre: sabit ₺</span><input type="number" id="pfBase" value="20" style="width:60px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;">
+        <span style="color:var(--muted2);">+ cm² başı ₺</span><input type="number" id="pfPerCm" value="0.4" step="0.05" style="width:60px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;">
+        <button class="btn btn-outline btn-sm" onclick="pfFillBySize()">BOYUTA GÖRE ATA</button>
         <label style="margin-left:auto;display:flex;gap:6px;align-items:center;"><input type="checkbox" id="pfOnlyMissing" onchange="pfRender()"> Yalnızca maliyeti eksikler</label>
         <button class="btn btn-accent btn-sm" onclick="pfSave()">&#128190; MALİYETLERİ KAYDET</button>
       </div>
