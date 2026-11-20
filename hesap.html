@@ -360,7 +360,7 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
     .ord-sum:empty{display:none}
     .ord-sum a{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--border);background:var(--card);color:var(--text);text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer}
     .ord-sum a b{color:var(--accent);font-size:17px}
-    .ord-sum a:not(.warn){cursor:default}
+    .ord-sum a:not(.warn):not(.go){cursor:default}
     .ord-sum a.warn{border-color:#f39c12;background:rgba(243,156,18,.08)}.ord-sum a.warn b{color:#f39c12}
     .pf-card{background:var(--card);border:1px solid var(--border);padding:18px;margin-bottom:14px;display:grid;grid-template-columns:220px 1fr;gap:18px}
     .pf-card.pending{border-color:#f39c12}
@@ -460,6 +460,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </div>
     <div class="nav-lbl">Hesabım</div>
     <div class="nav-item active" onclick="showPage('orders',this)"><span><svg class=ic data-n=cart><use href=#i-cart></use></svg></span> Siparişlerim</div>
+    <div class="nav-item" onclick="showPage('cargo',this)"><span><svg class=ic data-n=truck><use href=#i-truck></use></svg></span> Kargo Takibi</div>
     <div class="nav-item" onclick="showPage('onay',this)"><span><svg class=ic data-n=palette><use href=#i-palette></use></svg></span> Tasarım Onayları <b id="onayBadge" class="nav-badge" style="display:none"></b></div>
     <div class="nav-item" onclick="showPage('dijital',this)"><span><svg class=ic data-n=save><use href=#i-save></use></svg></span> Dijital Dosyalarım</div>
     <div class="nav-item" onclick="showPage('favorites',this)"><span><svg class=ic data-n=heart><use href=#i-heart></use></svg></span> Favorilerim</div>
@@ -805,7 +806,7 @@ function renderOrders() {
   document.getElementById('ordSummary').innerHTML = [
     pendN ? `<a class="warn" onclick="goPage('onay')">🎨 Onay bekleyen tasarım <b>${pendN}</b></a>` : '',
     prodN ? `<a>🧵 Üretimde <b>${prodN}</b></a>` : '',
-    shipN ? `<a>🚚 Kargoda <b>${shipN}</b></a>` : ''
+    shipN ? `<a class="go" onclick="goPage('cargo')">🚚 Kargoda <b>${shipN}</b></a>` : ''
   ].join('');
   if (document.getElementById('page-onay').classList.contains('active')) renderOnay();
   if (!allOrders.length) { el.innerHTML='<div class="empty-state"><div class="empty-state-icon"><svg class=ic data-n=cart><use href=#i-cart></use></svg></div><p>Henüz siparişiniz yok</p></div>'; return; }
