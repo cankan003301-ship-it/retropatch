@@ -1032,12 +1032,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   .cpn-copy.ok{background:#4ade80;border-color:#4ade80;color:#000;}
   @media(max-width:600px){.cpn-grid{grid-template-columns:1fr;}}
 </style>
-<div class="section" id="kampanyalar" style="display:none;border-top:1px solid var(--border);">
-  <div class="section-label">Fırsatlar</div>
-  <h2 class="section-title">KAMPANYALAR</h2>
-  <div class="cpn-grid" id="campGrid"></div>
-  <div style="text-align:center;margin-top:18px;font-size:12px;color:var(--muted);" id="campNote"></div>
-</div>
+<style>
+  #campBar{display:none;background:linear-gradient(90deg,#b8323f,#e63946 50%,#b8323f);color:#fff;text-align:center;padding:11px 16px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:1.5px;line-height:1.5;}
+  #campBar a{color:#fff;text-decoration:none;display:block;}
+  #campBar .cb-i{display:inline-block;margin:0 10px;white-space:nowrap;}
+  #campBar .cb-s{opacity:.55;}
+  @media(max-width:640px){#campBar{font-size:13px;letter-spacing:1px;padding:9px 12px;}#campBar .cb-i{margin:0 6px;}}
+</style>
+<div id="campBar"><a href="urunler.html" id="campBarInner"></a></div>
 
 <div class="section" id="kuponlar" style="display:none;border-top:1px solid var(--border);">
   <div class="section-label">İndirim</div>
@@ -3518,10 +3520,14 @@ function rpFaqToggle(el) {
         </div>
       </div>`;
     const sortv=(a,b)=>(b.value||0)-(a.value||0);
-    if(camps.length){ document.getElementById('campGrid').innerHTML=camps.sort(sortv).map(card).join(''); document.getElementById('kampanyalar').style.display='block';
-      if(camps.some(c=>!c.auto)) document.getElementById('campNote').textContent='Kodlu kampanyalarda kodu kopyalayıp sepette “Kupon kodu” alanına yapıştırın.'; }
+    if(camps.length){
+      const txt=c=>(c.type==='xpay'?esc(c.buy)+' AL '+esc(c.pay)+' ÖDE':c.type==='nthpct'?esc(c.buy)+'. ÜRÜNE %'+esc(c.value)+' İNDİRİM':c.type==='freeship'?'ÜCRETSİZ KARGO':(c.type==='percent'?'%'+esc(c.value):'₺'+esc(c.value))+' İNDİRİM')
+        +(c.minCart?' <span style="font-weight:400;opacity:.85">('+esc(c.minCart)+'₺ üzeri)</span>':'')+(c.auto?'':' <span style="font-weight:400;opacity:.85">· Kod: '+esc(c.id)+'</span>');
+      document.getElementById('campBarInner').innerHTML='🔥 KAMPANYA: '+camps.sort(sortv).map(c=>'<span class="cb-i">'+txt(c)+'</span>').join('<span class="cb-s">•</span>');
+      document.getElementById('campBar').style.display='block';
+    }
     if(cpns.length){ document.getElementById('cpnGrid').innerHTML=cpns.sort(sortv).map(card).join(''); document.getElementById('kuponlar').style.display='block'; }
-    ['campGrid','cpnGrid'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{
+    ['cpnGrid'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{
       const b=e.target.closest('.cpn-copy'); if(!b) return;
       const code=b.dataset.code, old=b.textContent;
       const done=()=>{b.textContent='KOPYALANDI ✓';b.classList.add('ok');setTimeout(()=>{b.textContent=old;b.classList.remove('ok');},1800);};
