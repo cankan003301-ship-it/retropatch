@@ -537,6 +537,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <option value="Son 3">Son 3</option>
           <option value="Tükendi">Tükendi</option>
         </select>
+        <select id="prodProfitFilter" onchange="applyProdFilters()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:13px;outline:none;">
+          <option value="all">Tüm Kârlılık</option>
+          <option value="loss">Zararda olanlar</option>
+          <option value="low">Marjı %20 altı</option>
+          <option value="nocost">Maliyeti girilmemiş</option>
+        </select>
         <select id="prodSort" onchange="applyProdFilters()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
           <option value="newest">Yeniden eskiye</option>
           <option value="oldest">Eskiden yeniye</option>
@@ -544,6 +550,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <option value="price_desc">Fiyat: yüksekten düşüğe</option>
           <option value="name">İsim: A → Z</option>
           <option value="sales">En çok satan</option>
+          <option value="profit_asc">Kâr: düşükten yükseğe</option>
+          <option value="profit_desc">Kâr: yüksekten düşüğe</option>
         </select>
       </div>
 
@@ -2630,8 +2638,14 @@ function applyProdFilters() {
   const catF = document.getElementById('prodCatFilter')?.value || 'all';
   const statusF = document.getElementById('prodStatusFilter')?.value || 'all';
   const sort = document.getElementById('prodSort')?.value || 'newest';
+  const profF = document.getElementById('prodProfitFilter')?.value || 'all';
+  const _pr = p => { const c = (typeof _pfCosts !== 'undefined') ? _pfCosts[p.id] : undefined; return c === undefined ? null : pfProfit(p, +c, false); };
+  const _mg = p => { const a = _pr(p), ps = parseFloat(p.price) || 0; return a === null || !ps ? null : a / ps; };
 
   filteredProds = allProducts.filter(p => {
+    if (profF === 'loss') { const a = _pr(p); if (a === null || a >= 0) return false; }
+    else if (profF === 'low') { const m = _mg(p); if (m === null || m >= 0.2) return false; }
+    else if (profF === 'nocost') { if (_pr(p) !== null) return false; }
     const matchCat = catF === 'all' || p.cat === catF;
     const matchStatus = statusF === 'all' || p.status === statusF;
     const matchQ = !q || (p.name||'').toLowerCase().includes(q) || (p.cat||'').toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q);
@@ -2644,6 +2658,8 @@ function applyProdFilters() {
   else if (sort === 'price_desc') filteredProds.sort((a,b) => (b.price||0)-(a.price||0));
   else if (sort === 'name') filteredProds.sort((a,b) => (a.name||'').localeCompare(b.name||''));
   else if (sort === 'sales') filteredProds.sort((a,b) => (b.sales||0)-(a.sales||0));
+  else if (sort === 'profit_asc') filteredProds.sort((a,b) => (_pr(a) ?? 1e9) - (_pr(b) ?? 1e9));
+  else if (sort === 'profit_desc') filteredProds.sort((a,b) => (_pr(b) ?? -1e9) - (_pr(a) ?? -1e9));
 
   const countEl = document.getElementById('prodPageCount');
   if (countEl) countEl.textContent = `(${filteredProds.length}/${allProducts.length})`;
