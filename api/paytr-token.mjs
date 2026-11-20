@@ -1,9 +1,37 @@
 // POST /api/paytr-token  { group }  →  { token }   (PayTR iFrame API)
 import { fb } from './_fb.mjs';
 import { loadPaySettings, prepareGroup, paytrTokenHash, siteOrigin, HttpError } from './_pay.mjs';
+import crypto from 'node:crypto';
 import { sendErr, authUid, groupOf, clientIp, bodyOf } from './_http.mjs';
 
+// GET /api/paytr-token?rates=1 → hangi karta kaç taksit (PayTR taksit oranları servisi, 1 saat önbellekli)
+let ratesCache = { t: 0, key: '', data: null };
+const CARD_NAMES = { axess: 'Axess (Akbank)', world: 'World (Yapı Kredi)', maximum: 'Maximum (İş Bankası)', bonus: 'Bonus (Garanti BBVA)', cardfinans: 'CardFinans (QNB)', paraf: 'Paraf (Halkbank)', advantage: 'Advantage', saglamkart: 'Sağlam Kart' };
+async function rates(req, res) {
+  res.setHeader('Cache-Control', 'public, s-maxage=3600');
+  try {
+    const { db } = fb();
+    const { pub, provider, sec } = await loadPaySettings(db);
+    if (!pub.cardEnabled || provider !== 'paytr' || pub.noInstallment || !sec.merchant_id) return res.status(200).json({ cards: [] });
+    const cap = parseInt(pub.maxInstallment, 10) || 0, key = String(cap);
+    if (ratesCache.data && ratesCache.key === key && Date.now() - ratesCache.t < 3600e3) return res.status(200).json(ratesCache.data);
+    const rid = 'r' + Date.now();
+    const tok = crypto.createHmac('sha256', sec.merchant_key).update(String(sec.merchant_id) + rid + sec.merchant_salt).digest('base64');
+    const r = await fetch('https://www.paytr.com/odeme/taksit-oranlari', { method: 'POST', body: new URLSearchParams({ merchant_id: String(sec.merchant_id), request_id: rid, paytr_token: tok }) });
+    const j = await r.json().catch(() => ({}));
+    const o = j.oranlar || {};
+    const cards = Object.keys(o).map(k => {
+      const inst = Object.keys(o[k] || {}).map(x => /^taksit_(\d+)$/.exec(x)).filter(Boolean).map(m => +m[1]).filter(n => n >= 2 && (!cap || n <= cap)).sort((a, b) => a - b);
+      return { key: k, name: CARD_NAMES[k] || (k.charAt(0).toUpperCase() + k.slice(1)), inst };
+    }).filter(c => c.inst.length);
+    const data = { cards };
+    if (cards.length) ratesCache = { t: Date.now(), key, data };
+    res.status(200).json(data);
+  } catch (e) { res.status(200).json({ cards: [] }); }
+}
+
 export default async function handler(req, res) {
+  if (req.method === 'GET' && req.query && req.query.rates) return rates(req, res);
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST gerekli' });
   try {
     const uid = await authUid(req);

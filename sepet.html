@@ -879,6 +879,18 @@ db.collection('settings').doc('payments').get().then(doc => {
   updateSectionsVisibility();
 }).catch(() => { CARD_ENABLED = false; });
 
+// Kart seçilince: hangi karta kaç taksit yapılır
+let _instLoaded = false;
+function loadInstallments() {
+  if (_instLoaded) return; _instLoaded = true;
+  fetch('/api/paytr-token?rates=1').then(r => r.json()).then(d => {
+    const ci = document.getElementById('card-info');
+    if (!ci || !d.cards || !d.cards.length) { _instLoaded = !!(d && d.cards); return; }
+    const rows = d.cards.map(c => '<tr><td style="padding:5px 10px 5px 0;color:var(--text);white-space:nowrap;">' + c.name + '</td><td style="padding:5px 0;">' + c.inst.map(n => '<span style="display:inline-block;border:1px solid var(--border);padding:1px 7px;margin:1px 3px 1px 0;color:var(--accent);">' + n + '</span>').join('') + ' taksit</td></tr>').join('');
+    ci.insertAdjacentHTML('beforeend', '<div id="instTable" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;"><b style="color:var(--text);">Hangi karta kaç taksit?</b><table style="margin-top:6px;border-collapse:collapse;font-size:12px;">' + rows + '</table><div style="margin-top:6px;font-size:11px;">Tek çekim her kartta geçerlidir. Taksit seçimi ödeme ekranında yapılır; kartınıza göre seçenekler değişebilir.</div></div>');
+  }).catch(() => { _instLoaded = false; });
+}
+
 function loadCart() {
   cart = JSON.parse(localStorage.getItem('retropatch_cart') || '[]');
   renderCart();
@@ -1026,6 +1038,7 @@ function selectPay(method, label) {
   document.getElementById('havale-info').style.display = method==='havale' ? 'block' : 'none';
   document.getElementById('kapida-info').style.display = method==='kapida' ? 'block' : 'none';
   const ci = document.getElementById('card-info'); if (ci) ci.style.display = method==='card' ? 'block' : 'none';
+  if (method==='card') loadInstallments();
   updateSummary();
 }
 
