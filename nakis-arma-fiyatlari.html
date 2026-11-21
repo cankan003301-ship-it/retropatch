@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nakış Arma Fiyatları | Boyut ve Adede Göre Güncel Fiyat — RetroPatch</title>
+<meta name="description" content="Nakış arma fiyatları neye göre belirlenir? Boyut, arka yüzey, tasarım ve adet kademelerine göre güncel fiyat tablosu ve anında fiyat hesaplama.">
+<link rel="canonical" href="https://retropatch.vercel.app/nakis-arma-fiyatlari.html">
+<meta property="og:type" content="article"><meta property="og:title" content="Nakış Arma Fiyatları | Boyut ve Adede Göre Güncel Fiyat — RetroPatch"><meta property="og:description" content="Nakış arma fiyatları neye göre belirlenir? Boyut, arka yüzey, tasarım ve adet kademelerine göre güncel fiyat tablosu ve anında fiyat hesaplama.">
+<meta property="og:url" content="https://retropatch.vercel.app/nakis-arma-fiyatlari.html"><meta property="og:image" content="https://retropatch.vercel.app/og-image.jpg"><meta property="og:locale" content="tr_TR"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="retro_logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:#2a2a2a;--accent:#c8a96e;--text:#e8e8e8;--muted:#999;--card:#141414;--green:#2ecc71}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;line-height:1.7}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;background:rgba(10,10,10,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo img{height:34px;width:auto;display:block}
+nav ul{display:flex;gap:28px;list-style:none}
+nav ul a{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none}
+nav ul a:hover{color:var(--accent)}
+.wrap{max-width:900px;margin:0 auto;padding:96px 24px 40px}
+.bc{font-size:12px;color:var(--muted);margin-bottom:18px}.bc a{color:var(--muted);text-decoration:none}.bc a:hover{color:var(--accent)}
+h1{font-family:'Bebas Neue',cursive;font-weight:400;font-size:clamp(38px,6vw,60px);letter-spacing:3px;line-height:1.05;margin-bottom:14px}
+.lead{font-size:18px;color:#ccc;margin-bottom:24px}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center;margin-bottom:28px}
+.hero figure{background:var(--card);border:1px solid var(--border)}
+.hero svg{display:block;width:100%;height:auto}
+figcaption{font-size:11px;color:var(--muted);padding:6px 10px;border-top:1px solid var(--border)}
+.cta{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 22px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:2px;font-size:14px;text-decoration:none;text-transform:uppercase}
+.btn-a{background:var(--accent);color:#000}.btn-o{border:1px solid var(--accent);color:var(--accent)}.btn-w{background:#25d366;color:#000}
+h2{font-family:'Bebas Neue',cursive;font-weight:400;font-size:30px;letter-spacing:2px;color:var(--accent);margin:34px 0 10px}
+section p,section li{color:#ccc;font-size:16px}
+section ul,section ol{padding-left:22px;display:flex;flex-direction:column;gap:6px}
+section a{color:var(--accent)}
+.box{margin:40px 0;padding:26px;border:1px solid rgba(200,169,110,.4);background:rgba(200,169,110,.05);text-align:center}
+.box b{display:block;font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:2px;margin-bottom:6px;font-weight:400}
+.box p{color:#bbb;margin-bottom:16px}.box .cta{justify-content:center}
+.faq details{border-bottom:1px solid var(--border);padding:12px 0}
+.faq summary{cursor:pointer;font-weight:600;font-size:16px}
+.faq details p{color:#bbb;margin-top:8px}
+.rel{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px}
+.rel a{display:block;padding:14px 16px;background:var(--card);border:1px solid var(--border);color:var(--text);text-decoration:none;font-weight:600}
+.rel a:hover{border-color:var(--accent);color:var(--accent)}
+.prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}
+.prods a{background:var(--card);border:1px solid var(--border);text-decoration:none;color:var(--text);font-size:12px}
+.prods img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#222}
+.prods span{display:block;padding:6px 8px 2px;height:36px;overflow:hidden}.prods em{display:block;font-style:normal;color:var(--accent);font-weight:700;padding:0 8px 8px}
+table.pt{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0 12px}
+table.pt th,table.pt td{border-bottom:1px solid var(--border);padding:9px 10px;text-align:left}
+table.pt th{font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;color:var(--muted);font-size:12px;font-weight:600}
+table.pt td.p{color:var(--accent);font-weight:700}
+footer{border-top:1px solid var(--border);padding:28px 24px;text-align:center;color:var(--muted);font-size:13px}
+footer .g{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;margin-bottom:10px}footer a{color:var(--muted);text-decoration:none}footer a:hover{color:var(--accent)}
+@media(max-width:768px){nav{padding:0 16px}nav ul{gap:14px}nav ul li:first-child{display:none}.hero{grid-template-columns:1fr}.wrap{padding-top:84px}}
+</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Ana Sayfa", "item": "https://retropatch.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "Rehber", "item": "https://retropatch.vercel.app/rehber.html"}, {"@type": "ListItem", "position": 3, "name": "Nakış Arma Fiyatları", "item": "https://retropatch.vercel.app/nakis-arma-fiyatlari.html"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "En ucuz arma ne kadar?", "acceptedAnswer": {"@type": "Answer", "text": "En küçük boyutta, düz arka yüzeyli ve hazır tasarımlı bir yamanın güncel başlangıç fiyatı yukarıdaki tabloda yazar."}}, {"@type": "Question", "name": "Toplu siparişte indirim var mı?", "acceptedAnswer": {"@type": "Answer", "text": "Evet. Adet kademelerine göre yüzde indirim uygulanır; tablo yukarıda."}}, {"@type": "Question", "name": "Kargo ücretli mi?", "acceptedAnswer": {"@type": "Answer", "text": "Kargo ücreti seçtiğiniz firmaya göre sepette gösterilir; belirli bir tutarın üzerindeki siparişlerde kargo ücretsizdir."}}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Service", "name": "Nakış Arma Fiyatları", "serviceType": "Makine nakışı arma ve yama üretimi", "description": "Nakış arma fiyatları neye göre belirlenir? Boyut, arka yüzey, tasarım ve adet kademelerine göre güncel fiyat tablosu ve anında fiyat hesaplama.", "areaServed": {"@type": "Country", "name": "Türkiye"}, "provider": {"@type": "Organization", "name": "RetroPatch", "url": "https://retropatch.vercel.app/"}}</script>
+</head>
+<body>
+<nav><a href="/" class="logo"><img src="retro_logo.png" alt="RetroPatch"></a><ul><li><a href="/">Ana Sayfa</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="rehber.html">Rehber</a></li><li><a href="/#hesaplayici">Fiyat Hesapla</a></li></ul></nav>
+<main class="wrap">
+<div class="bc"><a href="/">Ana Sayfa</a> › <a href="rehber.html">Rehber</a> › Nakış Arma Fiyatları</div>
+<div class="hero"><div><h1>Nakış Arma Fiyatları</h1><p class="lead">Nakış arma fiyatı tek bir sayı değil; boyut, renk sayısı, arka yüzey, tasarım durumu ve adet birlikte belirler. Aşağıdaki tablo sitemizdeki fiyat hesaplayıcının güncel değerlerinden oluşur.</p>
+<div class="cta"><a class="btn btn-a" href="/#hesaplayici">Fiyat Hesapla</a><a class="btn btn-o" href="/#siparis">Sipariş Ver</a></div></div>
+<figure><svg viewBox="0 0 400 260" role="img" aria-label="Adet arttıkça birim fiyatın düştüğünü gösteren grafik" xmlns="http://www.w3.org/2000/svg" font-family="Barlow Condensed,Arial,sans-serif"><rect width="400" height="260" fill="#141414"/><rect x="60" y="40" width="50" height="150" fill="#555"/><text x="85" y="215" text-anchor="middle" font-size="13" fill="#888">1 adet</text><rect x="135" y="60" width="50" height="130" fill="#7a6a4a"/><text x="160" y="215" text-anchor="middle" font-size="13" fill="#888">10+</text><rect x="210" y="80" width="50" height="110" fill="#a08a5a"/><text x="235" y="215" text-anchor="middle" font-size="13" fill="#888">25+</text><rect x="285" y="95" width="50" height="95" fill="#c8a96e"/><text x="310" y="215" text-anchor="middle" font-size="13" fill="#888">50+</text><path d="M85 40L160 60 235 80 310 95" stroke="#2ecc71" stroke-width="3" fill="none" stroke-dasharray="6 4"/><text x="200" y="245" text-anchor="middle" font-size="13" fill="#888" letter-spacing="1">ADET ARTTIKÇA BİRİM FİYAT DÜŞER</text></svg><figcaption>Nakış Arma Fiyatları — temsili çizim</figcaption></figure></div>
+<section><h2>Güncel fiyat tablosu</h2><div id="rbPrice"><table class="pt"><tr><th>BOYUT</th><th>DÜZ</th><th>ÜTÜYLE YAPIŞAN</th><th>CIRT CIRT</th></tr><tr><td>Küçük <span style="color:#888;font-size:12px">≤5cm</span></td><td class="p">₺40</td><td class="p">₺90</td><td class="p">₺115</td></tr><tr><td>Orta <span style="color:#888;font-size:12px">5–10cm</span></td><td class="p">₺65</td><td class="p">₺115</td><td class="p">₺140</td></tr><tr><td>Büyük <span style="color:#888;font-size:12px">10–15cm</span></td><td class="p">₺95</td><td class="p">₺145</td><td class="p">₺170</td></tr><tr><td>X-Büyük <span style="color:#888;font-size:12px">15+cm</span></td><td class="p">₺140</td><td class="p">₺190</td><td class="p">₺215</td></tr></table><p style="font-size:13px;color:#999">Birim fiyatlar tek adet, nakışa hazır tasarım içindir; her ek renk için +₺5.</p><table class="pt"><tr><th>TASARIM</th><th>EK ÜCRET</th></tr><tr><td>Tasarımım Var</td><td class="p">Yok</td></tr><tr><td>Basit Tasarım</td><td class="p">+₺100</td></tr><tr><td>Karmaşık Tasarım</td><td class="p">+₺200</td></tr></table><table class="pt"><tr><th>ADET</th><th>İNDİRİM</th></tr><tr><td>10+ adet</td><td class="p">%5</td></tr><tr><td>25+ adet</td><td class="p">%10</td></tr><tr><td>50+ adet</td><td class="p">%15</td></tr><tr><td>100+ adet</td><td class="p">%20</td></tr></table></div><p style="font-size:13px;color:#999">Fiyatlar güncellenebilir; kargo ücreti sepette ayrıca gösterilir. Kesin tutarı sipariş öncesinde hesaplayıcıda görürsünüz.</p></section><section><h2>Fiyatı ne belirler?</h2><ul><li><b>Boyut:</b> Arma büyüdükçe dikiş sayısı ve iplik kullanımı artar.</li><li><b>Renk sayısı:</b> Her ek renk, makinede iplik değişimi ve ek süre demektir.</li><li><b>Arka yüzey:</b> Düz arka yüzey standarttır; ütüyle yapışan ve cırtlı yüzeyler ek malzeme ve işçilik gerektirir.</li><li><b>Tasarım:</b> Hazır ve nakışa uygun tasarımınız varsa ek ücret yoktur. Tasarımı bizim hazırlamamız gerekiyorsa basit ve karmaşık tasarım için ek bedel eklenir.</li><li><b>Adet:</b> Makine dosyası bir kez hazırlandığı için adet arttıkça birim fiyat düşer.</li></ul></section><section><h2>Daha uygun fiyata nasıl yaptırılır?</h2><ul><li>Adet kademesinin hemen altındaysanız bir sonraki kademeye çıkmak toplamda daha ekonomik olabilir; hesaplayıcı bunu size gösterir.</li><li>Renk sayısını azaltmak ve tasarımı sadeleştirmek hem fiyatı düşürür hem de nakışta daha net bir sonuç verir.</li><li>Havale/EFT ile ödemede ek indirim uygulanır.</li><li>Aynı armayı tekrar sipariş ettiğinizde tasarım bedeli tekrar alınmaz.</li></ul></section>
+<section class="faq"><h2>Sık Sorulan Sorular</h2><details><summary>En ucuz arma ne kadar?</summary><p>En küçük boyutta, düz arka yüzeyli ve hazır tasarımlı bir yamanın güncel başlangıç fiyatı yukarıdaki tabloda yazar.</p></details><details><summary>Toplu siparişte indirim var mı?</summary><p>Evet. Adet kademelerine göre yüzde indirim uygulanır; tablo yukarıda.</p></details><details><summary>Kargo ücretli mi?</summary><p>Kargo ücreti seçtiğiniz firmaya göre sepette gösterilir; belirli bir tutarın üzerindeki siparişlerde kargo ücretsizdir.</p></details></section>
+<div class="box"><b>Armanızı birlikte hazırlayalım</b><p>Fiyatı anında görün, tasarımınızı yükleyin; önizlemeyi onayınıza sunalım.</p>
+<div class="cta"><a class="btn btn-a" href="/#hesaplayici">Fiyat Hesapla</a><a class="btn btn-o" href="/#siparis">Sipariş Formu</a><a class="btn btn-w" href="https://wa.me/905375295290?text=Merhaba%2C%20Nak%C4%B1%C5%9F%20Arma%20Fiyatlar%C4%B1%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener">WhatsApp’tan Sor</a></div></div>
+<section id="rbProds" data-kw="" style="display:none"><h2>Mağazadan Örnekler</h2><div class="prods"></div></section>
+<section><h2>İlgili Rehberler</h2><div class="rel"><a href="toplu-arma-uretimi.html">Toplu Arma Üretimi →</a><a href="ozel-nakis-arma.html">Özel Nakış Arma →</a><a href="logolu-arma.html">Logolu Arma →</a></div></section>
+</main>
+<script>window.RB_DEFAULT={"products": [{"id": "patch", "name": "Nakış Yama", "basePrice": {"kucuk": 40, "orta": 65, "buyuk": 95, "xlarge": 140}}], "sizes": [{"id": "kucuk", "name": "Küçük", "desc": "≤5cm"}, {"id": "orta", "name": "Orta", "desc": "5–10cm"}, {"id": "buyuk", "name": "Büyük", "desc": "10–15cm"}, {"id": "xlarge", "name": "X-Büyük", "desc": "15+cm"}], "backs": [{"id": "duz", "name": "Düz", "extra": 0}, {"id": "utu", "name": "Ütüyle Yapışan", "extra": 50}, {"id": "cirt", "name": "Cırt Cırt", "extra": 75}], "designs": [{"id": "yok", "name": "Tasarımım Var", "extra": 0}, {"id": "basit", "name": "Basit Tasarım", "extra": 100}, {"id": "karisik", "name": "Karmaşık Tasarım", "extra": 200}], "discounts": [{"minQty": 10, "pct": 5}, {"minQty": 25, "pct": 10}, {"minQty": 50, "pct": 15}, {"minQty": 100, "pct": 20}], "colorExtra": 5};window.rbPriceHtml=function(d){var tl=function(v){return '₺'+(Number(v)||0).toLocaleString('tr-TR')};var e=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var bp=(d.patch&&d.patch.basePrice)||{};var h='<table class="pt"><tr><th>BOYUT</th>'+d.backs.map(function(b){return '<th>'+e(b.name).toUpperCase()+'</th>'}).join('')+'</tr>';
+d.sizes.forEach(function(s){if(bp[s.id]==null)return;h+='<tr><td>'+e(s.name)+' <span style="color:#888;font-size:12px">'+e(s.desc||'')+'</span></td>'+d.backs.map(function(b){return '<td class="p">'+tl(bp[s.id]+(b.extra||0))+'</td>'}).join('')+'</tr>'});
+h+='</table><p style="font-size:13px;color:#999">Birim fiyatlar tek adet, nakışa hazır tasarım içindir'+(d.colorExtra?'; her ek renk için +'+tl(d.colorExtra):'')+'.</p>';
+h+='<table class="pt"><tr><th>TASARIM</th><th>EK ÜCRET</th></tr>'+d.designs.map(function(x){return '<tr><td>'+e(x.name)+'</td><td class="p">'+(x.extra?'+'+tl(x.extra):'Yok')+'</td></tr>'}).join('')+'</table>';
+h+='<table class="pt"><tr><th>ADET</th><th>İNDİRİM</th></tr>'+d.discounts.slice().sort(function(a,b){return a.minQty-b.minQty}).map(function(x){return '<tr><td>'+x.minQty+'+ adet</td><td class="p">%'+x.pct+'</td></tr>'}).join('')+'</table>';
+return h};</script><footer><div class="g"><a href="rehber.html"><b>Rehber</b></a> <a href="ozel-nakis-arma.html">Özel Nakış Arma</a> <a href="kisiye-ozel-yama.html">Kişiye Özel Yama</a> <a href="logolu-arma.html">Logolu Arma</a> <a href="cirtli-arma.html">Cırtlı Arma</a> <a href="utuyle-yapisan-arma.html">Ütüyle Yapışan Arma</a> <a href="nakis-arma-fiyatlari.html">Nakış Arma Fiyatları</a> <a href="toplu-arma-uretimi.html">Toplu Arma Üretimi</a> <a href="nakis-yama-nasil-yapilir.html">Nakış Yama Nasıl Yapılır?</a></div><div>© RetroPatch · Profesyonel makine nakışı · Türkiye geneli kargo</div></footer>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="rehber.js" defer></script>
+<script src="duyuru.js"></script>
+</body>
+</html>

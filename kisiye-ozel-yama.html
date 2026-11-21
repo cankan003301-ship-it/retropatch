@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kişiye Özel Yama Üretimi | İsimli, Numaralı Nakış Yama — RetroPatch</title>
+<meta name="description" content="İsim, numara, ünvan veya kendi çiziminizle kişiye özel nakış yama yaptırın. Hediye, ekip ve üniformalar için tek adetten üretim.">
+<link rel="canonical" href="https://retropatch.vercel.app/kisiye-ozel-yama.html">
+<meta property="og:type" content="article"><meta property="og:title" content="Kişiye Özel Yama Üretimi | İsimli, Numaralı Nakış Yama — RetroPatch"><meta property="og:description" content="İsim, numara, ünvan veya kendi çiziminizle kişiye özel nakış yama yaptırın. Hediye, ekip ve üniformalar için tek adetten üretim.">
+<meta property="og:url" content="https://retropatch.vercel.app/kisiye-ozel-yama.html"><meta property="og:image" content="https://retropatch.vercel.app/og-image.jpg"><meta property="og:locale" content="tr_TR"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="retro_logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:#2a2a2a;--accent:#c8a96e;--text:#e8e8e8;--muted:#999;--card:#141414;--green:#2ecc71}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;line-height:1.7}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;background:rgba(10,10,10,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo img{height:34px;width:auto;display:block}
+nav ul{display:flex;gap:28px;list-style:none}
+nav ul a{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none}
+nav ul a:hover{color:var(--accent)}
+.wrap{max-width:900px;margin:0 auto;padding:96px 24px 40px}
+.bc{font-size:12px;color:var(--muted);margin-bottom:18px}.bc a{color:var(--muted);text-decoration:none}.bc a:hover{color:var(--accent)}
+h1{font-family:'Bebas Neue',cursive;font-weight:400;font-size:clamp(38px,6vw,60px);letter-spacing:3px;line-height:1.05;margin-bottom:14px}
+.lead{font-size:18px;color:#ccc;margin-bottom:24px}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center;margin-bottom:28px}
+.hero figure{background:var(--card);border:1px solid var(--border)}
+.hero svg{display:block;width:100%;height:auto}
+figcaption{font-size:11px;color:var(--muted);padding:6px 10px;border-top:1px solid var(--border)}
+.cta{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 22px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:2px;font-size:14px;text-decoration:none;text-transform:uppercase}
+.btn-a{background:var(--accent);color:#000}.btn-o{border:1px solid var(--accent);color:var(--accent)}.btn-w{background:#25d366;color:#000}
+h2{font-family:'Bebas Neue',cursive;font-weight:400;font-size:30px;letter-spacing:2px;color:var(--accent);margin:34px 0 10px}
+section p,section li{color:#ccc;font-size:16px}
+section ul,section ol{padding-left:22px;display:flex;flex-direction:column;gap:6px}
+section a{color:var(--accent)}
+.box{margin:40px 0;padding:26px;border:1px solid rgba(200,169,110,.4);background:rgba(200,169,110,.05);text-align:center}
+.box b{display:block;font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:2px;margin-bottom:6px;font-weight:400}
+.box p{color:#bbb;margin-bottom:16px}.box .cta{justify-content:center}
+.faq details{border-bottom:1px solid var(--border);padding:12px 0}
+.faq summary{cursor:pointer;font-weight:600;font-size:16px}
+.faq details p{color:#bbb;margin-top:8px}
+.rel{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px}
+.rel a{display:block;padding:14px 16px;background:var(--card);border:1px solid var(--border);color:var(--text);text-decoration:none;font-weight:600}
+.rel a:hover{border-color:var(--accent);color:var(--accent)}
+.prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}
+.prods a{background:var(--card);border:1px solid var(--border);text-decoration:none;color:var(--text);font-size:12px}
+.prods img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#222}
+.prods span{display:block;padding:6px 8px 2px;height:36px;overflow:hidden}.prods em{display:block;font-style:normal;color:var(--accent);font-weight:700;padding:0 8px 8px}
+table.pt{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0 12px}
+table.pt th,table.pt td{border-bottom:1px solid var(--border);padding:9px 10px;text-align:left}
+table.pt th{font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;color:var(--muted);font-size:12px;font-weight:600}
+table.pt td.p{color:var(--accent);font-weight:700}
+footer{border-top:1px solid var(--border);padding:28px 24px;text-align:center;color:var(--muted);font-size:13px}
+footer .g{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;margin-bottom:10px}footer a{color:var(--muted);text-decoration:none}footer a:hover{color:var(--accent)}
+@media(max-width:768px){nav{padding:0 16px}nav ul{gap:14px}nav ul li:first-child{display:none}.hero{grid-template-columns:1fr}.wrap{padding-top:84px}}
+</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Ana Sayfa", "item": "https://retropatch.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "Rehber", "item": "https://retropatch.vercel.app/rehber.html"}, {"@type": "ListItem", "position": 3, "name": "Kişiye Özel Yama", "item": "https://retropatch.vercel.app/kisiye-ozel-yama.html"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Tek kişilik isim yaması yaptırabilir miyim?", "acceptedAnswer": {"@type": "Answer", "text": "Evet, tek adetten üretiyoruz."}}, {"@type": "Question", "name": "Her yamada farklı isim olabilir mi?", "acceptedAnswer": {"@type": "Answer", "text": "Evet. Tasarım aynı kalıp isim değişiyorsa isim listesini sipariş notuna yazmanız yeterli; adet indirimi toplam adet üzerinden hesaplanır."}}, {"@type": "Question", "name": "Hediye paketi var mı?", "acceptedAnswer": {"@type": "Answer", "text": "Sipariş notuna yazabilirsiniz; olanaklarımızı WhatsApp’tan sorabilirsiniz."}}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Service", "name": "Kişiye Özel Yama", "serviceType": "Makine nakışı arma ve yama üretimi", "description": "İsim, numara, ünvan veya kendi çiziminizle kişiye özel nakış yama yaptırın. Hediye, ekip ve üniformalar için tek adetten üretim.", "areaServed": {"@type": "Country", "name": "Türkiye"}, "provider": {"@type": "Organization", "name": "RetroPatch", "url": "https://retropatch.vercel.app/"}}</script>
+</head>
+<body>
+<nav><a href="/" class="logo"><img src="retro_logo.png" alt="RetroPatch"></a><ul><li><a href="/">Ana Sayfa</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="rehber.html">Rehber</a></li><li><a href="/#hesaplayici">Fiyat Hesapla</a></li></ul></nav>
+<main class="wrap">
+<div class="bc"><a href="/">Ana Sayfa</a> › <a href="rehber.html">Rehber</a> › Kişiye Özel Yama</div>
+<div class="hero"><div><h1>Kişiye Özel Yama Üretimi</h1><p class="lead">İsminizin yazdığı bir göğüs yaması, takım numaranız, motosiklet kulübü rozetiniz veya sevdiğiniz birine hediye edeceğiniz özel bir çizim… Kişiye özel yamalar tek bir kişi için de, küçük bir ekip için de üretilebilir.</p>
+<div class="cta"><a class="btn btn-a" href="/#hesaplayici">Fiyat Hesapla</a><a class="btn btn-o" href="/#siparis">Sipariş Ver</a></div></div>
+<figure><svg viewBox="0 0 400 260" role="img" aria-label="İsimli, numaralı ve ünvanlı kişiye özel yama örnekleri" xmlns="http://www.w3.org/2000/svg" font-family="Barlow Condensed,Arial,sans-serif"><rect width="400" height="260" fill="#141414"/><circle cx="90" cy="120" r="62" fill="#6b0f1a"/><circle cx="90" cy="120" r="58" fill="none" stroke="#c8a96e" stroke-width="6" stroke-dasharray="4 3"/><text x="90" y="128.4" text-anchor="middle" font-size="24" font-weight="700" fill="#f1faee" letter-spacing="2">AYŞE</text><circle cx="205" cy="120" r="50" fill="#264653"/><circle cx="205" cy="120" r="46" fill="none" stroke="#c8a96e" stroke-width="6" stroke-dasharray="4 3"/><text x="205" y="130.5" text-anchor="middle" font-size="30" font-weight="700" fill="#f1faee" letter-spacing="2">07</text><rect x="270" y="72" width="110" height="96" rx="10" fill="#2a9d8f"/><rect x="276" y="78" width="98" height="84" rx="7" fill="none" stroke="#c8a96e" stroke-width="5" stroke-dasharray="4 3"/><text x="325" y="128" text-anchor="middle" font-size="20" font-weight="700" fill="#f1faee" letter-spacing="1">KAPTAN</text><text x="200" y="225" text-anchor="middle" font-size="14" fill="#888" letter-spacing="2">İSİM · NUMARA · ÜNVAN</text></svg><figcaption>Kişiye Özel Yama — temsili çizim</figcaption></figure></div>
+<section><h2>En çok yaptırılan kişiye özel yamalar</h2><ul><li><b>İsim yamaları:</b> Üniforma, iş önlüğü, mont ve çantalar için isim ve soyisim yamaları.</li><li><b>Numara ve ünvan:</b> Spor takımları, ekip liderleri, “Kaptan”, “Şef” gibi ünvanlar.</li><li><b>Hediye yamalar:</b> Doğum günü, mezuniyet, nişan gibi özel günlerin tarihi veya kişiye özel bir sembol.</li><li><b>Hobi ve kulüp:</b> Motor, doğa, kamp ve oyun grupları için grup rozeti.</li></ul></section><section><h2>Aynı tasarımda farklı isimler</h2><p>Ekip yamalarında genellikle tasarım aynı kalır, yalnızca isim veya numara değişir. Bu durumda siparişinizi tek seferde verebilir, isim listesini sipariş notuna yazabilir ya da WhatsApp’tan gönderebilirsiniz. Toplam adet üzerinden adet indirimi uygulanır.</p></section><section><h2>Yazı ve okunabilirlik</h2><p>Yazının nakışta net okunması için harf yüksekliği önemlidir. Küçük bir isim yamasında kısa ve kalın bir yazı tipi her zaman daha iyi sonuç verir. Uzun isimlerde ya kısaltma ya da biraz daha büyük boyut öneririz. Önizlemede yazının nakıştaki halini görür, onaylamadan önce değiştirebilirsiniz.</p></section><section><h2>Nasıl takılır?</h2><p>Kişiye özel yamalar da düz (dikmelik), <a href="utuyle-yapisan-arma.html">ütüyle yapışan</a> veya <a href="cirtli-arma.html">cırt cırtlı</a> arka yüzeyle üretilebilir. Sık yıkanan iş kıyafetlerinde dikmelik, değiştirilebilir isimlerde cırtlı yüzey pratiktir.</p></section>
+<section class="faq"><h2>Sık Sorulan Sorular</h2><details><summary>Tek kişilik isim yaması yaptırabilir miyim?</summary><p>Evet, tek adetten üretiyoruz.</p></details><details><summary>Her yamada farklı isim olabilir mi?</summary><p>Evet. Tasarım aynı kalıp isim değişiyorsa isim listesini sipariş notuna yazmanız yeterli; adet indirimi toplam adet üzerinden hesaplanır.</p></details><details><summary>Hediye paketi var mı?</summary><p>Sipariş notuna yazabilirsiniz; olanaklarımızı WhatsApp’tan sorabilirsiniz.</p></details></section>
+<div class="box"><b>Armanızı birlikte hazırlayalım</b><p>Fiyatı anında görün, tasarımınızı yükleyin; önizlemeyi onayınıza sunalım.</p>
+<div class="cta"><a class="btn btn-a" href="/#hesaplayici">Fiyat Hesapla</a><a class="btn btn-o" href="/#siparis">Sipariş Formu</a><a class="btn btn-w" href="https://wa.me/905375295290?text=Merhaba%2C%20Ki%C5%9Fiye%20%C3%96zel%20Yama%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener">WhatsApp’tan Sor</a></div></div>
+<section id="rbProds" data-kw="" style="display:none"><h2>Mağazadan Örnekler</h2><div class="prods"></div></section>
+<section><h2>İlgili Rehberler</h2><div class="rel"><a href="ozel-nakis-arma.html">Özel Nakış Arma →</a><a href="cirtli-arma.html">Cırtlı Arma →</a><a href="toplu-arma-uretimi.html">Toplu Arma Üretimi →</a></div></section>
+</main>
+<footer><div class="g"><a href="rehber.html"><b>Rehber</b></a> <a href="ozel-nakis-arma.html">Özel Nakış Arma</a> <a href="kisiye-ozel-yama.html">Kişiye Özel Yama</a> <a href="logolu-arma.html">Logolu Arma</a> <a href="cirtli-arma.html">Cırtlı Arma</a> <a href="utuyle-yapisan-arma.html">Ütüyle Yapışan Arma</a> <a href="nakis-arma-fiyatlari.html">Nakış Arma Fiyatları</a> <a href="toplu-arma-uretimi.html">Toplu Arma Üretimi</a> <a href="nakis-yama-nasil-yapilir.html">Nakış Yama Nasıl Yapılır?</a></div><div>© RetroPatch · Profesyonel makine nakışı · Türkiye geneli kargo</div></footer>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="rehber.js" defer></script>
+<script src="duyuru.js"></script>
+</body>
+</html>

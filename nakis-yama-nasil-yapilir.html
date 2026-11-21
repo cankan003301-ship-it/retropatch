@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nakış Yama Nasıl Yapılır? Makine Nakışı Arma Üretim Aşamaları — RetroPatch</title>
+<meta name="description" content="Makine nakışı yama nasıl üretilir? Tasarım, dijitalleştirme (DST, PES, EMB), dikim, kenar bitirme ve arka yüzey aşamalarını adım adım anlatıyoruz.">
+<link rel="canonical" href="https://retropatch.vercel.app/nakis-yama-nasil-yapilir.html">
+<meta property="og:type" content="article"><meta property="og:title" content="Nakış Yama Nasıl Yapılır? Makine Nakışı Arma Üretim Aşamaları — RetroPatch"><meta property="og:description" content="Makine nakışı yama nasıl üretilir? Tasarım, dijitalleştirme (DST, PES, EMB), dikim, kenar bitirme ve arka yüzey aşamalarını adım adım anlatıyoruz.">
+<meta property="og:url" content="https://retropatch.vercel.app/nakis-yama-nasil-yapilir.html"><meta property="og:image" content="https://retropatch.vercel.app/og-image.jpg"><meta property="og:locale" content="tr_TR"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="retro_logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:#2a2a2a;--accent:#c8a96e;--text:#e8e8e8;--muted:#999;--card:#141414;--green:#2ecc71}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;line-height:1.7}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;background:rgba(10,10,10,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo img{height:34px;width:auto;display:block}
+nav ul{display:flex;gap:28px;list-style:none}
+nav ul a{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none}
+nav ul a:hover{color:var(--accent)}
+.wrap{max-width:900px;margin:0 auto;padding:96px 24px 40px}
+.bc{font-size:12px;color:var(--muted);margin-bottom:18px}.bc a{color:var(--muted);text-decoration:none}.bc a:hover{color:var(--accent)}
+h1{font-family:'Bebas Neue',cursive;font-weight:400;font-size:clamp(38px,6vw,60px);letter-spacing:3px;line-height:1.05;margin-bottom:14px}
+.lead{font-size:18px;color:#ccc;margin-bottom:24px}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center;margin-bottom:28px}
+.hero figure{background:var(--card);border:1px solid var(--border)}
+.hero svg{display:block;width:100%;height:auto}
+figcaption{font-size:11px;color:var(--muted);padding:6px 10px;border-top:1px solid var(--border)}
+.cta{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 22px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:2px;font-size:14px;text-decoration:none;text-transform:uppercase}
+.btn-a{background:var(--accent);color:#000}.btn-o{border:1px solid var(--accent);color:var(--accent)}.btn-w{background:#25d366;color:#000}
+h2{font-family:'Bebas Neue',cursive;font-weight:400;font-size:30px;letter-spacing:2px;color:var(--accent);margin:34px 0 10px}
+section p,section li{color:#ccc;font-size:16px}
+section ul,section ol{padding-left:22px;display:flex;flex-direction:column;gap:6px}
+section a{color:var(--accent)}
+.box{margin:40px 0;padding:26px;border:1px solid rgba(200,169,110,.4);background:rgba(200,169,110,.05);text-align:center}
+.box b{display:block;font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:2px;margin-bottom:6px;font-weight:400}
+.box p{color:#bbb;margin-bottom:16px}.box .cta{justify-content:center}
+.faq details{border-bottom:1px solid var(--border);padding:12px 0}
+.faq summary{cursor:pointer;font-weight:600;font-size:16px}
+.faq details p{color:#bbb;margin-top:8px}
+.rel{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px}
+.rel a{display:block;padding:14px 16px;background:var(--card);border:1px solid var(--border);color:var(--text);text-decoration:none;font-weight:600}
+.rel a:hover{border-color:var(--accent);color:var(--accent)}
+.prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}
+.prods a{background:var(--card);border:1px solid var(--border);text-decoration:none;color:var(--text);font-size:12px}
+.prods img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#222}
+.prods span{display:block;padding:6px 8px 2px;height:36px;overflow:hidden}.prods em{display:block;font-style:normal;color:var(--accent);font-weight:700;padding:0 8px 8px}
+table.pt{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0 12px}
+table.pt th,table.pt td{border-bottom:1px solid var(--border);padding:9px 10px;text-align:left}
+table.pt th{font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px;color:var(--muted);font-size:12px;font-weight:600}
+table.pt td.p{color:var(--accent);font-weight:700}
+footer{border-top:1px solid var(--border);padding:28px 24px;text-align:center;color:var(--muted);font-size:13px}
+footer .g{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;margin-bottom:10px}footer a{color:var(--muted);text-decoration:none}footer a:hover{color:var(--accent)}
+@media(max-width:768px){nav{padding:0 16px}nav ul{gap:14px}nav ul li:first-child{display:none}.hero{grid-template-columns:1fr}.wrap{padding-top:84px}}
+</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Ana Sayfa", "item": "https://retropatch.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "Rehber", "item": "https://retropatch.vercel.app/rehber.html"}, {"@type": "ListItem", "position": 3, "name": "Nakış Yama Nasıl Yapılır?", "item": "https://retropatch.vercel.app/nakis-yama-nasil-yapilir.html"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Nakış dosyası formatları nelerdir?", "acceptedAnswer": {"@type": "Answer", "text": "Makine dosyaları markaya göre DST (Tajima), PES (Brother), JEF (Janome), EXP (Melco) gibi formatlardadır. EMB gibi formatlar düzenlenebilir ana dosyadır."}}, {"@type": "Question", "name": "Bir yama kaç dikişten oluşur?", "acceptedAnswer": {"@type": "Answer", "text": "Boyuta ve dolgunluğa göre birkaç binden on binlerce dikişe kadar değişir."}}, {"@type": "Question", "name": "Nakış yama ile baskılı yama arasındaki fark nedir?", "acceptedAnswer": {"@type": "Answer", "text": "Nakış yamada desen iplikle işlenir; dokulu, kabarık ve yıkamaya dayanıklıdır. Baskılı yamada desen kumaşa basılır; ince detay ve geçişlerde avantajlıdır ancak dokusu ve dayanımı farklıdır."}}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "Nakış Yama Nasıl Yapılır?", "step": [{"@type": "HowToStep", "name": "1. Tasarım", "text": "1. Tasarım"}, {"@type": "HowToStep", "name": "2. Dijitalleştirme (punch)", "text": "2. Dijitalleştirme (punch)"}, {"@type": "HowToStep", "name": "3. Dikim", "text": "3. Dikim"}, {"@type": "HowToStep", "name": "4. Kenar bitirme", "text": "4. Kenar bitirme"}, {"@type": "HowToStep", "name": "5. Arka yüzey ve kalite kontrol", "text": "5. Arka yüzey ve kalite kontrol"}]}</script>
+</head>
+<body>
+<nav><a href="/" class="logo"><img src="retro_logo.png" alt="RetroPatch"></a><ul><li><a href="/">Ana Sayfa</a></li><li><a href="urunler.html">Ürünler</a></li><li><a href="rehber.html">Rehber</a></li><li><a href="/#hesaplayici">Fiyat Hesapla</a></li></ul></nav>
+<main class="wrap">
+<div class="bc"><a href="/">Ana Sayfa</a> › <a href="rehber.html">Rehber</a> › Nakış Yama Nasıl Yapılır?</div>
+<div class="hero"><div><h1>Nakış Yama Nasıl Yapılır?</h1><p class="lead">Bir nakış yama, kağıt üzerindeki bir çizimden elinize ulaşan dayanıklı bir parçaya beş temel aşamadan geçerek dönüşür. Bu yazıda makine nakışıyla arma üretiminin nasıl yapıldığını adım adım anlatıyoruz.</p>
+<div class="cta"><a class="btn btn-a" href="/#hesaplayici">Fiyat Hesapla</a><a class="btn btn-o" href="/#siparis">Sipariş Ver</a></div></div>
+<figure><svg viewBox="0 0 400 260" role="img" aria-label="Nakış yama üretiminin beş aşaması" xmlns="http://www.w3.org/2000/svg" font-family="Barlow Condensed,Arial,sans-serif"><rect width="400" height="260" fill="#141414"/><circle cx="40" cy="95" r="26" fill="#222" stroke="#c8a96e" stroke-width="2"/><text x="40" y="103" text-anchor="middle" font-size="22" font-weight="700" fill="#c8a96e">1</text><text x="40" y="148" text-anchor="middle" font-size="12" fill="#bbb">TASARIM</text><path d="M68 95h24" stroke="#555" stroke-width="2"/><circle cx="120" cy="95" r="26" fill="#222" stroke="#c8a96e" stroke-width="2"/><text x="120" y="103" text-anchor="middle" font-size="22" font-weight="700" fill="#c8a96e">2</text><text x="120" y="148" text-anchor="middle" font-size="12" fill="#bbb">DİJİTAL</text><path d="M148 95h24" stroke="#555" stroke-width="2"/><circle cx="200" cy="95" r="26" fill="#222" stroke="#c8a96e" stroke-width="2"/><text x="200" y="103" text-anchor="middle" font-size="22" font-weight="700" fill="#c8a96e">3</text><text x="200" y="148" text-anchor="middle" font-size="12" fill="#bbb">DİKİM</text><path d="M228 95h24" stroke="#555" stroke-width="2"/><circle cx="280" cy="95" r="26" fill="#222" stroke="#c8a96e" stroke-width="2"/><text x="280" y="103" text-anchor="middle" font-size="22" font-weight="700" fill="#c8a96e">4</text><text x="280" y="148" text-anchor="middle" font-size="12" fill="#bbb">KENAR</text><path d="M308 95h24" stroke="#555" stroke-width="2"/><circle cx="360" cy="95" r="26" fill="#c8a96e" stroke="#c8a96e" stroke-width="2"/><text x="360" y="103" text-anchor="middle" font-size="22" font-weight="700" fill="#000">5</text><text x="360" y="148" text-anchor="middle" font-size="12" fill="#bbb">ARKA YÜZ</text><text x="200" y="215" text-anchor="middle" font-size="14" fill="#888" letter-spacing="2">NAKIŞ YAMA ÜRETİM AŞAMALARI</text></svg><figcaption>Nakış Yama Nasıl Yapılır? — temsili çizim</figcaption></figure></div>
+<section><h2>1. Tasarım</h2><p>Her şey bir logo, çizim ya da fikirle başlar. Nakışta iplik kullanıldığı için tasarım; net hatlara, sınırlı sayıda düz renge ve okunabilir büyüklükte yazılara uygun hale getirilir. Renk geçişleri birkaç tona bölünür, çok küçük detaylar sadeleştirilir.</p></section><section><h2>2. Dijitalleştirme (punch)</h2><p>Nakış makinesi bir resmi doğrudan dikemez. Tasarımın her bölümü için dikiş tipi (dolgu, saten, düz dikiş), dikiş yönü, yoğunluğu ve sırası belirlenerek bir makine dosyası hazırlanır. Bu dosyalar makine markasına göre <b>DST, PES, JEF, EXP</b> gibi formatlarda kaydedilir; düzenlenebilir ana dosya ise genellikle <b>EMB</b> gibi program formatlarında tutulur. İyi bir dijitalleştirme, yamanın düzgün, kabarık ve dayanıklı çıkmasındaki en önemli adımdır.</p></section><section><h2>3. Dikim</h2><p>Zemin kumaşı, arkasına esneme yapmaması için tela (sabitleyici) eklenerek kasnağa gerilir. Makine, dosyadaki sırayla önce zemin dolgularını, sonra detayları ve yazıları diker; her renk değişiminde ilgili iplik devreye girer. Bir yamadaki dikiş sayısı boyuta ve doluluğa göre birkaç binden on binlerce dikişe kadar çıkabilir.</p></section><section><h2>4. Kenar bitirme</h2><p>Dikimi biten yama kasnaktan çıkarılır ve şekline göre kesilir. Kenarlar, sökülmeyi önlemek ve temiz bir görünüm vermek için saten dikiş ya da overlok ile çevrilir. Yuvarlak ve düz kenarlı şekillerde kalın overlok kenar, karmaşık şekillerde ise saten kenar tercih edilir.</p></section><section><h2>5. Arka yüzey ve kalite kontrol</h2><p>Son olarak kullanım şekline göre arka yüzey uygulanır: düz (dikmelik), <a href="utuyle-yapisan-arma.html">ütüyle yapışan</a> yapıştırıcı katman veya <a href="cirtli-arma.html">cırt cırt</a>. Her yama atlanmış dikiş, ip kaçığı ve renk uyumu açısından kontrol edilip paketlenir.</p></section><section><h2>Evde nakış yama yapılabilir mi?</h2><p>Evde el nakışıyla basit yamalar yapmak mümkündür: kalın bir kumaşa kasnakla desen işlenir, arkasına keçe veya tela eklenir ve kenarları battaniye dikişiyle kapatılır. Ancak aynı yamayı çok sayıda, birebir aynı kalitede ve sık yıkamaya dayanıklı üretmek için makine nakışı gerekir. Kendi tasarımınızın makine nakışıyla nasıl görüneceğini merak ediyorsanız <a href="ozel-nakis-arma.html">özel nakış arma</a> sayfasından başlayabilirsiniz.</p></section>
+<section class="faq"><h2>Sık Sorulan Sorular</h2><details><summary>Nakış dosyası formatları nelerdir?</summary><p>Makine dosyaları markaya göre DST (Tajima), PES (Brother), JEF (Janome), EXP (Melco) gibi formatlardadır. EMB gibi formatlar düzenlenebilir ana dosyadır.</p></details><details><summary>Bir yama kaç dikişten oluşur?</summary><p>Boyuta ve dolgunluğa göre birkaç binden on binlerce dikişe kadar değişir.</p></details><details><summary>Nakış yama ile baskılı yama arasındaki fark nedir?</summary><p>Nakış yamada desen iplikle işlenir; dokulu, kabarık ve yıkamaya dayanıklıdır. Baskılı yamada desen kumaşa basılır; ince detay ve geçişlerde avantajlıdır ancak dokusu ve dayanımı farklıdır.</p></details></section>
+<div class="box"><b>Armanızı birlikte hazırlayalım</b><p>Fiyatı anında görün, tasarımınızı yükleyin; önizlemeyi onayınıza sunalım.</p>
+<div class="cta"><a class="btn btn-a" href="/#hesaplayici">Fiyat Hesapla</a><a class="btn btn-o" href="/#siparis">Sipariş Formu</a><a class="btn btn-w" href="https://wa.me/905375295290?text=Merhaba%2C%20Nak%C4%B1%C5%9F%20Yama%20Nas%C4%B1l%20Yap%C4%B1l%C4%B1r%3F%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener">WhatsApp’tan Sor</a></div></div>
+<section id="rbProds" data-kw="" style="display:none"><h2>Mağazadan Örnekler</h2><div class="prods"></div></section>
+<section><h2>İlgili Rehberler</h2><div class="rel"><a href="ozel-nakis-arma.html">Özel Nakış Arma →</a><a href="logolu-arma.html">Logolu Arma →</a><a href="utuyle-yapisan-arma.html">Ütüyle Yapışan Arma →</a></div></section>
+</main>
+<footer><div class="g"><a href="rehber.html"><b>Rehber</b></a> <a href="ozel-nakis-arma.html">Özel Nakış Arma</a> <a href="kisiye-ozel-yama.html">Kişiye Özel Yama</a> <a href="logolu-arma.html">Logolu Arma</a> <a href="cirtli-arma.html">Cırtlı Arma</a> <a href="utuyle-yapisan-arma.html">Ütüyle Yapışan Arma</a> <a href="nakis-arma-fiyatlari.html">Nakış Arma Fiyatları</a> <a href="toplu-arma-uretimi.html">Toplu Arma Üretimi</a> <a href="nakis-yama-nasil-yapilir.html">Nakış Yama Nasıl Yapılır?</a></div><div>© RetroPatch · Profesyonel makine nakışı · Türkiye geneli kargo</div></footer>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="rehber.js" defer></script>
+<script src="duyuru.js"></script>
+</body>
+</html>
