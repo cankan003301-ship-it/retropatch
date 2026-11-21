@@ -1776,9 +1776,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       </div>
       <div class="settings-grid">
         <div class="settings-card" style="grid-column:1/-1;">
+          <h4><svg class=ic data-n=bank><use href=#i-bank></use></svg> HAVALE / EFT İNDİRİMİ</h4>
+          <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+            <div class="fg" style="margin:0;max-width:200px;"><label>İndirim oranı (%)</label><input type="number" id="payHavDisc" min="0" max="50" step="0.5" value="3"></div>
+            <button class="btn btn-accent" onclick="saveHavDisc()">KAYDET</button>
+            <div id="havDiscInfo" style="font-size:12px;color:var(--muted2);line-height:1.6;">Havale/EFT seçen müşterinin ürün tutarından düşülür (kargo hariç). 0 yazarsanız indirim kapanır.</div>
+          </div>
+        </div>
+        <div class="settings-card" style="grid-column:1/-1;">
           <h4><svg class=ic data-n=card><use href=#i-card></use></svg> KREDİ / BANKA KARTI</h4>
           <div class="fg-row">
-            <div class="fg"><label>Havale/EFT indirimi (%)</label><input type="number" id="payHavDisc" min="0" max="50" step="0.5" value="3" title="0 = indirim yok. Ürün tutarına uygulanır, kargo hariç."></div>
             <div class="fg"><label>Kart ile ödeme</label><select id="payCardEnabled"><option value="0">Kapalı</option><option value="1">Açık</option></select></div>
             <div class="fg"><label>Sağlayıcı</label><select id="payProvider" onchange="payProviderChanged()"><option value="paytr">PayTR</option><option value="nestpay">Banka sanal POS (Ziraat, İş Bankası, Akbank, Halkbank, TEB…)</option></select></div>
             <div class="fg"><label>Mod</label><select id="payTest"><option value="0">Canlı (gerçek ödeme)</option><option value="1">Test</option></select></div>
@@ -4178,6 +4185,15 @@ function payStatusLine(pub) {
     ? '<span style="color:var(--green);">● Kart ödemesi sitede AÇIK (' + (pub.provider === 'nestpay' ? 'banka sanal POS' : 'PayTR') + (pub.testMode ? ' · TEST modu' : '') + ')</span>'
     : '<span style="color:var(--muted2);">○ Kart ödemesi sitede kapalı</span>';
 }
+async function saveHavDisc() {
+  const raw = document.getElementById('payHavDisc').value.trim();
+  const pct = raw === '' ? 0 : parseFloat(raw.replace(',', '.'));
+  if (isNaN(pct) || pct < 0 || pct > 50) return toast('0 ile 50 arasında bir oran girin', 'err');
+  try {
+    await db.collection('settings').doc('payments').set({ havaleDisc: pct }, { merge: true });
+    toast(pct ? 'Havale/EFT indirimi %' + pct + ' olarak kaydedildi ✓' : 'Havale/EFT indirimi kapatıldı', 'ok');
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
 async function savePayments() {
   const v = id => document.getElementById(id).value.trim();
   const provider = v('payProvider'), enabled = v('payCardEnabled') === '1';
@@ -4190,7 +4206,6 @@ async function savePayments() {
   const pub = {
     cardEnabled: enabled, cardReady: ready, provider, testMode: v('payTest') === '1',
     maxInstallment: parseInt(v('paytrInst'), 10) || 0, noInstallment: !(parseInt(v('paytrInst'), 10) > 0),
-    havaleDisc: Math.max(0, Math.min(50, parseFloat(v('payHavDisc')) || 0)),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
   try {
