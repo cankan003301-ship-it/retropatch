@@ -1778,6 +1778,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="settings-card" style="grid-column:1/-1;">
           <h4><svg class=ic data-n=card><use href=#i-card></use></svg> KREDİ / BANKA KARTI</h4>
           <div class="fg-row">
+            <div class="fg"><label>Havale/EFT indirimi (%)</label><input type="number" id="payHavDisc" min="0" max="50" step="0.5" value="3" title="0 = indirim yok. Ürün tutarına uygulanır, kargo hariç."></div>
             <div class="fg"><label>Kart ile ödeme</label><select id="payCardEnabled"><option value="0">Kapalı</option><option value="1">Açık</option></select></div>
             <div class="fg"><label>Sağlayıcı</label><select id="payProvider" onchange="payProviderChanged()"><option value="paytr">PayTR</option><option value="nestpay">Banka sanal POS (Ziraat, İş Bankası, Akbank, Halkbank, TEB…)</option></select></div>
             <div class="fg"><label>Mod</label><select id="payTest"><option value="0">Canlı (gerçek ödeme)</option><option value="1">Test</option></select></div>
@@ -2740,6 +2741,7 @@ function showOrderDetail(id) {
       ${o.qty ? row('Adet', o.qty) : ''}
       ${o.cargo?.companyName ? row('Kargo', o.cargo.companyName) : ''}
       ${o.payment?.method ? row('Ödeme', payLabel(o)) : ''}
+      ${o.havaleDiscount ? row('Havale indirimi', '-₺' + Number(o.havaleDiscount).toLocaleString('tr-TR') + ' (%' + (o.havalePct || '') + ')') : ''}
       ${row('Toplam', tutar)}
       ${row('Tarih', formatDate(o.createdAt))}
       ${row('Durum', statusBadge(o.status || 'yeni'))}
@@ -4153,6 +4155,7 @@ async function loadPayments() {
     document.getElementById('payProvider').value = pub.provider === 'nestpay' ? 'nestpay' : 'paytr';
     document.getElementById('payTest').value = pub.testMode ? '1' : '0';
     document.getElementById('paytrInst').value = String(pub.maxInstallment || 0);
+    document.getElementById('payHavDisc').value = typeof pub.havaleDisc === 'number' ? pub.havaleDisc : 3;
     const [pt, ns] = await Promise.all([
       db.collection('payment_secrets').doc('paytr').get(),
       db.collection('payment_secrets').doc('nestpay').get()
@@ -4187,6 +4190,7 @@ async function savePayments() {
   const pub = {
     cardEnabled: enabled, cardReady: ready, provider, testMode: v('payTest') === '1',
     maxInstallment: parseInt(v('paytrInst'), 10) || 0, noInstallment: !(parseInt(v('paytrInst'), 10) > 0),
+    havaleDisc: Math.max(0, Math.min(50, parseFloat(v('payHavDisc')) || 0)),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
   try {

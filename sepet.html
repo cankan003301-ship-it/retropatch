@@ -604,6 +604,7 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
           <div class="summary-row"><span>Ara Toplam</span><span id="sumSubtotal">₺0</span></div>
           <div class="summary-row"><span>Kargo</span><span id="sumCargo">…</span></div>
           <div class="summary-row"><span>İndirim</span><span id="sumDiscount" style="color:var(--green);">-₺0</span></div>
+          <div class="summary-row" id="havRow" style="display:none;"><span>Havale/EFT indirimi (<span id="havPct">%3</span>)</span><span id="sumHav" style="color:var(--green);">-₺0</span></div>
           <div class="summary-row total"><span>TOPLAM</span><span id="sumTotal">₺0</span></div>
 
           <div id="freeShipBar" style="display:none;margin:16px 0 0;font-size:12px;color:var(--muted);">
@@ -618,7 +619,7 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
               <input type="radio" name="paymethod" value="havale" checked>
               <div class="pay-method-info">
                 <div class="pay-method-name"><svg class=ic data-n=bank><use href=#i-bank></use></svg> Havale / EFT</div>
-                <div class="pay-method-desc">Banka hesabına transfer</div>
+                <div class="pay-method-desc">Banka hesabına transfer <b id="havBadge" style="color:var(--green);">· %3 indirim</b></div>
               </div>
             </label>
             <label class="pay-method" id="cardMethod" style="display:none" onclick="selectPay('card',this)">
@@ -891,12 +892,22 @@ db.collection('settings').doc('payments').get().then(doc => {
   CARD_PROVIDER = d.provider === 'nestpay' ? 'nestpay' : 'paytr';
   const mi = parseInt(d.maxInstallment,10)||0, ci = document.getElementById('card-info');
   RP_MAXINST = mi; RP_NOINST = !!d.noInstallment;
+  HAVALE_PCT = (typeof d.havaleDisc === 'number' && d.havaleDisc >= 0 && d.havaleDisc <= 50) ? d.havaleDisc : 3;
+  rpHavUI(); updateSummary();
   if (ci && mi > 0 && !d.noInstallment) ci.insertAdjacentHTML('beforeend','<br><b style="color:var(--accent);">💳 Taksit imkanı:</b> uygun kartlarda ödeme ekranında en fazla '+mi+' taksit seçebilirsiniz.');
   updateSectionsVisibility();
 }).catch(() => { CARD_ENABLED = false; });
 
 // Kart seçilince: PayTR'ın hazır taksit tablosu (hangi karta kaç taksit, tutarlarıyla). Tutar değişince yenilenir.
 var _instAmt = '', RP_MAXINST = 0, RP_NOINST = false;
+// Havale/EFT indirimi: ürün tutarı (kupon/kampanya sonrası) üzerinden, kargo hariç. Admin > Ödemeler'den değiştirilir (varsayılan %3).
+var HAVALE_PCT = 3;
+function havaleDiscOf(base) { return selectedPay === 'havale' && HAVALE_PCT > 0 && base > 0 ? Math.round(base * HAVALE_PCT / 100) : 0; }
+function rpHavUI() {
+  const b = document.getElementById('havBadge'), p = document.getElementById('havPct');
+  if (b) { b.textContent = HAVALE_PCT > 0 ? '· %' + HAVALE_PCT + ' indirim' : ''; }
+  if (p) p.textContent = '%' + HAVALE_PCT;
+}
 function loadInstallments() {
   const sec = document.getElementById('instSection');
   if (!sec) return;
@@ -1026,7 +1037,9 @@ function updateSummary() {
   const cargoPrice = !phys ? 0 : ((rpFreeShip() || (freeLimit > 0 && physSub >= freeLimit)) ? 0 : (CARGO_PRICES[selectedCargo]||49));
   const cargo = phys ? cargoPrice + kapidaExtra : 0;
   const disc = phys ? Math.min(eff.disc, physSub) : 0;
-  const total = subtotal + cargo - disc;
+  const hav = havaleDiscOf(physSub - disc + digSub);
+  const total = subtotal + cargo - disc - hav;
+  const hr = document.getElementById('havRow'); if (hr) { hr.style.display = hav ? '' : 'none'; document.getElementById('sumHav').textContent = '-₺' + hav.toLocaleString('tr-TR'); }
   rpShowCampNote(eff);
   document.getElementById('sumSubtotal').textContent = '₺'+subtotal.toLocaleString('tr-TR');
   document.getElementById('sumCargo').textContent = !phys ? (cart.length ? 'Yok (dijital)' : '—') : (cargo === 0 ? '₺0 (Ücretsiz)' : '₺'+cargo);
@@ -1387,7 +1400,10 @@ async function doCheckout() {
   const cargoPrice = baseCargoPrice + kapidaExtra;
   const _effO = rpEffective();
   const disc = P.length ? Math.min(_effO.disc, physSub) : 0;
-  const physTotal = P.length ? physSub + cargoPrice - disc : 0;
+  const physHav = P.length ? havaleDiscOf(physSub - disc) : 0;
+  const digHav = D.length ? havaleDiscOf(digTotal) : 0;
+  digTotal -= digHav;
+  const physTotal = P.length ? physSub + cargoPrice - disc - physHav : 0;
 
   const isCard = selectedPay === 'card';
   if (isCard && !CARD_ENABLED) return fail('Kart ile ödeme şu anda kullanılamıyor. Lütfen Havale / EFT seçin.');
@@ -1408,6 +1424,7 @@ async function doCheckout() {
       payment: { method: selectedPay, status: selectedPay==='card' ? 'awaiting_card' : (selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery') },
       ...(isCard ? { payGroup } : {}),
       subtotal: physSub, cargoPrice, discount: disc, total: physTotal,
+      ...(physHav ? { havaleDiscount: physHav, havalePct: HAVALE_PCT } : {}),
       coupon: _effO.code || '',
       status: 'yeni',
       orderSource: 'cart',
@@ -1422,6 +1439,7 @@ async function doCheckout() {
     batch.set(db.collection('digital_orders').doc(), {
       code: digCode, userId: currentUser.uid, email: currentUser.email||'', name: currentUser.displayName||'',
       items: digOut, total: digTotal, status: 'bekliyor',
+      ...(digHav ? { havaleDiscount: digHav, havalePct: HAVALE_PCT } : {}),
       consent: { contract: true, legalRead: true, digitalWaiver: true, version: '2026-11', at: firebase.firestore.FieldValue.serverTimestamp() },
       ...(isCard ? { payment: { method: 'card', status: 'awaiting_card' }, payGroup } : {}),
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
