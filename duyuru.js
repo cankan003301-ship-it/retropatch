@@ -682,14 +682,25 @@
   function cookieNote() {
     try {
       if (/yasal(\.html)?$/i.test(location.pathname)) return;
-      if (localStorage.getItem('rp_cookie_ok')) return;
+      var c = null; try { c = localStorage.getItem('rp_consent'); } catch (e) {}
+      if (c === 'granted' || c === 'denied') return;
       var n = document.createElement('div');
-      n.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:99990;max-width:560px;margin:0 auto;background:#141414;border:1px solid #c8a96e;color:#ccc;padding:12px 14px;font:13px/1.5 Barlow,sans-serif;display:flex;gap:12px;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,.6)';
-      n.innerHTML = '<span style="flex:1">Bu sitede reklam/takip çerezi kullanılmaz; yalnızca sepet ve oturum için zorunlu yerel depolama kullanılır. <a href="yasal.html#gizlilik" style="color:#c8a96e">Ayrıntı</a></span><button style="background:#c8a96e;border:none;color:#000;padding:8px 14px;font:700 12px \'Barlow Condensed\',sans-serif;letter-spacing:1px;cursor:pointer">TAMAM</button>';
-      n.querySelector('button').onclick = function () { try { localStorage.setItem('rp_cookie_ok', '1'); } catch (e) {} n.remove(); };
+      n.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:99990;max-width:600px;margin:0 auto;background:#141414;border:1px solid #c8a96e;color:#ccc;padding:12px 14px;font:13px/1.5 Barlow,sans-serif;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 8px 30px rgba(0,0,0,.6)';
+      n.innerHTML = '<span style="flex:1;min-width:220px">Siteyi geliştirmek için Google Analytics ile ziyaret istatistikleri toplamak istiyoruz. Reklam çerezi kullanmayız. <a href="yasal.html#gizlilik" style="color:#c8a96e">Ayrıntı</a></span>' +
+        '<button data-v="denied" style="background:transparent;border:1px solid #555;color:#bbb;padding:8px 12px;font:700 12px \'Barlow Condensed\',sans-serif;letter-spacing:1px;cursor:pointer">REDDET</button>' +
+        '<button data-v="granted" style="background:#c8a96e;border:none;color:#000;padding:8px 14px;font:700 12px \'Barlow Condensed\',sans-serif;letter-spacing:1px;cursor:pointer">KABUL ET</button>';
+      n.addEventListener('click', function (ev) {
+        var v = ev.target.getAttribute && ev.target.getAttribute('data-v'); if (!v) return;
+        try { localStorage.setItem('rp_consent', v); } catch (e) {}
+        try { if (typeof gtag === 'function') gtag('consent', 'update', { analytics_storage: v }); } catch (e) {}
+        n.remove();
+      });
       document.body.appendChild(n);
     } catch (e) {}
   }
+  // Gizlilik sayfasından tercih değiştirme
+  window.rpConsentReset = function () { try { localStorage.removeItem('rp_consent'); if (typeof gtag === 'function') gtag('consent', 'update', { analytics_storage: 'denied' }); } catch (e) {} location.reload(); };
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { legalFooter(); cookieNote(); });
   else { legalFooter(); cookieNote(); }
 

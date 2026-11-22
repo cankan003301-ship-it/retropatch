@@ -20,7 +20,17 @@ function notFound(res) {
   res.setHeader('Cache-Control', 'public, s-maxage=60');
   res.end(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Ürün bulunamadı — RetroPatch</title>
-<style>body{background:#0a0a0a;color:#e8e8e8;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;padding:16px;text-align:center}a{color:#c8a96e}</style></head>
+<style>body{background:#0a0a0a;color:#e8e8e8;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;padding:16px;text-align:center}a{color:#c8a96e}</style><!-- Google tag (gtag.js) — izin modu: ziyaretçi çerez bildiriminde "Kabul" demeden analiz çerezi yazılmaz -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  (function(){var ok=null;try{ok=localStorage.getItem('rp_consent');}catch(e){}
+    gtag('consent','default',{analytics_storage:ok==='granted'?'granted':'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});})();
+  gtag('js', new Date());
+  gtag('config', 'G-FYYNJKZTVL');
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FYYNJKZTVL"></script>
+</head>
 <body><div><h1>Ürün bulunamadı</h1><p>Bu ürün kaldırılmış olabilir. <a href="/urunler.html">Tüm ürünlere göz atın</a>.</p></div></body></html>`);
 }
 
