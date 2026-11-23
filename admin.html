@@ -702,9 +702,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             </div>
           </div>
           <div style="background:var(--bg3);border:1px solid rgba(200,169,110,.3);padding:12px 14px;margin-top:10px;">
-            <div style="font-size:12px;color:var(--muted2);margin-bottom:8px;">&#128269; <b style="color:var(--accent)">Dolap'ı kontrol et</b> &mdash; Dolap'taki ilk 30 ilanı sitedekilerle karşılaştırır, yeni olanları ekler.</div>
-            <div style="font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:8px;">1) Bu düğmeyi yer imleri çubuğuna sürükle: <a id="dolapBm" href="#" style="color:var(--accent);font-weight:700;border:1px dashed var(--accent);padding:2px 8px;" onclick="return false">Dolap'tan Çek</a><br>2) dolap.com/profil/retropatch sayfasında ona tıkla (panoya kopyalar)<br>3) Buraya dön ve aşağıdaki düğmeye bas</div>
-            <button class="btn btn-accent" style="width:100%;justify-content:center;padding:9px;font-size:13px;" onclick="dolapCheckClipboard()" id="dolapChkBtn">&#128269; DOLAP KONTROL ET</button>
+            <div style="font-size:12px;color:var(--muted2);margin-bottom:8px;">&#128269; <b style="color:var(--accent)">Dolap'ı kontrol et</b> &mdash; Dolap'taki en yeni 20 ilanı sitedekilerle karşılaştırır, yeni olanları ekler (görseller ImageKit'e yüklenir).</div>
+            <button class="btn btn-accent" style="width:100%;justify-content:center;padding:10px;font-size:13px;" onclick="dolapServerFetch()" id="dolapSrvBtn">&#128229; DOLAP'TAN ÇEK VE YENİLERİ EKLE</button>
+            <div id="dolapSrvSt" style="font-size:12px;color:var(--muted2);margin-top:6px;"></div>
+            <details style="margin-top:10px;font-size:12px;color:var(--muted2);">
+              <summary style="cursor:pointer;">Çalışmazsa: yer imi yöntemi (daha fazla ilan)</summary>
+              <div style="line-height:1.7;margin:8px 0;">1) Bu bağlantıyı <b>tıklamadan</b> yer imleri çubuğuna sürükle: <a id="dolapBm" href="#" style="color:var(--accent);font-weight:700;border:1px dashed var(--accent);padding:2px 8px;" onclick="toast('Bu bağlantıyı tıklamayın; yer imleri çubuğuna sürükleyin','err');return false">Dolap'tan Çek</a><br>2) dolap.com/profil/retropatch sayfasında aşağı kaydırıp daha fazla ilan yükle, sonra yer imine tıkla<br>3) Buraya dönüp aşağıdaki düğmeye bas (pano okunamazsa metni kutuya yapıştır)</div>
+              <textarea id="dolapPaste" rows="2" placeholder="Pano okunamazsa: Dolap'tan kopyalanan metni buraya yapıştırın (Ctrl+V)" style="width:100%;font-size:11px;margin-bottom:6px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px;"></textarea>
+              <button class="btn btn-outline" style="width:100%;justify-content:center;padding:8px;font-size:12px;" onclick="dolapCheckClipboard()" id="dolapChkBtn">&#128269; KOPYALANANI KONTROL ET</button>
+            </details>
           </div>
         </div>
       </div>
@@ -3386,12 +3392,29 @@ function dolapParseCSV(text) {
   const head = rows.shift() || [];
   return rows.filter(r => r.length > 1).map(r => Object.fromEntries(head.map((h, i) => [h.trim(), r[i]])));
 }
-const _DOLAP_BM = "(async()=>{try{const m=new Map();document.querySelectorAll('a[href*=\"/urun/\"]').forEach(a=>{const t=a.innerText.trim();if(!t)return;const L=t.split('\\n').map(x=>x.trim()).filter(Boolean);m.set(a.href,{url:a.href,name:L.find(x=>!/^\\d+$/.test(x)),price:parseInt((L.find(x=>/TL$/.test(x))||'').replace(/\\./g,''))})});const P=[...m.values()].slice(0,30);await Promise.all(P.map(async(p,i)=>{await new Promise(r=>setTimeout(r,i*120));try{const h=await(await fetch(p.url)).text();const d=new DOMParser().parseFromString(h,'text/html');const g=n=>d.querySelector('meta[property=\"'+n+'\"],meta[name=\"'+n+'\"]')?.content||'';p.desc=g('og:description');p.img=g('og:image').replace(/\\/mnresize\\/\\d+\\/\\d+/,'');p.id=p.url.match(/(\\d+)$/)[1]}catch(e){}}));const out=P.filter(p=>p.id).map(p=>({baslik:p.name,fiyat_tl:p.price,gorseller:p.img,aciklama:(p.desc||'').replace(/L\u00fctfen bu \u00fcr\u00fcn\u00fc almay\u0131n\u0131z.*/,'').trim(),dolap_id:p.id,tur:'Yama'}));await navigator.clipboard.writeText(JSON.stringify(out));alert(out.length+' \u00fcr\u00fcn kopyaland\u0131. \u015eimdi admin panelinde Dolap Kontrol Et d\u00fc\u011fmesine bas.')}catch(e){alert('Hata: '+e.message)}})()";
+const _DOLAP_BM = "(async()=>{try{const m=new Map();document.querySelectorAll('a[href*=\"/urun/\"]').forEach(a=>{const t=a.innerText.trim();if(!t)return;const L=t.split('\\n').map(x=>x.trim()).filter(Boolean);m.set(a.href,{url:a.href,name:L.find(x=>!/^\\d+$/.test(x)),price:parseInt((L.find(x=>/TL$/.test(x))||'').replace(/\\./g,''))})});const P=[...m.values()].slice(0,30);await Promise.all(P.map(async(p,i)=>{await new Promise(r=>setTimeout(r,i*120));try{const h=await(await fetch(p.url)).text();const d=new DOMParser().parseFromString(h,'text/html');const g=n=>d.querySelector('meta[property=\"'+n+'\"],meta[name=\"'+n+'\"]')?.content||'';p.desc=g('og:description');p.img=g('og:image').replace(/\\/mnresize\\/\\d+\\/\\d+/,'');p.id=p.url.match(/(\\d+)$/)[1]}catch(e){}}));const out=P.filter(p=>p.id).map(p=>({baslik:p.name,fiyat_tl:p.price,gorseller:p.img,aciklama:(p.desc||'').replace(/L\u00fctfen bu \u00fcr\u00fcn\u00fc almay\u0131n\u0131z.*/,'').trim(),dolap_id:p.id,tur:'Yama'}));const J=JSON.stringify(out);try{await navigator.clipboard.writeText(J);alert(out.length+' \u00fcr\u00fcn kopyaland\u0131. Admin panelinde KOPYALANANI KONTROL ET d\u00fc\u011fmesine bas.')}catch(_){const w=document.createElement('div');w.style.cssText='position:fixed;inset:20px;z-index:2147483647;background:#111;border:2px solid #c8a96e;padding:16px;display:flex;flex-direction:column;gap:8px;color:#eee;font:14px sans-serif';w.innerHTML='<b>'+out.length+' \u00fcr\u00fcn haz\u0131r. Metin se\u00e7ili: Ctrl+C ile kopyala, admin panelindeki kutuya yap\u0131\u015ft\u0131r.</b><textarea style=\"flex:1;font:11px monospace\"></textarea><button style=\"padding:10px;background:#c8a96e;border:0;font-weight:700\">KAPAT</button>';w.querySelector('textarea').value=J;w.querySelector('button').onclick=()=>w.remove();document.body.appendChild(w);w.querySelector('textarea').select()}}catch(e){alert('Hata: '+e.message)}})()";
 (function(){ const el = document.getElementById('dolapBm'); if (el) el.setAttribute('href', 'javascript:' + encodeURIComponent(_DOLAP_BM)); })();
+async function dolapServerFetch() {
+  const b = document.getElementById('dolapSrvBtn'), st = document.getElementById('dolapSrvSt');
+  b.disabled = true; st.textContent = '⏳ Dolap sayfası okunuyor (10 saniye kadar sürebilir)…';
+  try {
+    const u = firebase.auth().currentUser; if (!u) throw new Error('Admin girişi gerekli');
+    const r = await fetch('/api/track?dolap=1&limit=20', { headers: { Authorization: 'Bearer ' + await u.getIdToken() } });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || ('Sunucu hatası ' + r.status));
+    if (!j.rows || !j.rows.length) throw new Error('Dolap\'ta ilan bulunamadı');
+    st.textContent = '✓ Dolap\'tan ' + j.rows.length + ' ilan alındı' + (j.withDesc < j.rows.length ? ' (' + (j.rows.length - j.withDesc) + ' tanesinin açıklaması okunamadı)' : '') + '. Sitedekilerle karşılaştırılıyor…';
+    const conv = dolapConvert(j.rows);
+    await importDolap(conv.list, conv.skipped.length);
+    st.textContent = '✓ Kontrol tamamlandı (' + j.rows.length + ' ilan tarandı).';
+  } catch (e) { st.textContent = '❌ ' + e.message; toast(e.message, 'err'); }
+  b.disabled = false;
+}
 async function dolapCheckClipboard() {
   const b = document.getElementById('dolapChkBtn');
   try {
-    const txt = await navigator.clipboard.readText();
+    let txt = (document.getElementById('dolapPaste')?.value || '').trim();
+    if (!txt) { try { txt = await navigator.clipboard.readText(); } catch (e) { throw new Error('Tarayıcı panoyu okumaya izin vermedi. Kopyalanan metni kutuya yapıştırıp tekrar basın.'); } }
     let rows; try { rows = JSON.parse(txt); } catch (e) { throw new Error('Panoda Dolap verisi yok. Önce Dolap sayfasında "Dolap\'tan Çek" yer imine tıkla'); }
     if (!Array.isArray(rows) || !rows.length || !rows[0].baslik) throw new Error('Panodaki veri Dolap listesi değil');
     const conv = dolapConvert(rows);

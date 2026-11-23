@@ -4,6 +4,7 @@ import { fb } from './_fb.mjs';
 import { clientIp } from './_http.mjs';
 import { logError, adminErrors } from './_errors.mjs';
 import { proofAnswer } from './_proof.mjs';
+import { dolapFetch } from './_dolap.mjs';
 
 const hits = new Map();   // basit IP sınırlayıcı (sunucu örneği başına)
 function limited(ip) {
@@ -17,6 +18,7 @@ const iso = ts => { try { return ts && ts.toDate ? ts.toDate().toISOString() : n
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   // Site hata kaydı / admin hata listesi (ayrı fonksiyon açmamak için burada)
+  if (req.method === 'GET' && req.query && req.query.dolap) return dolapFetch(req, res);   // admin: Dolap ilanlarını çek
   if (req.method === 'POST' && req.query && req.query.proof) return proofAnswer(req, res);   // tasarım onayı (müşteri)
   if (req.method === 'POST') return req.headers.authorization ? adminErrors(req, res) : logError(req, res);
   if (req.query && req.query.errors) return adminErrors(req, res);
