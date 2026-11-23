@@ -3367,10 +3367,20 @@ async function fillMissingSizes() {
     addActivity('📏', fix.length + ' ürüne boyut eklendi');
   } catch (e) { toast('Hata: ' + e.message, 'err'); }
 }
+// Yalnızca yamalar: başlıkta yama/patch/arma/nakış olmalı; anahtarlık, kitap vb. başka ürün adı geçiyorsa alınmaz
+const DOLAP_YES = /yama|patch|arma|nakış|nakis|nakışlı|embroider/i;
+const DOLAP_NO = /anahtarl[ıi]k|kitap|defter|kolye|bileklik|k[üu]pe|y[üu]z[üu]k|magnet|sticker|[çc][ıi]kartma|kupa|bardak|ti[şs][öo]rt|t-shirt|sweat|hoodie|[şs]apka|bere|[çc]anta|c[üu]zdan|kartvizit|poster|tablo|fig[üu]r|oyuncak|ayakkab[ıi]|mont|ceket|yelek|pantolon|elbise|etek|g[öo]mlek|[çc]orap|kılıf|kilif|telefon|maske|bayrak direği/i;
+function dolapIsPatch(title) {
+  const t = String(title || '');
+  if (!DOLAP_YES.test(t)) return false;
+  if (/anahtarl[ıi]k|kitap|defter|kolye|bileklik|k[üu]pe|y[üu]z[üu]k|magnet|kupa|bardak|sticker/i.test(t)) return false;   // bunlar her durumda alınmaz
+  if (DOLAP_NO.test(t) && !/yama|patch/i.test(t)) return false;
+  return true;
+}
 function dolapConvert(rows) {
   const out = [], cnt = {}, skipped = [];
   rows.forEach(i => {
-    if ((i.tur || 'Yama') !== 'Yama') { skipped.push(i.baslik); return; }
+    if ((i.tur && i.tur !== 'Yama') || !dolapIsPatch(i.baslik)) { skipped.push(i.baslik); return; }
     let n = dolapClean(i.baslik); const k = n.toLowerCase(); cnt[k] = (cnt[k] || 0) + 1; if (cnt[k] > 1) n += ' (' + cnt[k] + ')';
     const g = String(i.gorseller || '');
     const imgs = (g.includes('|') ? g.split('|') : g.split(/[\s,;]+/)).map(u => u.trim()).filter(u => /^https?:\/\//.test(u)).slice(0, 8);
@@ -3409,7 +3419,7 @@ const _DOLAP_BM = "(async()=>{const A='https://retropatch.vercel.app';const W=wi
       if (!firebase.auth().currentUser) { toast('Önce admin girişi yapın, sonra Dolap sayfasında yer imine tekrar tıklayın', 'err'); got = null; return; }
       openModal('bulkAddModal');
       const st = document.getElementById('dolapSrvSt'); if (st) st.textContent = '✓ Dolap\'tan ' + got.length + ' ilan geldi, sitedekilerle karşılaştırılıyor…';
-      try { const conv = dolapConvert(got); await importDolap(conv.list, conv.skipped.length); if (st) st.textContent = '✓ Kontrol tamamlandı (' + got.length + ' ilan tarandı).'; }
+      try { const conv = dolapConvert(got); await importDolap(conv.list, conv.skipped); if (st) st.textContent = '✓ Kontrol tamamlandı (' + got.length + ' ilan tarandı).'; }
       finally { got = null; }
     })();
   });
@@ -3425,7 +3435,7 @@ async function dolapServerFetch() {
     if (!j.rows || !j.rows.length) throw new Error('Dolap\'ta ilan bulunamadı');
     st.textContent = '✓ Dolap\'tan ' + j.rows.length + ' ilan alındı' + (j.withDesc < j.rows.length ? ' (' + (j.rows.length - j.withDesc) + ' tanesinin açıklaması okunamadı)' : '') + '. Sitedekilerle karşılaştırılıyor…';
     const conv = dolapConvert(j.rows);
-    await importDolap(conv.list, conv.skipped.length);
+    await importDolap(conv.list, conv.skipped);
     st.textContent = '✓ Kontrol tamamlandı (' + j.rows.length + ' ilan tarandı).';
   } catch (e) { st.textContent = '❌ ' + e.message; toast(e.message, 'err'); }
   b.disabled = false;
@@ -3438,7 +3448,7 @@ async function dolapCheckClipboard() {
     let rows; try { rows = JSON.parse(txt); } catch (e) { throw new Error('Panoda Dolap verisi yok. Önce Dolap sayfasında "Dolap\'tan Çek" yer imine tıkla'); }
     if (!Array.isArray(rows) || !rows.length || !rows[0].baslik) throw new Error('Panodaki veri Dolap listesi değil');
     const conv = dolapConvert(rows);
-    await importDolap(conv.list, conv.skipped.length);
+    await importDolap(conv.list, conv.skipped);
   } catch (e) { toast(e.message, 'err'); }
 }
 async function importDolapFile(input) {
@@ -3448,7 +3458,7 @@ async function importDolapFile(input) {
     const rows = /\.csv$/i.test(f.name) ? dolapParseCSV(text) : JSON.parse(text);
     if (!Array.isArray(rows) || !rows.length || !(rows[0].baslik || rows[0].name)) throw new Error('Dosya biçimi tanınmadı (baslik, fiyat_tl, gorseller sütunları gerekli)');
     const conv = dolapConvert(rows);
-    await importDolap(conv.list, conv.skipped.length);
+    await importDolap(conv.list, conv.skipped);
   } catch (e) { toast('Dosya okunamadı: ' + e.message, 'err'); }
   input.value = '';
 }
@@ -3467,8 +3477,8 @@ async function importDolap(given, skippedCount) {
       if (!k || have.has(k) || (p.dolapId && haveId.has(String(p.dolapId)))) { dup.push(p.name); return; }
       items.push(p);
     });
-    if (!items.length) { toast('Hepsi zaten ekli', 'ok'); return; }
-    if (!confirm(items.length + ' yeni ürün eklenecek.\n' + dup.length + ' ürün sitede zaten olduğu için atlanacak.' + (skippedCount ? '\n' + skippedCount + ' kayıt yama olmadığı için alınmadı.' : '') + '\n\nYeni ürünler: ' + items.slice(0, 6).map(p => p.name).join(', ') + (items.length > 6 ? '…' : '') + '\n\nDevam?')) return;
+    if (!items.length) { toast('Yeni yama yok — hepsi zaten ekli' + (Array.isArray(skippedCount) && skippedCount.length ? ' (' + skippedCount.length + ' yama olmayan ilan atlandı)' : ''), 'ok'); return; }
+    if (!confirm(items.length + ' yeni ürün eklenecek.\n' + dup.length + ' ürün sitede zaten olduğu için atlanacak.' + (skippedCount && (skippedCount.length || skippedCount > 0) ? '\n' + (skippedCount.length ?? skippedCount) + ' ilan yama olmadığı için alınmadı' + (Array.isArray(skippedCount) ? ': ' + skippedCount.slice(0, 5).join(', ') + (skippedCount.length > 5 ? '…' : '') : '') + '.' : '') + '\n\nYeni ürünler: ' + items.slice(0, 6).map(p => p.name).join(', ') + (items.length > 6 ? '…' : '') + '\n\nDevam?')) return;
     // Görselleri otomatik ImageKit'e yükle (hata olursa Dolap bağlantısı kalır; sonra Görselleri Taşı ile tamamlanır)
     let up = 0, upFail = 0, ui = 0;
     const idt = await auth.currentUser.getIdToken();
