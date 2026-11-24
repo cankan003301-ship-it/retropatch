@@ -2394,6 +2394,8 @@ function payDetailHtml(o) {
   } else if (pay.status === 'awaiting_transfer') {
     col = '<span style="color:#e67e22;font-weight:700">Havale bekleniyor</span>' + (havLate(o) ? ' <span style="color:#e63946;font-weight:700">⏰ ' + havAge(o) + '</span>' : '');
     if (o.payReminder) col += `<div style="font-size:10px;color:var(--muted2)">${o.payReminder.sent ? '✉ Müşteriye hatırlatma gönderildi' : '✉ Hatırlatma gönderilemedi' + (o.payReminder.to === 'yok' ? ' (e-posta yok)' : '')}${o.payReminder.at ? ' · ' + formatDate(o.payReminder.at) : ''}</div>`;
+    const wa = havWaLink(o);
+    if (wa) col += `<div style="margin-top:4px"><a href="${wa}" target="_blank" rel="noopener" style="display:inline-block;background:#25d366;color:#000;font-weight:700;font-size:11px;padding:4px 10px;text-decoration:none">📲 WhatsApp'tan ödeme hatırlat</a></div>`;
   }
   else if (pay.status === 'on_delivery') col = '<span style="color:#e67e22;font-weight:700">Teslimatta tahsil edilecek</span>';
   else if (pay.status === 'awaiting_card') col = '<span style="color:#e67e22">Kart ödemesi bekleniyor</span>';
@@ -2407,6 +2409,21 @@ function payDetailHtml(o) {
     <table style="width:100%;border-collapse:collapse;font-size:13px">${h}</table>${warn}</div>`;
 }
 // Havale 1 saati geçti mi?
+// Müşteriye hazır WhatsApp ödeme hatırlatma mesajı (wa.me — tek tıkla açılır, gönder'e sen basarsın)
+function havWaLink(o) {
+  const ph = String((o.address && o.address.phone) || o.userPhone || o.phone || '').replace(/\D/g, '');
+  if (ph.length < 10) return '';
+  const num = ph.startsWith('90') && ph.length === 12 ? ph : ph.startsWith('0') ? '9' + ph : ph.length === 10 ? '90' + ph : ph;
+  const v = id => (document.getElementById(id) || {}).value || '';
+  const iban = v('bankIBAN'), sahip = v('bankHesapSahibi'), banka = v('bankAdi');
+  const name = o.userName || (o.address && o.address.name) || '';
+  const code = o.orderCode || o.code || o.id.slice(-6).toUpperCase();
+  const msg = 'Merhaba' + (name ? ' ' + name : '') + ', RetroPatch\'ten yazıyorum. ' + code + ' numaralı siparişinizin ödemesi henüz bize ulaşmadı.\n\n' +
+    'Tutar: ₺' + Number(o.total || 0).toLocaleString('tr-TR') + '\n' +
+    (iban ? 'IBAN: ' + iban + '\n' : '') + (sahip ? 'Alıcı: ' + sahip + '\n' : '') + (banka ? 'Banka: ' + banka + '\n' : '') +
+    'Açıklamaya: ' + code + '\n\nÖdemeyi yaptıysanız dekontu buraya gönderebilirsiniz. Teşekkürler!';
+  return 'https://wa.me/' + num + '?text=' + encodeURIComponent(msg);
+}
 function havLate(o) { const p = o.payment || {}, t = o.createdAt?.seconds; return p.status === 'awaiting_transfer' && t && Date.now() / 1000 - t > 3600; }
 function havAge(o) { const m = Math.floor((Date.now() / 1000 - (o.createdAt?.seconds || 0)) / 60); return m < 120 ? m + ' dk' : m < 2880 ? Math.floor(m / 60) + ' saattir' : Math.floor(m / 1440) + ' gündür'; }
 function payLabel(o) {

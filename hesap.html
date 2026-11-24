@@ -356,6 +356,15 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
     .trk-box{background:var(--card);border:1px solid var(--border);padding:12px 16px;margin-bottom:16px}
     .trk-box summary{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1.5px;color:var(--muted)}
     .trk-box[open] summary{color:var(--accent)}
+    .pay-due{border:1px solid #e67e22;background:rgba(230,126,34,.08);padding:14px 16px;margin-bottom:12px}
+    .pay-due.late{border-color:#e63946;background:rgba(230,57,70,.08)}
+    .pay-due h4{margin:0 0 8px;font-family:'Barlow Condensed',sans-serif;font-size:17px;letter-spacing:1px;color:#e67e22}
+    .pay-due.late h4{color:#e63946}
+    .pay-due .r{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)}
+    .pay-due .r span:first-child{color:var(--muted)} .pay-due .r span:last-child{text-align:right;word-break:break-all}
+    .pay-due .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .pay-due .acts a,.pay-due .acts button{border:0;cursor:pointer;padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;font-size:13px;text-decoration:none}
+    .pay-due .acts .cp{background:var(--accent);color:#000} .pay-due .acts .wa{background:#25d366;color:#000}
     .ord-sum{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
     .ord-sum:empty{display:none}
     .ord-sum a{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--border);background:var(--card);color:var(--text);text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1px;cursor:pointer}
@@ -501,6 +510,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="stat-card"><div class="stat-val" id="statActive">0</div><div class="stat-lbl">Aktif Sipariş</div></div>
         <div class="stat-card"><div class="stat-val" id="statSpent">₺0</div><div class="stat-lbl">Toplam Harcama</div></div>
       </div>
+      <div id="payDue"></div>
       <div id="ordSummary" class="ord-sum"></div>
       <div id="ordersList">
         <div class="empty-state"><div class="empty-state-icon"><svg class=ic data-n=cart><use href=#i-cart></use></svg></div><p>Henüz siparişiniz yok</p></div>
@@ -804,6 +814,43 @@ async function renderDigital() {
   } catch (e) { el.innerHTML = '<div class="empty-state"><p>Dosyalar yüklenemedi.</p></div>'; }
 }
 
+// ── Havale ödemesi bekleyen siparişler: IBAN + dekont gönder ──
+let _rpBank = null, _rpShopWA = '905375295290', _rpPayInfoLoaded = false;
+async function rpLoadPayInfo() {
+  if (_rpPayInfoLoaded) return; _rpPayInfoLoaded = true;
+  try { const b = await db.collection('settings').doc('bank').get(); if (b.exists) _rpBank = b.data(); } catch (e) {}
+  try { const w = await db.collection('settings').doc('site').get(); if (w.exists && w.data().whatsapp) { let n = String(w.data().whatsapp).replace(/\D/g, ''); if (n.startsWith('0')) n = '9' + n; if (n.length === 10) n = '90' + n; _rpShopWA = n; } } catch (e) {}
+}
+function rpPayPending() {
+  return allOrders.filter(o => o.payment && o.payment.method === 'havale' && o.payment.status === 'awaiting_transfer' && !['iptal', 'iade'].includes(o.status));
+}
+async function renderPayDue() {
+  const el = document.getElementById('payDue'); if (!el) return;
+  const list = rpPayPending();
+  if (!list.length) { el.innerHTML = ''; return; }
+  await rpLoadPayInfo();
+  const b = _rpBank || {};
+  el.innerHTML = list.map(o => {
+    const code = o.orderCode || o.id.slice(-6).toUpperCase();
+    const t = o.createdAt && o.createdAt.seconds ? o.createdAt.seconds * 1000 : 0;
+    const late = t && Date.now() - t > 3600e3;
+    const wa = 'https://wa.me/' + _rpShopWA + '?text=' + encodeURIComponent('Merhaba, ' + code + ' numaralı siparişimin havale dekontunu gönderiyorum.');
+    return `<div class="pay-due${late ? ' late' : ''}" id="pd-${o.id}">
+      <h4>${late ? '⏰ ÖDEMENİZ HENÜZ ULAŞMADI' : '⏳ ÖDEMENİZ BEKLENİYOR'} — ${hEsc(code)}</h4>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Siparişiniz ödeme yapıldıktan sonra hazırlanmaya başlar. Havale/EFT yaparken açıklamaya sipariş kodunu yazın.</div>
+      <div class="r"><span>Ödenecek tutar</span><span style="color:var(--accent);font-weight:700">₺${Number(o.total || 0).toLocaleString('tr-TR')}</span></div>
+      <div class="r"><span>Açıklamaya yazın</span><span><b>${hEsc(code)}</b></span></div>
+      ${b.adi ? `<div class="r"><span>Banka</span><span>${hEsc(b.adi)}</span></div>` : ''}
+      ${b.hesapSahibi ? `<div class="r"><span>Alıcı</span><span>${hEsc(b.hesapSahibi)}</span></div>` : ''}
+      ${b.iban ? `<div class="r"><span>IBAN</span><span style="font-family:monospace">${hEsc(b.iban)}</span></div>` : '<div class="r"><span>IBAN</span><span>WhatsApp\'tan isteyebilirsiniz</span></div>'}
+      <div class="acts">
+        ${b.iban ? `<button class="cp" onclick="navigator.clipboard.writeText('${hEsc(String(b.iban).replace(/\s/g, ''))}').then(()=>{this.textContent='✓ KOPYALANDI'})">📋 IBAN'I KOPYALA</button>` : ''}
+        <a class="wa" href="${wa}" target="_blank" rel="noopener">📲 DEKONTU WHATSAPP'TAN GÖNDER</a>
+      </div></div>`;
+  }).join('');
+  if (/[?&]odeme=1/.test(location.search) && !window._rpPdScrolled) { window._rpPdScrolled = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+}
+
 function renderOrders() {
   const el = document.getElementById('ordersList');
   const active = allOrders.filter(o=>o.status!=='tamamlandı'&&o.status!=='iptal'&&o.status!=='iade').length;
@@ -811,6 +858,7 @@ function renderOrders() {
   document.getElementById('statTotal').textContent = allOrders.length;
   document.getElementById('statActive').textContent = active;
   document.getElementById('statSpent').textContent = '₺'+spent.toLocaleString('tr-TR');
+  renderPayDue();
   const pendN = updateOnayBadge();
   const prodN = allOrders.filter(o => o.status === 'üretimde').length, shipN = allOrders.filter(o => o.status === 'kargoda').length;
   document.getElementById('ordSummary').innerHTML = [

@@ -297,11 +297,41 @@
       }).catch(function () {});
     } catch (e) {}
   }
+  /* ───────── HAVALE ÖDEME HATIRLATMA ÇUBUĞU ─────────
+     Üyenin 1 saati geçmiş, ödemesi gelmemiş havale siparişi varsa her sayfada üstte ince bir uyarı gösterir. */
+  function payDueBar(u) {
+    try {
+      if (/\/(hesap|admin)(\.html)?$/.test(location.pathname) || document.getElementById('rpPayBar')) return;
+      db.collection('orders').where('userId', '==', u.uid).get().then(function (snap) {
+        var now = Date.now(), late = [];
+        snap.docs.forEach(function (d) {
+          var o = d.data(), p = o.payment || {}, t = o.createdAt && o.createdAt.seconds ? o.createdAt.seconds * 1000 : 0;
+          if (p.method === 'havale' && p.status === 'awaiting_transfer' && o.status !== 'iptal' && o.status !== 'iade' && t && now - t > 3600e3 && now - t < 14 * 864e5)
+            late.push({ code: o.orderCode || d.id.slice(-6).toUpperCase(), total: Number(o.total) || 0 });
+        });
+        if (!late.length) return;
+        var key = 'rp_paybar_' + late.map(function (x) { return x.code; }).join(',');
+        try { if (sessionStorage.getItem(key)) return; } catch (e) {}
+        var bar = document.createElement('div');
+        bar.id = 'rpPayBar';
+        bar.style.cssText = 'position:relative;z-index:9990;background:#e63946;color:#fff;font:600 13px/1.4 Arial,sans-serif;padding:9px 40px 9px 14px;text-align:center';
+        var txt = late.length === 1
+          ? '⏰ ' + late[0].code + ' siparişinizin ödemesi (₺' + late[0].total.toLocaleString('tr-TR') + ') henüz bize ulaşmadı.'
+          : '⏰ ' + late.length + ' siparişinizin havale ödemesi henüz bize ulaşmadı.';
+        bar.innerHTML = '<span></span> <a href="hesap.html?odeme=1" style="color:#fff;text-decoration:underline;font-weight:800;margin-left:6px">IBAN ve ödeme bilgileri →</a>' +
+          '<button aria-label="Kapat" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:0;color:#fff;font-size:20px;cursor:pointer;line-height:1">×</button>';
+        bar.firstChild.textContent = txt;
+        bar.querySelector('button').onclick = function () { try { sessionStorage.setItem(key, '1'); } catch (e) {} bar.remove(); };
+        document.body.insertBefore(bar, document.body.firstChild);
+      }).catch(function () {});
+    } catch (e) {}
+  }
   window.rpCartSync = function () { lastCartSig = ''; cartSync(); };
   (function waitAuth() {
     if (typeof firebase !== 'undefined' && firebase.auth && typeof db !== 'undefined') {
       firebase.auth().onAuthStateChanged(function (u) {
         setTimeout(cartSync, 1500);
+        if (u) setTimeout(function () { payDueBar(u); }, 1200);
         // Üye kaydı yoksa oluştur (Google girişinde kayıt eksik kalabiliyordu); admin üye listesi bu kayıttan okur
         if (u) {
           try {

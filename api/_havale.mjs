@@ -38,6 +38,14 @@ function customerMail(o, bank) {
   </div></div></body></html>`;
 }
 
+function waCell(x, bank) {
+  const ph = String(x.phone || '').replace(/\D/g, '');
+  if (ph.length < 10) return esc(x.phone || '—');
+  const num = ph.startsWith('90') && ph.length === 12 ? ph : ph.startsWith('0') ? '9' + ph : ph.length === 10 ? '90' + ph : ph;
+  const msg = `Merhaba${x.name ? ' ' + x.name : ''}, RetroPatch'ten yazıyorum. ${x.code} numaralı siparişinizin ödemesi henüz bize ulaşmadı.\n\nTutar: ${tl(x.total)}\n${bank && bank.iban ? 'IBAN: ' + bank.iban + '\n' : ''}${bank && bank.hesapSahibi ? 'Alıcı: ' + bank.hesapSahibi + '\n' : ''}Açıklamaya: ${x.code}\n\nÖdemeyi yaptıysanız dekontu buraya gönderebilirsiniz. Teşekkürler!`;
+  return `${esc(x.phone)} <a href="https://wa.me/${num}?text=${encodeURIComponent(msg)}" style="background:#25d366;color:#000;padding:2px 8px;text-decoration:none;font-weight:bold">WhatsApp'tan hatırlat</a>`;
+}
+
 export async function havaleRemind(db, opts = {}) {
   if (!opts.force && Date.now() - lastRun < 5 * 60 * 1000) return { skipped: 'too-soon' };
   lastRun = Date.now();
@@ -64,7 +72,7 @@ export async function havaleRemind(db, opts = {}) {
   if (out.length && process.env.ADMIN_EMAIL) {
     await send(process.env.ADMIN_EMAIL, `⏳ ${out.length} havale siparişi 1 saattir ödeme bekliyor`,
       `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.6"><p>Aşağıdaki siparişlerin havale ödemesi 1 saat içinde onaylanmadı. Müşterilere hatırlatma e-postası ${out.every(x => x.ok) ? 'gönderildi' : 'gönderilmeye çalışıldı'}. Ödeme hesabınıza geldiyse admin panelinden siparişi “ödendi” olarak işaretleyin.</p>
-      <table style="border-collapse:collapse;font-size:13px">${out.map(x => `<tr><td style="padding:4px 10px 4px 0"><b>${esc(x.code)}</b></td><td style="padding:4px 10px">${esc(x.name)}</td><td style="padding:4px 10px">${tl(x.total)}</td><td style="padding:4px 10px">${esc(x.phone)}</td><td style="padding:4px 0;color:${x.ok ? '#2a9d8f' : '#e63946'}">${x.ok ? 'hatırlatıldı' : (x.email ? 'e-posta gitmedi' : 'e-postası yok')}</td></tr>`).join('')}</table>
+      <table style="border-collapse:collapse;font-size:13px">${out.map(x => `<tr><td style="padding:4px 10px 4px 0"><b>${esc(x.code)}</b></td><td style="padding:4px 10px">${esc(x.name)}</td><td style="padding:4px 10px">${tl(x.total)}</td><td style="padding:4px 10px">${waCell(x, bank)}</td><td style="padding:4px 0;color:${x.ok ? '#2a9d8f' : '#e63946'}">${x.ok ? 'hatırlatıldı' : (x.email ? 'e-posta gitmedi' : 'e-postası yok')}</td></tr>`).join('')}</table>
       <p><a href="https://retropatch.vercel.app/admin.html">Admin paneline git →</a></p></div>`);
   }
   return { reminded: out.length, emailed: out.filter(x => x.ok).length };
