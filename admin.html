@@ -2351,6 +2351,58 @@ function payBadge(o) {
   if (m === 'kapida') return b('💵 Kapıda', 'var(--muted2)');
   return '';
 }
+// Sipariş ödeme dökümü: ürünler → indirimler → kargo → kapıda bedeli → havale indirimi → toplam → tahsilat
+function payDetailHtml(o) {
+  if (o.orderSource === 'form' || !Array.isArray(o.items) || !o.items.length || o.total == null) return '';
+  const tl = v => { const n = Math.round(Number(v) * 100) / 100; return '₺' + n.toLocaleString('tr-TR', n % 1 ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : {}); };
+  const E = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pd = o.priceDetail || {}, pay = o.payment || {}, dig = o.orderSource === 'digital' || o.items.every(i => i.digital || i.cat === 'Dijital Dosya');
+  const R = (l, v, st, sub) => `<tr><td style="padding:6px 0;color:${st === 'm' ? 'var(--muted2)' : 'var(--text)'};">${l}${sub ? `<div style="font-size:10px;color:var(--muted2)">${sub}</div>` : ''}</td><td style="padding:6px 0;text-align:right;white-space:nowrap;${st === 'g' ? 'color:#2ecc71;' : st === 'r' ? 'color:#e67e22;' : ''}">${v}</td></tr>`;
+  let h = '', sum = 0;
+  // Ürün satırları
+  o.items.forEach(i => {
+    const q = Number(i.qty) || 1, u = Number(i.price) || 0; sum += u * q;
+    const sub = [i.size, i.backType && i.backType !== 'Düz' ? i.backType + (i.backExtra ? ' (+₺' + i.backExtra + ')' : '') : ''].filter(Boolean).join(' · ');
+    h += R(`${E(i.name)} <span style="color:var(--muted2)">× ${q}</span>`, (i.oldUnit ? `<s style="color:var(--muted2);font-size:11px">${tl(i.oldUnit * q)}</s> ` : '') + tl(u * q), '', [sub, q > 1 ? 'birim ' + tl(u) : ''].filter(Boolean).join(' · '));
+  });
+  const sub = o.subtotal != null ? Number(o.subtotal) : sum;
+  h += `<tr><td colspan="2" style="border-top:1px solid var(--border)"></td></tr>` + R('<b>Ara toplam</b>', '<b>' + tl(sub) + '</b>');
+  const campSave = o.items.reduce((s, i) => s + (i.oldUnit ? (i.oldUnit - Number(i.price)) * (Number(i.qty) || 1) : 0), 0);
+  if (campSave > 0) h += R('Ürün kampanyası', '−' + tl(campSave) + ' <span style="font-size:10px;color:var(--muted2)">(fiyata dahil)</span>', 'g');
+  const disc = Number(o.discount) || 0;
+  if (disc > 0) h += R('İndirim' + (o.coupon || pd.discountName ? ` <span style="color:var(--accent)">${E(pd.discountName && pd.discountName !== o.coupon ? pd.discountName : o.coupon)}</span>` : ''), '−' + tl(disc), 'g', pd.discountAuto ? 'otomatik kampanya' : o.coupon ? 'kupon kodu: ' + E(o.coupon) : '');
+  // Kargo
+  if (!dig) {
+    const cp = Number(o.cargoPrice) || 0, kf = pd.kapidaFee != null ? Number(pd.kapidaFee) : null, base = pd.cargoBase != null ? Number(pd.cargoBase) : (kf != null ? cp - kf : null);
+    const comp = E(o.cargo?.companyName || '');
+    if (base === 0 || (base == null && cp === 0)) h += R('Kargo' + (comp ? ' · ' + comp : ''), '<b style="color:#2ecc71">ÜCRETSİZ</b>', '', pd.freeShip === 'kampanya' ? 'ücretsiz kargo kampanyası' : pd.freeLimit ? tl(pd.freeLimit) + ' üzeri ücretsiz kargo' + (pd.cargoList ? ' · normal ücret ' + tl(pd.cargoList) : '') : (pay.method === 'kapida' && cp > 0 ? '' : ''));
+    else if (base != null) h += R('Kargo' + (comp ? ' · ' + comp : ''), tl(base), 'r', 'müşteri ödedi');
+    else h += R('Kargo' + (comp ? ' · ' + comp : '') + (pay.method === 'kapida' ? ' + kapıda ödeme bedeli' : ''), tl(cp), 'r', 'müşteri ödedi');
+    if (kf) h += R('Kapıda ödeme hizmet bedeli', tl(kf), 'r');
+    else if (base == null && cp === 0 && pay.method === 'kapida') {}
+  }
+  if (Number(o.havaleDiscount) > 0) h += R('Havale/EFT indirimi' + (o.havalePct ? ' (%' + o.havalePct + ')' : ''), '−' + tl(o.havaleDiscount), 'g');
+  const total = Number(o.total) || 0;
+  h += `<tr><td colspan="2" style="border-top:2px solid var(--accent)"></td></tr>` + R('<b style="font-family:\'Bebas Neue\',cursive;font-size:18px;letter-spacing:1px">TOPLAM</b>', `<b style="font-family:'Bebas Neue',cursive;font-size:22px;color:var(--accent)">${tl(total)}</b>`);
+  // Tahsilat
+  const mName = { card: 'Kredi/Banka Kartı', havale: 'Havale / EFT', kapida: 'Kapıda ödeme' }[pay.method] || pay.method || '—';
+  let col = '';
+  if (pay.status === 'paid') {
+    const paid = pay.paidKurus ? Number(pay.paidKurus) / 100 : total;
+    col = `<span style="color:#2ecc71;font-weight:700">✓ Tahsil edildi ${tl(paid)}</span>` + (pay.paidAt ? ` <span style="color:var(--muted2);font-size:10px">${formatDate(pay.paidAt)}</span>` : '');
+    if (pay.paidKurus && Math.abs(paid - total) >= 0.01) col += `<div style="font-size:10px;color:var(--muted2)">${paid > total ? 'Taksit/vade farkı: +' + tl(paid - total) + ' (müşteri ödedi)' : 'Fark: ' + tl(paid - total)}</div>`;
+  } else if (pay.status === 'awaiting_transfer') col = '<span style="color:#e67e22;font-weight:700">Havale bekleniyor</span>';
+  else if (pay.status === 'on_delivery') col = '<span style="color:#e67e22;font-weight:700">Teslimatta tahsil edilecek</span>';
+  else if (pay.status === 'awaiting_card') col = '<span style="color:#e67e22">Kart ödemesi bekleniyor</span>';
+  else if (pay.status === 'failed') col = '<span style="color:#e63946;font-weight:700">Ödeme başarısız</span>';
+  h += R('Ödeme · ' + E(mName), col || '—');
+  // Tutarsızlık kontrolü (eski siparişlerde ayrıntı eksik olabilir)
+  const calc = sub - disc + (dig ? 0 : Number(o.cargoPrice) || 0) - (Number(o.havaleDiscount) || 0);
+  const warn = Math.abs(calc - total) >= 1 ? `<div style="font-size:10px;color:#e67e22;margin-top:4px">⚠ Kalemlerin toplamı (${tl(calc)}) kayıtlı toplamla (${tl(total)}) tutmuyor; eski siparişlerde bazı ayrıntılar kayıtlı olmayabilir.</div>` : '';
+  return `<div style="margin:10px 0;padding:12px 14px;border:1px solid var(--border);background:var(--bg2,#111);">
+    <div style="font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;color:var(--accent);margin-bottom:4px">💳 ÖDEME DETAYI</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">${h}</table>${warn}</div>`;
+}
 function payLabel(o) {
   const p = o.payment || {}; if (!p.method) return '';
   const names = { card: 'Kredi/Banka Kartı', havale: 'Havale / EFT', kapida: 'Kapıda Ödeme' };
@@ -2874,8 +2926,7 @@ function showOrderDetail(id) {
       ${o.qty ? row('Adet', o.qty) : ''}
       ${o.cargo?.companyName ? row('Kargo', o.cargo.companyName) : ''}
       ${o.payment?.method ? row('Ödeme', payLabel(o)) : ''}
-      ${o.havaleDiscount ? row('Havale indirimi', '-₺' + Number(o.havaleDiscount).toLocaleString('tr-TR') + ' (%' + (o.havalePct || '') + ')') : ''}
-      ${row('Toplam', tutar)}
+      ${payDetailHtml(o) || row('Toplam', tutar)}
       ${row('Tarih', formatDate(o.createdAt))}
       ${row('Durum', statusBadge(o.status || 'yeni'))}
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted2);font-family:sans-serif;letter-spacing:1px;font-size:11px;">Üretim Aşaması</span><select onchange="updateOrderProd('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:12px;outline:none;">${ordProdOpts(o.production)}</select></div>
