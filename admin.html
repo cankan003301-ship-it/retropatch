@@ -1370,6 +1370,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
     <!-- KUPONLAR -->
     <div class="page" id="page-coupons">
+      <!-- Aylık ürün kampanyası -->
+      <div id="mcBox" style="border:1px solid rgba(230,57,70,.45);background:rgba(230,57,70,.04);padding:18px 20px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+          <div style="font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:#ff6b6b;">🗓 AYLIK KAMPANYA</div>
+          <button class="btn btn-outline btn-sm" onclick="mcDraft()" id="mcDraftBtn">+ Şimdi taslak oluştur</button>
+        </div>
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:12px;">Her ayın 25'inde gelecek ay için taslak hazırlanır ve size e-posta gelir: seçili ürünlerde en fazla %10 indirim + anasayfa slaytı. <b>Siz Yayınla demeden hiçbir fiyat değişmez.</b> Ay bitince fiyatlar kendiliğinden eski haline döner.</div>
+        <div id="mcBody"><div style="font-size:12px;color:var(--muted2);">Yükleniyor…</div></div>
+      </div>
       <!-- İstatistik Kartları -->
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-bottom:20px;">
         <div class="stat-card gold"><div class="stat-label">Toplam Kupon</div><div class="stat-value" id="cpStatTotal">0</div></div>
@@ -2739,6 +2748,94 @@ async function sendProof(id) {
     toast('Önizleme müşteriye gönderildi' + (ed.customerEmail ? ' (e-posta gitti)' : ''), 'ok');
     closeModal('ordModal');
   } catch (e) { toast('Gönderilemedi: ' + e.message, 'err'); btn.disabled = false; btn.textContent = '🎨 MÜŞTERİYE ONAYA GÖNDER'; }
+}
+
+// ══════════ AYLIK KAMPANYA ══════════
+let _mc = [], _mcEdit = null;
+const mcE = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const mcD = s => s ? s.split('-').reverse().join('.') : '';
+async function mcApi(act, body) {
+  const u = firebase.auth().currentUser; if (!u) throw new Error('Giriş gerekli');
+  const r = await fetch('/api/track?campaign=' + act, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + await u.getIdToken() }, body: JSON.stringify(body || {}) });
+  const j = await r.json().catch(() => ({})); if (!r.ok || j.error) throw new Error(j.error || ('Hata ' + r.status)); return j;
+}
+async function mcLoad() {
+  try { _mc = (await mcApi('list', {})).list || []; }
+  catch (e) { _mc = []; const el = document.getElementById('mcBody'); if (el) el.innerHTML = '<div style="font-size:12px;color:#e63946">Kampanyalar okunamadı: ' + mcE(e.message) + '</div>'; return; }
+  _mcEdit = null; mcRender();
+}
+function mcRender() {
+  const el = document.getElementById('mcBody'); if (!el) return;
+  const cur = _mc.find(c => c.status === 'draft' || c.status === 'active');
+  const hist = _mc.filter(c => c !== cur).slice(0, 4);
+  const P = id => (allProducts || []).find(p => p.id === id);
+  let h = '';
+  if (!cur) h += '<div style="font-size:13px;color:var(--muted2);padding:6px 0;">Şu an taslak ya da yayında kampanya yok.</div>';
+  else {
+    const draft = cur.status === 'draft', ids = _mcEdit || cur.productIds || [], pct = cur.pct || 10;
+    const chip = draft ? '<span style="background:#f39c12;color:#000;padding:2px 8px;font-size:11px;font-weight:700;">TASLAK · ONAY BEKLİYOR</span>' : '<span style="background:#2ecc71;color:#000;padding:2px 8px;font-size:11px;font-weight:700;">YAYINDA</span>';
+    h += `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;"><b style="font-size:16px;">${mcE(cur.monthName || cur.month)} kampanyası</b> ${chip} <span style="font-size:12px;color:var(--muted2);">${mcD(cur.startDate)} – ${mcD(cur.endDate)} · %${pct} indirim · ${ids.length} ürün</span></div>`;
+    h += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px;">' + ids.map(id => {
+      const p = P(id); if (!p) return `<div style="font-size:11px;color:var(--muted2);padding:6px;border:1px solid var(--border)">Silinmiş ürün</div>`;
+      const old = draft ? Number(p.price) : Number(p.oldPrice || p.price), sale = draft ? Math.round(old * (1 - pct / 100)) : Number(p.price);
+      return `<div style="display:flex;gap:8px;align-items:center;border:1px solid var(--border);background:var(--bg3);padding:6px;">
+        <img src="${mcE(p.image || '')}${/ik\.imagekit\.io/.test(p.image || '') && !(p.image || '').includes('?') ? '?tr=w-80' : ''}" style="width:40px;height:40px;object-fit:cover;flex:0 0 40px;">
+        <div style="flex:1;min-width:0;font-size:12px;"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${mcE(p.name)}</div><div><s style="color:var(--muted2)">₺${old}</s> → <b style="color:#ff6b6b">₺${sale}</b>${typeof _pfCosts !== 'undefined' && _pfCosts[p.id] ? ` <span style="color:var(--muted2);font-size:10px">maliyet ₺${Math.round(_pfCosts[p.id])}</span>` : ''}</div></div>
+        ${draft ? `<button onclick="mcRemove('${id}')" title="Çıkar" style="background:none;border:1px solid var(--border);color:#e63946;cursor:pointer;padding:2px 7px;">✕</button>` : ''}</div>`;
+    }).join('') + '</div>';
+    if (draft) {
+      const opts = (allProducts || []).filter(p => p.status !== 'Tükendi' && !ids.includes(p.id) && !p.campaignId && Number(p.price) > 0).sort((x, y) => String(x.name).localeCompare(String(y.name), 'tr'))
+        .map(p => `<option value="${p.id}">${mcE(p.name)} — ₺${p.price}</option>`).join('');
+      h += `<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;">
+        <select id="mcAdd" style="flex:1;min-width:200px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;"><option value="">+ Ürün ekle…</option>${opts}</select>
+        <button class="btn btn-outline btn-sm" onclick="mcAddP()">Ekle</button>
+        <label style="font-size:12px;color:var(--muted2);">İndirim % <input type="number" id="mcPct" min="1" max="10" value="${pct}" style="width:60px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px;"></label>
+        <button class="btn btn-outline btn-sm" onclick="mcSave()">Kaydet</button>
+        <button class="btn btn-accent" onclick="mcPublish('${cur.id}')" id="mcPubBtn">✓ YAYINLA</button>
+        <button class="btn btn-danger btn-sm" onclick="mcEnd('${cur.id}',true)">Taslağı sil</button></div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:6px;">Yayınla: ürün fiyatları %${pct} düşer (eski fiyat üstü çizili görünür), "Ayın fırsatı" slaytı açılır. Slaytı Medya → Anasayfa Slaytları'ndan düzenleyebilirsiniz.</div>`;
+    } else {
+      h += `<div style="display:flex;gap:8px;margin-top:10px;"><a class="btn btn-outline btn-sm" href="urunler.html?indirim=1" target="_blank" style="text-decoration:none;">Mağazada gör</a><button class="btn btn-danger btn-sm" onclick="mcEnd('${cur.id}',false)">Erken bitir (fiyatları geri al)</button></div>`;
+    }
+  }
+  if (hist.length) h += '<div style="margin-top:12px;font-size:11px;color:var(--muted2);">Geçmiş: ' + hist.map(c => `${mcE(c.monthName || c.month)} (${{ ended: 'bitti', cancelled: 'iptal' }[c.status] || c.status}${c.restored != null ? ', ' + c.restored + ' ürün geri alındı' : ''})`).join(' · ') + '</div>';
+  el.innerHTML = h;
+}
+function mcCur() { return _mc.find(c => c.status === 'draft'); }
+function mcRemove(id) { const c = mcCur(); if (!c) return; _mcEdit = (_mcEdit || c.productIds || []).filter(x => x !== id); mcRender(); }
+function mcAddP() { const c = mcCur(), v = document.getElementById('mcAdd').value; if (!c || !v) return; _mcEdit = [...(_mcEdit || c.productIds || []), v]; mcRender(); }
+async function mcSave(silent) {
+  const c = mcCur(); if (!c) return;
+  const pct = Math.min(10, Math.max(1, parseInt(document.getElementById('mcPct').value, 10) || 10));
+  const ids = _mcEdit || c.productIds || [];
+  if (!ids.length) { toast('En az bir ürün seçin', 'err'); return false; }
+  try { await mcApi('save', { id: c.id, productIds: ids, pct }); c.productIds = ids; c.pct = pct; _mcEdit = null; if (!silent) toast('Taslak kaydedildi', 'ok'); mcRender(); return true; }
+  catch (e) { toast(e.message, 'err'); return false; }
+}
+async function mcPublish(id) {
+  const c = mcCur(); if (!c) return;
+  const n = (_mcEdit || c.productIds || []).length, pct = parseInt(document.getElementById('mcPct').value, 10) || c.pct || 10;
+  if (!confirm(`${c.monthName} kampanyası yayınlansın mı?\n\n${n} ürünün fiyatı %${Math.min(10, pct)} düşecek ve ${mcD(c.endDate)} bitiminde eski haline dönecek.`)) return;
+  const b = document.getElementById('mcPubBtn'); if (b) { b.disabled = true; b.textContent = '⏳ Yayınlanıyor…'; }
+  if (!(await mcSave(true))) { if (b) { b.disabled = false; b.textContent = '✓ YAYINLA'; } return; }
+  try { const r = await mcApi('publish', { id }); toast('Yayında ✓ ' + r.applied + ' ürüne indirim uygulandı', 'ok'); mcLoad(); }
+  catch (e) { toast(e.message, 'err'); if (b) { b.disabled = false; b.textContent = '✓ YAYINLA'; } }
+}
+async function mcEnd(id, isDraft) {
+  if (!confirm(isDraft ? 'Taslak silinsin mi? (Fiyatlar zaten değişmedi)' : 'Kampanya şimdi bitirilsin mi? İndirimli ürünlerin fiyatları eski haline döner, slayt kapanır.')) return;
+  try { const r = await mcApi('end', { id }); toast(isDraft ? 'Taslak silindi' : 'Kampanya bitti, ' + r.restored + ' ürünün fiyatı geri alındı', 'ok'); mcLoad(); }
+  catch (e) { toast(e.message, 'err'); }
+}
+async function mcDraft() {
+  const b = document.getElementById('mcDraftBtn'); b.disabled = true;
+  try {
+    const r = await mcApi('draft', {});
+    if (r.error) toast(r.error, 'err');
+    else if (r.existed) toast(r.id + ' için zaten bir kampanya var (' + r.status + ')', 'err');
+    else toast('Taslak hazırlandı: ' + r.count + ' ürün', 'ok');
+    mcLoad();
+  } catch (e) { toast(e.message, 'err'); }
+  b.disabled = false;
 }
 
 function updateOrderStatus(id, status) {
@@ -4382,7 +4479,7 @@ function showPage(name) {
   if (name === 'board') renderBoard();
   if (name === 'media') { const ps = document.getElementById('slideProduct'); if (ps) slideFillProducts(ps.value); }
   if (name === 'customers') renderCustomers();
-  if (name === 'coupons') loadCoupons();
+  if (name === 'coupons') { loadCoupons(); mcLoad(); }
   if (name === 'sitemanage') { loadSiteSettings(); }
   if (name === 'media') { renderSlides(); loadGallery(); }
   if (name === 'stats') { renderStatsPage(); renderStats(); syncStatsFromData(true); }

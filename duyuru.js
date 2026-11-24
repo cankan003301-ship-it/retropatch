@@ -764,3 +764,46 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
+
+/* İndirimli ürün gösterimi (aylık kampanya): kartlarda ve ürün penceresinde eski fiyat üstü çizili + %X rozeti */
+(function () {
+  'use strict';
+  var prods = function () { try { return allProducts || []; } catch (e) { return []; } };
+  var cur = function () { try { return currentProduct; } catch (e) { return null; } };
+  var onSale = function (p) { return p && Number(p.oldPrice) > Number(p.price) && Number(p.price) > 0; };
+  var pct = function (p) { return Math.round((1 - Number(p.price) / Number(p.oldPrice)) * 100); };
+  var st = document.createElement('style');
+  st.textContent = '.rp-old{color:#888;text-decoration:line-through;font-size:.72em;margin-right:6px;font-weight:400}' +
+    '.rp-salerib{position:absolute;top:10px;right:10px;z-index:4;background:#e63946;color:#fff;font:800 12px "Barlow Condensed",sans-serif;letter-spacing:1px;padding:4px 9px}' +
+    '.product-img,.product-card .img-wrap{position:relative}';
+  (document.head || document.documentElement).appendChild(st);
+  var busy = false;
+  function run() {
+    if (busy) return; busy = true;
+    try {
+      var P = prods(); if (!P.length) return;
+      var map = {}; P.forEach(function (p) { map[p.id] = p; });
+      document.querySelectorAll('.product-card').forEach(function (c) {
+        var p = map[c.getAttribute('data-pid') || c.getAttribute('data-id') || (c.dataset && c.dataset.id)];
+        var pr = c.querySelector('.product-price'); if (!p || !pr) return;
+        var key = onSale(p) ? p.price + '/' + p.oldPrice : '';
+        if (pr.getAttribute('data-sale') === key) return;
+        pr.setAttribute('data-sale', key);
+        var r = c.querySelector('.rp-salerib'); if (r) r.remove();
+        if (key) {
+          pr.innerHTML = '<span class="rp-old">₺' + p.oldPrice + '</span>₺' + p.price;
+          var img = c.querySelector('.product-img') || c;
+          img.insertAdjacentHTML('beforeend', '<span class="rp-salerib">%' + pct(p) + ' İNDİRİM</span>');
+        }
+      });
+      var mp = document.getElementById('modalPrice'), p = cur();
+      if (mp && p && onSale(p) && mp.getAttribute('data-sale') !== p.id + p.price) {
+        mp.setAttribute('data-sale', p.id + p.price);
+        mp.innerHTML = '<span class="rp-old">₺' + p.oldPrice + '</span>₺' + p.price + ' <span style="background:#e63946;color:#fff;font-size:.45em;padding:3px 8px;vertical-align:middle;letter-spacing:1px">%' + pct(p) + ' İNDİRİM</span>';
+      } else if (mp && p && !onSale(p)) mp.removeAttribute('data-sale');
+    } catch (e) {} finally { setTimeout(function () { busy = false; }, 0); }
+  }
+  var t = null;
+  new MutationObserver(function () { clearTimeout(t); t = setTimeout(run, 60); }).observe(document.documentElement, { childList: true, subtree: true });
+  setTimeout(run, 1500);
+})();

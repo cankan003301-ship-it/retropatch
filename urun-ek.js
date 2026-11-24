@@ -266,9 +266,19 @@
       if (s === 'out') { var q = c.querySelector('button[onclick*="rpQuickAdd"]'); if (q) q.textContent = 'TÜKENDİ'; }
     });
   }
+  var SALE_ONLY = /[?&]indirim=1/.test(location.search);
+  if (SALE_ONLY) {
+    var bn = document.createElement('div');
+    bn.style.cssText = 'margin:0 0 16px;padding:12px 16px;border:1px solid #e63946;background:rgba(230,57,70,.08);color:var(--text,#ddd);font-size:14px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap';
+    bn.innerHTML = '<span>🔥 <b>Ayın fırsatı:</b> yalnızca indirimli ürünler gösteriliyor.</span><a href="urunler.html" style="color:var(--accent,#c8a96e)">Tüm ürünleri göster →</a>';
+    var g0 = document.getElementById('productsGrid'); if (g0 && g0.parentNode) g0.parentNode.insertBefore(bn, g0);
+  }
   if (typeof window.renderGrid === 'function') {
     var origGrid = window.renderGrid;
-    window.renderGrid = function () { var r = origGrid.apply(this, arguments); try { decorate(); } catch (e) {} return r; };
+    window.renderGrid = function () {
+      if (SALE_ONLY) { try { filtered = filtered.filter(function (p) { return Number(p.oldPrice) > Number(p.price); }); } catch (e) {} }
+      var r = origGrid.apply(this, arguments); try { decorate(); } catch (e) {} return r;
+    };
   }
   decorate();
 

@@ -938,6 +938,37 @@ function loadInstallments() {
 function loadCart() {
   cart = JSON.parse(localStorage.getItem('retropatch_cart') || '[]');
   renderCart();
+  rpRefreshPrices();
+}
+// Sepetteki ürün fiyatlarını güncel fiyatla eşitle (kampanya bitince/başlayınca eski fiyat kalmasın)
+let _rpPriceChecked = false;
+async function rpRefreshPrices() {
+  if (_rpPriceChecked) return; _rpPriceChecked = true;
+  const phys = cart.filter(i => i.id && !i.digital && !i.isDigital && i.type !== 'digital');
+  if (!phys.length) return;
+  try {
+    const ids = [...new Set(phys.map(i => i.id))].slice(0, 30), live = {};
+    await Promise.all(ids.map(id => db.collection('products').doc(id).get().then(d => { if (d.exists) live[id] = d.data(); }).catch(() => {})));
+    let bp = null;
+    try { const d = await db.collection('settings').doc('backPrices').get(); if (d.exists) { const x = d.data(); bp = { 'Düz': x.duz || 0, 'Ütüyle Yapışan': x.utu ?? 50, 'Cırt Cırt': x.cirt ?? 75 }; } } catch (e) {}
+    bp = bp || { 'Düz': 0, 'Ütüyle Yapışan': 50, 'Cırt Cırt': 75 };
+    let changed = 0;
+    cart.forEach(i => {
+      const p = live[i.id]; if (!p || !(Number(p.price) > 0)) return;
+      // arka yüzey farkı: kayıtlı fark → taban fiyattan fark → arka yüzey adından; bilinmiyorsa dokunma
+      const back = i.backType || i.back || 'Düz';
+      let extra = i.backExtra != null && i.backExtra !== '' ? Number(i.backExtra)
+        : (Number(i.basePrice) > 0 ? Number(i.price) - Number(i.basePrice) : (back in bp ? Number(bp[back]) : NaN));
+      if (!isFinite(extra) || extra < 0) return;
+      const base = Number(p.price), np = base + extra;
+      if (Number(i.price) !== np) { i.price = np; i.basePrice = base; i.backExtra = extra; changed++; }
+    });
+    if (changed) {
+      localStorage.setItem('retropatch_cart', JSON.stringify(cart));
+      renderCart();
+      if (typeof showToast === 'function') showToast('Sepetinizdeki ' + changed + ' ürünün fiyatı güncellendi');
+    }
+  } catch (e) {}
 }
 
 function renderCart() {

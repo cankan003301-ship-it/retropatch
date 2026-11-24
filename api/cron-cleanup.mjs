@@ -1,6 +1,7 @@
 // Vercel Cron (günlük): 2 saatten eski, ödenmemiş kart siparişlerini iptal eder.
 // Vercel → Environment Variables: CRON_SECRET = uzun rastgele bir metin (Vercel cron çağrısına otomatik ekler)
 import { fb } from './_fb.mjs';
+import { campaignCron } from './_campaign.mjs';
 
 export function cronAuthorized(req) {
   const sec = process.env.CRON_SECRET;
@@ -23,6 +24,8 @@ export default async function handler(req, res) {
         }
       }
     }
-    res.status(200).json({ cancelled: n });
+    let campaign = null;
+    try { campaign = await campaignCron(db); } catch (e) { console.error('[cron-cleanup] kampanya', e); campaign = { error: e.message }; }
+    res.status(200).json({ cancelled: n, campaign });
   } catch (e) { console.error('[cron-cleanup]', e); res.status(500).json({ error: 'Sunucu hatası' }); }
 }

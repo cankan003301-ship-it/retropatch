@@ -917,6 +917,7 @@ function updateMobileFilterBadge() {
 
 function syncURLParams() {
   const params = new URLSearchParams();
+  if (/[?&]indirim=1/.test(location.search)) params.set('indirim', '1');   // aylık kampanya filtresi korunsun
   if (currentCat !== 'Tümü') params.set('cat', currentCat);
   if (currentSort !== 'default') params.set('sort', currentSort);
   if (currentStock !== 'all') params.set('stock', currentStock);
