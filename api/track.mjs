@@ -6,6 +6,7 @@ import { logError, adminErrors } from './_errors.mjs';
 import { proofAnswer } from './_proof.mjs';
 import { dolapFetch } from './_dolap.mjs';
 import { campaignApi } from './_campaign.mjs';
+import { havaleApi } from './_havale.mjs';
 
 const hits = new Map();   // basit IP sınırlayıcı (sunucu örneği başına)
 function limited(ip) {
@@ -20,6 +21,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   // Site hata kaydı / admin hata listesi (ayrı fonksiyon açmamak için burada)
   if (req.method === 'GET' && req.query && req.query.dolap) return dolapFetch(req, res);
+  if (req.method === 'GET' && req.query && req.query.havale) return havaleApi(req, res);   // saatlik havale hatırlatma
   if (req.method === 'POST' && req.query && req.query.campaign) return campaignApi(req, res);   // admin: aylık kampanya
   if (req.method === 'POST' && req.query && req.query.proof) return proofAnswer(req, res);   // tasarım onayı (müşteri)
   if (req.method === 'POST') return req.headers.authorization ? adminErrors(req, res) : logError(req, res);

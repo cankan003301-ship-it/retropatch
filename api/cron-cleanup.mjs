@@ -2,6 +2,7 @@
 // Vercel → Environment Variables: CRON_SECRET = uzun rastgele bir metin (Vercel cron çağrısına otomatik ekler)
 import { fb } from './_fb.mjs';
 import { campaignCron } from './_campaign.mjs';
+import { havaleRemind } from './_havale.mjs';
 
 export function cronAuthorized(req) {
   const sec = process.env.CRON_SECRET;
@@ -26,6 +27,8 @@ export default async function handler(req, res) {
     }
     let campaign = null;
     try { campaign = await campaignCron(db); } catch (e) { console.error('[cron-cleanup] kampanya', e); campaign = { error: e.message }; }
-    res.status(200).json({ cancelled: n, campaign });
+    let havale = null;
+    try { havale = await havaleRemind(db, { force: true }); } catch (e) { havale = { error: e.message }; }
+    res.status(200).json({ cancelled: n, campaign, havale });
   } catch (e) { console.error('[cron-cleanup]', e); res.status(500).json({ error: 'Sunucu hatası' }); }
 }

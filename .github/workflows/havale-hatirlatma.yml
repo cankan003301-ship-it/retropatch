@@ -1,0 +1,13 @@
+# Saatte bir: 1 saattir ödenmeyen havale siparişleri için hatırlatma (sipariş iptal edilmez).
+# Vercel ücretsiz planda cron günde bir çalıştığı için saatlik tetikleme GitHub Actions'tan yapılır.
+name: Havale hatirlatma
+on:
+  schedule:
+    - cron: '7 * * * *'
+  workflow_dispatch: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - run: curl -fsS --max-time 60 "https://retropatch.vercel.app/api/track?havale=1" || true

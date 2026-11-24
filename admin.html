@@ -2391,7 +2391,10 @@ function payDetailHtml(o) {
     const paid = pay.paidKurus ? Number(pay.paidKurus) / 100 : total;
     col = `<span style="color:#2ecc71;font-weight:700">✓ Tahsil edildi ${tl(paid)}</span>` + (pay.paidAt ? ` <span style="color:var(--muted2);font-size:10px">${formatDate(pay.paidAt)}</span>` : '');
     if (pay.paidKurus && Math.abs(paid - total) >= 0.01) col += `<div style="font-size:10px;color:var(--muted2)">${paid > total ? 'Taksit/vade farkı: +' + tl(paid - total) + ' (müşteri ödedi)' : 'Fark: ' + tl(paid - total)}</div>`;
-  } else if (pay.status === 'awaiting_transfer') col = '<span style="color:#e67e22;font-weight:700">Havale bekleniyor</span>';
+  } else if (pay.status === 'awaiting_transfer') {
+    col = '<span style="color:#e67e22;font-weight:700">Havale bekleniyor</span>' + (havLate(o) ? ' <span style="color:#e63946;font-weight:700">⏰ ' + havAge(o) + '</span>' : '');
+    if (o.payReminder) col += `<div style="font-size:10px;color:var(--muted2)">${o.payReminder.sent ? '✉ Müşteriye hatırlatma gönderildi' : '✉ Hatırlatma gönderilemedi' + (o.payReminder.to === 'yok' ? ' (e-posta yok)' : '')}${o.payReminder.at ? ' · ' + formatDate(o.payReminder.at) : ''}</div>`;
+  }
   else if (pay.status === 'on_delivery') col = '<span style="color:#e67e22;font-weight:700">Teslimatta tahsil edilecek</span>';
   else if (pay.status === 'awaiting_card') col = '<span style="color:#e67e22">Kart ödemesi bekleniyor</span>';
   else if (pay.status === 'failed') col = '<span style="color:#e63946;font-weight:700">Ödeme başarısız</span>';
@@ -2403,8 +2406,12 @@ function payDetailHtml(o) {
     <div style="font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:2px;color:var(--accent);margin-bottom:4px">💳 ÖDEME DETAYI</div>
     <table style="width:100%;border-collapse:collapse;font-size:13px">${h}</table>${warn}</div>`;
 }
+// Havale 1 saati geçti mi?
+function havLate(o) { const p = o.payment || {}, t = o.createdAt?.seconds; return p.status === 'awaiting_transfer' && t && Date.now() / 1000 - t > 3600; }
+function havAge(o) { const m = Math.floor((Date.now() / 1000 - (o.createdAt?.seconds || 0)) / 60); return m < 120 ? m + ' dk' : m < 2880 ? Math.floor(m / 60) + ' saattir' : Math.floor(m / 1440) + ' gündür'; }
 function payLabel(o) {
   const p = o.payment || {}; if (!p.method) return '';
+  if (havLate(o)) return 'Havale / EFT — <span style="color:#e63946;font-weight:700">⏰ ' + havAge(o) + ' ödeme yok</span>';
   const names = { card: 'Kredi/Banka Kartı', havale: 'Havale / EFT', kapida: 'Kapıda Ödeme' };
   const sts = { paid: ' — ÖDENDİ', failed: ' — başarısız', awaiting_card: ' — ödeme bekliyor', awaiting_transfer: ' — havale bekleniyor' };
   return (names[p.method] || p.method) + (sts[p.status] || '');
@@ -2559,7 +2566,7 @@ function renderBoard() {
           <div class="bd-code">${pEsc(o.orderCode || '#' + o.id.slice(-5).toUpperCase())}</div>
           <div style="font-weight:600;">${pEsc(bdName(o))}</div>
           <div class="bd-meta">${pEsc(bdItems(o))}</div>
-          <div>${o.orderSource === 'form' ? '<span class="bd-tag" style="color:#9b59b6;border-color:#9b59b6">ÖZEL</span>' : ''}${(o.embFiles || []).length ? '<span class="bd-tag">🧵 ' + o.embFiles.length + ' dosya</span>' : ''}${o.proof?.status === 'pending' ? '<span class="bd-tag" style="color:#f39c12;border-color:#f39c12">ONAY BEKLİYOR</span>' : o.proof?.status === 'revision' ? '<span class="bd-tag" style="color:#e63946;border-color:#e63946">DEĞİŞİKLİK</span>' : ''}${o.payment?.method === 'havale' && o.payment?.status === 'awaiting_transfer' ? '<span class="bd-tag">HAVALE BEKLİYOR</span>' : ''}</div>
+          <div>${o.orderSource === 'form' ? '<span class="bd-tag" style="color:#9b59b6;border-color:#9b59b6">ÖZEL</span>' : ''}${(o.embFiles || []).length ? '<span class="bd-tag">🧵 ' + o.embFiles.length + ' dosya</span>' : ''}${o.proof?.status === 'pending' ? '<span class="bd-tag" style="color:#f39c12;border-color:#f39c12">ONAY BEKLİYOR</span>' : o.proof?.status === 'revision' ? '<span class="bd-tag" style="color:#e63946;border-color:#e63946">DEĞİŞİKLİK</span>' : ''}${o.payment?.method === 'havale' && o.payment?.status === 'awaiting_transfer' ? (havLate(o) ? '<span class="bd-tag" style="color:#e63946;border-color:#e63946">⏰ HAVALE ' + havAge(o).toUpperCase() + '</span>' : '<span class="bd-tag">HAVALE BEKLİYOR</span>') : ''}</div>
           <div class="bd-foot"><span class="bd-meta" style="${late ? 'color:#e63946;font-weight:700' : ''}">${age === 0 ? 'bugün' : age + ' gün'}${o.total ? ' · ₺' + Number(o.total).toLocaleString('tr-TR') : ''}</span>
             <span class="bd-mv">${ci > 0 ? `<button title="Önceki aşama" onclick="bdMove('${o.id}',-1)">‹</button>` : ''}${ci < BD_COLS.length - 1 ? `<button title="Sonraki aşama" onclick="bdMove('${o.id}',1)">›</button>` : ''}</span></div>
         </div>`;
