@@ -1527,6 +1527,27 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <div class="fg" style="margin:0;"><label>2. Buton Yazısı</label><input type="text" id="slideBtn2Text" placeholder="ör: Sipariş Ver"></div>
             <div class="fg" style="margin:0;"><label>2. Buton Linki</label><input type="text" id="slideBtn2Link" placeholder="ör: #siparis"></div>
           </div>
+          <details id="slideMore" style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;" open>
+            <summary style="cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:var(--accent);">EK AYARLAR (hepsi isteğe bağlı)</summary>
+            <div class="fg" style="margin-top:12px;"><label>🔗 Ürüne bağla</label>
+              <select id="slideProduct" onchange="slideProductPick()" style="width:100%;"><option value="">— Ürün seçilmedi —</option></select>
+              <div style="font-size:11px;color:var(--muted2);margin-top:4px;">Seçerseniz boş bıraktığınız görsel, başlık ve buton ürünün bilgileriyle dolar; fiyat ve "Ürüne Git" otomatik gelir.</div></div>
+            <div class="fg"><label>📱 Telefon görseli <span style="color:var(--muted2);font-size:10px;">(dikey; boşsa üstteki görsel kullanılır)</span></label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="text" id="slideImgM" placeholder="https://… (dikey, ör. 900×1400)" style="flex:1;">
+                <label style="border:1px solid var(--accent);color:var(--accent);padding:8px 12px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;white-space:nowrap;">Seç<input type="file" accept="image/*" onchange="slideUploadFile(this,'slideImgM')" style="display:none;"></label>
+              </div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div class="fg" style="margin:0;"><label>📅 Başlangıç tarihi</label><input type="date" id="slideStart"></div>
+              <div class="fg" style="margin:0;"><label>📅 Bitiş tarihi</label><input type="date" id="slideEnd"></div>
+            </div>
+            <div style="font-size:11px;color:var(--muted2);margin:4px 0 10px;">Boşsa slayt her zaman görünür. Bitiş günü dahil gösterilir.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div class="fg" style="margin:0;"><label>Yazı konumu</label><select id="slideAlign" style="width:100%;"><option value="">Sol (varsayılan)</option><option value="center">Orta</option><option value="right">Sağ</option></select></div>
+              <div class="fg" style="margin:0;"><label>Karartma: <b id="slideOvVal">Varsayılan</b></label><input type="range" id="slideOverlay" min="-1" max="90" step="5" value="-1" oninput="document.getElementById('slideOvVal').textContent=this.value<0?'Varsayılan':'%'+this.value" style="width:100%;"></div>
+            </div>
+            <div class="fg" style="margin-top:8px;"><label>Slaytın tamamına tıklanınca gidilecek link</label><input type="text" id="slideLink" placeholder="boş = sadece butonlar tıklanır (ör. urunler.html)"></div>
+          </details>
           <div style="display:flex;gap:8px;margin-top:12px;">
             <button class="btn btn-accent" id="slideSaveBtn" onclick="addSlide()"><svg class=ic data-n=save><use href=#i-save></use></svg> <span id="slideSaveTxt">Slayt Ekle</span></button>
             <button class="btn btn-outline" onclick="clearSlideForm()">Temizle / Vazgeç</button>
@@ -3797,6 +3818,7 @@ function listenSlides() {
 
 function renderSlides() {
   const list = document.getElementById('slidesList');
+  const ps = document.getElementById('slideProduct'); if (ps && ps.options.length <= 1 && !editingSlideId) slideFillProducts('');
   if (!list) return;
   if (!allSlides.length) {
     list.innerHTML = '<div style="color:var(--muted2);font-size:12px;padding:12px 0;">Henüz slayt yok. Aşağıdan ekleyin.</div>';
@@ -3810,6 +3832,7 @@ function renderSlides() {
       <div style="flex:1;min-width:0;">
         <div style="font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;">${s.title||'—'}</div>
         <div style="font-size:11px;color:var(--muted2);">${s.subtitle||s.name||''}</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.5px;margin-top:2px;color:${slideState(s)[1]}">● ${slideState(s)[0]}${s.productId ? ' · 🔗 ürün' : ''}${s.imageMobile ? ' · 📱' : ''}${s.link ? ' · tüm slayt tıklanır' : ''}</div>
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0;">
         ${i > 0 ? `<button class="btn btn-outline btn-sm" onclick="moveSlide('${s.id}', -1)"><svg class=ic data-n=arrow-u><use href=#i-arrow-u></use></svg></button>` : ''}
@@ -3829,30 +3852,71 @@ function addSlide() {
   const btn1Link = document.getElementById('slideBtn1Link').value.trim();
   const btn2Text = document.getElementById('slideBtn2Text').value.trim();
   const btn2Link = document.getElementById('slideBtn2Link').value.trim();
-  if (!img || !title) { toast('Resim URL ve başlık zorunlu!', 'err'); return; }
+  const ext = slideExtra();
+  if (ext === null) return;
+  if ((!img && !ext.productId) || (!title && !ext.productId)) { toast('Resim ve başlık zorunlu (ya da bir ürün seçin)', 'err'); return; }
+  const btnDef = ext.productId ? { t: 'Ürüne Git', l: '' } : { t: 'Tüm Ürünler', l: 'urunler.html' };
   if (editingSlideId) {
     const id = editingSlideId;
-    db.collection('slides').doc(id).update({
+    const FV = firebase.firestore.FieldValue;
+    const upd = {
       image: img, bg: img, title,
       desc: subtitle, subtitle, name: subtitle, tag,
-      btn1Text: btn1Text || 'Tüm Ürünler', btn1Link: btn1Link || 'urunler.html',
+      btn1Text: btn1Text || btnDef.t, btn1Link: btn1Link || btnDef.l,
       btn2Text: btn2Text || '', btn2Link: btn2Link || ''
-    }).then(() => { toast('Slayt güncellendi ✓', 'ok'); clearSlideForm(); })
+    };
+    ['imageMobile', 'startDate', 'endDate', 'productId', 'align', 'overlay', 'link'].forEach(k => { upd[k] = ext[k] === undefined ? FV.delete() : ext[k]; });
+    db.collection('slides').doc(id).update(upd).then(() => { toast('Slayt güncellendi ✓', 'ok'); clearSlideForm(); })
       .catch(e => toast('Güncellenemedi: ' + e.message, 'err'));
     return;
   }
   const maxOrder = allSlides.length ? Math.max(...allSlides.map(s => s.order || 0)) : 0;
+  const add = {};
+  Object.keys(ext).forEach(k => { if (ext[k] !== undefined) add[k] = ext[k]; });
   db.collection('slides').add({
     image: img, bg: img, title,
     desc: subtitle, subtitle, name: subtitle, tag,  // desc = index.html'in okuduğu alan
-    btn1Text: btn1Text || 'Tüm Ürünler', btn1Link: btn1Link || 'urunler.html',
+    btn1Text: btn1Text || btnDef.t, btn1Link: btn1Link || btnDef.l,
     btn2Text: btn2Text || '', btn2Link: btn2Link || '',
+    ...add,
     order: maxOrder + 1,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
     toast('Slayt eklendi ✓', 'ok');
     clearSlideForm();
   }).catch(e => toast('Eklenemedi: ' + e.message, 'err'));
+}
+
+// Slayt ek alanları (boş olanlar kaydedilmez → eski davranış)
+function slideExtra() {
+  const v = id => (document.getElementById(id)?.value || '').trim();
+  const o = { imageMobile: v('slideImgM') || undefined, startDate: v('slideStart') || undefined, endDate: v('slideEnd') || undefined,
+    productId: v('slideProduct') || undefined, align: v('slideAlign') || undefined, link: v('slideLink') || undefined };
+  const ov = parseInt(v('slideOverlay'), 10); o.overlay = isNaN(ov) || ov < 0 ? undefined : ov;
+  if (o.startDate && o.endDate && o.endDate < o.startDate) { toast('Bitiş tarihi başlangıçtan önce olamaz', 'err'); return null; }
+  if (o.link && /^\s*javascript:/i.test(o.link)) { toast('Geçersiz link', 'err'); return null; }
+  return o;
+}
+function slideFillProducts(sel) {
+  const s = document.getElementById('slideProduct'); if (!s) return;
+  const list = (allProducts || []).filter(p => p.name).slice().sort((x, y) => String(x.name).localeCompare(String(y.name), 'tr'));
+  s.innerHTML = '<option value="">— Ürün seçilmedi —</option>' + list.map(p => `<option value="${p.id}">${String(p.name).replace(/</g, '&lt;')}${p.price ? ' — ₺' + p.price : ''}${p.status === 'Tükendi' ? ' (Tükendi)' : ''}</option>`).join('');
+  s.value = sel || '';
+}
+function slideProductPick() {
+  const id = document.getElementById('slideProduct').value, p = (allProducts || []).find(x => x.id === id); if (!p) return;
+  const f = (k, val) => { const el = document.getElementById(k); if (el && !el.value.trim()) el.value = val || ''; };
+  f('slideImg', p.image); f('slideTitle', p.name); f('slideSubtitle', p.cat); f('slideBtn1Text', 'Ürüne Git');
+  const pv = document.getElementById('slideImgPreview'), wrap = document.getElementById('slideImgPreviewWrap');
+  if (pv && wrap && document.getElementById('slideImg').value) { pv.src = document.getElementById('slideImg').value; wrap.style.display = 'block'; }
+  toast('Boş alanlar ürün bilgisiyle dolduruldu', 'ok');
+}
+function slideState(s) {
+  const t = new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);
+  if (s.active === false) return ['Kapalı', '#888'];
+  if (s.startDate && s.startDate > t) return ['Planlı: ' + s.startDate.split('-').reverse().join('.') + ' başlar', '#3498db'];
+  if (s.endDate && s.endDate < t) return ['Süresi doldu (' + s.endDate.split('-').reverse().join('.') + ')', '#e63946'];
+  return [s.endDate ? 'Yayında · ' + s.endDate.split('-').reverse().join('.') + ' bitiyor' : 'Yayında', '#2ecc71'];
 }
 
 let editingSlideId = null;
@@ -3863,6 +3927,9 @@ function editSlide(id) {
   set('slideImg', s.image || s.bg); set('slideTitle', s.title); set('slideSubtitle', s.subtitle || s.desc || s.name);
   set('slideTag', s.tag); set('slideBtn1Text', s.btn1Text); set('slideBtn1Link', s.btn1Link);
   set('slideBtn2Text', s.btn2Text); set('slideBtn2Link', s.btn2Link);
+  set('slideImgM', s.imageMobile); set('slideStart', s.startDate); set('slideEnd', s.endDate); set('slideAlign', s.align); set('slideLink', s.link);
+  slideFillProducts(s.productId);
+  const ovEl = document.getElementById('slideOverlay'); if (ovEl) { ovEl.value = typeof s.overlay === 'number' ? s.overlay : -1; ovEl.oninput(); }
   const img = s.image || s.bg || '';
   const pv = document.getElementById('slideImgPreview'), wrap = document.getElementById('slideImgPreviewWrap');
   if (pv && wrap && img) { pv.src = img; wrap.style.display = 'block'; }
@@ -3875,7 +3942,9 @@ function clearSlideForm() {
   editingSlideId = null;
   const ft = document.getElementById('slideFormTitle'); if (ft) ft.textContent = '+ YENİ SLAYT EKLE';
   const st = document.getElementById('slideSaveTxt'); if (st) st.textContent = 'Slayt Ekle';
-  ['slideImg','slideTitle','slideSubtitle','slideTag','slideBtn1Text','slideBtn1Link','slideBtn2Text','slideBtn2Link'].forEach(id => {
+  slideFillProducts('');
+  const ovEl = document.getElementById('slideOverlay'); if (ovEl) { ovEl.value = -1; ovEl.oninput(); }
+  ['slideImg','slideTitle','slideSubtitle','slideTag','slideBtn1Text','slideBtn1Link','slideBtn2Text','slideBtn2Link','slideImgM','slideStart','slideEnd','slideAlign','slideLink'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('slideImgPreviewWrap').style.display = 'none';
@@ -4311,6 +4380,7 @@ function showPage(name) {
   if (name === 'cargo') { renderCargo('all'); loadCargoSettings(); }
   if (name === 'members') loadMembers();
   if (name === 'board') renderBoard();
+  if (name === 'media') { const ps = document.getElementById('slideProduct'); if (ps) slideFillProducts(ps.value); }
   if (name === 'customers') renderCustomers();
   if (name === 'coupons') loadCoupons();
   if (name === 'sitemanage') { loadSiteSettings(); }
@@ -5604,7 +5674,8 @@ function gPreview(url) {
   else     { wrap.style.display = 'none'; }
 }
 
-async function slideUploadFile(input) {
+async function slideUploadFile(input, target) {
+  target = target || 'slideImg';
   const file = input.files[0];
   if (!file) return;
   const status = document.getElementById('slideUploadStatus');
@@ -5613,7 +5684,8 @@ async function slideUploadFile(input) {
   status.textContent = '⏳ Yükleniyor...';
   status.style.color = 'var(--accent)';
   try {
-    const authRes = await fetch('/api/imagekit-auth');
+    const _u = firebase.auth().currentUser, _t = _u ? await _u.getIdToken() : '';
+    const authRes = await fetch('/api/imagekit-auth', { headers: _t ? { Authorization: 'Bearer ' + _t } : {} });
     const auth = await authRes.json();
     const fd = new FormData();
     fd.append('file', file);
@@ -5626,9 +5698,8 @@ async function slideUploadFile(input) {
     const r = await fetch('https://upload.imagekit.io/api/v1/files/upload', { method:'POST', body:fd });
     const data = await r.json();
     if (data.url) {
-      document.getElementById('slideImg').value = data.url;
-      preview.src = data.url;
-      previewWrap.style.display = 'block';
+      document.getElementById(target).value = data.url;
+      if (target === 'slideImg') { preview.src = data.url; previewWrap.style.display = 'block'; }
       status.textContent = '✓ Görsel yüklendi!';
       status.style.color = 'var(--green)';
       toast('✓ Slayt görseli yüklendi!', 'ok');
