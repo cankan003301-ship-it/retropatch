@@ -76,7 +76,7 @@ export async function createDraft(db, opts = {}) {
      <h2 style="color:#b8934a;margin:0 0 8px">${esc(M.name)} kampanyası (taslak)</h2>
      <p>Seçili <b>${picks.length} üründe %${pct} indirim</b>, ${esc(M.start.split('-').reverse().join('.'))} – ${esc(M.end.split('-').reverse().join('.'))}. Anasayfa slaytı da hazır.</p>
      <table style="border-collapse:collapse;width:100%;font-size:13px">${picks.map(p => `<tr><td style="padding:4px 0;border-bottom:1px solid #eee">${esc(p.name)}</td><td style="text-align:right;border-bottom:1px solid #eee"><s style="color:#999">₺${p.price}</s> → <b>₺${Math.round(p.price * (1 - pct / 100))}</b></td></tr>`).join('')}</table>
-     <p>Yayına girmesi için onayınız gerekiyor: <a href="https://retropatch.vercel.app/admin.html">Admin → Kuponlar → Aylık Kampanya</a> bölümünden ürünleri düzenleyip <b>Yayınla</b>'ya basın. Onaylamazsanız hiçbir fiyat değişmez.</p></div>`);
+     <p>Yayına girmesi için onayınız gerekiyor: <a href="https://retropatch.vercel.app/admin.html">Admin → Kampanya ve Kuponlar → Aylık Kampanya</a> bölümünden ürünleri düzenleyip <b>Yayınla</b>'ya basın. Onaylamazsanız hiçbir fiyat değişmez.</p></div>`);
   return { id: M.id, created: true, count: picks.length };
 }
 

@@ -374,7 +374,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="nav-item" onclick="showPage('messages')"><span class="ic"><svg class=ic data-n=mail><use href=#i-mail></use></svg></span> Mesajlar <span class="nav-badge" id="badgeMsg" style="display:none">0</span></div>
         <div class="nav-item" onclick="showPage('reviews')"><span class="ic"><svg class=ic data-n=chat><use href=#i-chat></use></svg></span> Yorumlar <span class="nav-badge" id="badgeReviews" style="display:none">0</span></div>
         <div class="nav-item" onclick="showPage('members')"><span class="ic"><svg class=ic data-n=users><use href=#i-users></use></svg></span> Üyeler</div>
-        <div class="nav-item" onclick="showPage('coupons')"><span class="ic"><svg class=ic data-n=ticket><use href=#i-ticket></use></svg></span> Kuponlar</div>
+        <div class="nav-item" onclick="showPage('coupons')"><span class="ic"><svg class=ic data-n=ticket><use href=#i-ticket></use></svg></span> Kampanya ve Kuponlar</div>
         <div class="nav-item" onclick="showPage('announcements')"><span class="ic"><svg class=ic data-n=megaphone><use href=#i-megaphone></use></svg></span> Duyurular</div>
       </div>
       <div class="nav-sec">
@@ -4469,7 +4469,7 @@ function showPage(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   event.currentTarget?.classList.add('active');
-  const titles = {board:'ÜRETİM PANOSU',customers:'MÜŞTERİLER',dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',errors:'SİTE HATALARI',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ',categories:'KATEGORİLER',media:'MEDYA',digital:'DİJİTAL DOSYALAR',announcements:'DUYURULAR'};
+  const titles = {board:'ÜRETİM PANOSU',customers:'MÜŞTERİLER',dashboard:'DASHBOARD',orders:'SİPARİŞLER',cargo:'KARGO YÖNETİMİ',messages:'MESAJLAR',products:'ÜRÜNLER',members:'ÜYELER',coupons:'KAMPANYA VE KUPONLAR',gallery:'GALERİ YÖNETİMİ',sitemanage:'SİTE YÖNETİMİ',errors:'SİTE HATALARI',settings:'AYARLAR',stats:'İSTATİSTİKLER',reviews:'YORUM YÖNETİMİ',categories:'KATEGORİLER',media:'MEDYA',digital:'DİJİTAL DOSYALAR',announcements:'DUYURULAR'};
   document.getElementById('pageTitle').textContent = titles[name] || name.toUpperCase();
   if (name === 'orders') renderOrders('cart', document.getElementById('orderFilter')?.value || 'all');
   if (name === 'products') renderProducts();
