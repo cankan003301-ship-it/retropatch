@@ -401,7 +401,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
-      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v2.6</button>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v3.4</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -7206,6 +7206,22 @@ function saveMarquee() {
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v3.4 · 24 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Havale ödemesi 1 saatte gelmezse müşteriye hatırlatma: sitenin üstünde kırmızı uyarı çubuğu, Hesabım'da IBAN kutusu (IBAN kopyala, dekontu WhatsApp'tan gönder) ve tek seferlik e-posta</li><li>Sana e-postayla gecikmiş havale listesi gelir; her siparişin yanında "WhatsApp'tan hatırlat" butonu</li><li>Sipariş listesinde, detayda ve üretim panosunda "⏰ X saattir ödeme yok" etiketi ve hatırlatma durumu</li><li>Sipariş detayında "📲 WhatsApp'tan ödeme hatırlat" butonu (tutar + IBAN + sipariş kodu hazır mesaj)</li></ul>
+      <b style="color:var(--accent)">v3.3 · 24 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Sipariş detayında ödeme dökümü: ürünler, kampanya/kupon indirimi, kargo ücretli mi ücretsiz mi (nedeni), kapıda ödeme bedeli, havale indirimi, tahsil edilen tutar ve taksit farkı</li><li>Sepetteki ürün fiyatları güncel fiyatla otomatik eşitlenir</li></ul>
+      <b style="color:var(--accent)">v3.2 · 23 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Aylık kampanya: her ay belli ürünlere %10'a kadar indirim + kampanya slaytı taslağı hazırlanır, senin onayınla yayınlanır, ay bitince fiyatlar geri döner</li><li>Menüde "Kuponlar" → "Kampanya ve Kuponlar"</li><li>Mağazada ?indirim=1 ile indirimdeki ürünler sayfası</li></ul>
+      <b style="color:var(--accent)">v3.1 · 23 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Ana sayfa slaytları: telefon görseli, başlangıç/bitiş tarihi, ürüne bağlama, yazı hizası, kaydırma ile geçiş, ilerleme çubuğu</li><li>3 yeni kampanya slaytı (Havale %3 indirim, Özel arma yaptır, Toplu arma üretimi)</li></ul>
+      <b style="color:var(--accent)">v3.0 · 22 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Dolap'tan ürün çekme: "Dolap → RetroPatch" yer imi ile (Dolap sunucudan erişimi engelliyor)</li><li>Dolap'tan yalnızca yamalar alınır; anahtarlık, kitap, kolye vb. atlanır ve listesi gösterilir</li><li>Ziyaretçi istatistiği: Google Analytics ve Cloudflare Web Analytics (ücretsiz); çerez onayı penceresi</li></ul>
+      <b style="color:var(--accent)">v2.9 · 21 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>8 yeni rehber/SEO sayfası (özel nakış arma, kişiye özel yama, logolu, cırtlı, ütüyle yapışan arma, fiyatlar, toplu üretim, nasıl yapılır) — sitemap'e eklendi</li><li>Havale/EFT ile ödemede %3 indirim; oranı Ödemeler sayfasındaki ayrı kutudan değiştirilir (0 = kapalı)</li></ul>
+      <b style="color:var(--accent)">v2.8 · 21 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Üretim Panosu: siparişleri sürükle-bırak ile aşamalara taşı</li><li>Nakış dosyaları: siparişe ve ürüne DST/EMB vb. dosya yükleme</li><li>Müşteriler sayfası: müşteri geçmişi, toplam harcama, WhatsApp</li><li>Sipariş üretim aşaması: Tasarım inceleniyor → Onay bekliyor → Üretimde → Nakış tamamlandı → Kalite kontrol → Kargoda</li><li>Tasarım önizlemesi gönderme; müşteri Hesabım'dan onaylar veya not yazar</li></ul>
+      <b style="color:var(--accent)">v2.7 · 20 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Hesabım yenilendi: sipariş özeti, Kargo Takibi, Tasarım Onayları, Dijital Dosyalarım, tekrar sipariş (20/50/100 adet)</li><li>Mağaza: görsel yakınlaştırma, ölçü görseli, benzer ürünler, set, stok durumu, tükendi engeli</li><li>Sipariş formu: tahmini üretim süresi, adet fiyat karşılaştırması, ölçü görseli, tasarım türü örnekleri</li><li>Sepette taksit tablosu (kargonun altında) ve kart başına taksit bilgisi</li><li>Güvenlik: e-posta gönderimi yetki kontrolü, tahmin edilemez sipariş kodları</li><li>Ana sayfadaki kırmızı kampanya çubuğu kaldırıldı; duyurularda "çubuk + pencere" düzeltildi; sepette ₺0 hatası düzeltildi</li></ul>
       <b style="color:var(--accent)">v2.6 · 19 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Ürünler → "Görselleri Taşı": Dolap sunucusundaki ürün fotoğraflarını ImageKit'e kopyalar (kalıcı, kaldığı yerden devam eder)</li></ul>
       <b style="color:var(--accent)">v2.5 · 19 Kasım 2026</b>
