@@ -153,7 +153,7 @@ td{border:1px solid var(--border);padding:9px 12px;vertical-align:top;font-size:
 <li>Sepet hatırlatma e-postası gibi pazarlama amaçlı iletiler yalnızca yasal izne uygun olarak gönderilir.</li>
 </ul>
 <h2 style="font-size:16px">Verilerin aktarıldığı taraflar</h2>
-<p>Yalnızca hizmetin gerektirdiği ölçüde: kargo firmaları, ödeme kuruluşu/bankalar (PayTR veya banka sanal POS), e-posta gönderim hizmeti (Resend), barındırma ve altyapı hizmetleri (Vercel, Google Firebase), görsel depolama (ImageKit), onayınız halinde site istatistikleri için Google Analytics, yetkili kamu kurumları. Bu hizmet sağlayıcıların bir kısmının sunucuları yurt dışında bulunabilir; aktarım KVKK md. 9 hükümlerine uygun olarak yapılır.</p>
+<p>Yalnızca hizmetin gerektirdiği ölçüde: kargo firmaları, ödeme kuruluşu/bankalar (PayTR veya banka sanal POS), e-posta gönderim hizmeti (Resend), barındırma ve altyapı hizmetleri (Vercel, Google Firebase), görsel depolama (ImageKit), site istatistikleri için Cloudflare Web Analytics (çerezsiz) ve onayınız halinde Google Analytics, yetkili kamu kurumları. Bu hizmet sağlayıcıların bir kısmının sunucuları yurt dışında bulunabilir; aktarım KVKK md. 9 hükümlerine uygun olarak yapılır.</p>
 <h2 style="font-size:16px">Saklama süresi</h2>
 <p>Veriler, ilgili mevzuatta öngörülen süre (vergi ve ticari defter/belge saklama süreleri dahil) ve amaç için gerekli süre boyunca saklanır, süre sonunda silinir veya anonim hale getirilir.</p>
 <h2 style="font-size:16px">Haklarınız (KVKK md. 11)</h2>
@@ -173,6 +173,8 @@ td{border:1px solid var(--border);padding:9px 12px;vertical-align:top;font-size:
 <li><b>Tercihler:</b> kapattığınız duyuruları ve bu bildirimi hatırlamak için yerel depolama.</li>
 </ul>
 <p>Bu teknolojiler zorunlu olduğundan ayrıca onay gerektirmez. Tarayıcı ayarlarınızdan silebilirsiniz; bu durumda sepetiniz ve oturumunuz sıfırlanır.</p>
+<h2 style="font-size:15px">Çerezsiz ziyaret istatistiği</h2>
+<p>Toplam ziyaretçi ve sayfa görüntüleme sayılarını görmek için <b>Cloudflare Web Analytics</b> kullanırız. Bu araç çerez yazmaz, tarayıcınızda iz bırakmaz ve sizi tanımlayacak bir kimlik oluşturmaz; yalnızca ziyaret edilen sayfa, yönlendiren site, ülke ve cihaz türü gibi toplu bilgiler işlenir. Cloudflare’in gizlilik politikası: <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">cloudflare.com/privacypolicy</a>.</p>
 <h2 style="font-size:15px">Analiz çerezleri (onayınıza bağlı)</h2>
 <p>Hangi sayfaların ziyaret edildiğini, ziyaretçilerin siteye nereden geldiğini ve hangi cihazları kullandığını toplu olarak görmek için <b>Google Analytics</b> (Google LLC / Google Ireland Ltd.) kullanırız. Bu araç yalnızca çerez bildiriminde <b>“Kabul et”</b> seçeneğini işaretlemeniz halinde çerez yazar; “Reddet” derseniz veya bir seçim yapmazsanız analiz çerezi kullanılmaz. Toplanan veriler (sayfa görüntüleme, yaklaşık konum, cihaz ve tarayıcı bilgisi gibi) Google sunucularında, yurt dışında işlenebilir ve kişisel olarak sizi tanımlamak amacıyla kullanılmaz. Google’ın veri uygulamaları için: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</p>
 <p><a href="javascript:void(0)" onclick="rpConsentReset&&rpConsentReset()" style="color:#c8a96e;font-weight:600">Çerez tercihimi değiştir</a></p>
@@ -198,5 +200,6 @@ td{border:1px solid var(--border);padding:9px 12px;vertical-align:top;font-size:
 })();
 </script>
 <script>window.rpConsentReset=window.rpConsentReset||function(){try{localStorage.removeItem('rp_consent');if(typeof gtag==='function')gtag('consent','update',{analytics_storage:'denied'});}catch(e){}alert('Tercihiniz sıfırlandı. Sitenin başka bir sayfasına geçtiğinizde çerez bildirimi tekrar görünecek.');};</script>
+<!-- Cloudflare Web Analytics (çerezsiz) --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ede77b3777cb4744873f2ed46976f3a1"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

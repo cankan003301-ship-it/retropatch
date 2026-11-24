@@ -205,6 +205,7 @@ footer a{margin:0 8px;text-decoration:none}footer a:hover{color:var(--accent)}
   <a href="/urunler.html">Tüm Ürünler</a><a href="/dijital-dosyalar.html">Dijital Dosyalar</a><a href="/yasal.html#sozlesme">Mesafeli Satış Sözleşmesi</a><a href="/yasal.html#iade">İade</a><a href="/yasal.html#kvkk">KVKK</a>
   <p>RetroPatch · Mersin</p>
 </footer>
+<!-- Cloudflare Web Analytics (çerezsiz) --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ede77b3777cb4744873f2ed46976f3a1"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>`;
 
