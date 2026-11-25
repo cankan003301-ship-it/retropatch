@@ -401,7 +401,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
-      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v3.6</button>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v3.7</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -477,7 +477,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="page" id="page-orders">
       <div class="section-hdr">
         <div class="section-ttl">SİPARİŞLER</div>
-        <button class="btn btn-outline btn-sm" onclick="exportOrdersCSV()" style="margin-left:auto;margin-right:8px;">⬇ Excel (CSV)</button>
+        <button class="btn btn-outline btn-sm" onclick="slipSettings()" id="slipBtn" style="margin-left:auto;margin-right:8px;">🧾 Fiş: kapalı</button>
+        <button class="btn btn-outline btn-sm" onclick="exportOrdersCSV()" style="margin-right:8px;">⬇ Excel (CSV)</button>
         <select onchange="renderOrders(document.querySelector('.ord-tab.active')?.dataset.src||'cart', this.value)" id="orderFilter" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none;letter-spacing:1px;">
           <option value="all">Tüm Durumlar</option>
           <option value="yeni">Yeni</option>
@@ -2143,6 +2144,7 @@ function listenOrders() {
     if (document.getElementById('page-members')?.classList.contains('active')) renderMembers();
     if (document.getElementById('page-board')?.classList.contains('active')) renderBoard(); else updateBoardBadge();
     if (document.getElementById('page-customers')?.classList.contains('active')) renderCustomers();
+    try { slipCheck(); } catch (e) { console.warn('Fiş:', e); }
   }, err => {
     console.error('Siparişler dinlenemedi:', err.message);
     toast('Siparişler yüklenemedi: ' + err.message, 'err');
@@ -2397,10 +2399,10 @@ function payDetailHtml(o) {
       : `<div style="font-size:10px;color:var(--muted2)">Gönderen: ${E(pay.sender)} ✓</div>`;
     if (pay.method === 'havale' && !['kargoda', 'tamamlandı'].includes(o.status)) col += `<div style="margin-top:5px"><button onclick="havUndo('${o.id}')" style="background:transparent;color:var(--muted2);border:1px solid var(--border);font-size:10px;padding:3px 9px;cursor:pointer">↩ Ödeme onayını geri al</button></div>`;
   } else if (pay.status === 'awaiting_transfer') {
-    col = '<span style="color:#e67e22;font-weight:700">Havale bekleniyor</span>' + (havLate(o) ? ' <span style="color:#e63946;font-weight:700">⏰ ' + havAge(o) + '</span>' : '');
+    col = '<span style="color:#e67e22;font-weight:700">⏳ Ödeme henüz gelmedi</span>' + (havLate(o) ? ' <span style="color:#e63946;font-weight:700">⏰ ' + havAge(o) + '</span>' : '');
     if (o.payReminder) col += `<div style="font-size:10px;color:var(--muted2)">${o.payReminder.to === 'geri-alindi' ? '↩ Ödeme onayı geri alındı (otomatik hatırlatma kapalı)' : o.payReminder.sent ? '✉ Müşteriye hatırlatma gönderildi' : '✉ Hatırlatma gönderilemedi' + (o.payReminder.to === 'yok' ? ' (e-posta yok)' : '')}${o.payReminder.at ? ' · ' + formatDate(o.payReminder.at) : ''}</div>`;
     if (pay.payerName) col += `<div style="font-size:11px;color:#e67e22">Ödemeyi yapacak kişi (müşteri bildirdi): <b>${E(pay.payerName)}</b></div>`;
-    col += `<div style="margin-top:4px"><button onclick="havConfirm('${o.id}')" style="background:#2ecc71;color:#000;border:0;font-weight:700;font-size:11px;padding:5px 12px;cursor:pointer">✓ Ödeme geldi</button></div>`;
+    col += `<div style="margin-top:4px"><button onclick="havConfirm('${o.id}')" style="background:transparent;color:#2ecc71;border:1px solid #2ecc71;font-weight:700;font-size:11px;padding:5px 12px;cursor:pointer" title="Sadece para banka hesabına geçtiyse bas">Para hesaba geçtiyse → Ödemeyi onayla</button></div>`;
     const wa = havWaLink(o);
     if (wa) col += `<div style="margin-top:4px"><a href="${wa}" target="_blank" rel="noopener" style="display:inline-block;background:#25d366;color:#000;font-weight:700;font-size:11px;padding:4px 10px;text-decoration:none">📲 WhatsApp'tan ödeme hatırlat</a></div>`;
   }
@@ -2443,7 +2445,7 @@ function havNameMatch(sender, cands) {
 // Sipariş durumunu değiştirmeden önce: ödeme onaylanmamışsa önce onayla; ad uyuşmuyorsa kargoya verme
 function havGuard(o, toStatus) {
   const h = havHold(o); if (!h || !toStatus || ['yeni', 'iptal', 'iade'].includes(toStatus)) return true;
-  if (h === 'pay') { if (confirm('Bu havale siparişinin ödemesi henüz onaylanmadı.\n\nÖnce "Ödeme geldi" deyip gönderen adını kontrol edelim mi?')) havConfirm(o.id, toStatus); return false; }
+  if (h === 'pay') { if (confirm('Bu havale siparişinin ödemesi henüz onaylanmadı.\n\nPara hesabına geçtiyse şimdi onaylayıp gönderen adını kontrol edelim mi?')) havConfirm(o.id, toStatus); return false; }
   if (h === 'name' && ['kargoda', 'tamamlandı'].includes(toStatus)) { alert('⚠️ Gönderen adı sipariş sahibiyle uyuşmuyor: "' + (o.payment.sender || '') + '".\n\nMüşteriyle teyit edip sipariş detayında "Müşteriyle teyit ettim" demeden kargoya verilemez.'); return false; }
   return true;
 }
@@ -3030,7 +3032,8 @@ function showOrderDetail(id) {
       <a href="https://wa.me/${telefon.replace(/\D/g,'')}" target="_blank" class="btn btn-accent" style="text-decoration:none;flex:1;justify-content:center;"><svg class=ic data-n=phone-m><use href=#i-phone-m></use></svg> WhatsApp</a>
       <a href="mailto:${email}" class="btn btn-outline" style="text-decoration:none;flex:1;justify-content:center;"><svg class=ic data-n=mail><use href=#i-mail></use></svg> Mail</a>
     </div>
-    <div style="margin-top:8px;"><button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="printOrder('${o.id}')">🖨 Üretim Kağıdı</button></div>`;
+    <div style="margin-top:8px;"><button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="printOrder('${o.id}')">🖨 Üretim Kağıdı</button></div>
+    <div style="margin-top:8px;display:flex;gap:8px;"><button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="printSlip('${o.id}','50x40')">🧾 Fiş 50×40 (termal)</button><button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="printSlip('${o.id}','100x100')">🧾 Fiş 10×10</button></div>`;
   openModal('ordModal');
 }
 
@@ -3097,6 +3100,124 @@ function printOrder(id) {
   <h3>NOTLAR</h3><div class="box">${e(o.note || o.notes || '')}</div>
   <p style="margin-top:20px">Üretim: ☐ Başladı &nbsp; ☐ Bitti &nbsp; ☐ Paketlendi &nbsp; ☐ Kargolandı</p>`);
   w.document.close();
+}
+
+// ============ SİPARİŞ BİLGİ FİŞİ (termal 50×40 mm / 10×10 cm) ============
+// Ayarlar bu cihazda saklanır (localStorage). Otomatik yazdırma admin paneli açıkken çalışır.
+function slipCfg() { try { return Object.assign({ auto: false, size: '50x40', when: 'paid' }, JSON.parse(localStorage.getItem('rp_slip') || '{}')); } catch (e) { return { auto: false, size: '50x40', when: 'paid' }; } }
+function slipSave(c) { localStorage.setItem('rp_slip', JSON.stringify(c)); slipBtnLabel(); }
+function slipBtnLabel() { const b = document.getElementById('slipBtn'); if (!b) return; const c = slipCfg(); b.textContent = '🧾 Fiş: ' + (c.auto ? 'otomatik · ' + (c.size === '50x40' ? '50×40' : '10×10') : 'kapalı'); b.style.color = c.auto ? '#2ecc71' : ''; }
+function slipSettings() {
+  const c = slipCfg();
+  const html = `<div style="display:flex;flex-direction:column;gap:12px;font-size:13px">
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="slAuto" ${c.auto ? 'checked' : ''}> <b>Her siparişte fişi otomatik yazdır</b></label>
+    <label>Fiş boyutu<br><select id="slSize" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px">
+      <option value="50x40" ${c.size === '50x40' ? 'selected' : ''}>50 × 40 mm — termal etiket yazıcı</option>
+      <option value="100x100" ${c.size === '100x100' ? 'selected' : ''}>10 × 10 cm — termal/normal yazıcı</option></select></label>
+    <label>Ne zaman yazdırılsın?<br><select id="slWhen" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px">
+      <option value="paid" ${c.when === 'paid' ? 'selected' : ''}>Ödeme kesinleşince (kart/kapıda hemen, havale onaylayınca)</option>
+      <option value="new" ${c.when === 'new' ? 'selected' : ''}>Sipariş gelir gelmez (havale ödenmemiş olsa da)</option></select></label>
+    <div style="font-size:11px;color:var(--muted2);line-height:1.6">• Otomatik yazdırma <b>bu bilgisayarda admin paneli açıkken</b> çalışır; panel açıldığında eski siparişler yazdırılmaz.<br>
+    • Tarayıcı her fişte yazdırma penceresi açar. Pencere açılmadan doğrudan yazdırmak için Chrome'u <code>--kiosk-printing</code> ile başlatın ve fiş yazıcısını varsayılan yapın.<br>
+    • Yazıcı ayarında kağıt boyutunu fişle aynı seçin, kenar boşluğu: Yok, ölçek: %100.</div>
+    <div style="display:flex;gap:8px"><button class="btn btn-accent" style="flex:1;justify-content:center" onclick="slipSave({auto:document.getElementById('slAuto').checked,size:document.getElementById('slSize').value,when:document.getElementById('slWhen').value});slipArm();closeModal('ordModal');toast('Fiş ayarı kaydedildi','ok')">Kaydet</button>
+    <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="slipTest(document.getElementById('slSize').value)">Deneme fişi</button></div></div>`;
+  document.getElementById('ordDetail').innerHTML = '<div style="font-family:\'Bebas Neue\',cursive;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:12px">🧾 SİPARİŞ BİLGİ FİŞİ</div>' + html;
+  openModal('ordModal');
+}
+function slipHtml(o, size) {
+  const e = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const a = o.address || {}, p = o.payment || {};
+  const name = a.name || o.userName || o.name || '—', phone = a.phone || o.phone || '', city = [a.district, a.city].filter(Boolean).join(' / ');
+  const total = Number(o.total || o.price || 0);
+  const payTxt = p.method === 'havale' ? (p.status === 'paid' ? 'HAVALE · ÖDENDİ' : 'HAVALE · ÖDEME BEKLİYOR') : p.method === 'kapida' ? 'KAPIDA ÖDEME · ₺' + total.toLocaleString('tr-TR') : p.method === 'card' ? 'KART · ÖDENDİ' : '';
+  const items = Array.isArray(o.items) && o.items.length ? o.items.map(i => ({ n: i.name, q: i.qty || 1, d: [i.size, i.backType].filter(Boolean).join(' · ') })) : [{ n: o.type || o.product || 'Nakış Yama', q: o.qty || 1, d: [o.size, o.back].filter(Boolean).join(' · ') }];
+  const qty = items.reduce((t, i) => t + Number(i.q || 0), 0);
+  const date = o.createdAt && o.createdAt.seconds ? new Date(o.createdAt.seconds * 1000).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+  const cargo = (o.cargo && o.cargo.companyName) || '';
+  if (size === '50x40') {
+    const list = items.slice(0, 3).map(i => `<div class="it"><b>${e(i.q)}×</b> ${e(i.n)}${i.d ? ' <span>(' + e(i.d) + ')</span>' : ''}</div>`).join('') + (items.length > 3 ? `<div class="it">+${items.length - 3} ürün daha</div>` : '');
+    return `<!doctype html><meta charset="utf-8"><title>Fiş ${e(o.orderCode || '')}</title><style>
+      @page{size:50mm 40mm;margin:0}*{box-sizing:border-box}html,body{margin:0;width:50mm;height:40mm;overflow:hidden}
+      body{font-family:Arial,Helvetica,sans-serif;color:#000;padding:1.5mm 2mm;font-size:7.5pt;line-height:1.15;display:flex;flex-direction:column}
+      .top{display:flex;justify-content:space-between;align-items:baseline;border-bottom:.3mm solid #000;padding-bottom:.6mm}
+      .code{font-size:12pt;font-weight:900;letter-spacing:.2mm}.dt{font-size:6pt}
+      .nm{font-weight:700;font-size:8.5pt;margin-top:.8mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .sub{font-size:6.5pt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .items{flex:1;overflow:hidden;margin-top:.6mm;border-top:.2mm dashed #000;padding-top:.5mm}
+      .it{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.it span{font-size:6pt}
+      .bot{display:flex;justify-content:space-between;border-top:.3mm solid #000;padding-top:.5mm;font-size:6.5pt;font-weight:700}
+    </style><body>
+      <div class="top"><span class="code">${e(o.orderCode || o.id.slice(-6).toUpperCase())}</span><span class="dt">${e(date)}</span></div>
+      <div class="nm">${e(name)}</div><div class="sub">${e(phone)}${city ? ' · ' + e(city) : ''}</div>
+      <div class="items">${list}</div>
+      <div class="bot"><span>${e(qty)} adet${cargo ? ' · ' + e(cargo) : ''}</span><span>${e(payTxt)}</span></div></body>`;
+  }
+  const addr = [a.address, a.district, a.city].filter(Boolean).join(', ');
+  const list = items.slice(0, 8).map(i => `<tr><td class="q">${e(i.q)}×</td><td>${e(i.n)}${i.d ? '<div class="d">' + e(i.d) + '</div>' : ''}</td></tr>`).join('') + (items.length > 8 ? `<tr><td></td><td>+${items.length - 8} ürün daha</td></tr>` : '');
+  const note = o.note || o.notes || '';
+  return `<!doctype html><meta charset="utf-8"><title>Fiş ${e(o.orderCode || '')}</title><style>
+    @page{size:100mm 100mm;margin:0}*{box-sizing:border-box}html,body{margin:0;width:100mm;height:100mm;overflow:hidden}
+    body{font-family:Arial,Helvetica,sans-serif;color:#000;padding:4mm;font-size:9pt;line-height:1.3;display:flex;flex-direction:column}
+    .hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:.5mm solid #000;padding-bottom:1.5mm}
+    .brand{font-size:8pt;font-weight:900;letter-spacing:.6mm}.code{font-size:20pt;font-weight:900;line-height:1}.dt{font-size:8pt;text-align:right}
+    .cu{margin-top:2mm}.cu b{font-size:11pt}.ad{font-size:8.5pt}
+    table{width:100%;border-collapse:collapse;margin-top:2mm;border-top:.3mm dashed #000}td{padding:.8mm 0;vertical-align:top;border-bottom:.2mm solid #ccc}
+    td.q{width:11mm;font-weight:900;font-size:10pt}.d{font-size:7.5pt;color:#333}
+    .items{flex:1;overflow:hidden}.note{font-size:8pt;border:.3mm solid #000;padding:1mm 1.5mm;margin-top:1.5mm;max-height:12mm;overflow:hidden}
+    .ft{display:flex;justify-content:space-between;align-items:center;border-top:.5mm solid #000;padding-top:1.5mm;margin-top:1.5mm;font-weight:700;font-size:9pt}
+    .pay{border:.4mm solid #000;padding:.5mm 2mm}.chk{font-size:8pt;margin-top:1.5mm}
+  </style><body>
+    <div class="hd"><div><div class="brand">RETROPATCH · SİPARİŞ FİŞİ</div><div class="code">${e(o.orderCode || o.id.slice(-6).toUpperCase())}</div></div><div class="dt">${e(date)}<br>${e(qty)} adet</div></div>
+    <div class="cu"><b>${e(name)}</b> ${phone ? '· ' + e(phone) : ''}<div class="ad">${e(addr || city || '—')}</div></div>
+    <div class="items"><table>${list}</table></div>
+    ${note ? `<div class="note"><b>Not:</b> ${e(note)}</div>` : ''}
+    <div class="ft"><span>${cargo ? 'Kargo: ' + e(cargo) : ''}</span><span class="pay">${e(payTxt)}</span></div>
+    <div class="chk">☐ Üretim &nbsp; ☐ Kalite &nbsp; ☐ Paket &nbsp; ☐ Kargo</div></body>`;
+}
+let _slipQ = [], _slipBusy = false;
+function slipPrintHtml(html) {
+  _slipQ.push(html); if (_slipBusy) return; _slipNext();
+}
+function _slipNext() {
+  const html = _slipQ.shift(); if (!html) { _slipBusy = false; return; }
+  _slipBusy = true;
+  const f = document.createElement('iframe');
+  f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+  document.body.appendChild(f);
+  const d = f.contentWindow.document; d.open(); d.write(html); d.close();
+  setTimeout(() => {
+    try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { toast('Fiş yazdırılamadı: ' + e.message, 'err'); }
+    setTimeout(() => { f.remove(); _slipNext(); }, 1500);
+  }, 350);
+}
+function printSlip(id, size) { const o = allOrders.find(x => x.id === id); if (!o) return; slipPrintHtml(slipHtml(o, size || slipCfg().size)); }
+function slipTest(size) {
+  slipPrintHtml(slipHtml({ id: 'test', orderCode: 'RP-DENEME', createdAt: { seconds: Date.now() / 1000 }, address: { name: 'Ahmet Yılmaz', phone: '0555 111 22 33', address: 'Atatürk Mah. 1. Sok. No:5', district: 'Ereğli', city: 'Zonguldak' },
+    items: [{ name: 'S.T.A.L.K.E.R Günah patch yama', qty: 2, size: '10x10 cm', backType: 'Cırt Cırt' }, { name: 'Türk Bayrağı Patch', qty: 1, size: '8x5 cm' }],
+    cargo: { companyName: 'DHL eCommerce' }, payment: { method: 'havale', status: 'paid' }, total: 462 }, size));
+}
+// Otomatik: panel açıldığında mevcut siparişler "görüldü" sayılır; sonradan gelen / ödemesi kesinleşen yazdırılır
+let _slipSeen = null;
+function slipEligible(o, when) {
+  if (/iptal|iade/i.test(o.status || '')) return false;
+  if (when === 'new') return true;
+  const p = o.payment || {};
+  if (o.orderSource === 'form' || !p.method) return true;
+  if (p.method === 'havale') return p.status === 'paid';
+  if (p.method === 'card') return p.status === 'paid';
+  return true; // kapıda
+}
+function slipArm() { _slipSeen = null; slipCheck(); }
+function slipCheck() {
+  const c = slipCfg(); slipBtnLabel();
+  const list = (typeof allOrders !== 'undefined' ? allOrders : []).filter(o => slipEligible(o, c.when));
+  let done = {}; try { done = JSON.parse(localStorage.getItem('rp_slip_done') || '{}'); } catch (e) {}
+  if (_slipSeen === null) { _slipSeen = true; list.forEach(o => done[o.id] = 1); }
+  else if (c.auto) list.forEach(o => { if (!done[o.id]) { done[o.id] = 1; slipPrintHtml(slipHtml(o, c.size)); toast('🧾 Fiş yazdırılıyor: ' + (o.orderCode || o.id), 'ok'); } });
+  else list.forEach(o => done[o.id] = 1);
+  const keys = Object.keys(done); if (keys.length > 800) keys.slice(0, keys.length - 800).forEach(k => delete done[k]);
+  localStorage.setItem('rp_slip_done', JSON.stringify(done));
 }
 
 // ============ EXCEL (CSV) DIŞA AKTARMA ============
@@ -7275,6 +7396,8 @@ function saveMarquee() {
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v3.7 · 25 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Sipariş Bilgi Fişi: 50×40 mm termal etiket veya 10×10 cm; sipariş detayından tek tıkla yazdır</li><li>Siparişler → "🧾 Fiş" ayarı: her siparişte otomatik yazdır (ödeme kesinleşince veya sipariş gelir gelmez), deneme fişi</li><li>Havale bekleyen siparişte durum "⏳ Ödeme henüz gelmedi"; onay düğmesi "Para hesaba geçtiyse → Ödemeyi onayla" oldu (karışıklık olmasın diye)</li></ul>
       <b style="color:var(--accent)">v3.6 · 25 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Havale "Ödeme geldi" yanlışlıkla onaylandıysa: sipariş detayında "↩ Ödeme onayını geri al" (ödeme tekrar "havale bekleniyor", sipariş Yeni'ye döner; kargodaki siparişte kapalı)</li><li>"Ödeme geldi" penceresinde sipariş kodu ve tutar gösterilir</li></ul>
       <b style="color:var(--accent)">v3.5 · 25 Kasım 2026</b>
