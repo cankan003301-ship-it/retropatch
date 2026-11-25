@@ -401,7 +401,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
-      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v3.5</button>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v3.6</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -2395,9 +2395,10 @@ function payDetailHtml(o) {
       ? (pay.verified ? `<div style="font-size:11px;color:#e67e22">Gönderen: ${E(pay.sender)} (farklı kişi — müşteriyle teyit edildi)</div>`
         : `<div style="margin-top:6px;padding:8px;border:1px solid #e63946;background:rgba(230,57,70,.1);font-size:11px;text-align:left"><b style="color:#e63946">⚠ GÖNDEREN ADI UYUŞMUYOR — KARGOYA VERİLEMEZ</b><br>Gönderen: <b>${E(pay.sender)}</b>${pay.payerName ? ' · Bildirilen ödeyen: ' + E(pay.payerName) : ''}<br>Müşteriyi sipariş telefonundan arayıp teyit et. Teyit edilemezse parayı yalnızca gönderen hesaba iade et.<br><button onclick="havVerify('${o.id}')" style="margin-top:6px;background:#e63946;color:#fff;border:0;padding:5px 10px;font-weight:700;cursor:pointer">Müşteriyle teyit ettim</button></div>`)
       : `<div style="font-size:10px;color:var(--muted2)">Gönderen: ${E(pay.sender)} ✓</div>`;
+    if (pay.method === 'havale' && !['kargoda', 'tamamlandı'].includes(o.status)) col += `<div style="margin-top:5px"><button onclick="havUndo('${o.id}')" style="background:transparent;color:var(--muted2);border:1px solid var(--border);font-size:10px;padding:3px 9px;cursor:pointer">↩ Ödeme onayını geri al</button></div>`;
   } else if (pay.status === 'awaiting_transfer') {
     col = '<span style="color:#e67e22;font-weight:700">Havale bekleniyor</span>' + (havLate(o) ? ' <span style="color:#e63946;font-weight:700">⏰ ' + havAge(o) + '</span>' : '');
-    if (o.payReminder) col += `<div style="font-size:10px;color:var(--muted2)">${o.payReminder.sent ? '✉ Müşteriye hatırlatma gönderildi' : '✉ Hatırlatma gönderilemedi' + (o.payReminder.to === 'yok' ? ' (e-posta yok)' : '')}${o.payReminder.at ? ' · ' + formatDate(o.payReminder.at) : ''}</div>`;
+    if (o.payReminder) col += `<div style="font-size:10px;color:var(--muted2)">${o.payReminder.to === 'geri-alindi' ? '↩ Ödeme onayı geri alındı (otomatik hatırlatma kapalı)' : o.payReminder.sent ? '✉ Müşteriye hatırlatma gönderildi' : '✉ Hatırlatma gönderilemedi' + (o.payReminder.to === 'yok' ? ' (e-posta yok)' : '')}${o.payReminder.at ? ' · ' + formatDate(o.payReminder.at) : ''}</div>`;
     if (pay.payerName) col += `<div style="font-size:11px;color:#e67e22">Ödemeyi yapacak kişi (müşteri bildirdi): <b>${E(pay.payerName)}</b></div>`;
     col += `<div style="margin-top:4px"><button onclick="havConfirm('${o.id}')" style="background:#2ecc71;color:#000;border:0;font-weight:700;font-size:11px;padding:5px 12px;cursor:pointer">✓ Ödeme geldi</button></div>`;
     const wa = havWaLink(o);
@@ -2449,7 +2450,7 @@ function havGuard(o, toStatus) {
 async function havConfirm(id, thenStatus) {
   const o = allOrders.find(x => x.id === id); if (!o) return;
   const p = o.payment || {}, owner = (o.address && o.address.name) || o.userName || '';
-  const sender = (prompt('Ödeme geldi ✓\n\nBankadaki GÖNDEREN adı soyadı nedir?' + (p.payerName ? '\n(Müşterinin bildirdiği ödeyen: ' + p.payerName + ')' : ''), p.payerName || owner) || '').trim();
+  const sender = (prompt('Ödeme geldi mi? ' + (o.orderCode || '') + ' · ₺' + Number(o.total || 0).toLocaleString('tr-TR') + '\nTutarın hesabına geçtiğini bankadan kontrol et.\n\nBankadaki GÖNDEREN adı soyadı nedir? (Vazgeçmek için İptal)' + (p.payerName ? '\n(Müşterinin bildirdiği ödeyen: ' + p.payerName + ')' : ''), p.payerName || owner) || '').trim();
   if (!sender) return;
   const ok = havNameMatch(sender, [owner, o.userName, p.payerName]);
   let verified = ok;
@@ -2460,6 +2461,22 @@ async function havConfirm(id, thenStatus) {
   try {
     await db.collection('orders').doc(id).update(upd);
     toast(ok ? 'Ödeme onaylandı ✓' : verified ? 'Ödeme onaylandı (farklı gönderen, teyit edildi)' : '⚠ Ödeme alındı ama ad uyuşmuyor — kargoya verilemez', ok || verified ? 'ok' : 'err');
+    setTimeout(() => { if (document.getElementById('ordDetail') && document.getElementById('ordDetail').offsetParent) showOrderDetail(id); }, 700);
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+// Yanlışlıkla "Ödeme geldi" denildiyse: ödeme tekrar "havale bekleniyor" olur
+async function havUndo(id) {
+  const o = allOrders.find(x => x.id === id); if (!o) return;
+  const p = o.payment || {};
+  if (['kargoda', 'tamamlandı'].includes(o.status)) { alert('Kargoya verilmiş siparişte ödeme onayı geri alınamaz.'); return; }
+  const back = !o.status || ['yeni', 'hazırlanıyor'].includes(o.status);
+  if (!confirm('Ödeme onayı geri alınsın mı?\n\nSipariş: ' + (o.orderCode || id) + '\nGönderen: ' + (p.sender || '—') + '\n\nÖdeme tekrar "Havale bekleniyor" olur' + (back ? ' ve sipariş "Yeni"ye döner.' : '. Sipariş durumu (' + o.status + ') değişmez.') + '\nŞimdi müşteriye bildirim gitmez. 1 saat dolmuşsa ve daha önce gitmediyse sistem ödeme hatırlatmasını gönderir.')) return;
+  const del = firebase.firestore.FieldValue.delete();
+  const upd = { 'payment.status': 'awaiting_transfer', 'payment.paidAt': del, 'payment.sender': del, 'payment.nameCheck': del, 'payment.verified': del, 'payment.verifiedAt': del, 'payment.undoneAt': firebase.firestore.FieldValue.serverTimestamp() };
+  if (back) upd.status = 'yeni';
+  try {
+    await db.collection('orders').doc(id).update(upd);
+    toast('Ödeme onayı geri alındı — havale bekleniyor', 'ok');
     setTimeout(() => { if (document.getElementById('ordDetail') && document.getElementById('ordDetail').offsetParent) showOrderDetail(id); }, 700);
   } catch (e) { toast('Hata: ' + e.message, 'err'); }
 }
@@ -7258,6 +7275,8 @@ function saveMarquee() {
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v3.6 · 25 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Havale "Ödeme geldi" yanlışlıkla onaylandıysa: sipariş detayında "↩ Ödeme onayını geri al" (ödeme tekrar "havale bekleniyor", sipariş Yeni'ye döner; kargodaki siparişte kapalı)</li><li>"Ödeme geldi" penceresinde sipariş kodu ve tutar gösterilir</li></ul>
       <b style="color:var(--accent)">v3.5 · 25 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Havale ödeme kuralları şablonu: sipariş sonrası IBAN kutusunda, Hesabım'da, hatırlatma e-postasında ve WhatsApp mesajında aynı metin (Sipariş No - Ad Soyad açıklaması, başka hesaptan ödeme kuralı, yalnızca gönderen hesaba iade, IBAN'ı yalnızca site/resmi WhatsApp'tan alın)</li><li>Sepette "Ödemeyi başka biri mi yapacak?" alanı — bildirilen ad siparişte görünür</li><li>Sipariş detayında "✓ Ödeme geldi" butonu: bankadaki gönderen adını sorar, sipariş sahibiyle karşılaştırır</li><li>Ad uyuşmazsa sipariş "⚠ AD UYUŞMUYOR" olarak işaretlenir; müşteriyle teyit edilmeden kargoya verilemez ("Müşteriyle teyit ettim" butonu)</li><li>Ödemesi onaylanmamış havale siparişi Yeni'den ileri taşınırken önce ödeme onayı istenir</li><li>Düzeltme: sepette fiyat güncelleme kontrolü sayfa açılışında çalışmıyordu</li></ul>
       <b style="color:var(--accent)">v3.4 · 24 Kasım 2026</b>
