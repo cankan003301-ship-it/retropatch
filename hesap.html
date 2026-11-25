@@ -1220,7 +1220,10 @@ function saveAddr() {
   const data = { title, name, phone, line, district, city, zip, isDefault };
   const col = db.collection('users').doc(currentUser.uid).collection('addresses');
 
-  const doSave = () => {
+  const doSave = async () => {
+    // Düzenlemede eski adresi al: aynı adresle verilmiş, kargoya çıkmamış siparişler de güncellensin
+    let oldA = null;
+    if (editId) { try { const od = await col.doc(editId).get(); if (od.exists) oldA = od.data(); } catch (e) {} }
     const promise = editId
       ? col.doc(editId).update({...data, updatedAt: firebase.firestore.FieldValue.serverTimestamp()})
       : col.add({...data, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
@@ -1238,9 +1241,28 @@ function saveAddr() {
       toast(editId ? 'Adres güncellendi ✓' : 'Adres eklendi ✓');
       closeAddrModal();
       loadAddresses();
+      if (oldA) rpSyncOrderAddr(oldA, data);
     }).catch(() => toast('Hata oluştu!', true));
   };
   doSave();
+}
+
+async function rpAddrApi(mode, oldA, newA) {
+  const t = await currentUser.getIdToken();
+  const r = await fetch('/api/track?addr=1', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + t }, body: JSON.stringify({ mode, old: oldA, new: newA }) });
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Hata'); return j;
+}
+async function rpSyncOrderAddr(oldA, newA) {
+  const same = ['name', 'phone', 'line', 'district', 'city', 'zip'].every(k => String(oldA[k] || '').trim() === String(newA[k] || '').trim());
+  if (same) return;
+  try {
+    const p = await rpAddrApi('preview', oldA, newA);
+    if (!p.count) return;
+    if (!confirm('Bu adresle verilmiş ve henüz kargoya verilmemiş ' + p.count + ' siparişiniz var (' + p.orders.join(', ') + ').\n\nBu siparişlerin teslimat adresi de yeni adresinizle güncellensin mi?')) return;
+    const a = await rpAddrApi('apply', oldA, newA);
+    toast(a.count + ' siparişin adresi güncellendi ✓');
+    if (typeof loadOrders === 'function') loadOrders();
+  } catch (e) { toast('Sipariş adresi güncellenemedi: ' + e.message, true); }
 }
 
 function setDefaultAddr(id) {

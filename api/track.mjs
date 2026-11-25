@@ -7,6 +7,7 @@ import { proofAnswer } from './_proof.mjs';
 import { dolapFetch } from './_dolap.mjs';
 import { campaignApi } from './_campaign.mjs';
 import { havaleApi } from './_havale.mjs';
+import { addrUpdate } from './_addr.mjs';
 
 const hits = new Map();   // basit IP sınırlayıcı (sunucu örneği başına)
 function limited(ip) {
@@ -24,6 +25,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET' && req.query && req.query.havale) return havaleApi(req, res);   // saatlik havale hatırlatma
   if (req.method === 'POST' && req.query && req.query.campaign) return campaignApi(req, res);   // admin: aylık kampanya
   if (req.method === 'POST' && req.query && req.query.proof) return proofAnswer(req, res);   // tasarım onayı (müşteri)
+  if (req.method === 'POST' && req.query && req.query.addr) return addrUpdate(req, res);   // müşteri adres değişikliği → açık siparişler
   if (req.method === 'POST') return req.headers.authorization ? adminErrors(req, res) : logError(req, res);
   if (req.query && req.query.errors) return adminErrors(req, res);
   if (req.method !== 'GET') return res.status(405).json({ error: 'GET gerekli' });

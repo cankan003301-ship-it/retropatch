@@ -401,7 +401,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
-      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v3.7</button>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v3.8</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -2999,11 +2999,12 @@ function deleteOrder(id) {
 function showOrderDetail(id) {
   const o = allOrders.find(x => x.id === id);
   if (!o) return;
-  const musteri = o.address?.name || o.name || o.userName || '—';
-  const telefon = o.address?.phone || o.phone || '—';
-  const email = o.userEmail || o.email || '—';
-  const adres = o.address ? [o.address.address, o.address.district, o.address.city].filter(Boolean).join(', ') : '—';
-  const icerik = o.items ? o.items.map(i => `${i.name}${(i.backType||i.size)?' ('+[i.size,i.backType].filter(Boolean).join(' · ')+')':''} x${i.qty}`).join('<br>') : (o.product || o.notes || '—');
+  const _x = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const musteri = _x(o.address?.name || o.name || o.userName || '—');
+  const telefon = _x(o.address?.phone || o.phone || '—');
+  const email = _x(o.userEmail || o.email || '—');
+  const adres = o.address ? _x([o.address.address, o.address.district, o.address.city].filter(Boolean).join(', ')) : '—';
+  const icerik = o.items ? o.items.map(i => _x(`${i.name}${(i.backType||i.size)?' ('+[i.size,i.backType].filter(Boolean).join(' · ')+')':''} x${i.qty}`)).join('<br>') : _x(o.product || o.notes || '—');
   const tutar = o.total ? '₺'+o.total : (o.price ? '₺'+o.price : '—');
   document.getElementById('ordDetail').innerHTML = `
     <div style="display:flex;flex-direction:column;gap:12px;">
@@ -3011,7 +3012,7 @@ function showOrderDetail(id) {
       ${row('Ad Soyad', musteri)}
       ${row('Telefon', telefon)}
       ${row('E-posta', email)}
-      ${row('Adres', adres)}
+      ${row('Adres', adres + (o.addressChanged ? `<div style="margin-top:4px;font-size:11px;color:#e67e22;text-align:right">📍 Müşteri adresi değiştirdi${o.addressChanged.at ? ' · ' + formatDate(o.addressChanged.at) : ''}<br><span style="color:var(--muted2)">Eski: ${[o.addressChanged.old?.address, o.addressChanged.old?.district, o.addressChanged.old?.city].filter(Boolean).join(', ').replace(/</g, '&lt;')}</span></div>` : ''))}
       ${row('Ürünler', icerik)}
       ${o.type ? row('Yama Türü', o.type) : ''}
       ${o.size ? row('Boyut', o.size) : ''}
@@ -7430,6 +7431,8 @@ function saveMarquee() {
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v3.8 · 25 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Müşteri Hesabım'da adresini değiştirirse, o adresle verilmiş ve kargoya verilmemiş siparişlerin adresi de (müşteri onayıyla) güncellenir</li><li>Sipariş detayında "📍 Müşteri adresi değiştirdi" uyarısı ve eski adres görünür</li></ul>
       <b style="color:var(--accent)">v3.7 · 25 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Sipariş Bilgi Fişi (müşteriye giden): 50×40 mm termal veya 10×10 cm; gönderici ve alıcı adı ile il/ilçe, düzenleme/sevk tarihi ve saati, ürünler ve adetler, kargo firması, teşekkür ve düzenlenebilir yasal alt not (fiyat yok); sipariş detayından tek tıkla yazdır</li><li>Siparişler → "🧾 Fiş" ayarı: her siparişte otomatik yazdır (ödeme kesinleşince veya sipariş gelir gelmez), deneme fişi</li><li>Havale bekleyen siparişte durum "⏳ Ödeme henüz gelmedi"; onay düğmesi "Para hesaba geçtiyse → Ödemeyi onayla" oldu (karışıklık olmasın diye)</li></ul>
       <b style="color:var(--accent)">v3.6 · 25 Kasım 2026</b>
