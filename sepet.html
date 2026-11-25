@@ -543,11 +543,9 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
             <div class="fg"><label>Ad Soyad *</label><input type="text" id="adName" placeholder="Alıcı adı"></div>
             <div class="fg"><label>Telefon *</label><input type="tel" id="adPhone" placeholder="+90 5XX XXX XX XX"></div>
           </div>
-          <div class="fg"><label>Adres *</label><textarea id="adAddress" placeholder="Mahalle, sokak, bina no, daire..." style="min-height:70px;resize:none;"></textarea></div>
-          <div class="fg-row">
-            <div class="fg"><label>İlçe *</label><input type="text" id="adDistrict" placeholder="İlçe"></div>
-            <div class="fg"><label>İl *</label><input type="text" id="adCity" placeholder="İl"></div>
-          </div>
+          <div id="adrBox"></div>
+          <input type="hidden" id="adAddress"><input type="hidden" id="adDistrict"><input type="hidden" id="adCity">
+          <script src="adres-secici.js"></script>
           <div class="fg"><label>Posta Kodu</label><input type="text" id="adZip" placeholder="34XXX" maxlength="5"></div>
         </div>
 
@@ -1398,6 +1396,8 @@ async function doCheckout() {
     adAddress = document.getElementById('adAddress').value.trim();
     adDistrict = document.getElementById('adDistrict').value.trim();
     adCity = document.getElementById('adCity').value.trim();
+    const _ae = adrSep ? adrSep.validate() : '';
+    if (_ae) { toast(_ae, true); document.getElementById('addrSection').scrollIntoView({behavior:'smooth',block:'center'}); return; }
     if (!adName||!adPhone||!adAddress||!adDistrict||!adCity) {
       toast('Teslimat adresini eksiksiz doldurun!', true); return;
     }
@@ -1475,7 +1475,7 @@ async function doCheckout() {
       userEmail: currentUser.email||'',
       items: P.map(i=>{ const ex = Number(i.basePrice) > 0 ? Number(i.price) - Number(i.basePrice) : 0, ou = Number(i.oldPrice) > 0 && Number(i.basePrice) > 0 && Number(i.oldPrice) > Number(i.basePrice) ? Number(i.oldPrice) + ex : null;
         return {id:i.id,name:i.name,price:i.price,qty:i.qty,image:i.image||'',cat:i.cat||'',backType:(i.backType||i.back||''),size:i.size||'', ...(ex > 0 ? {backExtra: ex} : {}), ...(ou ? {oldUnit: ou} : {})}; }),
-      address: { name:adName, phone:adPhone, address:adAddress, district:adDistrict, city:adCity, zip:document.getElementById('adZip').value.trim() },
+      address: { name:adName, phone:adPhone, address:adAddress, district:adDistrict, city:adCity, zip:document.getElementById('adZip').value.trim(), ...(adrSep ? (({neighbourhood, street, doorNo, desc}) => ({neighbourhood, street, doorNo, addrDesc: desc}))(adrSep.get()) : {}) },
       cargo: { company: selectedCargo, companyName: CARGO_NAMES[selectedCargo], price: cargoPrice, trackingCode:'', status:'Hazırlanıyor' },
       payment: { method: selectedPay, status: selectedPay==='card' ? 'awaiting_card' : (selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery'), ...(selectedPay==='havale' && havPayer ? { payerName: havPayer } : {}) },
       ...(isCard ? { payGroup } : {}),
@@ -1593,7 +1593,7 @@ function prefillAddress(user) {
         document.getElementById('adAddress').value = a.line||'';
         document.getElementById('adDistrict').value = a.district||'';
         document.getElementById('adCity').value = a.city||'';
-        document.getElementById('adZip').value = a.zip||'';
+        document.getElementById('adZip').value = a.zip||''; if (adrSep) adrSep.set(a);
       } else {
         // Varsayılan yoksa ilk adresi al
         db.collection('users').doc(user.uid).collection('addresses')
@@ -1606,7 +1606,7 @@ function prefillAddress(user) {
               document.getElementById('adAddress').value = a.line||'';
               document.getElementById('adDistrict').value = a.district||'';
               document.getElementById('adCity').value = a.city||'';
-              document.getElementById('adZip').value = a.zip||'';
+              document.getElementById('adZip').value = a.zip||''; if (adrSep) adrSep.set(a);
             } else {
               // Adres defteri boşsa kullanıcı adını doldur
               db.collection('users').doc(user.uid).get().then(doc => {
@@ -1620,6 +1620,9 @@ function prefillAddress(user) {
       }
     });
 }
+
+// DHL gibi yapılandırılmış adres (il/ilçe/mahalle listeden)
+const adrSep = window.RPAddr ? RPAddr.mount(document.getElementById('adrBox'), { hidden: { line: 'adAddress', district: 'adDistrict', city: 'adCity' }, cls: { row: 'fg-row', fg: 'fg' } }) : null;
 
 // Init ödeme seçimi
 window.addEventListener('load', ()=>{ selectPay('havale', document.querySelector('.pay-method')); });

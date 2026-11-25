@@ -1,0 +1,1 @@
+Kaynak: github.com/muratgozel/turkey-neighbourhoods (MIT Lisansı, © 2020 Murat Gözel). İl/ilçe/mahalle listeleri.

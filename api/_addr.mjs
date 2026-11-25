@@ -11,7 +11,9 @@ const key = a => [a.line ?? a.address, a.district, a.city].map(norm).join('|');
 const clean = a => ({
   name: String(a.name || '').trim().slice(0, 80), phone: String(a.phone || '').trim().slice(0, 30),
   line: String(a.line || '').trim().slice(0, 300), district: String(a.district || '').trim().slice(0, 60),
-  city: String(a.city || '').trim().slice(0, 60), zip: String(a.zip || '').trim().slice(0, 10)
+  city: String(a.city || '').trim().slice(0, 60), zip: String(a.zip || '').trim().slice(0, 10),
+  neighbourhood: String(a.neighbourhood || '').trim().slice(0, 80), street: String(a.street || '').trim().slice(0, 80),
+  doorNo: String(a.doorNo || '').trim().slice(0, 15), desc: String(a.desc || '').trim().slice(0, 150)
 });
 // Kargoya verilmiş / kapanmış sipariş değiştirilemez
 function locked(o) {
@@ -55,6 +57,7 @@ export async function addrUpdate(req, res) {
       tx.update(h.ref, {
         'address.name': newA.name, 'address.phone': newA.phone || prev.phone, 'address.address': newA.line,
         'address.district': newA.district, 'address.city': newA.city, 'address.zip': newA.zip,
+        'address.neighbourhood': newA.neighbourhood, 'address.street': newA.street, 'address.doorNo': newA.doorNo, 'address.addrDesc': newA.desc,
         addressChanged: { at: now, by: 'müşteri', old: prev },
         addressHistory: [...(Array.isArray(o.addressHistory) ? o.addressHistory : []).slice(-9), { at: now, old: prev }]
       });

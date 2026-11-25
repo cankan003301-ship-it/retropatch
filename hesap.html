@@ -572,11 +572,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="addr-fg"><label>Adres Başlığı *</label><input type="text" id="addrTitle" placeholder="Ev, İş, Diğer..."></div>
         <div class="addr-fg"><label>Ad Soyad *</label><input type="text" id="addrName" placeholder="Ad Soyad"></div>
         <div class="addr-fg"><label>Telefon</label><input type="tel" id="addrPhone" placeholder="+90 5XX XXX XX XX"></div>
-        <div class="addr-fg"><label>Adres *</label><input type="text" id="addrLine" placeholder="Mahalle, cadde, sokak, no..."></div>
-        <div class="addr-fg-row">
-          <div class="addr-fg"><label>İlçe *</label><input type="text" id="addrDistrict" placeholder="İlçe"></div>
-          <div class="addr-fg"><label>İl *</label><input type="text" id="addrCity" placeholder="İl"></div>
-        </div>
+        <div id="addrBoxH"></div>
+        <input type="hidden" id="addrLine"><input type="hidden" id="addrDistrict"><input type="hidden" id="addrCity">
         <div class="addr-fg-row">
           <div class="addr-fg"><label>Posta Kodu</label><input type="text" id="addrZip" placeholder="34XXX"></div>
           <div class="addr-fg"><label>Varsayılan</label>
@@ -1164,6 +1161,10 @@ function renderAddresses(addresses) {
     </div>`).join('');
 }
 
+// DHL gibi yapılandırılmış adres seçici (il/ilçe/mahalle listeden)
+let _rpAdrH = null;
+function rpAdrH() { if (!_rpAdrH && window.RPAddr) _rpAdrH = RPAddr.mount(document.getElementById('addrBoxH'), { hidden: { line: 'addrLine', district: 'addrDistrict', city: 'addrCity' }, cls: { row: 'addr-fg-row', fg: 'addr-fg' } }); return _rpAdrH; }
+
 function openAddrModal(editId) {
   document.getElementById('addrEditId').value = '';
   document.getElementById('addrTitle').value = '';
@@ -1173,6 +1174,7 @@ function openAddrModal(editId) {
   document.getElementById('addrDistrict').value = '';
   document.getElementById('addrCity').value = '';
   document.getElementById('addrZip').value = '';
+  if (rpAdrH()) rpAdrH().set({});
   document.getElementById('addrDefault').value = '0';
   document.getElementById('addrModalTitle').textContent = 'YENİ ADRES';
   document.getElementById('addrModal').classList.add('open');
@@ -1196,6 +1198,7 @@ function editAddr(id) {
       document.getElementById('addrLine').value = a.line||'';
       document.getElementById('addrDistrict').value = a.district||'';
       document.getElementById('addrCity').value = a.city||'';
+      if (rpAdrH()) rpAdrH().set(a);
       document.getElementById('addrZip').value = a.zip||'';
       document.getElementById('addrDefault').value = a.isDefault ? '1' : '0';
       document.getElementById('addrModalTitle').textContent = 'ADRESİ DÜZENLE';
@@ -1215,9 +1218,12 @@ function saveAddr() {
   const zip = document.getElementById('addrZip').value.trim();
   const isDefault = document.getElementById('addrDefault').value === '1';
 
+  const _ae = rpAdrH() ? rpAdrH().validate() : '';
+  if (_ae) { toast(_ae, true); return; }
   if (!title || !name || !line || !district || !city) { toast('Zorunlu alanları doldurun!', true); return; }
 
-  const data = { title, name, phone, line, district, city, zip, isDefault };
+  const _g = rpAdrH() ? rpAdrH().get() : {};
+  const data = { title, name, phone, line, district, city, zip, isDefault, neighbourhood: _g.neighbourhood || '', street: _g.street || '', doorNo: _g.doorNo || '', desc: _g.desc || '' };
   const col = db.collection('users').doc(currentUser.uid).collection('addresses');
 
   const doSave = async () => {
@@ -2157,6 +2163,7 @@ function rpFaqToggle(el) {
 }
 </script>
 
+<script src="adres-secici.js"></script>
 <script src="havale-kurallar.js"></script>
 <script src="duyuru.js"></script>
 <!-- Cloudflare Web Analytics (çerezsiz) --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ede77b3777cb4744873f2ed46976f3a1"}'></script><!-- End Cloudflare Web Analytics -->
