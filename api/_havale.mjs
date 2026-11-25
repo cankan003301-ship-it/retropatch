@@ -18,8 +18,21 @@ async function send(to, subject, html) {
   } catch (e) { return false; }
 }
 
-function customerMail(o, bank) {
-  const rows = [['Ödenecek tutar', `<b style="color:#c8a96e;font-size:18px">${tl(o.total)}</b>`], ['Açıklamaya yazın', `<b>${esc(o.code)}</b>`]];
+function waFmt(n) { n = String(n || '').replace(/\D/g, ''); if (n.startsWith('0')) n = '9' + n; if (n.length === 10) n = '90' + n; return n || '905375295290'; }
+function waShow(n) { return n.length === 12 ? '0' + n.slice(2, 5) + ' ' + n.slice(5, 8) + ' ' + n.slice(8, 10) + ' ' + n.slice(10) : n; }
+function rulesHtml(o, wa) {
+  return `<div style="margin:16px 0;padding:14px 16px;border:1px solid #8a5a1a;background:#1c150c;font-size:13px;line-height:1.65;color:#ddd">
+    <b style="color:#e67e22">⚠️ ÖNEMLİ ÖDEME KURALLARI</b>
+    <ol style="margin:6px 0 0 18px;padding:0">
+      <li><b>Açıklamaya mutlaka yazın:</b> Sipariş No - Ad Soyad (Örn: ${esc(o.code)} - ${esc(o.name || 'Ad Soyad')})</li>
+      <li><b>Başka birinin hesabından ödüyorsanız</b> açıklamaya siparişi verenin adını ve telefonunu ekleyin. Açıklamasız veya kime ait olduğu belirsiz ödemeler işleme alınmaz ve <b>yalnızca gönderen hesaba</b> iade edilir.</li>
+      <li>IBAN bilgimizi <b>yalnızca sitemizden ve resmi WhatsApp hattımızdan</b> (${waShow(wa)}) alın. Başkasının ilettiği hesaba yapılan ödemelerden sorumlu değiliz.</li>
+      <li>Ödeme sonrası dekontu WhatsApp hattımızdan iletebilirsiniz. Üretim/kargo süreci ödemeniz hesabımıza ulaştıktan sonra başlar.</li>
+    </ol></div>`;
+}
+
+function customerMail(o, bank, wa) {
+  const rows = [['Ödenecek tutar', `<b style="color:#c8a96e;font-size:18px">${tl(o.total)}</b>`], ['Açıklamaya yazın', `<b>${esc(o.code)}${o.name ? ' - ' + esc(o.name) : ''}</b>`]];
   if (bank && bank.iban) {
     if (bank.adi) rows.push(['Banka', esc(bank.adi)]);
     if (bank.hesapSahibi) rows.push(['Alıcı', esc(bank.hesapSahibi)]);
@@ -33,8 +46,9 @@ function customerMail(o, bank) {
     Merhaba <b style="color:#e8e8e8">${esc(o.name || 'değerli müşterimiz')}</b>, <b style="color:#c8a96e">${esc(o.code)}</b> siparişiniz için havale/EFT ödemenizi henüz göremedik. Ödemeyi yaptıysanız bu e-postayı dikkate almayın; banka işlemleri bazen gecikebilir.
     <table style="width:100%;border-collapse:collapse;margin:18px 0;background:#1a1a1a;border:1px solid #2a2a2a">${rows.map(r => `<tr><td style="padding:10px 14px;color:#888;font-size:12px;border-bottom:1px solid #2a2a2a">${r[0]}</td><td style="padding:10px 14px;text-align:right;border-bottom:1px solid #2a2a2a;color:#e8e8e8">${r[1]}</td></tr>`).join('')}</table>
     ${bank && bank.iban ? '' : '<p>IBAN bilgisi için WhatsApp’tan bize yazabilirsiniz.</p>'}
+    ${rulesHtml(o, wa)}
     <div style="text-align:center;margin-top:8px"><a href="https://retropatch.vercel.app/hesap.html#orders" style="display:inline-block;background:#c8a96e;color:#000;padding:12px 26px;font-weight:700;letter-spacing:2px;text-decoration:none;font-size:13px">SİPARİŞİMİ GÖR</a>
-    &nbsp;<a href="https://wa.me/905375295290" style="display:inline-block;border:1px solid #25d366;color:#25d366;padding:11px 20px;font-weight:700;letter-spacing:1px;text-decoration:none;font-size:13px">WHATSAPP</a></div>
+    &nbsp;<a href="https://wa.me/${wa}" style="display:inline-block;border:1px solid #25d366;color:#25d366;padding:11px 20px;font-weight:700;letter-spacing:1px;text-decoration:none;font-size:13px">WHATSAPP</a></div>
   </div></div></body></html>`;
 }
 
@@ -42,7 +56,7 @@ function waCell(x, bank) {
   const ph = String(x.phone || '').replace(/\D/g, '');
   if (ph.length < 10) return esc(x.phone || '—');
   const num = ph.startsWith('90') && ph.length === 12 ? ph : ph.startsWith('0') ? '9' + ph : ph.length === 10 ? '90' + ph : ph;
-  const msg = `Merhaba${x.name ? ' ' + x.name : ''}, RetroPatch'ten yazıyorum. ${x.code} numaralı siparişinizin ödemesi henüz bize ulaşmadı.\n\nTutar: ${tl(x.total)}\n${bank && bank.iban ? 'IBAN: ' + bank.iban + '\n' : ''}${bank && bank.hesapSahibi ? 'Alıcı: ' + bank.hesapSahibi + '\n' : ''}Açıklamaya: ${x.code}\n\nÖdemeyi yaptıysanız dekontu buraya gönderebilirsiniz. Teşekkürler!`;
+  const msg = `Merhaba${x.name ? ' ' + x.name : ''}, RetroPatch'ten yazıyorum. ${x.code} numaralı siparişinizin ödemesi henüz bize ulaşmadı.\n\nTutar: ${tl(x.total)}\n${bank && bank.iban ? 'IBAN: ' + bank.iban + '\n' : ''}${bank && bank.hesapSahibi ? 'Alıcı: ' + bank.hesapSahibi + '\n' : ''}Açıklamaya: ${x.code}${x.name ? ' - ' + x.name : ''}\n(Başka birinin hesabından ödenecekse açıklamaya sipariş sahibinin adını ve telefonunu ekleyin.)\n\nÖdemeyi yaptıysanız dekontu buraya gönderebilirsiniz. Teşekkürler!`;
   return `${esc(x.phone)} <a href="https://wa.me/${num}?text=${encodeURIComponent(msg)}" style="background:#25d366;color:#000;padding:2px 8px;text-decoration:none;font-weight:bold">WhatsApp'tan hatırlat</a>`;
 }
 
@@ -53,19 +67,20 @@ export async function havaleRemind(db, opts = {}) {
   const add = (col, d) => {
     const o = d.data(), t = o.createdAt && o.createdAt.toMillis ? o.createdAt.toMillis() : 0;
     if (!t || now - t < WAIT_MS || now - t > MAX_AGE_MS || o.payReminder || !(Number(o.total) > 0)) return;
-    if (['iptal', 'iade', 'tamamlandı'].includes(o.status)) return;
+    if (col === 'orders' && o.status && o.status !== 'yeni') return; // hazırlanıyor/üretimde vb. = ödeme alınmış sayılır
     due.push({ ref: d.ref, col, code: o.orderCode || o.code || d.id.slice(-6).toUpperCase(), email: o.userEmail || o.email || '', name: o.userName || o.name || (o.address && o.address.name) || '', total: o.total, phone: (o.address && o.address.phone) || o.phone || '', at: t });
   };
   (await db.collection('orders').where('payment.status', '==', 'awaiting_transfer').get()).docs.forEach(d => add('orders', d));
   (await db.collection('digital_orders').where('status', '==', 'bekliyor').get()).docs.forEach(d => { const o = d.data(); if (!o.payment || o.payment.method === 'havale') add('digital_orders', d); });
   if (!due.length) return { reminded: 0 };
   let bank = null; try { const b = await db.collection('settings').doc('bank').get(); bank = b.exists ? b.data() : null; } catch (e) {}
+  let wa = '905375295290'; try { const w = await db.collection('settings').doc('site').get(); if (w.exists && w.data().whatsapp) wa = waFmt(w.data().whatsapp); } catch (e) {}
   const out = [];
   for (const o of due) {
     // önce işaretle (aynı anda iki çağrı gelirse ikinci göndermesin)
     const claimed = await db.runTransaction(async tx => { const s = await tx.get(o.ref); if (!s.exists || s.data().payReminder) return false; tx.update(o.ref, { payReminder: { at: new Date(), sent: false } }); return true; });
     if (!claimed) continue;
-    const ok = o.email ? await send(o.email, `⏳ ${o.code} siparişiniz için ödemeniz bekleniyor`, customerMail(o, bank)) : false;
+    const ok = o.email ? await send(o.email, `⏳ ${o.code} siparişiniz için ödemeniz bekleniyor`, customerMail(o, bank, wa)) : false;
     await o.ref.update({ 'payReminder.sent': ok, 'payReminder.to': o.email ? 'email' : 'yok' });
     out.push({ ...o, ok });
   }

@@ -401,7 +401,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     </nav>
     <div class="sidebar-bottom">
       <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;" id="adminEmail"></div>
-      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v3.4</button>
+      <button onclick="openChangelog()" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--accent);padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px;cursor:pointer;">&#10024; YENİLİKLER · v3.5</button>
       <button class="logout-btn" onclick="doLogout()">ÇIKIŞ YAP</button>
     </div>
   </aside>
@@ -2391,9 +2391,15 @@ function payDetailHtml(o) {
     const paid = pay.paidKurus ? Number(pay.paidKurus) / 100 : total;
     col = `<span style="color:#2ecc71;font-weight:700">✓ Tahsil edildi ${tl(paid)}</span>` + (pay.paidAt ? ` <span style="color:var(--muted2);font-size:10px">${formatDate(pay.paidAt)}</span>` : '');
     if (pay.paidKurus && Math.abs(paid - total) >= 0.01) col += `<div style="font-size:10px;color:var(--muted2)">${paid > total ? 'Taksit/vade farkı: +' + tl(paid - total) + ' (müşteri ödedi)' : 'Fark: ' + tl(paid - total)}</div>`;
+    if (pay.sender) col += pay.nameCheck === 'uyusmuyor'
+      ? (pay.verified ? `<div style="font-size:11px;color:#e67e22">Gönderen: ${E(pay.sender)} (farklı kişi — müşteriyle teyit edildi)</div>`
+        : `<div style="margin-top:6px;padding:8px;border:1px solid #e63946;background:rgba(230,57,70,.1);font-size:11px;text-align:left"><b style="color:#e63946">⚠ GÖNDEREN ADI UYUŞMUYOR — KARGOYA VERİLEMEZ</b><br>Gönderen: <b>${E(pay.sender)}</b>${pay.payerName ? ' · Bildirilen ödeyen: ' + E(pay.payerName) : ''}<br>Müşteriyi sipariş telefonundan arayıp teyit et. Teyit edilemezse parayı yalnızca gönderen hesaba iade et.<br><button onclick="havVerify('${o.id}')" style="margin-top:6px;background:#e63946;color:#fff;border:0;padding:5px 10px;font-weight:700;cursor:pointer">Müşteriyle teyit ettim</button></div>`)
+      : `<div style="font-size:10px;color:var(--muted2)">Gönderen: ${E(pay.sender)} ✓</div>`;
   } else if (pay.status === 'awaiting_transfer') {
     col = '<span style="color:#e67e22;font-weight:700">Havale bekleniyor</span>' + (havLate(o) ? ' <span style="color:#e63946;font-weight:700">⏰ ' + havAge(o) + '</span>' : '');
     if (o.payReminder) col += `<div style="font-size:10px;color:var(--muted2)">${o.payReminder.sent ? '✉ Müşteriye hatırlatma gönderildi' : '✉ Hatırlatma gönderilemedi' + (o.payReminder.to === 'yok' ? ' (e-posta yok)' : '')}${o.payReminder.at ? ' · ' + formatDate(o.payReminder.at) : ''}</div>`;
+    if (pay.payerName) col += `<div style="font-size:11px;color:#e67e22">Ödemeyi yapacak kişi (müşteri bildirdi): <b>${E(pay.payerName)}</b></div>`;
+    col += `<div style="margin-top:4px"><button onclick="havConfirm('${o.id}')" style="background:#2ecc71;color:#000;border:0;font-weight:700;font-size:11px;padding:5px 12px;cursor:pointer">✓ Ödeme geldi</button></div>`;
     const wa = havWaLink(o);
     if (wa) col += `<div style="margin-top:4px"><a href="${wa}" target="_blank" rel="noopener" style="display:inline-block;background:#25d366;color:#000;font-weight:700;font-size:11px;padding:4px 10px;text-decoration:none">📲 WhatsApp'tan ödeme hatırlat</a></div>`;
   }
@@ -2421,14 +2427,53 @@ function havWaLink(o) {
   const msg = 'Merhaba' + (name ? ' ' + name : '') + ', RetroPatch\'ten yazıyorum. ' + code + ' numaralı siparişinizin ödemesi henüz bize ulaşmadı.\n\n' +
     'Tutar: ₺' + Number(o.total || 0).toLocaleString('tr-TR') + '\n' +
     (iban ? 'IBAN: ' + iban + '\n' : '') + (sahip ? 'Alıcı: ' + sahip + '\n' : '') + (banka ? 'Banka: ' + banka + '\n' : '') +
-    'Açıklamaya: ' + code + '\n\nÖdemeyi yaptıysanız dekontu buraya gönderebilirsiniz. Teşekkürler!';
+    'Açıklamaya: ' + code + (name ? ' - ' + name : '') + '\n(Başka birinin hesabından ödenecekse açıklamaya sipariş sahibinin adını ve telefonunu ekleyin.)\n\nÖdemeyi yaptıysanız dekontu buraya gönderebilirsiniz. Teşekkürler!';
   return 'https://wa.me/' + num + '?text=' + encodeURIComponent(msg);
 }
-function havLate(o) { const p = o.payment || {}, t = o.createdAt?.seconds; return p.status === 'awaiting_transfer' && t && Date.now() / 1000 - t > 3600; }
+function havLate(o) { const p = o.payment || {}, t = o.createdAt?.seconds; return p.status === 'awaiting_transfer' && (!o.status || o.status === 'yeni') && t && Date.now() / 1000 - t > 3600; }
+// ── Havale ödeme onayı + gönderen adı kontrolü (üçgen dolandırıcılığa karşı) ──
+function havHold(o) { const p = (o && o.payment) || {}; if (p.method !== 'havale') return ''; if (p.status === 'awaiting_transfer') return 'pay'; if (p.nameCheck === 'uyusmuyor' && !p.verified) return 'name'; return ''; }
+function havNorm(v) { return String(v || '').toLocaleLowerCase('tr').replace(/[ıi̇]/g, 'i').replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ö/g, 'o').replace(/ç/g, 'c').replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(w => w.length > 1); }
+function havNameMatch(sender, cands) {
+  const s = havNorm(sender); if (s.length < 2) return false;
+  const first = s[0], last = s[s.length - 1];
+  return cands.some(c => { const t = havNorm(c); return t.length && t.includes(first) && t.includes(last); });
+}
+// Sipariş durumunu değiştirmeden önce: ödeme onaylanmamışsa önce onayla; ad uyuşmuyorsa kargoya verme
+function havGuard(o, toStatus) {
+  const h = havHold(o); if (!h || !toStatus || ['yeni', 'iptal', 'iade'].includes(toStatus)) return true;
+  if (h === 'pay') { if (confirm('Bu havale siparişinin ödemesi henüz onaylanmadı.\n\nÖnce "Ödeme geldi" deyip gönderen adını kontrol edelim mi?')) havConfirm(o.id, toStatus); return false; }
+  if (h === 'name' && ['kargoda', 'tamamlandı'].includes(toStatus)) { alert('⚠️ Gönderen adı sipariş sahibiyle uyuşmuyor: "' + (o.payment.sender || '') + '".\n\nMüşteriyle teyit edip sipariş detayında "Müşteriyle teyit ettim" demeden kargoya verilemez.'); return false; }
+  return true;
+}
+async function havConfirm(id, thenStatus) {
+  const o = allOrders.find(x => x.id === id); if (!o) return;
+  const p = o.payment || {}, owner = (o.address && o.address.name) || o.userName || '';
+  const sender = (prompt('Ödeme geldi ✓\n\nBankadaki GÖNDEREN adı soyadı nedir?' + (p.payerName ? '\n(Müşterinin bildirdiği ödeyen: ' + p.payerName + ')' : ''), p.payerName || owner) || '').trim();
+  if (!sender) return;
+  const ok = havNameMatch(sender, [owner, o.userName, p.payerName]);
+  let verified = ok;
+  if (!ok) verified = confirm('⚠️ GÖNDEREN ADI UYUŞMUYOR\n\nGönderen: ' + sender + '\nSipariş sahibi: ' + owner + (p.payerName ? '\nBildirilen ödeyen: ' + p.payerName : '') + '\n\nBu üçgen dolandırıcılık olabilir: parayı dolandırıcının kandırdığı başka biri göndermiş olabilir.\n\nMüşteriyi sipariş telefonundan (' + ((o.address && o.address.phone) || '—') + ') arayıp ödemenin ona ait olduğunu TEYİT ETTİN Mİ?\n\nTamam = teyit ettim\nİptal = beklemeye al (kargoya verilemez)');
+  const upd = { 'payment.status': 'paid', 'payment.paidAt': firebase.firestore.FieldValue.serverTimestamp(), 'payment.sender': sender, 'payment.nameCheck': ok ? 'uyumlu' : 'uyusmuyor', 'payment.verified': verified };
+  if (thenStatus && (verified || !['kargoda', 'tamamlandı'].includes(thenStatus))) upd.status = thenStatus;
+  else if (!o.status || o.status === 'yeni') upd.status = 'hazırlanıyor';
+  try {
+    await db.collection('orders').doc(id).update(upd);
+    toast(ok ? 'Ödeme onaylandı ✓' : verified ? 'Ödeme onaylandı (farklı gönderen, teyit edildi)' : '⚠ Ödeme alındı ama ad uyuşmuyor — kargoya verilemez', ok || verified ? 'ok' : 'err');
+    setTimeout(() => { if (document.getElementById('ordDetail') && document.getElementById('ordDetail').offsetParent) showOrderDetail(id); }, 700);
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+async function havVerify(id) {
+  const o = allOrders.find(x => x.id === id); if (!o) return;
+  if (!confirm('Müşteriyi arayıp ödemenin ona ait olduğunu teyit ettin mi?\n\nGönderen: ' + ((o.payment || {}).sender || '') + '\nSipariş sahibi: ' + ((o.address && o.address.name) || o.userName || ''))) return;
+  try { await db.collection('orders').doc(id).update({ 'payment.verified': true, 'payment.verifiedAt': firebase.firestore.FieldValue.serverTimestamp() }); toast('Teyit edildi ✓ — artık kargoya verilebilir', 'ok'); setTimeout(() => showOrderDetail(id), 700); }
+  catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
 function havAge(o) { const m = Math.floor((Date.now() / 1000 - (o.createdAt?.seconds || 0)) / 60); return m < 120 ? m + ' dk' : m < 2880 ? Math.floor(m / 60) + ' saattir' : Math.floor(m / 1440) + ' gündür'; }
 function payLabel(o) {
   const p = o.payment || {}; if (!p.method) return '';
   if (havLate(o)) return 'Havale / EFT — <span style="color:#e63946;font-weight:700">⏰ ' + havAge(o) + ' ödeme yok</span>';
+  if (havHold(o) === 'name') return 'Havale / EFT — ÖDENDİ <span style="color:#e63946;font-weight:700">⚠ gönderen adı uyuşmuyor</span>';
   const names = { card: 'Kredi/Banka Kartı', havale: 'Havale / EFT', kapida: 'Kapıda Ödeme' };
   const sts = { paid: ' — ÖDENDİ', failed: ' — başarısız', awaiting_card: ' — ödeme bekliyor', awaiting_transfer: ' — havale bekleniyor' };
   return (names[p.method] || p.method) + (sts[p.status] || '');
@@ -2487,9 +2532,9 @@ function renderOrders(src = 'cart', filter = 'all') {
         <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted2);font-size:12px;">${icerik}</td>
         <td style="color:var(--muted);font-size:11px;">${formatDate(o.createdAt)}</td>
         <td style="color:var(--accent);font-family:'Bebas Neue',cursive;font-size:18px;">${tutar}${payBadge(o)}</td>
-        <td><select onchange="updateOrderStatus('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
+        <td><select onchange="if(updateOrderStatus('${o.id}',this.value)===false)this.value='${o.status||'yeni'}'" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
           ${ordStatusOpts(o.status)}
-        </select><select onchange="updateOrderProd('${o.id}',this.value)" title="Üretim aşaması (müşteri görür)" style="display:block;margin-top:4px;background:var(--bg3);border:1px solid var(--border);color:var(--muted2);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
+        </select><select onchange="if(updateOrderProd('${o.id}',this.value)===false)this.value='${o.production||''}'" title="Üretim aşaması (müşteri görür)" style="display:block;margin-top:4px;background:var(--bg3);border:1px solid var(--border);color:var(--muted2);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
           ${ordProdOpts(o.production)}
         </select>${proofChip(o)}</td>
         <td><button class="btn btn-blue btn-sm" onclick="showOrderDetail('${o.id}')">Detay</button></td>
@@ -2520,9 +2565,9 @@ function renderOrders(src = 'cart', filter = 'all') {
         <td style="text-align:center;font-family:'Bebas Neue',cursive;font-size:18px;color:var(--accent);">${adet}</td>
         <td style="color:var(--muted);font-size:11px;">${formatDate(o.createdAt)}</td>
         <td style="max-width:180px;font-size:11px;color:var(--muted2);">${notTasarim}</td>
-        <td><select onchange="updateOrderStatus('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
+        <td><select onchange="if(updateOrderStatus('${o.id}',this.value)===false)this.value='${o.status||'yeni'}'" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
           ${ordStatusOpts(o.status)}
-        </select><select onchange="updateOrderProd('${o.id}',this.value)" title="Üretim aşaması (müşteri görür)" style="display:block;margin-top:4px;background:var(--bg3);border:1px solid var(--border);color:var(--muted2);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
+        </select><select onchange="if(updateOrderProd('${o.id}',this.value)===false)this.value='${o.production||''}'" title="Üretim aşaması (müşteri görür)" style="display:block;margin-top:4px;background:var(--bg3);border:1px solid var(--border);color:var(--muted2);padding:4px 8px;font-family:sans-serif;font-size:11px;outline:none;">
           ${ordProdOpts(o.production)}
         </select>${proofChip(o)}</td>
         <td><button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Sil</button></td>
@@ -2544,7 +2589,9 @@ function ordProdOpts(cur) {
   return '<option value="">Üretim: —</option>' + PROD_STAGES.map(([k, l], i) => `<option value="${k}" ${cur === k ? 'selected' : ''}>${i + 1}. ${l}</option>`).join('');
 }
 function updateOrderProd(id, stage) {
-  const o = allOrders.find(x => x.id === id) || {}, upd = { production: stage || firebase.firestore.FieldValue.delete(), productionAt: firebase.firestore.FieldValue.serverTimestamp() };
+  const o = allOrders.find(x => x.id === id) || {};
+  if (o.id && !havGuard(o, stage === 'kargo' ? 'kargoda' : ['uretim', 'nakis', 'kalite'].includes(stage) ? 'üretimde' : '')) return false;
+  const upd = { production: stage || firebase.firestore.FieldValue.delete(), productionAt: firebase.firestore.FieldValue.serverTimestamp() };
   if (['uretim', 'nakis', 'kalite'].includes(stage) && ['yeni', 'hazırlanıyor', undefined, ''].includes(o.status)) upd.status = 'üretimde';
   if (stage === 'kargo' && !['kargoda', 'tamamlandı'].includes(o.status)) upd.status = 'kargoda';
   db.collection('orders').doc(id).update(upd)
@@ -2583,7 +2630,7 @@ function renderBoard() {
           <div class="bd-code">${pEsc(o.orderCode || '#' + o.id.slice(-5).toUpperCase())}</div>
           <div style="font-weight:600;">${pEsc(bdName(o))}</div>
           <div class="bd-meta">${pEsc(bdItems(o))}</div>
-          <div>${o.orderSource === 'form' ? '<span class="bd-tag" style="color:#9b59b6;border-color:#9b59b6">ÖZEL</span>' : ''}${(o.embFiles || []).length ? '<span class="bd-tag">🧵 ' + o.embFiles.length + ' dosya</span>' : ''}${o.proof?.status === 'pending' ? '<span class="bd-tag" style="color:#f39c12;border-color:#f39c12">ONAY BEKLİYOR</span>' : o.proof?.status === 'revision' ? '<span class="bd-tag" style="color:#e63946;border-color:#e63946">DEĞİŞİKLİK</span>' : ''}${o.payment?.method === 'havale' && o.payment?.status === 'awaiting_transfer' ? (havLate(o) ? '<span class="bd-tag" style="color:#e63946;border-color:#e63946">⏰ HAVALE ' + havAge(o).toUpperCase() + '</span>' : '<span class="bd-tag">HAVALE BEKLİYOR</span>') : ''}</div>
+          <div>${o.orderSource === 'form' ? '<span class="bd-tag" style="color:#9b59b6;border-color:#9b59b6">ÖZEL</span>' : ''}${(o.embFiles || []).length ? '<span class="bd-tag">🧵 ' + o.embFiles.length + ' dosya</span>' : ''}${o.proof?.status === 'pending' ? '<span class="bd-tag" style="color:#f39c12;border-color:#f39c12">ONAY BEKLİYOR</span>' : o.proof?.status === 'revision' ? '<span class="bd-tag" style="color:#e63946;border-color:#e63946">DEĞİŞİKLİK</span>' : ''}${o.payment?.method === 'havale' && o.payment?.status === 'awaiting_transfer' ? (havLate(o) ? '<span class="bd-tag" style="color:#e63946;border-color:#e63946">⏰ HAVALE ' + havAge(o).toUpperCase() + '</span>' : '<span class="bd-tag">HAVALE BEKLİYOR</span>') : ''}${havHold(o) === 'name' ? '<span class="bd-tag" style="color:#fff;background:#e63946;border-color:#e63946">⚠ AD UYUŞMUYOR</span>' : ''}</div>
           <div class="bd-foot"><span class="bd-meta" style="${late ? 'color:#e63946;font-weight:700' : ''}">${age === 0 ? 'bugün' : age + ' gün'}${o.total ? ' · ₺' + Number(o.total).toLocaleString('tr-TR') : ''}</span>
             <span class="bd-mv">${ci > 0 ? `<button title="Önceki aşama" onclick="bdMove('${o.id}',-1)">‹</button>` : ''}${ci < BD_COLS.length - 1 ? `<button title="Sonraki aşama" onclick="bdMove('${o.id}',1)">›</button>` : ''}</span></div>
         </div>`;
@@ -2593,6 +2640,7 @@ function renderBoard() {
 function bdSet(id, k) {
   const o = allOrders.find(x => x.id === id); if (!o || bdStage(o) === k) return;
   if (bdShipped(o) && k !== 'kargo') { toast('Kargoya verilmiş sipariş geri alınamaz (Kargo Yönetimi\'nden değiştirin)', 'err'); return; }
+  if (!havGuard(o, k === 'kargo' ? 'kargoda' : ['uretim', 'nakis', 'kalite'].includes(k) ? 'üretimde' : '')) { renderBoard(); return; }
   o.production = k || undefined; if (k === 'kargo') o.status = 'kargoda'; else if (['uretim', 'nakis', 'kalite'].includes(k) && ['yeni', 'hazırlanıyor', undefined, ''].includes(o.status)) o.status = 'üretimde';
   renderBoard();
   updateOrderProd(id, k);
@@ -2915,6 +2963,8 @@ async function mcDraft() {
 }
 
 function updateOrderStatus(id, status) {
+  const _o = allOrders.find(x => x.id === id);
+  if (_o && !havGuard(_o, status)) return false;
   db.collection('orders').doc(id).update({ status })
     .then(() => toast('Durum güncellendi', 'ok'))
     .catch(() => toast('Hata!', 'err'));
@@ -2953,7 +3003,7 @@ function showOrderDetail(id) {
       ${payDetailHtml(o) || row('Toplam', tutar)}
       ${row('Tarih', formatDate(o.createdAt))}
       ${row('Durum', statusBadge(o.status || 'yeni'))}
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted2);font-family:sans-serif;letter-spacing:1px;font-size:11px;">Üretim Aşaması</span><select onchange="updateOrderProd('${o.id}',this.value)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:12px;outline:none;">${ordProdOpts(o.production)}</select></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted2);font-family:sans-serif;letter-spacing:1px;font-size:11px;">Üretim Aşaması</span><select onchange="if(updateOrderProd('${o.id}',this.value)===false)this.value='${o.production||''}'" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px 8px;font-size:12px;outline:none;">${ordProdOpts(o.production)}</select></div>
       ${custSummary(o)}
       ${embSection(o)}
       ${proofSection(o)}
@@ -5074,6 +5124,8 @@ function saveCargo() {
   const status = document.getElementById('cargoStatus').value;
   const companyName = foundCo ? foundCo.name : typedCompany;
   const isCompleted = status === 'Teslim Edildi';
+  const _o = allOrders.find(x => x.id === id);
+  if (_o && (isCompleted || status === 'Kargoya Verildi' || status === 'Dağıtımda') && !havGuard(_o, isCompleted ? 'tamamlandı' : 'kargoda')) return;
   db.collection('orders').doc(id).update({
     'cargo.company': company,
     'cargo.companyName': companyName,
@@ -7206,6 +7258,8 @@ function saveMarquee() {
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
+      <b style="color:var(--accent)">v3.5 · 25 Kasım 2026</b>
+      <ul style="margin:6px 0 14px 18px"><li>Havale ödeme kuralları şablonu: sipariş sonrası IBAN kutusunda, Hesabım'da, hatırlatma e-postasında ve WhatsApp mesajında aynı metin (Sipariş No - Ad Soyad açıklaması, başka hesaptan ödeme kuralı, yalnızca gönderen hesaba iade, IBAN'ı yalnızca site/resmi WhatsApp'tan alın)</li><li>Sepette "Ödemeyi başka biri mi yapacak?" alanı — bildirilen ad siparişte görünür</li><li>Sipariş detayında "✓ Ödeme geldi" butonu: bankadaki gönderen adını sorar, sipariş sahibiyle karşılaştırır</li><li>Ad uyuşmazsa sipariş "⚠ AD UYUŞMUYOR" olarak işaretlenir; müşteriyle teyit edilmeden kargoya verilemez ("Müşteriyle teyit ettim" butonu)</li><li>Ödemesi onaylanmamış havale siparişi Yeni'den ileri taşınırken önce ödeme onayı istenir</li><li>Düzeltme: sepette fiyat güncelleme kontrolü sayfa açılışında çalışmıyordu</li></ul>
       <b style="color:var(--accent)">v3.4 · 24 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Havale ödemesi 1 saatte gelmezse müşteriye hatırlatma: sitenin üstünde kırmızı uyarı çubuğu, Hesabım'da IBAN kutusu (IBAN kopyala, dekontu WhatsApp'tan gönder) ve tek seferlik e-posta</li><li>Sana e-postayla gecikmiş havale listesi gelir; her siparişin yanında "WhatsApp'tan hatırlat" butonu</li><li>Sipariş listesinde, detayda ve üretim panosunda "⏰ X saattir ödeme yok" etiketi ve hatırlatma durumu</li><li>Sipariş detayında "📲 WhatsApp'tan ödeme hatırlat" butonu (tutar + IBAN + sipariş kodu hazır mesaj)</li></ul>
       <b style="color:var(--accent)">v3.3 · 24 Kasım 2026</b>

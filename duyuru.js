@@ -306,7 +306,7 @@
         var now = Date.now(), late = [];
         snap.docs.forEach(function (d) {
           var o = d.data(), p = o.payment || {}, t = o.createdAt && o.createdAt.seconds ? o.createdAt.seconds * 1000 : 0;
-          if (p.method === 'havale' && p.status === 'awaiting_transfer' && o.status !== 'iptal' && o.status !== 'iade' && t && now - t > 3600e3 && now - t < 14 * 864e5)
+          if (p.method === 'havale' && p.status === 'awaiting_transfer' && (!o.status || o.status === 'yeni') && t && now - t > 3600e3 && now - t < 14 * 864e5)
             late.push({ code: o.orderCode || d.id.slice(-6).toUpperCase(), total: Number(o.total) || 0 });
         });
         if (!late.length) return;

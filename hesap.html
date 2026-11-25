@@ -822,7 +822,7 @@ async function rpLoadPayInfo() {
   try { const w = await db.collection('settings').doc('site').get(); if (w.exists && w.data().whatsapp) { let n = String(w.data().whatsapp).replace(/\D/g, ''); if (n.startsWith('0')) n = '9' + n; if (n.length === 10) n = '90' + n; _rpShopWA = n; } } catch (e) {}
 }
 function rpPayPending() {
-  return allOrders.filter(o => o.payment && o.payment.method === 'havale' && o.payment.status === 'awaiting_transfer' && !['iptal', 'iade'].includes(o.status));
+  return allOrders.filter(o => o.payment && o.payment.method === 'havale' && o.payment.status === 'awaiting_transfer' && (!o.status || o.status === 'yeni'));
 }
 async function renderPayDue() {
   const el = document.getElementById('payDue'); if (!el) return;
@@ -837,16 +837,16 @@ async function renderPayDue() {
     const wa = 'https://wa.me/' + _rpShopWA + '?text=' + encodeURIComponent('Merhaba, ' + code + ' numaralı siparişimin havale dekontunu gönderiyorum.');
     return `<div class="pay-due${late ? ' late' : ''}" id="pd-${o.id}">
       <h4>${late ? '⏰ ÖDEMENİZ HENÜZ ULAŞMADI' : '⏳ ÖDEMENİZ BEKLENİYOR'} — ${hEsc(code)}</h4>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Siparişiniz ödeme yapıldıktan sonra hazırlanmaya başlar. Havale/EFT yaparken açıklamaya sipariş kodunu yazın.</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Siparişiniz ödemeniz hesabımıza ulaştıktan sonra hazırlanmaya başlar.</div>
       <div class="r"><span>Ödenecek tutar</span><span style="color:var(--accent);font-weight:700">₺${Number(o.total || 0).toLocaleString('tr-TR')}</span></div>
-      <div class="r"><span>Açıklamaya yazın</span><span><b>${hEsc(code)}</b></span></div>
+      <div class="r"><span>Açıklamaya yazın</span><span><b>${hEsc(code)} - ${hEsc((o.address && o.address.name) || o.userName || '')}</b></span></div>
       ${b.adi ? `<div class="r"><span>Banka</span><span>${hEsc(b.adi)}</span></div>` : ''}
       ${b.hesapSahibi ? `<div class="r"><span>Alıcı</span><span>${hEsc(b.hesapSahibi)}</span></div>` : ''}
       ${b.iban ? `<div class="r"><span>IBAN</span><span style="font-family:monospace">${hEsc(b.iban)}</span></div>` : '<div class="r"><span>IBAN</span><span>WhatsApp\'tan isteyebilirsiniz</span></div>'}
       <div class="acts">
         ${b.iban ? `<button class="cp" onclick="navigator.clipboard.writeText('${hEsc(String(b.iban).replace(/\s/g, ''))}').then(()=>{this.textContent='✓ KOPYALANDI'})">📋 IBAN'I KOPYALA</button>` : ''}
         <a class="wa" href="${wa}" target="_blank" rel="noopener">📲 DEKONTU WHATSAPP'TAN GÖNDER</a>
-      </div></div>`;
+      </div>${typeof rpHavaleRules === 'function' ? rpHavaleRules(code, (o.address && o.address.name) || o.userName || '', _rpShopWA) : ''}</div>`;
   }).join('');
   if (/[?&]odeme=1/.test(location.search) && !window._rpPdScrolled) { window._rpPdScrolled = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 }
@@ -2135,6 +2135,7 @@ function rpFaqToggle(el) {
 }
 </script>
 
+<script src="havale-kurallar.js"></script>
 <script src="duyuru.js"></script>
 <!-- Cloudflare Web Analytics (çerezsiz) --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ede77b3777cb4744873f2ed46976f3a1"}'></script><!-- End Cloudflare Web Analytics -->
 </body>

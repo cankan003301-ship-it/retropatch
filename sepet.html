@@ -658,8 +658,12 @@ button .ic[data-n],.btn .ic[data-n],[class*=btn] .ic[data-n],a .ic[data-n]{color
               <span style="font-size:22px;line-height:1;"><svg class=ic data-n=lock><use href=#i-lock></use></svg></span>
               <div style="font-size:12px;color:var(--muted);line-height:1.7;">
                 <b style="color:var(--text);">Banka ve IBAN bilgileri gizlidir.</b><br>
-                Siparişinizi tamamladığınızda hesap bilgileri ve ödeme tutarı ekranda gösterilir. Açıklama kısmına sipariş kodunuzu yazmanız yeterli.
+                Siparişinizi tamamladığınızda hesap bilgileri ve ödeme tutarı ekranda gösterilir. Açıklama kısmına <b>sipariş kodunu ve adınızı soyadınızı</b> yazın.
               </div>
+            </div>
+            <div style="margin-top:12px;font-size:12px;color:var(--muted);">
+              <label for="havPayer" style="display:block;margin-bottom:5px;"><b style="color:var(--text);">Ödemeyi başka biri mi yapacak?</b> Gönderecek kişinin adını soyadını yazın (sizseniz boş bırakın).</label>
+              <input id="havPayer" type="text" maxlength="60" autocomplete="off" placeholder="Örn: Mehmet Yılmaz" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 11px;font-size:13px;outline:none;">
             </div>
           </div>
 
@@ -740,19 +744,27 @@ async function showBankBox(opts) {
   box.innerHTML = title + '<div style="font-size:12px;color:var(--muted);">Hesap bilgileri yükleniyor…</div>';
   const d = await fetchBankInfo();
   const amount = '<div class="havale-row"><span class="havale-key">Ödenecek Tutar</span><span class="havale-val" style="color:var(--accent);font-weight:700;">₺' + Number(opts.amount||0).toLocaleString('tr-TR') + '</span></div>';
-  const code = '<div class="havale-row"><span class="havale-key">Açıklamaya Yazın</span><span class="havale-val">' + escH(opts.codes) + '</span></div>';
+  const code = '<div class="havale-row"><span class="havale-key">Açıklamaya Yazın</span><span class="havale-val">' + escH(opts.codes) + (opts.name ? ' - ' + escH(opts.name) : '') + '</span></div>';
   if (!d || !d.iban) {
     box.innerHTML = title + amount + code +
       '<div style="margin-top:10px;font-size:12px;color:var(--muted);">IBAN bilgisi için lütfen WhatsApp üzerinden bizimle iletişime geçin.</div>';
+    rpBankRules(box, opts);
     return;
   }
   window.currentIBAN = d.iban;
   box.innerHTML = title + amount + code +
     (d.adi ? '<div class="havale-row"><span class="havale-key">Banka</span><span class="havale-val">' + escH(d.adi) + '</span></div>' : '') +
-    (d.hesapSahibi ? '<div class="havale-row"><span class="havale-key">Ad Soyad</span><span class="havale-val">' + escH(d.hesapSahibi) + '</span></div>' : '') +
+    (d.hesapSahibi ? '<div class="havale-row"><span class="havale-key">Alıcı Adı Soyadı</span><span class="havale-val">' + escH(d.hesapSahibi) + '</span></div>' : '') +
     (d.sube ? '<div class="havale-row"><span class="havale-key">Şube</span><span class="havale-val">' + escH(d.sube) + '</span></div>' : '') +
     '<div class="havale-row"><span class="havale-key">IBAN</span><span class="havale-val" style="font-size:12px;word-break:break-all;">' + escH(d.iban) + ' <span class="copy-btn" onclick="copyIBAN()">📋 Kopyala</span></span></div>' +
     '<div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;">Ödeme sonrası siparişiniz onaylanacaktır.</div>';
+  rpBankRules(box, opts);
+}
+async function rpBankRules(box, opts) {
+  if (typeof rpHavaleRules !== 'function') return;
+  const wa = await rpShopWA();
+  const first = String(opts.codes || '').split(' + ')[0];
+  box.insertAdjacentHTML('beforeend', rpHavaleRules(first, opts.name, wa));
 }
 
 function loadKargoSettings() {
@@ -941,7 +953,7 @@ function loadCart() {
   rpRefreshPrices();
 }
 // Sepetteki ürün fiyatlarını güncel fiyatla eşitle (kampanya bitince/başlayınca eski fiyat kalmasın)
-let _rpPriceChecked = false;
+var _rpPriceChecked = false;
 async function rpRefreshPrices() {
   if (_rpPriceChecked) return; _rpPriceChecked = true;
   const phys = cart.filter(i => i.id && !i.digital && !i.isDigital && i.type !== 'digital');
@@ -1452,6 +1464,7 @@ async function doCheckout() {
   const batch = db.batch();
   let orderCode = null, orderData = null, digCode = null;
 
+  const havPayer = (selectedPay === 'havale' || (D.length && !isCard)) ? ((document.getElementById('havPayer') || {}).value || '').trim().replace(/\s+/g, ' ').slice(0, 60) : '';
   if (P.length) {
     const orderRef = db.collection('orders').doc();
     orderCode = 'RP-' + orderRef.id.slice(-6).toUpperCase();
@@ -1463,7 +1476,7 @@ async function doCheckout() {
         return {id:i.id,name:i.name,price:i.price,qty:i.qty,image:i.image||'',cat:i.cat||'',backType:(i.backType||i.back||''),size:i.size||'', ...(ex > 0 ? {backExtra: ex} : {}), ...(ou ? {oldUnit: ou} : {})}; }),
       address: { name:adName, phone:adPhone, address:adAddress, district:adDistrict, city:adCity, zip:document.getElementById('adZip').value.trim() },
       cargo: { company: selectedCargo, companyName: CARGO_NAMES[selectedCargo], price: cargoPrice, trackingCode:'', status:'Hazırlanıyor' },
-      payment: { method: selectedPay, status: selectedPay==='card' ? 'awaiting_card' : (selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery') },
+      payment: { method: selectedPay, status: selectedPay==='card' ? 'awaiting_card' : (selectedPay==='havale' ? 'awaiting_transfer' : 'on_delivery'), ...(selectedPay==='havale' && havPayer ? { payerName: havPayer } : {}) },
       ...(isCard ? { payGroup } : {}),
       subtotal: physSub, cargoPrice, discount: disc, total: physTotal,
       priceDetail: { cargoList: CARGO_PRICES[selectedCargo] || 0, cargoBase: baseCargoPrice, kapidaFee: kapidaExtra,
@@ -1485,6 +1498,7 @@ async function doCheckout() {
       code: digCode, userId: currentUser.uid, email: currentUser.email||'', name: currentUser.displayName||'',
       items: digOut, total: digTotal, status: 'bekliyor',
       ...(digHav ? { havaleDiscount: digHav, havalePct: HAVALE_PCT } : {}),
+      ...(!isCard && havPayer ? { payerName: havPayer } : {}),
       consent: { contract: true, legalRead: true, digitalWaiver: true, version: '2026-11', at: firebase.firestore.FieldValue.serverTimestamp() },
       ...(isCard ? { payment: { method: 'card', status: 'awaiting_card' }, payGroup } : {}),
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1544,7 +1558,8 @@ async function doCheckout() {
   if (D.length || (P.length && selectedPay === 'havale')) {
     showBankBox({
       amount: physTotal + digTotal,
-      codes: [orderCode, digCode].filter(Boolean).join(' + ')
+      codes: [orderCode, digCode].filter(Boolean).join(' + '),
+      name: (orderData && orderData.address && orderData.address.name) || (currentUser && currentUser.displayName) || ''
     });
   }
   window.scrollTo(0,0);
@@ -2490,6 +2505,7 @@ function rpFaqToggle(el) {
 }
 </script>
 
+<script src="havale-kurallar.js"></script>
 <script src="duyuru.js"></script>
 <div id="cardPayModal" style="display:none;position:fixed;inset:0;z-index:100001;background:rgba(0,0,0,.88);align-items:center;justify-content:center;padding:14px;">
   <div style="background:#fff;width:100%;max-width:560px;height:min(90vh,720px);position:relative;display:flex;flex-direction:column;">
