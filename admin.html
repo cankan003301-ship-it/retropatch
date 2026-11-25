@@ -3115,13 +3115,14 @@ function slipSettings() {
     <label>Ne zaman yazdırılsın?<br><select id="slWhen" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px">
       <option value="paid" ${c.when === 'paid' ? 'selected' : ''}>Ödeme kesinleşince (kart/kapıda hemen, havale onaylayınca)</option>
       <option value="new" ${c.when === 'new' ? 'selected' : ''}>Sipariş gelir gelmez</option></select></label>
+    <label>Gönderici adı<br><input id="slSender" value="${(c.sender || (document.getElementById('bankHesapSahibi') || {}).value || '').replace(/"/g, '&quot;')}" placeholder="Örn: Hüseyin Kanmaz" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:12px"></label>
     <label>Fiş alt notu (yasal bilgi)<br><textarea id="slNote" rows="3" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:12px">${(c.note == null ? SLIP_NOTE_DEF : c.note).replace(/</g, '&lt;')}</textarea></label>
     <label>Teşekkür satırı (10×10 fişte)<br><input id="slThanks" value="${(c.thanks == null ? 'Bizi tercih ettiğiniz için teşekkürler!' : c.thanks).replace(/"/g, '&quot;')}" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:12px"></label>
     <div style="font-size:11px;color:var(--muted2);line-height:1.6">• Otomatik yazdırma <b>bu bilgisayarda admin paneli açıkken</b> çalışır; panel açıldığında eski siparişler yazdırılmaz.<br>
     • Tarayıcı her fişte yazdırma penceresi açar. Pencere açılmadan doğrudan yazdırmak için Chrome'u <code>--kiosk-printing</code> ile başlatın ve fiş yazıcısını varsayılan yapın.<br>
     • Yazıcı ayarında kağıt boyutunu fişle aynı seçin, kenar boşluğu: Yok, ölçek: %100.</div>
-    <div style="display:flex;gap:8px"><button class="btn btn-accent" style="flex:1;justify-content:center" onclick="slipSave({auto:document.getElementById('slAuto').checked,size:document.getElementById('slSize').value,when:document.getElementById('slWhen').value,note:document.getElementById('slNote').value.trim(),thanks:document.getElementById('slThanks').value.trim()});slipArm();closeModal('ordModal');toast('Fiş ayarı kaydedildi','ok')">Kaydet</button>
-    <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="const _c=slipCfg();slipSave(Object.assign({},_c,{note:document.getElementById('slNote').value.trim(),thanks:document.getElementById('slThanks').value.trim()}));slipTest(document.getElementById('slSize').value)">Deneme fişi</button></div></div>`;
+    <div style="display:flex;gap:8px"><button class="btn btn-accent" style="flex:1;justify-content:center" onclick="slipSave({auto:document.getElementById('slAuto').checked,size:document.getElementById('slSize').value,when:document.getElementById('slWhen').value,note:document.getElementById('slNote').value.trim(),thanks:document.getElementById('slThanks').value.trim(),sender:document.getElementById('slSender').value.trim()});slipArm();closeModal('ordModal');toast('Fiş ayarı kaydedildi','ok')">Kaydet</button>
+    <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="const _c=slipCfg();slipSave(Object.assign({},_c,{note:document.getElementById('slNote').value.trim(),thanks:document.getElementById('slThanks').value.trim(),sender:document.getElementById('slSender').value.trim()}));slipTest(document.getElementById('slSize').value)">Deneme fişi</button></div></div>`;
   document.getElementById('ordDetail').innerHTML = '<div style="font-family:\'Bebas Neue\',cursive;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:12px">🧾 SİPARİŞ BİLGİ FİŞİ</div>' + html;
   openModal('ordModal');
 }
@@ -3136,6 +3137,7 @@ function slipHtml(o, size) {
   const items = Array.isArray(o.items) && o.items.length ? o.items.map(i => ({ n: i.name, q: i.qty || 1, d: [i.size, i.backType].filter(Boolean).join(' · '), p: (Number(i.price) || 0) * (i.qty || 1) })) : [{ n: o.type || o.product || 'Nakış Yama', q: o.qty || 1, d: [o.size, o.back].filter(Boolean).join(' · '), p: 0 }];
   const date = o.createdAt && o.createdAt.seconds ? new Date(o.createdAt.seconds * 1000).toLocaleDateString('tr-TR') : '';
   const qty = items.reduce((t, i) => t + Number(i.q || 0), 0), cargoName = (o.cargo && (o.cargo.companyName || o.cargo.company)) || '';
+  const sender = cfg.sender != null && cfg.sender !== '' ? cfg.sender : ((document.getElementById('bankHesapSahibi') || {}).value || '');
   const code = o.orderCode || o.id.slice(-6).toUpperCase();
   const site = 'retropatch.vercel.app';
   if (size === '50x40') {
@@ -3152,7 +3154,8 @@ function slipHtml(o, size) {
     </style><body>
       <div class="hd"><div class="br">RETROPATCH</div><div class="ws">${site}</div></div>
       <div class="row"><b>${e(code)}</b><span>${e(date)}</span></div>
-      <div class="row" style="margin-top:.2mm"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e(name)}</span></div>
+      ${sender ? `<div class="row" style="margin-top:.2mm"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Gönderen: <b style="font-size:6.5pt">${e(sender)}</b></span></div>` : ''}
+      <div class="row" style="margin-top:.2mm"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Alıcı: <b style="font-size:6.5pt">${e(name)}</b></span></div>
       <div class="items">${list}</div>
       <div class="tot"><span>${e(qty)} adet</span><span>${cargoName ? 'Kargo: ' + e(cargoName) : ''}</span></div>
       ${legal ? `<div class="lg">${e(legal)}</div>` : ''}</body>`;
@@ -3172,7 +3175,8 @@ function slipHtml(o, size) {
   </style><body>
     <div class="hd"><div class="br">RETROPATCH</div><div class="ws">${site}</div></div>
     <div class="meta"><span>Sipariş: <b>${e(code)}</b></span><span>${e(date)}</span></div>
-    <div class="meta" style="margin-top:.5mm"><span>Sayın <b style="font-size:9.5pt">${e(name)}</b></span><span>${e(city)}</span></div>
+    ${sender ? `<div class="meta" style="margin-top:.5mm"><span>Gönderen: <b style="font-size:9.5pt">${e(sender)}</b></span></div>` : ''}
+    <div class="meta" style="margin-top:.5mm"><span>Alıcı: <b style="font-size:9.5pt">${e(name)}</b></span><span>${e(city)}</span></div>
     <div class="items"><table>${list}</table></div>
     <div class="tot"><span>Toplam ${e(qty)} adet</span><span>${cargoName ? 'Kargo: ' + e(cargoName) : ''}</span></div>
     ${thanks ? `<div class="ty">${e(thanks)}</div>` : ''}
@@ -7406,7 +7410,7 @@ function saveMarquee() {
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
       <b style="color:var(--accent)">v3.7 · 25 Kasım 2026</b>
-      <ul style="margin:6px 0 14px 18px"><li>Sipariş Bilgi Fişi (müşteriye giden): 50×40 mm termal veya 10×10 cm; ürünler ve adetler, kargo firması, teşekkür ve düzenlenebilir yasal alt not (fiyat yok); sipariş detayından tek tıkla yazdır</li><li>Siparişler → "🧾 Fiş" ayarı: her siparişte otomatik yazdır (ödeme kesinleşince veya sipariş gelir gelmez), deneme fişi</li><li>Havale bekleyen siparişte durum "⏳ Ödeme henüz gelmedi"; onay düğmesi "Para hesaba geçtiyse → Ödemeyi onayla" oldu (karışıklık olmasın diye)</li></ul>
+      <ul style="margin:6px 0 14px 18px"><li>Sipariş Bilgi Fişi (müşteriye giden): 50×40 mm termal veya 10×10 cm; gönderici ve alıcı adı, ürünler ve adetler, kargo firması, teşekkür ve düzenlenebilir yasal alt not (fiyat yok); sipariş detayından tek tıkla yazdır</li><li>Siparişler → "🧾 Fiş" ayarı: her siparişte otomatik yazdır (ödeme kesinleşince veya sipariş gelir gelmez), deneme fişi</li><li>Havale bekleyen siparişte durum "⏳ Ödeme henüz gelmedi"; onay düğmesi "Para hesaba geçtiyse → Ödemeyi onayla" oldu (karışıklık olmasın diye)</li></ul>
       <b style="color:var(--accent)">v3.6 · 25 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Havale "Ödeme geldi" yanlışlıkla onaylandıysa: sipariş detayında "↩ Ödeme onayını geri al" (ödeme tekrar "havale bekleniyor", sipariş Yeni'ye döner; kargodaki siparişte kapalı)</li><li>"Ödeme geldi" penceresinde sipariş kodu ve tutar gösterilir</li></ul>
       <b style="color:var(--accent)">v3.5 · 25 Kasım 2026</b>
