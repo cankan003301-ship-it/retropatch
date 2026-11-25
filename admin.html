@@ -3012,7 +3012,8 @@ function showOrderDetail(id) {
       ${row('Ad Soyad', musteri)}
       ${row('Telefon', telefon)}
       ${row('E-posta', email)}
-      ${row('Adres', adres + (o.addressChanged ? `<div style="margin-top:4px;font-size:11px;color:#e67e22;text-align:right">📍 Müşteri adresi değiştirdi${o.addressChanged.at ? ' · ' + formatDate(o.addressChanged.at) : ''}<br><span style="color:var(--muted2)">Eski: ${[o.addressChanged.old?.address, o.addressChanged.old?.district, o.addressChanged.old?.city].filter(Boolean).join(', ').replace(/</g, '&lt;')}</span></div>` : ''))}
+      <div id="ordAddrCheck"></div>
+      ${row('Adres', adres + (o.addressChanged ? `<div style="margin-top:4px;font-size:11px;color:#e67e22;text-align:right">📍 ${o.addressChanged.by === 'admin' ? 'Adres güncellendi (admin)' : 'Müşteri adresi değiştirdi'}${o.addressChanged.at ? ' · ' + formatDate(o.addressChanged.at) : ''}<br><span style="color:var(--muted2)">Eski: ${[o.addressChanged.old?.address, o.addressChanged.old?.district, o.addressChanged.old?.city].filter(Boolean).join(', ').replace(/</g, '&lt;')}</span></div>` : ''))}
       ${row('Ürünler', icerik)}
       ${o.type ? row('Yama Türü', o.type) : ''}
       ${o.size ? row('Boyut', o.size) : ''}
@@ -3035,6 +3036,7 @@ function showOrderDetail(id) {
     </div>
     <div style="margin-top:8px;"><button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="printOrder('${o.id}')">🖨 Üretim Kağıdı</button></div>
     <div style="margin-top:8px;display:flex;gap:8px;"><button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="printSlip('${o.id}','50x40')">🧾 Fiş 50×40 (termal)</button><button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="printSlip('${o.id}','100x100')">🧾 Fiş 10×10</button></div>`;
+  ordAddrCheck(o);
   openModal('ordModal');
 }
 
@@ -5422,6 +5424,47 @@ function renderMembers() {
   }).join('');
 }
 
+// ── Sipariş adresi ↔ müşterinin kayıtlı güncel adresi ──
+function _adrKey(a) { return [a.line ?? a.address, a.district, a.city].map(v => String(v || '').toLocaleLowerCase('tr').replace(/[^\p{L}\p{N}]+/gu, ' ').trim()).join('|'); }
+async function ordAddrCheck(o) {
+  const box = document.getElementById('ordAddrCheck'); if (!box || !o.userId || !o.address) return;
+  if (['kargoda', 'tamamlandı', 'iptal', 'iade'].includes(o.status)) return;
+  try {
+    const snap = await db.collection('users').doc(o.userId).collection('addresses').get();
+    if (snap.empty) return;
+    const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const cur = _adrKey(o.address);
+    if (list.some(a => _adrKey(a) === cur)) return; // sipariş adresi hâlâ kayıtlı adreslerinden biri
+    // Önce son güncellenen, sonra varsayılan adres
+    list.sort((a, b) => ((b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0)) || ((b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0)));
+    const x = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    window._ordAddrCand = { orderId: o.id, list };
+    box.innerHTML = `<div style="border:1px solid #e67e22;background:rgba(230,126,34,.08);padding:10px 12px;font-size:12px;line-height:1.5">
+      <b style="color:#e67e22">📍 Siparişteki adres, müşterinin kayıtlı adreslerinde yok</b><br>
+      <span style="color:var(--muted2)">Müşteri adresini değiştirmiş olabilir. Güncel kayıtlı adres${list.length > 1 ? 'leri' : 'i'}:</span>
+      ${list.slice(0, 4).map((a, i) => `<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;border-top:1px solid var(--border);padding-top:6px;margin-top:6px">
+        <span><b>${x(a.title || 'Adres')}</b>${a.isDefault ? ' <span style="color:var(--accent);font-size:10px">VARSAYILAN</span>' : ''}${a.updatedAt ? ' <span style="color:var(--muted2);font-size:10px">· ' + formatDate(a.updatedAt.toDate ? a.updatedAt : new Date((a.updatedAt.seconds || 0) * 1000)) + ' güncellendi</span>' : ''}<br>${x(a.name)} · ${x(a.phone || '')}<br>${x([a.line, a.district, a.city].filter(Boolean).join(', '))}</span>
+        <button onclick="ordAddrApply(${i})" style="flex-shrink:0;background:#e67e22;color:#000;border:0;font-weight:700;font-size:11px;padding:6px 10px;cursor:pointer">Bu adresi siparişe uygula</button></div>`).join('')}</div>`;
+  } catch (e) { /* adresler okunamazsa sessiz geç */ }
+}
+async function ordAddrApply(i) {
+  const c = window._ordAddrCand; if (!c) return;
+  const a = c.list[i], o = allOrders.find(x => x.id === c.orderId); if (!a || !o) return;
+  if (!confirm('Siparişin adresi şu adresle değiştirilsin mi?\n\n' + a.name + ' · ' + (a.phone || '') + '\n' + [a.line, a.district, a.city].filter(Boolean).join(', '))) return;
+  const old = o.address || {};
+  const prev = { name: old.name || '', phone: old.phone || '', address: old.address || '', district: old.district || '', city: old.city || '', zip: old.zip || '' };
+  try {
+    await db.collection('orders').doc(o.id).update({
+      'address.name': a.name || prev.name, 'address.phone': a.phone || prev.phone, 'address.address': a.line || '',
+      'address.district': a.district || '', 'address.city': a.city || '', 'address.zip': a.zip || '',
+      addressChanged: { at: new Date(), by: 'admin', old: prev },
+      addressHistory: [...(Array.isArray(o.addressHistory) ? o.addressHistory : []).slice(-9), { at: new Date(), old: prev }]
+    });
+    toast('Sipariş adresi güncellendi ✓', 'ok');
+    setTimeout(() => showOrderDetail(o.id), 700);
+  } catch (e) { toast('Hata: ' + e.message, 'err'); }
+}
+
 // ============ ÜYE ADRESLERİ ============
 function showMemberAddresses(uid, name) {
   const overlay = document.getElementById('memberAddrOverlay');
@@ -7432,7 +7475,7 @@ function saveMarquee() {
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
       <b style="color:var(--accent)">v3.8 · 25 Kasım 2026</b>
-      <ul style="margin:6px 0 14px 18px"><li>Müşteri Hesabım'da adresini değiştirirse, o adresle verilmiş ve kargoya verilmemiş siparişlerin adresi de (müşteri onayıyla) güncellenir</li><li>Sipariş detayında "📍 Müşteri adresi değiştirdi" uyarısı ve eski adres görünür</li></ul>
+      <ul style="margin:6px 0 14px 18px"><li>Müşteri Hesabım'da adresini değiştirirse, o adresle verilmiş ve kargoya verilmemiş siparişlerin adresi de (müşteri onayıyla) güncellenir</li><li>Sipariş detayında "📍 Müşteri adresi değiştirdi" uyarısı ve eski adres görünür</li><li>Sipariş detayı: siparişteki adres müşterinin kayıtlı adreslerinde yoksa güncel adresler gösterilir; "Bu adresi siparişe uygula" ile tek tıkla düzeltilir (önceden değişmiş adresler için)</li></ul>
       <b style="color:var(--accent)">v3.7 · 25 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Sipariş Bilgi Fişi (müşteriye giden): 50×40 mm termal veya 10×10 cm; gönderici ve alıcı adı ile il/ilçe, düzenleme/sevk tarihi ve saati, ürünler ve adetler, kargo firması, teşekkür ve düzenlenebilir yasal alt not (fiyat yok); sipariş detayından tek tıkla yazdır</li><li>Siparişler → "🧾 Fiş" ayarı: her siparişte otomatik yazdır (ödeme kesinleşince veya sipariş gelir gelmez), deneme fişi</li><li>Havale bekleyen siparişte durum "⏳ Ödeme henüz gelmedi"; onay düğmesi "Para hesaba geçtiyse → Ödemeyi onayla" oldu (karışıklık olmasın diye)</li></ul>
       <b style="color:var(--accent)">v3.6 · 25 Kasım 2026</b>
