@@ -3102,8 +3102,19 @@ function printOrder(id) {
 
 // ============ SİPARİŞ BİLGİ FİŞİ (termal 50×40 mm / 10×10 cm) ============
 // Ayarlar bu cihazda saklanır (localStorage). Otomatik yazdırma admin paneli açıkken çalışır.
-function slipCfg() { try { return Object.assign({ auto: false, size: '50x40', when: 'paid' }, JSON.parse(localStorage.getItem('rp_slip') || '{}')); } catch (e) { return { auto: false, size: '50x40', when: 'paid' }; } }
-function slipSave(c) { localStorage.setItem('rp_slip', JSON.stringify(c)); slipBtnLabel(); }
+const SLIP_DEF = { auto: false, size: '50x40', when: 'paid', sDistrict: 'Yenişehir', sCity: 'Mersin' };
+function slipCfg() { try { return Object.assign({}, SLIP_DEF, JSON.parse(localStorage.getItem('rp_slip') || '{}')); } catch (e) { return Object.assign({}, SLIP_DEF); } }
+// Gönderici/not bilgileri tüm cihazlarda ortak (settings/slip); otomatik yazdırma ve boyut bu cihaza özel
+const SLIP_SHARED = ['sender', 'sDistrict', 'sCity', 'note', 'thanks'];
+function slipSave(c) {
+  localStorage.setItem('rp_slip', JSON.stringify(c)); slipBtnLabel();
+  const sh = {}; SLIP_SHARED.forEach(k => { if (c[k] != null) sh[k] = c[k]; });
+  try { db.collection('settings').doc('slip').set(sh, { merge: true }).catch(() => {}); } catch (e) {}
+}
+function slipLoadShared() {
+  try { db.collection('settings').doc('slip').get().then(d => { if (!d.exists) return; const c = slipCfg(), x = d.data(); SLIP_SHARED.forEach(k => { if (x[k] != null) c[k] = x[k]; }); localStorage.setItem('rp_slip', JSON.stringify(c)); }).catch(() => {}); } catch (e) {}
+}
+setTimeout(slipLoadShared, 2500);
 function slipBtnLabel() { const b = document.getElementById('slipBtn'); if (!b) return; const c = slipCfg(); b.textContent = '🧾 Fiş: ' + (c.auto ? 'otomatik · ' + (c.size === '50x40' ? '50×40' : '10×10') : 'kapalı'); b.style.color = c.auto ? '#2ecc71' : ''; }
 function slipSettings() {
   const c = slipCfg();
@@ -3116,7 +3127,7 @@ function slipSettings() {
       <option value="paid" ${c.when === 'paid' ? 'selected' : ''}>Ödeme kesinleşince (kart/kapıda hemen, havale onaylayınca)</option>
       <option value="new" ${c.when === 'new' ? 'selected' : ''}>Sipariş gelir gelmez</option></select></label>
     <label>Gönderici adı<br><input id="slSender" value="${(c.sender || (document.getElementById('bankHesapSahibi') || {}).value || '').replace(/"/g, '&quot;')}" placeholder="Örn: Hüseyin Kanmaz" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:12px"></label>
-    <div style="display:flex;gap:8px"><label style="flex:1">Gönderici ilçe<br><input id="slSDist" value="${(c.sDistrict || '').replace(/"/g, '&quot;')}" placeholder="Örn: Erdemli" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:12px"></label>
+    <div style="display:flex;gap:8px"><label style="flex:1">Gönderici ilçe<br><input id="slSDist" value="${(c.sDistrict || '').replace(/"/g, '&quot;')}" placeholder="Örn: Yenişehir" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:12px"></label>
     <label style="flex:1">Gönderici il<br><input id="slSCity" value="${(c.sCity || '').replace(/"/g, '&quot;')}" placeholder="Örn: Mersin" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:12px"></label></div>
     <label>Fiş alt notu (yasal bilgi)<br><textarea id="slNote" rows="3" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:12px">${(c.note == null ? SLIP_NOTE_DEF : c.note).replace(/</g, '&lt;')}</textarea></label>
     <label>Teşekkür satırı (10×10 fişte)<br><input id="slThanks" value="${(c.thanks == null ? 'Bizi tercih ettiğiniz için teşekkürler!' : c.thanks).replace(/"/g, '&quot;')}" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:12px"></label>
@@ -3155,7 +3166,7 @@ function slipHtml(o, size) {
       .hd{text-align:center;border-bottom:.3mm solid #000;padding-bottom:.5mm}.br{font-size:10pt;font-weight:900;letter-spacing:.6mm}.ws{font-size:5.5pt}
       .row{display:flex;justify-content:space-between;margin-top:.6mm;font-size:6.5pt}.row b{font-size:8pt}
       .items{flex:1;overflow:hidden;margin-top:.4mm;border-top:.2mm dashed #000;padding-top:.4mm}
-      .pr{margin-top:.2mm;gap:1mm;align-items:baseline}.pn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.pn b{font-size:6.5pt}.pc{white-space:nowrap;font-size:5.8pt;flex-shrink:0}
+      .pr{margin-top:.2mm;gap:1mm;align-items:baseline}.pn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;font-size:5.6pt}.pn b{font-size:6.6pt}.pc{white-space:nowrap;font-size:5.4pt;flex-shrink:0}
       .it{display:flex;justify-content:space-between;gap:1mm}.it .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .tot{display:flex;justify-content:space-between;border-top:.3mm solid #000;padding-top:.3mm;font-weight:900;font-size:7pt}
       .lg{font-size:4.6pt;line-height:1.15;margin-top:.4mm;text-align:center}
