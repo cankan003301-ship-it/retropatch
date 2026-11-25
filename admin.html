@@ -3114,64 +3114,68 @@ function slipSettings() {
       <option value="100x100" ${c.size === '100x100' ? 'selected' : ''}>10 × 10 cm — termal/normal yazıcı</option></select></label>
     <label>Ne zaman yazdırılsın?<br><select id="slWhen" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px">
       <option value="paid" ${c.when === 'paid' ? 'selected' : ''}>Ödeme kesinleşince (kart/kapıda hemen, havale onaylayınca)</option>
-      <option value="new" ${c.when === 'new' ? 'selected' : ''}>Sipariş gelir gelmez (havale ödenmemiş olsa da)</option></select></label>
+      <option value="new" ${c.when === 'new' ? 'selected' : ''}>Sipariş gelir gelmez</option></select></label>
+    <label>Fiş alt notu (yasal bilgi)<br><textarea id="slNote" rows="3" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:12px">${(c.note == null ? SLIP_NOTE_DEF : c.note).replace(/</g, '&lt;')}</textarea></label>
+    <label>Teşekkür satırı (10×10 fişte)<br><input id="slThanks" value="${(c.thanks == null ? 'Bizi tercih ettiğiniz için teşekkürler!' : c.thanks).replace(/"/g, '&quot;')}" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px;font-size:12px"></label>
     <div style="font-size:11px;color:var(--muted2);line-height:1.6">• Otomatik yazdırma <b>bu bilgisayarda admin paneli açıkken</b> çalışır; panel açıldığında eski siparişler yazdırılmaz.<br>
     • Tarayıcı her fişte yazdırma penceresi açar. Pencere açılmadan doğrudan yazdırmak için Chrome'u <code>--kiosk-printing</code> ile başlatın ve fiş yazıcısını varsayılan yapın.<br>
     • Yazıcı ayarında kağıt boyutunu fişle aynı seçin, kenar boşluğu: Yok, ölçek: %100.</div>
-    <div style="display:flex;gap:8px"><button class="btn btn-accent" style="flex:1;justify-content:center" onclick="slipSave({auto:document.getElementById('slAuto').checked,size:document.getElementById('slSize').value,when:document.getElementById('slWhen').value});slipArm();closeModal('ordModal');toast('Fiş ayarı kaydedildi','ok')">Kaydet</button>
-    <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="slipTest(document.getElementById('slSize').value)">Deneme fişi</button></div></div>`;
+    <div style="display:flex;gap:8px"><button class="btn btn-accent" style="flex:1;justify-content:center" onclick="slipSave({auto:document.getElementById('slAuto').checked,size:document.getElementById('slSize').value,when:document.getElementById('slWhen').value,note:document.getElementById('slNote').value.trim(),thanks:document.getElementById('slThanks').value.trim()});slipArm();closeModal('ordModal');toast('Fiş ayarı kaydedildi','ok')">Kaydet</button>
+    <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="const _c=slipCfg();slipSave(Object.assign({},_c,{note:document.getElementById('slNote').value.trim(),thanks:document.getElementById('slThanks').value.trim()}));slipTest(document.getElementById('slSize').value)">Deneme fişi</button></div></div>`;
   document.getElementById('ordDetail').innerHTML = '<div style="font-family:\'Bebas Neue\',cursive;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:12px">🧾 SİPARİŞ BİLGİ FİŞİ</div>' + html;
   openModal('ordModal');
 }
+const SLIP_NOTE_DEF = 'Bu ürün, GVK 9/1-10 kapsamında Esnaf Vergi Muafiyeti Belgesi ile evde üretilmiştir. Satıcı vergiden muaf esnaf olduğundan fatura düzenlenmemektedir.';
 function slipHtml(o, size) {
   const e = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const a = o.address || {}, p = o.payment || {};
-  const name = a.name || o.userName || o.name || '—', phone = a.phone || o.phone || '', city = [a.district, a.city].filter(Boolean).join(' / ');
+  const cfg = slipCfg(), legal = cfg.note == null ? SLIP_NOTE_DEF : cfg.note, thanks = cfg.thanks == null ? 'Bizi tercih ettiğiniz için teşekkürler!' : cfg.thanks;
+  const a = o.address || {};
+  const name = a.name || o.userName || o.name || '—', city = [a.district, a.city].filter(Boolean).join(' / ');
+  const tl = v => '₺' + Number(v || 0).toLocaleString('tr-TR', { maximumFractionDigits: 2 });
   const total = Number(o.total || o.price || 0);
-  const payTxt = p.method === 'havale' ? (p.status === 'paid' ? 'HAVALE · ÖDENDİ' : 'HAVALE · ÖDEME BEKLİYOR') : p.method === 'kapida' ? 'KAPIDA ÖDEME · ₺' + total.toLocaleString('tr-TR') : p.method === 'card' ? 'KART · ÖDENDİ' : '';
-  const items = Array.isArray(o.items) && o.items.length ? o.items.map(i => ({ n: i.name, q: i.qty || 1, d: [i.size, i.backType].filter(Boolean).join(' · ') })) : [{ n: o.type || o.product || 'Nakış Yama', q: o.qty || 1, d: [o.size, o.back].filter(Boolean).join(' · ') }];
-  const qty = items.reduce((t, i) => t + Number(i.q || 0), 0);
-  const date = o.createdAt && o.createdAt.seconds ? new Date(o.createdAt.seconds * 1000).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
-  const cargo = (o.cargo && o.cargo.companyName) || '';
+  const items = Array.isArray(o.items) && o.items.length ? o.items.map(i => ({ n: i.name, q: i.qty || 1, d: [i.size, i.backType].filter(Boolean).join(' · '), p: (Number(i.price) || 0) * (i.qty || 1) })) : [{ n: o.type || o.product || 'Nakış Yama', q: o.qty || 1, d: [o.size, o.back].filter(Boolean).join(' · '), p: 0 }];
+  const date = o.createdAt && o.createdAt.seconds ? new Date(o.createdAt.seconds * 1000).toLocaleDateString('tr-TR') : '';
+  const code = o.orderCode || o.id.slice(-6).toUpperCase();
+  const site = 'retropatch.vercel.app';
   if (size === '50x40') {
-    const list = items.slice(0, 3).map(i => `<div class="it"><b>${e(i.q)}×</b> ${e(i.n)}${i.d ? ' <span>(' + e(i.d) + ')</span>' : ''}</div>`).join('') + (items.length > 3 ? `<div class="it">+${items.length - 3} ürün daha</div>` : '');
-    return `<!doctype html><meta charset="utf-8"><title>Fiş ${e(o.orderCode || '')}</title><style>
+    const list = items.slice(0, 2).map(i => `<div class="it"><span class="n"><b>${e(i.q)}×</b> ${e(i.n)}</span>${i.p ? `<span>${tl(i.p)}</span>` : ''}</div>`).join('') + (items.length > 2 ? `<div class="it"><span class="n">+${items.length - 2} ürün daha</span></div>` : '');
+    return `<!doctype html><meta charset="utf-8"><title>Fiş ${e(code)}</title><style>
       @page{size:50mm 40mm;margin:0}*{box-sizing:border-box}html,body{margin:0;width:50mm;height:40mm;overflow:hidden}
-      body{font-family:Arial,Helvetica,sans-serif;color:#000;padding:1.5mm 2mm;font-size:7.5pt;line-height:1.15;display:flex;flex-direction:column}
-      .top{display:flex;justify-content:space-between;align-items:baseline;border-bottom:.3mm solid #000;padding-bottom:.6mm}
-      .code{font-size:12pt;font-weight:900;letter-spacing:.2mm}.dt{font-size:6pt}
-      .nm{font-weight:700;font-size:8.5pt;margin-top:.8mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .sub{font-size:6.5pt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .items{flex:1;overflow:hidden;margin-top:.6mm;border-top:.2mm dashed #000;padding-top:.5mm}
-      .it{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.it span{font-size:6pt}
-      .bot{display:flex;justify-content:space-between;border-top:.3mm solid #000;padding-top:.5mm;font-size:6.5pt;font-weight:700}
+      body{font-family:Arial,Helvetica,sans-serif;color:#000;padding:1.3mm 2mm;font-size:7pt;line-height:1.15;display:flex;flex-direction:column}
+      .hd{text-align:center;border-bottom:.3mm solid #000;padding-bottom:.5mm}.br{font-size:10pt;font-weight:900;letter-spacing:.6mm}.ws{font-size:5.5pt}
+      .row{display:flex;justify-content:space-between;margin-top:.6mm;font-size:6.5pt}.row b{font-size:8pt}
+      .items{flex:1;overflow:hidden;margin-top:.4mm;border-top:.2mm dashed #000;padding-top:.4mm}
+      .it{display:flex;justify-content:space-between;gap:1mm}.it .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .tot{display:flex;justify-content:space-between;border-top:.3mm solid #000;padding-top:.3mm;font-weight:900;font-size:7.5pt}
+      .lg{font-size:4.6pt;line-height:1.15;margin-top:.4mm;text-align:center}
     </style><body>
-      <div class="top"><span class="code">${e(o.orderCode || o.id.slice(-6).toUpperCase())}</span><span class="dt">${e(date)}</span></div>
-      <div class="nm">${e(name)}</div><div class="sub">${e(phone)}${city ? ' · ' + e(city) : ''}</div>
+      <div class="hd"><div class="br">RETROPATCH</div><div class="ws">${site}</div></div>
+      <div class="row"><b>${e(code)}</b><span>${e(date)}</span></div>
+      <div class="row" style="margin-top:.2mm"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e(name)}</span></div>
       <div class="items">${list}</div>
-      <div class="bot"><span>${e(qty)} adet${cargo ? ' · ' + e(cargo) : ''}</span><span>${e(payTxt)}</span></div></body>`;
+      ${total ? `<div class="tot"><span>TOPLAM</span><span>${tl(total)}</span></div>` : ''}
+      ${legal ? `<div class="lg">${e(legal)}</div>` : ''}</body>`;
   }
-  const addr = [a.address, a.district, a.city].filter(Boolean).join(', ');
-  const list = items.slice(0, 8).map(i => `<tr><td class="q">${e(i.q)}×</td><td>${e(i.n)}${i.d ? '<div class="d">' + e(i.d) + '</div>' : ''}</td></tr>`).join('') + (items.length > 8 ? `<tr><td></td><td>+${items.length - 8} ürün daha</td></tr>` : '');
-  const note = o.note || o.notes || '';
-  return `<!doctype html><meta charset="utf-8"><title>Fiş ${e(o.orderCode || '')}</title><style>
+  const list = items.slice(0, 8).map(i => `<tr><td class="q">${e(i.q)}×</td><td>${e(i.n)}${i.d ? '<div class="d">' + e(i.d) + '</div>' : ''}</td><td class="p">${i.p ? tl(i.p) : ''}</td></tr>`).join('') + (items.length > 8 ? `<tr><td></td><td>+${items.length - 8} ürün daha</td><td></td></tr>` : '');
+  const pd = o.priceDetail || {}, disc = Number(o.discount || 0) + Number(o.havaleDiscount || 0), cargo = Number(o.cargoPrice || 0);
+  return `<!doctype html><meta charset="utf-8"><title>Fiş ${e(code)}</title><style>
     @page{size:100mm 100mm;margin:0}*{box-sizing:border-box}html,body{margin:0;width:100mm;height:100mm;overflow:hidden}
-    body{font-family:Arial,Helvetica,sans-serif;color:#000;padding:4mm;font-size:9pt;line-height:1.3;display:flex;flex-direction:column}
-    .hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:.5mm solid #000;padding-bottom:1.5mm}
-    .brand{font-size:8pt;font-weight:900;letter-spacing:.6mm}.code{font-size:20pt;font-weight:900;line-height:1}.dt{font-size:8pt;text-align:right}
-    .cu{margin-top:2mm}.cu b{font-size:11pt}.ad{font-size:8.5pt}
-    table{width:100%;border-collapse:collapse;margin-top:2mm;border-top:.3mm dashed #000}td{padding:.8mm 0;vertical-align:top;border-bottom:.2mm solid #ccc}
-    td.q{width:11mm;font-weight:900;font-size:10pt}.d{font-size:7.5pt;color:#333}
-    .items{flex:1;overflow:hidden}.note{font-size:8pt;border:.3mm solid #000;padding:1mm 1.5mm;margin-top:1.5mm;max-height:12mm;overflow:hidden}
-    .ft{display:flex;justify-content:space-between;align-items:center;border-top:.5mm solid #000;padding-top:1.5mm;margin-top:1.5mm;font-weight:700;font-size:9pt}
-    .pay{border:.4mm solid #000;padding:.5mm 2mm}.chk{font-size:8pt;margin-top:1.5mm}
+    body{font-family:Arial,Helvetica,sans-serif;color:#000;padding:4.5mm;font-size:9pt;line-height:1.3;display:flex;flex-direction:column}
+    .hd{text-align:center;border-bottom:.5mm solid #000;padding-bottom:1.5mm}.br{font-size:17pt;font-weight:900;letter-spacing:1.2mm}.ws{font-size:8pt}
+    .meta{display:flex;justify-content:space-between;margin-top:2mm;font-size:8.5pt}.meta b{font-size:10.5pt}
+    table{width:100%;border-collapse:collapse;margin-top:1.5mm;border-top:.3mm dashed #000}td{padding:.7mm 0;vertical-align:top;border-bottom:.2mm solid #ccc}
+    td.q{width:9mm;font-weight:900}td.p{text-align:right;white-space:nowrap;padding-left:2mm}.d{font-size:7.5pt;color:#333}
+    .items{flex:1;overflow:hidden}.sum{font-size:8.5pt}.sum div{display:flex;justify-content:space-between}
+    .tot{display:flex;justify-content:space-between;border-top:.5mm solid #000;padding-top:1mm;margin-top:.8mm;font-weight:900;font-size:11pt}
+    .ty{text-align:center;font-weight:700;margin-top:1.8mm;font-size:9pt}.lg{text-align:center;font-size:6.5pt;line-height:1.3;margin-top:1mm;color:#222}
   </style><body>
-    <div class="hd"><div><div class="brand">RETROPATCH · SİPARİŞ FİŞİ</div><div class="code">${e(o.orderCode || o.id.slice(-6).toUpperCase())}</div></div><div class="dt">${e(date)}<br>${e(qty)} adet</div></div>
-    <div class="cu"><b>${e(name)}</b> ${phone ? '· ' + e(phone) : ''}<div class="ad">${e(addr || city || '—')}</div></div>
+    <div class="hd"><div class="br">RETROPATCH</div><div class="ws">${site}</div></div>
+    <div class="meta"><span>Sipariş: <b>${e(code)}</b></span><span>${e(date)}</span></div>
+    <div class="meta" style="margin-top:.5mm"><span>Sayın <b style="font-size:9.5pt">${e(name)}</b></span><span>${e(city)}</span></div>
     <div class="items"><table>${list}</table></div>
-    ${note ? `<div class="note"><b>Not:</b> ${e(note)}</div>` : ''}
-    <div class="ft"><span>${cargo ? 'Kargo: ' + e(cargo) : ''}</span><span class="pay">${e(payTxt)}</span></div>
-    <div class="chk">☐ Üretim &nbsp; ☐ Kalite &nbsp; ☐ Paket &nbsp; ☐ Kargo</div></body>`;
+    ${total ? `<div class="sum">${cargo ? `<div><span>Kargo</span><span>${tl(cargo)}</span></div>` : (pd.freeShip ? '<div><span>Kargo</span><span>Ücretsiz</span></div>' : '')}${disc ? `<div><span>İndirim</span><span>-${tl(disc)}</span></div>` : ''}<div class="tot"><span>TOPLAM</span><span>${tl(total)}</span></div></div>` : ''}
+    ${thanks ? `<div class="ty">${e(thanks)}</div>` : ''}
+    ${legal ? `<div class="lg">${e(legal)}</div>` : ''}</body>`;
 }
 let _slipQ = [], _slipBusy = false;
 function slipPrintHtml(html) {
@@ -3198,8 +3202,8 @@ function _slipNext() {
 function printSlip(id, size) { const o = allOrders.find(x => x.id === id); if (!o) return; slipPrintHtml(slipHtml(o, size || slipCfg().size)); }
 function slipTest(size) {
   slipPrintHtml(slipHtml({ id: 'test', orderCode: 'RP-DENEME', createdAt: { seconds: Date.now() / 1000 }, address: { name: 'Ahmet Yılmaz', phone: '0555 111 22 33', address: 'Atatürk Mah. 1. Sok. No:5', district: 'Ereğli', city: 'Zonguldak' },
-    items: [{ name: 'S.T.A.L.K.E.R Günah patch yama', qty: 2, size: '10x10 cm', backType: 'Cırt Cırt' }, { name: 'Türk Bayrağı Patch', qty: 1, size: '8x5 cm' }],
-    cargo: { companyName: 'DHL eCommerce' }, payment: { method: 'havale', status: 'paid' }, total: 462 }, size));
+    items: [{ name: 'S.T.A.L.K.E.R Günah patch yama', qty: 1, price: 270, size: '10x10 cm', backType: 'Cırt Cırt' }],
+    cargo: { companyName: 'DHL eCommerce' }, cargoPrice: 200, havaleDiscount: 8, total: 462 }, size));
 }
 // Otomatik: panel açıldığında mevcut siparişler "görüldü" sayılır; sonradan gelen / ödemesi kesinleşen yazdırılır
 let _slipSeen = null;
@@ -7401,7 +7405,7 @@ function saveMarquee() {
     <div class="modal-hdr"><h3>&#10024; SÜRÜM NOTLARI</h3><button class="modal-x" onclick="closeModal('changelogModal')">&times;</button></div>
     <div class="modal-body" style="max-height:70vh;overflow:auto;font-size:13px;line-height:1.6;">
       <b style="color:var(--accent)">v3.7 · 25 Kasım 2026</b>
-      <ul style="margin:6px 0 14px 18px"><li>Sipariş Bilgi Fişi: 50×40 mm termal etiket veya 10×10 cm; sipariş detayından tek tıkla yazdır</li><li>Siparişler → "🧾 Fiş" ayarı: her siparişte otomatik yazdır (ödeme kesinleşince veya sipariş gelir gelmez), deneme fişi</li><li>Havale bekleyen siparişte durum "⏳ Ödeme henüz gelmedi"; onay düğmesi "Para hesaba geçtiyse → Ödemeyi onayla" oldu (karışıklık olmasın diye)</li></ul>
+      <ul style="margin:6px 0 14px 18px"><li>Sipariş Bilgi Fişi (müşteriye giden): 50×40 mm termal veya 10×10 cm; ürünler, tutar, teşekkür ve düzenlenebilir yasal alt not; sipariş detayından tek tıkla yazdır</li><li>Siparişler → "🧾 Fiş" ayarı: her siparişte otomatik yazdır (ödeme kesinleşince veya sipariş gelir gelmez), deneme fişi</li><li>Havale bekleyen siparişte durum "⏳ Ödeme henüz gelmedi"; onay düğmesi "Para hesaba geçtiyse → Ödemeyi onayla" oldu (karışıklık olmasın diye)</li></ul>
       <b style="color:var(--accent)">v3.6 · 25 Kasım 2026</b>
       <ul style="margin:6px 0 14px 18px"><li>Havale "Ödeme geldi" yanlışlıkla onaylandıysa: sipariş detayında "↩ Ödeme onayını geri al" (ödeme tekrar "havale bekleniyor", sipariş Yeni'ye döner; kargodaki siparişte kapalı)</li><li>"Ödeme geldi" penceresinde sipariş kodu ve tutar gösterilir</li></ul>
       <b style="color:var(--accent)">v3.5 · 25 Kasım 2026</b>
