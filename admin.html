@@ -3089,17 +3089,15 @@ function printOrder(id) {
   const adres = o.address ? [o.address.address, o.address.district, o.address.city].filter(Boolean).join(', ') : '—';
   const items = (o.items || []).map(i => `<tr><td style="width:90px">${safeUrl(i.image) ? `<img src="${safeUrl(i.image)}" style="width:80px;height:80px;object-fit:contain;border:1px solid #ccc">` : ''}</td><td><b>${e(i.name)}</b><br>${e(i.size || '')} ${i.backType ? '· Arka: ' + e(i.backType) : ''}</td><td style="text-align:center;font-size:20px"><b>${e(i.qty)}</b> adet</td></tr>`).join('');
   const single = !o.items ? `<tr><td colspan="3"><b>${e(o.type || o.product || 'Nakış Yama')}</b><br>Boyut: ${e(o.size || '—')} · Arka yüzey: ${e(o.back || '—')} · Tasarım: ${e(o.designType || '—')} · Adet: <b>${e(o.qty || 1)}</b></td></tr>` : '';
-  const w = window.open('', '_blank'); if (!w) { toast('Açılır pencere engellendi, izin verin', 'err'); return; }
-  w.document.write(`<!doctype html><meta charset="utf-8"><title>Üretim Kağıdı ${e(o.orderCode || '')}</title>
-  <style>body{font-family:Arial,sans-serif;margin:24px;color:#000}h1{font-size:22px;margin:0 0 4px}table{width:100%;border-collapse:collapse;margin:12px 0}td{border-bottom:1px solid #ccc;padding:8px;vertical-align:middle}.k{color:#555;width:130px}.box{border:2px solid #000;padding:10px;min-height:60px}@media print{button{display:none}}</style>
-  <button onclick="print()" style="padding:8px 16px;margin-bottom:12px">Yazdır</button>
+  // Açılır pencere yerine gizli çerçevede yazdır (tarayıcı engellemesin)
+  slipPrintHtml(`<!doctype html><meta charset="utf-8"><title>Üretim Kağıdı ${e(o.orderCode || '')}</title>
+  <style>body{font-family:Arial,sans-serif;margin:24px;color:#000}h1{font-size:22px;margin:0 0 4px}table{width:100%;border-collapse:collapse;margin:12px 0}td{border-bottom:1px solid #ccc;padding:8px;vertical-align:middle}.k{color:#555;width:130px}.box{border:2px solid #000;padding:10px;min-height:60px}@page{size:A4;margin:12mm}@media print{button{display:none}}</style>
   <h1>ÜRETİM KAĞIDI · ${e(o.orderCode || o.id)}</h1><div>${e(formatDate(o.createdAt))}</div>
   <table><tr><td class="k">Müşteri</td><td>${e(ad)}</td></tr><tr><td class="k">Telefon</td><td>${e(tel)}</td></tr><tr><td class="k">Adres</td><td>${e(adres)}</td></tr><tr><td class="k">Kargo</td><td>${e(o.cargo?.companyName || '—')}</td></tr></table>
   <h3>ÜRETİLECEKLER</h3><table>${items}${single}</table>
   ${safeUrl(o.designFileUrl) ? `<div>Tasarım dosyası: <a href="${safeUrl(o.designFileUrl)}">${safeUrl(o.designFileUrl)}</a></div>` : ''}
   <h3>NOTLAR</h3><div class="box">${e(o.note || o.notes || '')}</div>
   <p style="margin-top:20px">Üretim: ☐ Başladı &nbsp; ☐ Bitti &nbsp; ☐ Paketlendi &nbsp; ☐ Kargolandı</p>`);
-  w.document.close();
 }
 
 // ============ SİPARİŞ BİLGİ FİŞİ (termal 50×40 mm / 10×10 cm) ============
@@ -3186,10 +3184,16 @@ function _slipNext() {
   f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
   document.body.appendChild(f);
   const d = f.contentWindow.document; d.open(); d.write(html); d.close();
-  setTimeout(() => {
-    try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { toast('Fiş yazdırılamadı: ' + e.message, 'err'); }
+  const go = () => {
+    try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { toast('Yazdırılamadı: ' + e.message, 'err'); }
     setTimeout(() => { f.remove(); _slipNext(); }, 1500);
-  }, 350);
+  };
+  // Görseller yüklensin (en fazla 4 sn), sonra yazdır
+  const imgs = [...d.images].filter(i => !i.complete);
+  if (!imgs.length) return setTimeout(go, 350);
+  let left = imgs.length, done = false; const fin = () => { if (!done) { done = true; setTimeout(go, 200); } };
+  imgs.forEach(i => { i.onload = i.onerror = () => { if (--left <= 0) fin(); }; });
+  setTimeout(fin, 4000);
 }
 function printSlip(id, size) { const o = allOrders.find(x => x.id === id); if (!o) return; slipPrintHtml(slipHtml(o, size || slipCfg().size)); }
 function slipTest(size) {
