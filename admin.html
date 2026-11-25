@@ -3268,9 +3268,8 @@ async function dhlCopy(id) {
   if (!d.city || !d.address) { toast('Siparişte adres eksik', 'err'); return; }
   try { await navigator.clipboard.writeText(JSON.stringify(d)); }
   catch (e) { prompt('Kopyalanamadı. Bu metni seçip kopyalayın (Ctrl+C):', JSON.stringify(d)); }
-  toast('📦 Kopyalandı. DHL gönderi sayfasında "RetroPatch → DHL" yer imine tıklayın', 'ok');
-  const l = document.createElement('a'); l.href = 'https://bireysel.dhlecommerce.com.tr/musteri/bireysel-gonderi'; l.target = 'rpdhl'; l.rel = 'noopener';
-  document.body.appendChild(l); l.click(); l.remove();
+  // Yeni sekme açılmaz: DHL girişi açık olan sekmede devam edilir (yeni sekmede oturum görünmeyebiliyor)
+  toast('📦 ' + d.code + ' kopyalandı. Giriş yaptığınız DHL sekmesine geçip "RetroPatch → DHL" yer imine tıklayın', 'ok');
 }
 function dhlHelp() {
   document.getElementById('ordDetail').innerHTML = `<div style="font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:12px">📦 DHL GÖNDERİ FORMU DOLDURMA</div>
@@ -3278,8 +3277,8 @@ function dhlHelp() {
     <b>Bir kerelik kurulum:</b> Bu bağlantıyı <b>tıklamadan</b> tarayıcının yer imleri çubuğuna sürükleyin →
     <a id="dhlBm" href="#" style="color:#000;background:#ffcc00;font-weight:700;padding:3px 10px;text-decoration:none;border:2px solid #d40511" onclick="toast('Tıklamayın; yer imleri çubuğuna sürükleyin (çubuk görünmüyorsa Ctrl+Shift+B)','err');return false">RetroPatch → DHL</a><br><br>
     <b>Her siparişte:</b><br>
-    1. Sipariş detayında <b>📦 DHL için kopyala</b> → DHL müşteri panelinde <b>Yurtiçi Gönderi</b> sayfası açılır (giriş yapılı olsun).<br>
-    2. Yer imleri çubuğundaki <b>RetroPatch → DHL</b>'ye tıklayın → <b>Yeni Alıcı Ekle</b> penceresi açılır; ad, soyad, cep telefonu, il, ilçe, mahalle (bulursa), sokak (bulursa), kapı no ve adres tarifi dolar. Sol altta neyin dolduğu yazar.<br>
+    1. Sipariş detayında <b>📦 DHL için kopyala</b>'ya basın (yeni sekme açılmaz).<br>
+    2. <b>Giriş yaptığınız DHL sekmesine</b> geçin ve yer imleri çubuğundaki <b>RetroPatch → DHL</b>'ye tıklayın. Gönderi sayfasında değilseniz önce oraya götürür; sayfa açılınca yer imine bir kez daha tıklayın → <b>Yeni Alıcı Ekle</b> penceresi açılır; ad, soyad, cep telefonu, il, ilçe, mahalle (bulursa), sokak (bulursa), kapı no ve adres tarifi dolar. Sol altta neyin dolduğu yazar.<br>
     3. Otomatik seçilir: <b>S</b> paket, <b>Tekstil ve Giyim</b>, <b>Şubeye Ben Getireceğim</b>, <b>Adrese Teslim</b>. Alıcı adres defterinizde kayıtlıysa doğrudan seçilir.<br>
     4. Yeni alıcıysa bilgileri kontrol edip pencerede <b>Kaydet</b>'e basın; hizmet tipi kaydettikten sonra işaretlenir.<br>
     5. Ücreti kontrol edip ödemeyi siz yaparsınız. Gönderici adresiniz kayıtlı olan seçili kalır.<br>
