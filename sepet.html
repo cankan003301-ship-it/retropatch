@@ -1464,6 +1464,7 @@ async function doCheckout() {
   const batch = db.batch();
   let orderCode = null, orderData = null, digCode = null;
 
+  const _rpWrites = [];
   const havPayer = (selectedPay === 'havale' || (D.length && !isCard)) ? ((document.getElementById('havPayer') || {}).value || '').trim().replace(/\s+/g, ' ').slice(0, 60) : '';
   if (P.length) {
     const orderRef = db.collection('orders').doc();
@@ -1490,11 +1491,12 @@ async function doCheckout() {
       consent: { contract: true, legalRead: true, version: '2026-11', at: firebase.firestore.FieldValue.serverTimestamp() },
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    batch.set(orderRef, orderData);
+    batch.set(orderRef, orderData); _rpWrites.push([orderRef, orderData]);
   }
   if (D.length) {
     digCode = genDigitalCode();
-    batch.set(db.collection('digital_orders').doc(), {
+    const _dgRef = db.collection('digital_orders').doc(); _rpWrites.push([_dgRef, null]);
+    batch.set(_dgRef, _rpWrites[_rpWrites.length - 1][1] = {
       code: digCode, userId: currentUser.uid, email: currentUser.email||'', name: currentUser.displayName||'',
       items: digOut, total: digTotal, status: 'bekliyor',
       ...(digHav ? { havaleDiscount: digHav, havalePct: HAVALE_PCT } : {}),
@@ -1506,7 +1508,15 @@ async function doCheckout() {
   }
 
   try { await batch.commit(); }
-  catch (e) { return fail('Sipariş kaydedilemedi: ' + e.message); }
+  catch (e) {
+    // Güvenlik kuralı yeni "ödeyen adı" alanını kabul etmezse alan olmadan tekrar dene
+    if (!havPayer) return fail('Sipariş kaydedilemedi: ' + e.message);
+    try {
+      const b2 = db.batch();
+      _rpWrites.forEach(([ref, d]) => { if (d.payment) delete d.payment.payerName; delete d.payerName; b2.set(ref, d); });
+      await b2.commit();
+    } catch (e2) { return fail('Sipariş kaydedilemedi: ' + e2.message); }
+  }
 
   // Kart: sepet ödeme tamamlanana kadar korunur; ödeme ekranı açılır
   if (isCard) { btn.textContent = 'ÖDEME EKRANI AÇILIYOR...'; return startCardPayment(payGroup, btn); }
