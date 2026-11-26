@@ -89,6 +89,8 @@ h+='<table class="pt"><tr><th>TASARIM</th><th>EK ÜCRET</th></tr>'+d.designs.map
 h+='<table class="pt"><tr><th>ADET</th><th>İNDİRİM</th></tr>'+d.discounts.slice().sort(function(a,b){return a.minQty-b.minQty}).map(function(x){return '<tr><td>'+x.minQty+'+ adet</td><td class="p">%'+x.pct+'</td></tr>'}).join('')+'</table>';
 return h};</script><footer><div class="g"><a href="rehber.html"><b>Rehber</b></a> <a href="ozel-nakis-arma.html">Özel Nakış Arma</a> <a href="kisiye-ozel-yama.html">Kişiye Özel Yama</a> <a href="logolu-arma.html">Logolu Arma</a> <a href="cirtli-arma.html">Cırtlı Arma</a> <a href="utuyle-yapisan-arma.html">Ütüyle Yapışan Arma</a> <a href="nakis-arma-fiyatlari.html">Nakış Arma Fiyatları</a> <a href="toplu-arma-uretimi.html">Toplu Arma Üretimi</a> <a href="nakis-yama-nasil-yapilir.html">Nakış Yama Nasıl Yapılır?</a></div><div>© RetroPatch · Profesyonel makine nakışı · Türkiye geneli kargo</div></footer>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="cart-scope.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="rehber.js" defer></script>
 <script src="duyuru.js"></script>
