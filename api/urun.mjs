@@ -65,7 +65,10 @@ export default async function handler(req, res) {
     .sort((a, b) => (b.sales || 0) - (a.sales || 0))
     .slice(0, 8);
 
-  const ld = [{
+  // Google "Ürün snippet'leri": Product için offers (fiyat) ZORUNLU. Fiyatı olmayan ürünlerde
+  // Product şeması hiç yazılmaz (kritik hata verir); yalnızca BreadcrumbList kalır.
+  const priceValidUntil = new Date(Date.now() + 365 * 864e5).toISOString().slice(0, 10);
+  const productLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: p.name,
@@ -75,16 +78,18 @@ export default async function handler(req, res) {
     category: p.cat || undefined,
     brand: { '@type': 'Brand', name: 'RetroPatch' },
     url,
-    offers: price ? {
+    offers: {
       '@type': 'Offer',
       url,
       price: price.toFixed(2),
       priceCurrency: 'TRY',
+      priceValidUntil,
       availability: AVAIL[status] || 'https://schema.org/InStock',
       itemCondition: 'https://schema.org/NewCondition',
       seller: { '@type': 'Organization', name: 'RetroPatch' },
-    } : undefined,
-  }, {
+    },
+  };
+  const ld = [...(price > 0 ? [productLd] : []), {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
