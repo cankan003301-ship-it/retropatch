@@ -14,6 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="cart-scope.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
     :root{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:#2a2a2a;--accent:#c8a96e;--accent2:#e63946;--text:#e8e8e8;--muted:#888;--card:#141414;--green:#2ecc71;}
@@ -840,14 +841,13 @@ let appliedCoupon = '';
 let appliedCouponData = null;
 let autoCamps = [];
 
-// Sepeti hemen yükle - auth beklemeden
-loadCart();
 loadKargoSettings();
 
 auth.onAuthStateChanged(user => {
   currentUser = user;
   document.getElementById('navHesap').textContent = user ? '👤 Hesabım' : 'Giriş Yap';
   document.getElementById('navHesap').href = user ? 'hesap.html' : 'uye.html';
+  loadCart();
   if (user) prefillAddress(user);
 });
 
@@ -946,13 +946,15 @@ function loadInstallments() {
 }
 
 function loadCart() {
+  _rpPriceChecked = false;
+  const cartOwnerId = currentUser && currentUser.uid || null;
   cart = JSON.parse(localStorage.getItem('retropatch_cart') || '[]');
   renderCart();
-  rpRefreshPrices();
+  rpRefreshPrices(cartOwnerId);
 }
 // Sepetteki ürün fiyatlarını güncel fiyatla eşitle (kampanya bitince/başlayınca eski fiyat kalmasın)
 var _rpPriceChecked = false;
-async function rpRefreshPrices() {
+async function rpRefreshPrices(cartOwnerId) {
   if (_rpPriceChecked) return; _rpPriceChecked = true;
   const phys = cart.filter(i => i.id && !i.digital && !i.isDigital && i.type !== 'digital');
   if (!phys.length) return;
@@ -974,6 +976,8 @@ async function rpRefreshPrices() {
       if (Number(i.price) !== np) { i.price = np; i.basePrice = base; i.backExtra = extra; changed++; }
     });
     if (changed) {
+      const activeOwnerId = currentUser && currentUser.uid || null;
+      if (activeOwnerId !== cartOwnerId) return;
       localStorage.setItem('retropatch_cart', JSON.stringify(cart));
       renderCart();
       if (typeof showToast === 'function') showToast('Sepetinizdeki ' + changed + ' ürünün fiyatı güncellendi');
