@@ -307,6 +307,12 @@ auth.onAuthStateChanged(user => {
   }
 });
 
+auth.getRedirectResult().catch(e => {
+  if (e && e.code !== 'auth/no-auth-event') {
+    toast('Google giriş hatası: ' + e.message, true);
+  }
+});
+
 function switchTab(tab) {
   document.getElementById('tabLogin').classList.toggle('active', tab==='login');
   document.getElementById('tabRegister').classList.toggle('active', tab==='register');
@@ -378,6 +384,16 @@ function doRegister() {
 
 function doGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+    (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+
+  if (isMobile) {
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(() => auth.signInWithRedirect(provider))
+      .catch(e => toast('Google giriş hatası: ' + e.message, true));
+    return;
+  }
+
   auth.signInWithPopup(provider)
     .then(cred => {
       const user = cred.user;
@@ -391,7 +407,6 @@ function doGoogle() {
     })
     .catch(e => toast('Google giriş hatası: ' + e.message, true));
 }
-
 function doForgot() {
   const email = document.getElementById('loginEmail').value.trim();
   if (!email) { showErr('loginErr', 'Şifre sıfırlamak için e-posta girin.'); return; }
